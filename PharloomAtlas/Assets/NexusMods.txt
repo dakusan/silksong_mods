@@ -1,0 +1,144 @@
+[center][img]https://www.castledragmire.com/silksong/DecorTop.png[/img][/center]
+[center][img]https://www.castledragmire.com/silksong/PrayingSmall.png[/img]&nbsp;&nbsp;&nbsp;[img]https://www.castledragmire.com/silksong/PharloomAtlasTitle.jpg[/img]&nbsp;&nbsp;&nbsp;[img]https://www.castledragmire.com/silksong/HoldingMapSmall.png[/img][/center]
+[center][i]The ultimate Silksong map overhaul — feature-packed, customizable, and crafted for completionists.[/i][/center]
+
+[center][size=4]📜 [b]Explore. Track. Master Pharloom.[/b][/size][/center]
+[center][img]https://www.castledragmire.com/silksong/DecorBottom.png[/img][/center]
+
+[size=5][u][b]Features at a Glance[/b][/u][/size]
+[list]
+[*]Everything is optional — toggle features to suit your playstyle.
+Enabled by default: [i]Sidebar &amp; map icons[/i] + [i]Highlight Hornet marker[/i]
+[*]Full support for 🎮 controllers, ⌨️ customizable keyboard keys, and 🖱️ mouse.
+[size=1](Search window does not support controller.)[/size]
+[*][b]Icons, Markers &amp; Pins[/b][list]
+[*][b][img=middle]https://www.castledragmire.com/silksong/BenchSmall.png[/img] Icons[/b][list]
+[*]All notable location data imported from [url=https://mapgenie.io/hollow-knight-silksong/maps/pharloom]MapGenie.io[/url] and displayed on the in-game map.
+[*]Progress tracking — found icons automatically become invisible.
+[*]Icon categories and category groups can be toggled through 3 states:
+    Show all (found markers appear translucent/greyed) • Show incomplete • Hide all
+[*]Detailed info with images for each icon on sidebar.
+[*][img=middle]https://www.castledragmire.com/silksong/RingSmall.png[/img] [b]Search window[/b]: Find icons by name or description.
+[*][b]Saved Values Window[/b]: Watch live save data updates and link discoveries for crowdsourcing final data files.
+[/list]
+[*][img=middle]https://www.castledragmire.com/silksong/CompassIconSmall.png?v=2[/img] [b]Hornet Pin[/b][list]
+[*]Always show Hornet’s pin — compass not required.
+[*]Choose from 5 animations to highlight Hornet for better visibility.
+[*]Recenter the map on your character instantly.
+[/list]
+[*][img=middle]https://www.castledragmire.com/silksong/SmallMarker.png[/img] [b]Markers[/b][list]
+[*][img=middle]https://www.castledragmire.com/silksong/LabelIcon.png?v=3[/img]️ [b]Marker Labels[/b]: Add labels so as to never forget what a marker means.
+[*]More markers: Gives 99 of every marker type.
+[*]Marker mode always available, even without owning any markers.
+[/list]
+[*][b]Set Icon Size[/b]: Adjust icon, pin, and marker size (consistent size across zooms by default).
+[/list]
+[*][img=middle]https://www.castledragmire.com/silksong/MapSmall.png[/img] [b]Map Features[/b][list]
+[*][b]Auto Map[/b]: Automatically fills in areas once you have their map — no benches or quill required.
+[*][b]Unlock Map Options[/b][list]
+[*]Unlock [i]The Moss Grotto[/i] map (the beginning area) for early inventory map access.
+[*]Unlock all maps.
+[*]Unlock all markers.
+[*][spoiler]Reveal the Abyss map.[/spoiler]
+[/list]
+[*][img=middle]https://www.castledragmire.com/silksong/HornetDashAttackSmall.png[/img] “Infinite” zooming in/out, with configurable speed, around: The screen center, markers, icons, marker cursor, and mouse cursor.
+[*]Tunable panning speeds for both normal and marker modes, with unlocked borders for full freedom.
+[*]Stops map position from jumping around when switching between marker modes.
+[*][i]Note:[/i] The “wide” (general-area view) map is not supported.
+[/list]
+[*][b]Other Features[/b][list]
+[*][img=middle]https://www.castledragmire.com/silksong/PaintSmall.png[/img] Interface color customization.
+[*][img=middle]https://www.castledragmire.com/silksong/DeathCacoonSmall.png[/img] Per-user-saveslot configs with automatic backups (required for marker labels).
+[/list]
+[/list]
+[size=5][u][img=middle]https://www.castledragmire.com/silksong/KeysSmall.png[/img]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[b]Installation[/b]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/KeysSmallRev.png[/img][/u][/size]
+[list=1]
+[*]Install [url=https://www.nexusmods.com/hollowknightsilksong/mods/26]BepInEx[/url].
+[*]Extract this mod’s zip into:
+[b]Hollow Knight Silksong/BepInEx/plugins/[/b]
+[*]You should now have (for example):
+[b]Hollow Knight Silksong/BepInEx/plugins/dakusan/SilkDev.dll[/b]
+[*]If you use my other mods — [url=https://www.nexusmods.com/hollowknightsilksong/mods/510]Plugin Developer Tools[/url], [url=https://www.nexusmods.com/hollowknightsilksong/mods/478]NoClip[/url] — move them into the same [b]dakusan[/b] folder.
+[*]Run the game and enjoy your upgraded map!
+[/list]
+[size=3][u][b]Plugin Notes[/b][/u][/size]
+[list]
+[*]Open the config window with [b]F1[/b].
+💡 Tip: disable advanced + shortcut configs to declutter.
+[*]All plugin files now live neatly under the [b]dakusan[/b] directory.
+[/list]
+[size=5][u][img=middle]https://www.castledragmire.com/silksong/MaskSmallRev.png[/img]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[b]Roadmap & Community Goals[/b]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/MaskSmall.png[/img][/u][/size]
+At [b]50 endorsements[/b], this mod goes [b]open-source on GitHub[/b]!
+Every additional 50 unlocks a new [url=https://TEMPLINK.com]community-voted feature[/url] [Coming soon].
+
+[size=3][i]Planned poll options (suggest more anytime!):[/i][/size][list]
+[*]Mini-map overlay
+[*]Traveled-path / trace recording (like “Hero’s Path Mode” from Zelda: BotW), with persistent history
+[*]Icons on the quick-map
+[*]“Best route” guidance to any icon
+[*]Hollow Knight backport
+[*]NPC tracking
+[*]Hide icons until an area is mapped
+[*]Hide icons until accessible (crowdsourced logic)
+[*]Textured map (Google Maps terrain-style)
+[*]Teleport to benches
+[*]Parse MapGenie.io descriptions for clickable links
+[*]Misc non-map features (suggestions welcome!) [I know this game’s codebase pretty intricately at this point.]
+[/list]
+[size=5][u][img=middle]https://www.castledragmire.com/silksong/SilkSpoolSmallRev.png[/img]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[b]Help Improve the Atlas[/b]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/SilkSpoolSmall.png[/img][/u][/size]
+Many markers remain unlinked — and you can help! See the [b]Saved Values Window[/b] section below for details.
+[img]https://www.castledragmire.com/silksong/MissingMarkers.jpg[/img] [Image coming soon]
+Icon categorization also needs refinement. A first pass is complete, but more cleanup is welcome.
+
+Current sorely lacking icon set:
+[img]https://www.castledragmire.com/silksong/IconsSmall.png[/img]
+
+To contribute:[list]
+[*]Download and edit [url=https://www.castledragmire.com/silksong/Icons.png]Icons.png[/url] → place in `BepInEx/plugins/dakusan/`
+[*]See [url=https://www.castledragmire.com/silksong/categories.json]categories.json[/url] for icon mapping numbers.
+[*]Ideally, we’d remove the circular icon format entirely. I’ll also probably need to add bounding shapes for the icons.
+[/list]
+
+[size=5][u][img=middle]https://www.castledragmire.com/silksong/RunAnimation.webp?v=1[/img]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[b]Input &amp; Controls[/b]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/RunAnimationRev.webp?v=1[/img][/u][/size]
+[img]https://www.castledragmire.com/silksong/KeyMappingsSmall.png[/img]
+All interfaces support 🎮 controller, ⌨️ keyboard, and 🖱️ mouse for every feature.
+[size=1](Search window does not support controller input.)[/size]
+All keyboard bindings are customizable in the config.
+
+[b]Map Mouse Controls:[/b][list]
+[*]Scroll wheel — Zoom in/out
+[*]Left-click drag — Pan the map
+[*]Left-click icon — Show info on sidebar
+[*]Hover over icon — Show title on sidebar
+[*]Left-click marker or its label — Add/edit label (deleted markers retain labels until save reload). [size=1]The marker has to be in the exact correct position to restore the label.[/size]
+[*]Right-click — Add/delete marker
+[i]Note:[/i] Marker placement can be finicky near clustered icons — Team Cherry’s original marker auto-selection logic wasn’t built for mouse use.
+[/list]
+Via config you can:[list]
+[*]Auto-enable mouse when sidebar or Saved Values windows are open
+[*]Toggle mouse manually via the included SilkDev plugin (default: [b]F10[/b])
+[/list]
+[size=5][u][img=middle]https://www.castledragmire.com/silksong/MusicBoxSmallRev.png[/img]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[b]Saved Values Window[/b]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/MusicBoxSmall.png[/img][/u][/size]
+
+[img]https://www.castledragmire.com/silksong/SavedValuesWindow.png[/img]
+Use “Show Linked” on the sidebar to view markers not yet associated with save data.
+[img]https://www.castledragmire.com/silksong/ValuesWindowOptions.png[/img]
+
+To link markers and values:[list]
+[*] Select a marker (green highlight) and a value in the Saved Values window.
+[*]Click [b]Save[/b] or [b]Save+Send[/b]:[list]
+[*][b]Save[/b] → Local JSON
+[*][b]Send[/b] → Uploads data to me for crowdsourcing
+[/list][/list]
+This will also improve icon alignment (MapGenie coordinates aren’t always precise).
+If this goes well, I’ll automate for in-game JSON downloads — but there will [b]never[/b] be auto-updates or external calls without consent.
+
+This is the only window that persists without the map open.
+🎮 Controller fully supported here too.
+Some values are hard to identify — e.g., some benches are hidden behind “*Remasker*” flags.
+
+
+[size=5][u][img=middle]https://www.castledragmire.com/silksong/FireSmall.png[/img]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[b]Bonus Rant[/b]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/FireSmallRev.png[/img][/u][/size]
+Nexus re-encoded my GIFs into WebP and butchered the quality 😅
+Here’s the original, as intended:
+[img]https://www.castledragmire.com/silksong/SilksongAnimations.gif[/img]

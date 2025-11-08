@@ -1,0 +1,300 @@
+{
+	"Points of Interest": {
+		"13525": {
+			"Order": 1,
+			"IconID": 38,
+			"Title": "Plasmium Cocoon",
+			"Template": "Available in [ACT 3](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479260)"
+		},
+		"13527": {
+			"Order": 0,
+			"IconID": 34,
+			"Title": "NPC"
+		},
+		"13528": {
+			"Order": 2,
+			"IconID": 39,
+			"Title": "Point of Interest"
+		},
+		"13529": {
+			"Order": 3,
+			"IconID": 71,
+			"Title": "Void Mass",
+			"Info": "Void Masses appear all over the map in [Act 3](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479260) as part of the [Dark Hearts](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479448) wish."
+		}
+	},
+	"Locations": {
+		"13533": {
+			"Order": 1,
+			"IconID": 6,
+			"Title": "Bench",
+			"Template": "**Required:** Pay ?? Rosary toll"
+		},
+		"13534": {
+			"Order": 2,
+			"IconID": 66,
+			"Title": "Vendor"
+		},
+		"13535": {
+			"Order": 0,
+			"IconID": 5,
+			"Title": "Bellway Station",
+			"Template": "**Required:** Pay ?? Rosary toll"
+		},
+		"13539": {
+			"Order": 3,
+			"IconID": 63,
+			"Title": "Ventrica Station",
+			"Template": "**Required:** Pay ?? Rosary toll"
+		}
+	},
+	"Collectibles": {
+		"13544": {
+			"Order": 3,
+			"IconID": 26,
+			"Title": "Lost Flea",
+			"Template": "**Required:** ??",
+			"Info": "Find **Lost Fleas** and collect rewards from the [Fleamaster Mooshka](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477856)"
+		},
+		"13545": {
+			"Order": 4,
+			"IconID": 27,
+			"Title": "Mask Shard",
+			"Template": "**Required:** ??",
+			"Info": "Collect four to add a permanent health Mask"
+		},
+		"13548": {
+			"Order": 10,
+			"IconID": 28,
+			"Title": "Spool Fragment",
+			"Template": "**Required:** ??",
+			"Info": "Collect two to gain an extra Spool"
+		},
+		"13550": {
+			"Order": 9,
+			"IconID": 46,
+			"Title": "Silk Heart"
+		},
+		"13551": {
+			"Order": 2,
+			"IconID": 30,
+			"Title": "Choral Commandment",
+			"Info": "Can be sold to [Relic Seeker Scrounge](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478209) for 90 Rosaries"
+		},
+		"13552": {
+			"Order": 6,
+			"IconID": 56,
+			"Title": "Memory Locket",
+			"Template": "**Required:** ??",
+			"Info": "Memory Lockets are used to add new Tool slots to your Crests."
+		},
+		"13580": {
+			"Order": 11,
+			"IconID": 10,
+			"Title": "Weaver Effigy",
+			"Info": "Can be sold to [Relic Seeker Scrounge](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478209) for 240 Rosaries"
+		},
+		"13581": {
+			"Order": 1,
+			"IconID": 7,
+			"Title": "Bone Scroll",
+			"Info": "Can be sold to [Relic Seeker Scrounge](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478209) for 50 Rosaries"
+		},
+		"13592": {
+			"Order": 8,
+			"IconID": 51,
+			"Title": "Rune Harp",
+			"Info": "Can be sold to [Relic Seeker Scrounge](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478209) for 110 Rosaries"
+		},
+		"13593": {
+			"Order": 0,
+			"IconID": 2,
+			"Title": "Arcane Egg",
+			"Info": "Can be sold to [Relic Seeker Scrounge](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478209) for 250 Rosaries"
+		},
+		"13594": {
+			"Order": 7,
+			"IconID": 44,
+			"Title": "Psalm Cylinder",
+			"Info": "Can be given to [Vaultkeeper Cardinius](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478640) for Melodies and 100 - 200 Rosaries"
+		},
+		"13595": {
+			"Order": 5,
+			"IconID": 32,
+			"Title": "Memento",
+			"Template": "**Required:** ??",
+			"Info": "Decorative mementos that are displayed at [Bellhome](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479175)"
+		}
+	},
+	"Items": {
+		"13547": {
+			"Order": 4,
+			"IconID": 53,
+			"Title": "Shard Bundle",
+			"Template": "**Required:** ??",
+			"Info": "Contains 80 - 220 Shell Shards. Break it open in your inventory."
+		},
+		"13554": {
+			"Order": 2,
+			"IconID": 48,
+			"Title": "Rosary",
+			"Template": "**Required:** ??"
+		},
+		"13559": {
+			"Order": 3,
+			"IconID": 49,
+			"Title": "Rosary String",
+			"Template": "**Required:** ??",
+			"Info": "Contains 30 - 340 Rosaries. Break it open in your inventory."
+		},
+		"13560": {
+			"Order": 5,
+			"IconID": 47,
+			"Title": "Shell Shards",
+			"Template": "**Required:** ??"
+		},
+		"13561": {
+			"Order": 1,
+			"IconID": 11,
+			"Title": "Craftmetal",
+			"Template": "**Required:** ??"
+		},
+		"13563": {
+			"Order": 6,
+			"IconID": 43,
+			"Title": "Silkeater",
+			"Info": "Consume to retrieve lost valuables after death"
+		},
+		"13585": {
+			"Order": 0,
+			"IconID": 36,
+			"Title": "Area Map"
+		}
+	},
+	"Equipment": {
+		"13549": {
+			"Order": 1,
+			"IconID": 12,
+			"Title": "Crest",
+			"Template": "**Required:** ??\n\n**Slots:**\n- ?? Red\n- ?? Blue\n- ?? Yellow"
+		},
+		"13567": {
+			"Order": 3,
+			"IconID": 62,
+			"Title": "Tool",
+			"Template": "**Required:** ??\n\n**Effect:** ??",
+			"Info": "_Collect all tools to unlock the Arsenal achievement._"
+		},
+		"13568": {
+			"Order": 2,
+			"IconID": 65,
+			"Title": "Silk Skill",
+			"Template": "**Effect:** ??"
+		},
+		"13569": {
+			"Order": 0,
+			"IconID": 0,
+			"Title": "Ability"
+		},
+		"13570": {
+			"Order": 4,
+			"IconID": 57,
+			"Title": "Upgrade"
+		},
+		"13575": {
+			"Order": 5,
+			"IconID": 62,
+			"Title": "Kit/Pouch Update"
+		}
+	},
+	"Enemies": {
+		"13523": {
+			"Order": 0,
+			"IconID": 3,
+			"Title": "Arena Battle",
+			"Template": "**Enemies:**\n- ??"
+		},
+		"13579": {
+			"Order": 2,
+			"IconID": 18,
+			"Title": "Journal Entry",
+			"Template": "Defeat ?? to complete the hunter's notes.",
+			"Info": "Begin the [Bugs of Pharloom](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478042) wish to unlock the [Hunter's Journal](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478043)."
+		},
+		"13587": {
+			"Order": 1,
+			"IconID": 8,
+			"Title": "Boss",
+			"Template": "**Reward:**\n- ??"
+		}
+	},
+	"Quests": {
+		"13588": {
+			"Order": 0,
+			"IconID": 52,
+			"Title": "Objective",
+			"Template": "**Previous Objective:** ??  \n**Next Objective:** ??"
+		},
+		"13589": {
+			"Order": 2,
+			"IconID": 72,
+			"Title": "Wish",
+			"Template": "**Reward:**\n- ??"
+		},
+		"13590": {
+			"Order": 1,
+			"IconID": 45,
+			"Title": "Quest Item"
+		}
+	},
+	"Other": {
+		"13571": {
+			"Order": 6,
+			"IconID": 31,
+			"Title": "Miscellaneous",
+			"Template": "**Required:** ??"
+		},
+		"13572": {
+			"Order": 2,
+			"IconID": 14,
+			"Title": "Easter Egg"
+		},
+		"13573": {
+			"Order": 5,
+			"IconID": 25,
+			"Title": "Lore"
+		},
+		"13574": {
+			"Order": 0,
+			"IconID": 1,
+			"Title": "Achievement"
+		},
+		"13576": {
+			"Order": 3,
+			"IconID": 19,
+			"Title": "Lever"
+		},
+		"13577": {
+			"Order": 8,
+			"IconID": 55,
+			"Title": "Shortcut"
+		},
+		"13582": {
+			"Order": 4,
+			"IconID": 24,
+			"Title": "Locked Door",
+			"Template": "**Required:** ??"
+		},
+		"13583": {
+			"Order": 7,
+			"IconID": 33,
+			"Title": "Needolin Door",
+			"Info": "[Needolin](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478199) Silk Skill required"
+		},
+		"13584": {
+			"Order": 1,
+			"IconID": 9,
+			"Title": "Breakable Surface"
+		}
+	}
+}

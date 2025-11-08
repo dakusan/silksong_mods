@@ -1,0 +1,24 @@
+{
+  "IgnorePlayerNamedValues": [
+    "atBench",
+    "currentArea",
+    "currentInvPane",
+    "disablePause",
+    "FisherWalkerDirection",
+    "HasSeenShellShards",
+    "health",
+    "HeroCorpseScene",
+    "infiniteAirJump",
+    "isInvincible",
+    "LastSetFieldName",
+    "prevHealth",
+    "previousDarkness",
+    "ShellShards",
+    "silk",
+    "hasQuill"
+  ],
+  "MatchedMarkers": {
+    "476905": "Tut_01.Shell Shard Fossil Large Uni",
+    "479069": "Tut_02.moss_berry_fruit"
+  }
+}

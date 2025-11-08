@@ -1,0 +1,72 @@
+<title>General notes:</title>
+* Configs are saved per-user-saveslot with backups.
+* Features disabled by default (press <b>F1</b> for config): Auto map, Unlock map, More markers, and Force compass display
+
+<title>Input Devices:</title>
+* Fully supports <b>keyboard</b>, <b>mouse</b>, and <b>controller</b>. <size=15>(except <b>search window</b>: mouse/keyboard only)</size>.
+* <configs><conf>Show mouse with sidebar/search</conf></configs>
+
+<title>Map Features</title>
+* Excludes fully zoomed-out area-name (wide) view.
+* Auto-unlock mapped areas (without bench) <config>Auto map</config>.
+* Early map access <config>Unlock map</config>.
+
+<subtitle>Icons:</subtitle>
+* Shows all notable locations as icons. Toggle visibility via Sidebar categories.
+* <configs><conf>Icon/Marker size</conf>, <conf>Icon/Marker size scales with zoom</conf></configs>
+
+<subtitle>Markers:</subtitle>
+* Marker mode always available.
+* More markers <config>More markers</config>.
+* Marker labels
+	* <configs><conf>Always show marker labels</conf>, <conf>Shortcut: Edit Marker Label</conf></configs>
+* Force display Hornet pin <config>Force display Hornet pin (compass)</config>
+* Show map in @#$%@ <config>Show map in *****</config>
+* Make Hornet marker more visible
+	* <configs><conf>Highlight Hornet marker</conf>, <conf>Hornet marker highlight speed</conf>, <conf><b>Lots more under advanced settings</b></conf></configs>
+* Visual marker label<configs><conf>Marker label text color</conf>, <conf>Marker label background color</conf></configs>
+* Toggle markers via right click
+
+<subtitle>Hover & Select</subtitle>
+* <b>Marker-mode</b>:
+	* Enter by pressing the “A” button again after opening the map (when you can add in-game colored markers).
+	* Move marker selector as normal; hovered icon turns <color=blue>blue</color>.
+* Mouse-over hover in both modes.
+* Hovered icon name appears atop Sidebar.
+* Select (mouse click or “<b><color=purple>Y</color></b>”): Turns <color=green>green</color>, shows images/info in Sidebar.
+	* <configs><conf>Show downloaded icon pictures</conf></configs>
+* Last-moved input (mouse/selector) determines hover.
+
+<subtitle><color=cyan><u>Zoom:</u></color></subtitle>
+* Scroll wheel: Around mouse cursor. Always available.
+* Non-Marker Mode: Around screen center.
+* Marker Mode: Around hovered icon (or selector center if none).
+* <configs><conf>Zoom Speed</conf>, <conf>Marker Zoom No Move-Reset</conf></configs>
+
+<subtitle>Pan:</subtitle>
+* Bounds unlocked by default <config>Unlock map bounds</config>—essential for sidebar overlap and zoom.
+* <configs><conf>Pan Speed</conf>, <conf>Marker Pan Speed</conf></configs>
+* Recenter over character: “<b><color=yellow>X</color></b>”
+* Mouse drag also to pan.
+
+<title>Sidebar:</title>
+* Icon category states (cycle via click):
+	1. <b>Show All</b>: Shows all icons. Found icons are translucent+gray.
+	2. Show Incomplete: Non-bold text; Non-found icons only.
+	3. <s>Hide all</s>: No icons.
+* Group headers cycle all sub-categories.
+* Hover/select icons shows info at top (see “<b>Hover & Select</b>”).
+* “Toggle groups” buttons: Set all categories to chosen state.
+* “Show Linked” button: Unlinked icons (haven’t been linked to a save value) become <color=red>red</color> (see “<b>Values Window</b>”).
+* <configs><conf>Starts open on game load</conf>, <conf>Shortcut key: Show/hide the sidebar</conf></configs>
+* Visual (sidebar)<configs><conf>Background color</conf>, <conf>Interface items color</conf>, <conf>Highlight color</conf>, <conf>Width</conf></configs>
+
+<title>Values Window:</title>
+* Log of changed save values (newest top). Window can persist without opened map.
+* Use to link icons to save names (e.g., benches often under “*Remasker*”) to show if already found on map.
+* Link the selected (green) icon: “Save” → local JSON; “Save+Send” → Also crowdsources to author.
+
+<title>Search Window:</title>
+* Searches titles, categories, and descriptions (space-separated AND).
+* Results: 7-line preview + ellipsis if longer; full on hover.
+* Click on result: Selects and centers map over icon.
