@@ -130,9 +130,8 @@ public partial class SideBar
 
 		//Do not close from scroll buttons
 		protected override bool BlockAnyKeyClose =>
-			   Config.C.Shortcut_SB_ScrollUp.IsPressed()
-			|| Config.C.Shortcut_SB_ScrollDown.IsPressed()
+			   Input.GetKey(Config.C.Shortcut_SB_ScrollUp.Value.MainKey)
+			|| Input.GetKey(Config.C.Shortcut_SB_ScrollDown.Value.MainKey)
 			|| ActiveDevice.RightStick.HasChanged;
-		//TODO: There is a minor bug here in which when pressing both keyboard keys at the same time, the popup closes
 	}
 }
