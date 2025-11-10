@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace SilkDev.Hooks;
 
+//Dynamically add a Harmony method hook by class and function name. Allows harmony hooks without including assemblies in compiles.
 public abstract class DynamicHook
 {
 	//Will only run the search and hook if there is no config or when the config is true

@@ -3,6 +3,7 @@ using System;
 
 namespace SilkDev.Events;
 
+//Subscribe to game events (Currently: Update, Game Loaded, Game Saved)
 public static class GameEvents
 {
 	public static PrioritizedEvents<Action		> OnUpdate		=new("OnUpdate"		); //Runs on Plugin.Update()

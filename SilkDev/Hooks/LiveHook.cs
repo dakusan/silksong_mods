@@ -4,6 +4,7 @@ using System.Reflection;
 
 namespace SilkDev.Hooks;
 
+//Safe enable toggling of harmony method hooks
 public class LiveHook
 {
 	protected readonly Harmony Harmony;

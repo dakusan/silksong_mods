@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace SilkDev.Configs;
 
+//Enabled configurations per-user-saveslot with backups
 public class PerSaveConfig
 {
 	private static readonly Dispatcher Dispatch=new();

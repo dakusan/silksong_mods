@@ -5,7 +5,9 @@ using UnityEngine;
 
 namespace SilkDev;
 
-//Popup message
+//Popup message. Only 1 popup message shows at a time, determined by Stack (FILO).
+//Popup messages animate opening and closing (2 popups show at a time during this).
+//Automatic "Press any key to close this message." message.
 public class PopupMessage
 {
 	private static Texture2D BorderTex=null!, BackgroundTex=null!;

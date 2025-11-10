@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace SilkDev.DevInput.Mouse;
 
+//Keeps track of mouse dragging states and distances
 public class Dragger
 {
 	public static readonly int ResizeControlID=GUIUtility.GetControlID(FocusType.Passive);

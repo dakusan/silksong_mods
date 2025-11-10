@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace SilkDev.DevInput;
 
+//Blocks the keyboard from getting to the game
 internal class BlockKeys : Window
 {
 	private readonly GUIStyle TextStyle=new(GUI.skin.label) { fontSize=40, alignment=TextAnchor.MiddleCenter, normal={ textColor=Color.red } };

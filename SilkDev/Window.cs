@@ -8,8 +8,8 @@ using System.Reflection;
 using UnityEngine;
 using OA=System.ObsoleteAttribute;
 
-//TODO: Catch events before UniverseLib so we can cancel events to it
-//TODO: Catch all windows and insert them into the chain, even if they arent made as windows
+//TODO: Catch events before UniverseLib so we can cancel events to their focused windows.
+//TODO: Catch all windows and insert them into the chain, even if they aren’t made as Windows.
 
 /*
 OnGUI ordering is as follows:
@@ -70,13 +70,16 @@ namespace SilkDev;
 
 /* Abstract class for a Unity based GUI.Window. Features:
 	* Makes sure windows have a unique ID and custom handle all mouse events in order of zOrder. All other events are processed naturally.
-	* Mouse events are only called if the mouse is over the window, or it is dragging
-	* Safe window moving and resizing
-	* Optionally saves/restores window position via a ConfigEntry
-	* Has a close button with optional event action
-	* Can give priority that sets windows to bottom or topmost
-	* Takes into account UniverseLib (Unity Explorer) windows at Priority=-100 since they do not cancel the mouse themselves
-	* Event ordering is available at the top of this file
+	* Mouse events are only called if the mouse is over the window, or it is dragging. Also adds MouseMove, MouseEnterWindow, and MouseLeaveWindow.
+	* Safe window moving and resizing.
+	* Optionally saves/restores window position via a ConfigEntry.
+	* Has a close button with optional event action.
+	* Can give priority that sets windows to bottom or topmost.
+	* Takes into account UniverseLib (Unity Explorer) windows at Priority=-100 since they do not cancel the mouse themselves.
+	* Strict event call ordering by window order and priority. Full event system call ordering available at the top of this file.
+	* Options to call PreOnGUI and Update even if not visible.
+	* Fake windows can be created just for mouse handling.
+	* Overridable event callbacks for GameEvents and OnGUI event types.
 */
 public abstract class Window
 {

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace SilkDev.Events;
 
-//Register an event with a key. Uses a Set so action instance can only be registered once
+//Register multiple events against a generic key. Uses a HashSet so action instance can only be registered once.
 public class EventRegister<KeyType, ValueType>(string Name) where ValueType : Delegate
 {
 	private readonly string Name=Name;
