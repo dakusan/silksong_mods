@@ -35,7 +35,7 @@ public static class FileOps
 	public static void		FileDelete		(string Source)						=> File.Delete(Source);
 	public static string	SerializeToJSON	(object Obj, bool Compact=false)	=> JsonConvert.SerializeObject(Obj, Compact ? Formatting.None : Formatting.Indented).Replace("\r\n", "\n");
 	public static T			DeserializeJson	<T, T2>(string Data) where T2: class=> JsonConvert.DeserializeObject<T>(Data, new JSON.FieldPropConverter<T2>())!; //Runs specified class through FieldPropConverter
-	public static string SerializeToJSON	<T>(object Obj, bool Compact=false, bool OutputNulls=true) where T: class => //Runs specified class through FieldPropConverter
+	public static string	SerializeToJSON	<T>(object Obj, bool Compact=false, bool OutputNulls=true) where T: class => //Runs specified class through FieldPropConverter
 		JsonConvert.SerializeObject(Obj, Compact ? Formatting.None : Formatting.Indented, new JSON.FieldPropConverter<T>(OutputNulls)).Replace("\r\n", "\n");
 
 	//Shorthands to use during debugging
@@ -51,7 +51,7 @@ public static class FileOps
 	public static Stream LoadLocalFileOrResource(string Name)
 	{
 		Assembly Assembly=Assembly.GetCallingAssembly();
-		string FileName=PathCombine(GetDirectoryName(Assembly.GetExecutingAssembly().Location), Name);
+		string FileName=PathCombine(GetDirectoryName(Assembly.Location), Name);
 		return FileExists(FileName) ? File.OpenRead(FileName) : LoadEmbeddedResource(Name, Assembly);
 	}
 }

@@ -2,7 +2,6 @@ using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using SilkDev;
-using System.Reflection;
 
 namespace PharloomAtlas;
 
@@ -37,6 +36,4 @@ internal class Plugin : BaseUnityPlugin
 			(Logger=base.Logger).LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded");
 		});
 	}
-
-	internal static string GetMyPath => FileOps.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 }

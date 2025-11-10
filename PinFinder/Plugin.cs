@@ -1,7 +1,6 @@
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using System.Reflection;
 using SilkDev;
 
 namespace PinFinder;
@@ -46,7 +45,7 @@ internal class Plugin : BaseUnityPlugin
 				return;
 			MyConfig.StartPinFindingProcess.V=false;
 			DialogOpen=true;
-			_=!FileOps.FileExists(FileOps.PathCombine(MyPath, PinFinder.Config.PinsJson))
+			_=!FileOps.FileExists(FileOps.PathCombine(Misc.GetPluginPath, PinFinder.Config.PinsJson))
 				? StartCoroutine(FindPins.StartProcess())
 				: (object)new DialogWindow
 					($"{PinFinder.Config.PinsJson} already exists. Are you sure you wish to overwrite it? (A backup will be made)")
@@ -56,6 +55,4 @@ internal class Plugin : BaseUnityPlugin
 					} };
 		});
 	}
-
-	internal static string MyPath => FileOps.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 }

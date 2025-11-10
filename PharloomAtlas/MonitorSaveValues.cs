@@ -41,8 +41,8 @@ public class MonitorSaveValues
 		public readonly Dictionary<int, string> MatchedIcons=[];
 		[NonSerialized] public readonly Dictionary<string, int> MatchedIconsReverse=[];
 	}
-	private static readonly string JsonFilename=FileOps.PathCombine(Plugin.GetMyPath, "ItemFinder.json");
-	private static readonly string LogFile=FileOps.PathCombine(Plugin.GetMyPath, "ItemFinder.log");
+	private static readonly string JsonFilename=FileOps.PathCombine(Misc.GetPluginPath, "ItemFinder.json");
+	private static readonly string LogFile=FileOps.PathCombine(Misc.GetPluginPath, "ItemFinder.log");
 	private readonly ItemFinder IF=null!;
 	private const string WebAddress="https://www.castledragmire.com/silksong/Submit.php";
 

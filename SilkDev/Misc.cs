@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using UnityEngine;
 
 namespace SilkDev;
@@ -18,7 +19,7 @@ public static class Misc
 	public static void SaveToClipboard(string Value) =>
 		GUIUtility.systemCopyBuffer=Value;
 
-	//Get steam username or IP address if not using steam
+	//Get steam username
 	public const string UsernameErrorString="*SILKDEV NO NAME*"; //Tells the server the user’s username couldn’t be looked up
 	public static string SteamUsername { get
 	{
@@ -36,6 +37,10 @@ public static class Misc
 		if(Cond)
 			CallOnTrue();
 	}
+
+	//Get plugin path
+	public static string GetPluginPath =>
+		FileOps.GetDirectoryName(Assembly.GetCallingAssembly().Location);
 
 	public static Vector2 ScreenSize => new(Screen.width, Screen.height);
 	public const char NewLine='\n';

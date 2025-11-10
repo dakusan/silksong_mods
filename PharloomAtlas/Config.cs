@@ -111,7 +111,7 @@ public class Config
 		};
 
 		//When settings are reloaded we have to fix a few configs that aren’t normally watched
-		PSC=new PerSaveConfig(PConfig, Plugin.GetMyPath) {
+		PSC=new PerSaveConfig(PConfig, Misc.GetPluginPath) {
 			NumBackupsToKeep=2,
 			ConfigChangedOnLoad=ConfigEntry => {
 					 if(ConfigEntry==CategoryToggleStates	)   MapControl.Self?.DS.LoadCategoryToggleStates(true);

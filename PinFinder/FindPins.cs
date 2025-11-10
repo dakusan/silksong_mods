@@ -126,7 +126,7 @@ public static class FindPins
 	public static IEnumerator StartProcess()
 	{
 		//Make sure the save directory exists
-		string SaveDir=Path.Combine([Plugin.MyPath, .. Config.PinTempDir]);
+		string SaveDir=Path.Combine([Misc.GetPluginPath, .. Config.PinTempDir]);
 		if(!Directory.Exists(SaveDir)) {
 			Log.Info($"Creating save directory: {SaveDir}");
 			try {
@@ -208,7 +208,7 @@ public static class FindPins
 		PB_Update();
 		try {
 			//If the file already exists, move it to a backup file
-			string FinalFileName=Path.Combine(Plugin.MyPath, Config.PinsJson);
+			string FinalFileName=Path.Combine(Misc.GetPluginPath, Config.PinsJson);
 			if(File.Exists(FinalFileName)) {
 				try { File.Delete(FinalFileName+".backup"); } catch { }
 				File.Move(FinalFileName, FinalFileName+".backup");
