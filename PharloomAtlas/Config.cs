@@ -10,7 +10,7 @@ public class Config
 	private static Config _C=null!; public static Config C => _C; //Singleton
 	public readonly PerSaveConfig PSC;
 	public readonly ConfigEntryT<string> CategoryToggleStates, MarkerLabels;
-	public readonly ConfigEntryT<bool> UnlockMap, UnlockMapBounds, ShowSidebarOnGameLoad, ShowSideBarPictures, ShowMouseWhenSBVisible, MarkerZoomDoesntMove, IconSizeScalesWithZoom, AutoMap, MoreMarkers, AlwaysShowMarkerLabels, ForceDisplayCompass, HornetSpinningClockwise, HornetRevolvingClockwise, MapInAbyss;
+	public readonly ConfigEntryT<bool> UnlockMap, UnlockMapBounds, ShowSidebarOnGameLoad, ShowSideBarPictures, ShowMouseWhenSBVisible, MarkerZoomDoesntMove, IconSizeScalesWithZoom, AutoMap, MoreMarkers, AlwaysShowMarkerLabels, ForceDisplayCompass, HornetSpinningClockwise, HornetRevolvingClockwise, MapInAbyss, MapInAbyssUnspoiled;
 	public readonly ConfigEntryT<float> ZoomSpeed, PanSpeed, MarkerPanSpeed, IconSize, QueryTime_PersistentObj, QueryTime_PlayerData, HornetHighlightSpeed, HornetRainbow2WaitTime, HornetRainbow2RunTime, HornetGrowingMax, HornetRevolvingDist, HornetRainbow1Scale;
 	public readonly ConfigEntryT<int> SideBarWidth;
 	public readonly ConfigEntryT<KeyboardShortcut> Shortcut_ZoomIn, Shortcut_ZoomOut, Shortcut_CenterOverChar, Shortcut_ToggleSideBar, Shortcut_EditMarkerLabel, Shortcut_SaveValueWindow, Shortcut_Val_ScrollUp, Shortcut_Val_ScrollDown;
@@ -31,7 +31,8 @@ public class Config
 		string Title="Map Features";
 		AutoMap					=Con.Bind(Title, "Auto map",								false, "Areas that you have the map for will automatically fill in without needing to rest at a bench or have the quill");
 		UnlockMap				=Con.Bind(Title, "Unlock map",								false, "Unlocks The Moss Grotto map for you, so you have access to the inventory map and sidebar");
-		MapInAbyss				=Con.Bind(Title, "Show map in *****",						false, "You’ll know once you get there ;-) [I can’t change the config name once you do without causing problems with the config files.]");
+		MapInAbyss				=Con.Bind(Title, "Show map in abyss",						false, "You got there!");
+		MapInAbyssUnspoiled	=Con.Bind(Title, "Show map in *****",						false, "You’ll know once you get there ;-)");
 
 		Title="Markers";
 		MoreMarkers				=Con.Bind(Title, "More markers",							false, "Gives 99 of every kind of marker");
@@ -118,5 +119,15 @@ public class Config
 				else if(ConfigEntry==Rect_SearchWindow		) _=SearchWindow.Self?.WindowRect=Rect_SearchWindow;
 			}
 		};
+
+		//Set up a spoiler pair for MapInAbyss
+		SpoilerPair<bool> AbyssSP=new(MapInAbyssUnspoiled, MapInAbyss);
+		SilkDev.Events.GameEvents.OnGameLoaded += _ => AbyssSP.CanSpoil(PlayerData.instance.visitedAbyss);
+		Window.OnNextFrame(() =>
+			MonitorSaveValues.Self.RegisterValueChanged.Add(
+				new MonitorSaveValues.FromNamePair(nameof(PlayerData), nameof(PlayerData.visitedAbyss)),
+				SI => AbyssSP.CanSpoil((bool)SI.NewValue)
+			)
+		);
 	}
 }

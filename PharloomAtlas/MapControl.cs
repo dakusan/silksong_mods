@@ -71,6 +71,7 @@ public class MapControl : Window
 		Conf.MarkerPanSpeed			.SettingChanged += (_, _) => SetMarkerPanSpeed(Conf.MarkerPanSpeed);
 		Conf.IconSize				.SettingChanged += (_, _) => SetIconSize(Conf.IconSize);
 		Conf.ForceDisplayCompass	.SettingChanged += (_, _) => DisplayingCompass=Conf.ForceDisplayCompass;
+		Conf.MapInAbyss				.SettingChanged += (_, _) => ExitMap(true, true, true);
 		Conf.IconSizeScalesWithZoom	.SettingChanged += (_, _) => {
 			SetIconSize(Conf.IconSize);
 			IconSizeScalesWithZoom=Conf.IconSizeScalesWithZoom;

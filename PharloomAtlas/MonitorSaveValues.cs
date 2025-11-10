@@ -54,6 +54,7 @@ public class MonitorSaveValues
 
 	//Callbacks
 	public event Action<SaveItem> OnValueChanged=delegate {}; //Listen for any value change
+	public readonly SilkDev.Events.EventRegister<FromNamePair, Action<SaveItem>> RegisterValueChanged=new(nameof(RegisterValueChanged)); //Listen for a single value change
 
 	//Get the dictionaries
 	public ReadOnlyDictionary<int, string> GetMatchedIcons			=> new(IF.MatchedIcons);
@@ -184,6 +185,7 @@ public class MonitorSaveValues
 	{
 		//Send to the delegates
 		OnValueChanged.Invoke(SI);
+		_=RegisterValueChanged.Run(SI.FromName, CW => CW(SI));
 
 		//If this is mapped to an icon then set its value
 		string FullName=SI.FullName;
