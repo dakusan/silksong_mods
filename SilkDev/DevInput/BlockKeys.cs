@@ -1,11 +1,10 @@
-using HarmonyLib;
 using SilkDev.Internal;
 using UnityEngine;
 
 namespace SilkDev.DevInput;
 
 //Blocks the keyboard from getting to the game
-internal class BlockKeys : Window
+internal class BlockKeys : SilkDev.Windows.Window
 {
 	private readonly GUIStyle TextStyle=new(GUI.skin.label) { fontSize=40, alignment=TextAnchor.MiddleCenter, normal={ textColor=Color.red } };
 	private const int Width=350, Height=65, HeightOffset=40;
@@ -38,7 +37,7 @@ internal class BlockKeys : Window
 }
 
 //Block the keyboard from getting to the game
-[HarmonyPatch(typeof(InControl.InputControlState), nameof(InControl.InputControlState.Set), [typeof(float), typeof(float)])]
+[HarmonyLib.HarmonyPatch(typeof(InControl.InputControlState), nameof(InControl.InputControlState.Set), [typeof(float), typeof(float)])]
 internal static class Patch_InputControlState_Set {
 	private static bool Prefix() => !(Config.C?.BlockGameInput ?? false);
 }

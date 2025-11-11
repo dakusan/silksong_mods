@@ -1,4 +1,3 @@
-using SilkDev.Configs;
 using System;
 using System.Collections;
 using System.Security.Cryptography;
@@ -22,14 +21,14 @@ internal class ExtractAllTextures
 	private Exception? LastError;
 
 	//Do not allow the popup to close until complete
-	private class PopupMessageNoClose(string Message) : PopupMessage(Message)
+	private class PopupMessageNoClose(string Message) : Windows.PopupMessage(Message)
 	{
 		protected override bool BlockClose => CurrentlyRunning;
 		protected override string PressAnyKeyString => CurrentlyRunning ? "<color=red><size=20>This window will stay open until complete.</size></color>" : base.PressAnyKeyString;
 	}
 
 	//Setup the config switch
-	internal static void Init(ConfigEntryT<bool> ExtractAllTextures) =>
+	internal static void Init(Configs.ConfigEntryT<bool> ExtractAllTextures) =>
 		ExtractAllTextures.SettingChanged += (_, _) => {
 			if(!ExtractAllTextures)
 				return;

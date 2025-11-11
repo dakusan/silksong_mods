@@ -26,7 +26,7 @@ internal class HornetIconAnimators
 	{
 		Misc.InitSingleton(this, ref _Self);
 		Conf.HornetHighlights.SettingChanged	+= (_, _) => SettingUpdate();
-		Conf.ForceDisplayCompass.SettingChanged	+= (_, _) => Window.OnNextFrame(SettingUpdate);
+		Conf.ForceDisplayCompass.SettingChanged	+= (_, _) => SilkDev.Windows.Window.OnNextFrame(SettingUpdate);
 	}
 	private void SettingUpdate() =>
 		SetAnimator(

@@ -90,6 +90,28 @@ See [root project README](../#contributing) for details
     * 📦 `GameEvents`: Subscribe to game events (Currently: `Update`, `Game Loaded`, `Game Saved`).
     * 📦 `PrioritizedEvents` (base `PrioritizedValues`): Event lists with call priority and exception handling.
     * 📦 `SingleDelegate`: Wrapper for singlecast delegates with custom equality checking.
+* 📂 `Windows`:
+    * 📦 `Window`:
+        * 🧾💡 Abstract class for a Unity based `GUI.Window()`. Features:
+            * Makes sure windows have a unique ID and custom handle all mouse events in order of zOrder. All other events are processed naturally.
+            * Mouse events are only called if the mouse is over the window, or it is dragging. Also adds `MouseMove`, `MouseEnterWindow`, and `MouseLeaveWindow`.
+            * Safe window moving and resizing.
+            * Optionally saves/restores window position via a ConfigEntry.
+            * Has a close button with optional event action.
+            * Can give priority that sets windows to bottom or topmost.
+            * Takes into account UniverseLib (Unity Explorer) windows at `Priority=-100` since they do not cancel the mouse themselves.
+            * Strict event call ordering by window order and priority. Full event system call ordering is available at the top of `Window.cs`.
+            * Options to call `PreOnGUI` and `Update` even if not visible.
+            * Fake windows can be created just for mouse handling.
+            * Overridable event callbacks for `GameEvents` and `OnGUI` event types.
+        * 🧾💡 TODO:
+            * Catch events before UniverseLib so we can cancel events to their focused windows.
+            * Catch all windows and insert them into the chain, even if they aren’t made as Windows. 
+    * 📦 `PopupMessage`:
+        * 💡 Only 1 popup message shows at a time, determined by Stack (FILO).
+        * 💡 Popup messages animate opening and closing (2 popups show at a time during this).
+        * 💡 Automatic “Press any key to close this message.” message.
+    * 📦 `DialogWindow`: A window that contains a message and optionally ok/cancel buttons.
 * 📂 `Hooks`:
     * 📦 `DynamicHook`: Dynamically add a Harmony method hook by class and function name.
         * 💡 Allows harmony hooks without including assemblies in compiles.
@@ -99,7 +121,6 @@ See [root project README](../#contributing) for details
     * 📦 `SortedConverter`: Sorts lists and dictionary by numeric or alphabetical order (Good for diffing).
 * 📦 `Catcher`: Used to call delegates wrapped within a try/catch that will output a stack trace when caught (if config is on).
     * 💡 Also supports lists of actions and multicast delegate chains.
-* 📦 `DialogWindow`: A window that contains a message and optionally ok/cancel buttons.
 * 📦 `Extensions`:
     * 💡 Automatically initiated by the plugin.
     * 📦🔌 `Rect` [math] extensions:
@@ -158,29 +179,9 @@ See [root project README](../#contributing) for details
     * ⚙️ `Vector2` `ScreenSize => new(Screen.width, Screen.height)`;
     * ⚙️ `const char NewLine='\n'`;
     * ⚙️ `const string Empty=""`;
-* 📦 `PopupMessage`:
-    * 💡 Only 1 popup message shows at a time, determined by Stack (FILO).
-    * 💡 Popup messages animate opening and closing (2 popups show at a time during this).
-    * 💡 Automatic “Press any key to close this message.” message.
 * 📦 `Reflectors`
     * 📦 `RField<ObjType, FieldType>`, `RProp<ObjType, PropType>`, `RMethod<ObjType, RetType>`: Get via reflection fields, properties, or methods, with attached object for convenient `Get`/`Set`/`Invoke`/`(typecast)`.
         * 💡 Attached object can be changed via `public ObjType Obj`.
 * 📦 `TypedDisposer<T>(T Target, Action<T> Disposal) : IDisposable`
     * 💡 Create disposable objects for RAII use. [Set with `using` for destruction at end of scope].
     * ⚙️ `Detach()`: Detach object so it won’t be disposed.
-* 📦 `Window`:
-    * 🧾💡 Abstract class for a Unity based `GUI.Window()`. Features:
-        * Makes sure windows have a unique ID and custom handle all mouse events in order of zOrder. All other events are processed naturally.
-        * Mouse events are only called if the mouse is over the window, or it is dragging. Also adds `MouseMove`, `MouseEnterWindow`, and `MouseLeaveWindow`.
-        * Safe window moving and resizing.
-        * Optionally saves/restores window position via a ConfigEntry.
-        * Has a close button with optional event action.
-        * Can give priority that sets windows to bottom or topmost.
-        * Takes into account UniverseLib (Unity Explorer) windows at `Priority=-100` since they do not cancel the mouse themselves.
-        * Strict event call ordering by window order and priority. Full event system call ordering is available at the top of `Window.cs`.
-        * Options to call `PreOnGUI` and `Update` even if not visible.
-        * Fake windows can be created just for mouse handling.
-        * Overridable event callbacks for `GameEvents` and `OnGUI` event types.
-    * 🧾💡 TODO:
-        * Catch events before UniverseLib so we can cancel events to their focused windows.
-        * Catch all windows and insert them into the chain, even if they aren’t made as Windows. 

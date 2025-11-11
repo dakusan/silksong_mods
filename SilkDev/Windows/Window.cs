@@ -66,7 +66,7 @@ DrawPhase() (inside GUI.Window):
 	Resize and move window via drag
 */
 
-namespace SilkDev;
+namespace SilkDev.Windows;
 
 /* Abstract class for a Unity based GUI.Window. Features:
 	* Makes sure windows have a unique ID and custom handle all mouse events in order of zOrder. All other events are processed naturally.

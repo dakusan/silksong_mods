@@ -123,7 +123,7 @@ public class Config
 		//Set up a spoiler pair for MapInAbyss
 		SpoilerPair<bool> AbyssSP=new(MapInAbyssUnspoiled, MapInAbyss);
 		SilkDev.Events.GameEvents.OnGameLoaded += _ => AbyssSP.CanSpoil(PlayerData.instance.visitedAbyss);
-		Window.OnNextFrame(() =>
+		SilkDev.Windows.Window.OnNextFrame(() =>
 			MonitorSaveValues.Self.RegisterValueChanged.Add(
 				new MonitorSaveValues.FromNamePair(nameof(PlayerData), nameof(PlayerData.visitedAbyss)),
 				SI => AbyssSP.CanSpoil((bool)SI.NewValue)

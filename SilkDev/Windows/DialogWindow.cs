@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace SilkDev;
+namespace SilkDev.Windows;
 
 //A window that contains a message and optionally ok/cancel buttons
 public class DialogWindow : Window

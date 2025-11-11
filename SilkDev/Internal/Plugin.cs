@@ -1,7 +1,6 @@
 using BepInEx;
-using BepInEx.Logging;
-using HarmonyLib;
 using SilkDev.Events;
+using SilkDev.Windows;
 
 namespace SilkDev.Internal;
 
@@ -16,7 +15,7 @@ internal static class PluginInfo
 internal class Plugin : BaseUnityPlugin
 {
 	internal static Plugin Self=null!; //Singleton
-	internal static new ManualLogSource? Logger;
+	internal static new BepInEx.Logging.ManualLogSource? Logger;
 
 	//Unity passthrough functions
 	private void Awake() => Init();
@@ -34,7 +33,7 @@ internal class Plugin : BaseUnityPlugin
 
 		Catcher.Run("Dev Init", static () => {
 			DevInput.Mouse.Visibility.Init();
-			new Harmony(PluginInfo.PLUGIN_GUID).PatchAll();
+			new HarmonyLib.Harmony(PluginInfo.PLUGIN_GUID).PatchAll();
 			Window.OnNextFrame(static () => new DevInput.BlockKeys());
 			ExtractAllTextures.Init(Internal.Config.C.RunExtractAllTextures);
 			Log.Info($"Plugin {PluginInfo.PLUGIN_GUID} is loaded");

@@ -1,6 +1,4 @@
 using BepInEx;
-using BepInEx.Logging;
-using HarmonyLib;
 
 namespace NoClip;
 
@@ -15,7 +13,7 @@ internal static class PluginInfo
 [BepInDependency("com.dakusan.silkdev", BepInDependency.DependencyFlags.HardDependency)]
 internal class Plugin : BaseUnityPlugin
 {
-	internal static new ManualLogSource? Logger;
+	internal static new BepInEx.Logging.ManualLogSource? Logger;
 
 	//Unity passthrough functions
 	private void Awake() => Init();
@@ -23,7 +21,7 @@ internal class Plugin : BaseUnityPlugin
 	//Initialize the plugin
 	private void Init()
 	{
-		new Harmony(PluginInfo.PLUGIN_GUID).PatchAll();
+		new HarmonyLib.Harmony(PluginInfo.PLUGIN_GUID).PatchAll();
 		SilkDev.Catcher.Run($"{PluginInfo.PLUGIN_NAME} Init", () => {
 			_=new Config(Config);
 			_=new NCActivate();

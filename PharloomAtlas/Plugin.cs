@@ -1,7 +1,4 @@
 using BepInEx;
-using BepInEx.Logging;
-using HarmonyLib;
-using SilkDev;
 
 namespace PharloomAtlas;
 
@@ -16,7 +13,7 @@ internal static class PluginInfo
 [BepInDependency("com.dakusan.silkdev", BepInDependency.DependencyFlags.HardDependency)]
 internal class Plugin : BaseUnityPlugin
 {
-	internal static new ManualLogSource? Logger;
+	internal static new BepInEx.Logging.ManualLogSource? Logger;
 
 	//Unity passthrough functions
 	private void Awake() => Init();
@@ -24,13 +21,13 @@ internal class Plugin : BaseUnityPlugin
 	//Initialize the plugin
 	private void Init()
 	{
-		new Harmony(PluginInfo.PLUGIN_GUID).PatchAll();
-		Catcher.Run($"{PluginInfo.PLUGIN_NAME} Init", () => {
+		new HarmonyLib.Harmony(PluginInfo.PLUGIN_GUID).PatchAll();
+		SilkDev.Catcher.Run($"{PluginInfo.PLUGIN_NAME} Init", () => {
 			_=new Config(Config);
 			_=new MonitorSaveValues();
 			_=new MoreMarkers();
 		});
-		Window.OnNextFrame(() => {
+		SilkDev.Windows.Window.OnNextFrame(() => {
 			SaveValuesWindow.Init();
 			SearchWindow.Init();
 			(Logger=base.Logger).LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded");

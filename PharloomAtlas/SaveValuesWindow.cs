@@ -2,14 +2,13 @@ using InControl;
 using SilkDev;
 using SilkDev.DevInput.Mouse;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using SaveItem=PharloomAtlas.MonitorSaveValues.SaveItem;
 
 namespace PharloomAtlas;
 
-public class SaveValuesWindow : Window
+public class SaveValuesWindow : SilkDev.Windows.Window
 {
 	//Toggle visibility
 	public override bool Visible
@@ -34,7 +33,7 @@ public class SaveValuesWindow : Window
 	private readonly Texture2D SelectTex=new Color(1, 1, 0, 0.5f).MakeTexture();
 
 	//Members
-	private readonly List<SaveItem> SavedItems=[];
+	private readonly System.Collections.Generic.List<SaveItem> SavedItems=[];
 	private float ScrollPosition=0;
 
 	//Scroll positioning

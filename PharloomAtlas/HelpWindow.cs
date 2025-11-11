@@ -1,6 +1,5 @@
 using SilkDev;
 using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using static SilkDev.DevInput.Joystick;
@@ -10,7 +9,7 @@ namespace PharloomAtlas;
 public partial class SideBar
 {
 	//Displays a help message
-	private class HelpWindow : PopupMessage
+	private class HelpWindow : SilkDev.Windows.PopupMessage
 	{
 		private static int NumOpen=0;
 		private static Texture2D? ControllerLayout;
@@ -25,7 +24,7 @@ public partial class SideBar
 		public GUIStyle CenterRichText=new(GUI.skin.label) { alignment=TextAnchor.MiddleCenter, richText=true };
 
 		private const int TitleFontSize=45, SubTitleFontSize=30;
-		private static readonly List<(Regex, string)> Tags=[
+		private static readonly System.Collections.Generic.List<(Regex, string)> Tags=[
 			(new Regex(@"<title>(.*)</title>"				), $"<size=@{TitleFontSize}><u>$1</u></size>"),
 			(new Regex(@"<subtitle>(.*)</subtitle>"			), $"<color=#999999><size={SubTitleFontSize}><u>$1</u></size></color>"),
 			(new Regex(@"^([*\t])", RegexOptions.Multiline	), "  $1"),

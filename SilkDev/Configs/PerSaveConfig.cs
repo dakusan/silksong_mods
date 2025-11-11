@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using UnityEngine;
 
 namespace SilkDev.Configs;
 
@@ -107,7 +106,7 @@ public class PerSaveConfig
 
 	public string ConfigFileName => FileOps.PathCombine(DLLPath, ConfigDirectoryName, $"{Dispatch.SaveSlotPrefix}.{BaseFileName}");
 
-	private class Dispatcher() : Window(nameof(PerSaveConfig), false, -2000, true)
+	private class Dispatcher() : Windows.Window(nameof(PerSaveConfig), false, -2000, true)
 	{
 		private readonly List<PerSaveConfig> ConfigsList=[];
 		private string? Username; //Unfortunately, trying to get this on first plugin use fails because steam library has not been loaded yet
@@ -115,7 +114,7 @@ public class PerSaveConfig
 		public string SaveSlotPrefix => $"{Username}-{CurSaveSlot}";
 
 		//Adding PerSaveConfigs
-		protected override void DoLayout(int ID, Event Ev) { } //Not used
+		protected override void DoLayout(int ID, UnityEngine.Event Ev) { } //Not used
 		public void Add(PerSaveConfig Config) => ConfigsList.Add(Config);
 
 		//Inform all configs that a save was loaded

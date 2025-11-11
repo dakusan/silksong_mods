@@ -1,6 +1,7 @@
 using HarmonyLib;
 using SilkDev;
 using SilkDev.DevInput.Mouse;
+using SilkDev.Windows;
 using System;
 using System.Collections.Generic;
 using System.Linq;

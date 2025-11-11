@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace PharloomAtlas;
 
-public class SearchWindow : Window
+public class SearchWindow : SilkDev.Windows.Window
 {
 	private static SearchWindow _Self=null!; public static SearchWindow Self => _Self; //Singleton
 

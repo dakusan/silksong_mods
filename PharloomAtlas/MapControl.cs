@@ -1,18 +1,15 @@
 using SilkDev;
 using SilkDev.DevInput.Mouse;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using UnityEngine;
 using static SilkDev.DevInput.Joystick;
 
 namespace PharloomAtlas;
 
 //All public functions accept/return zoomed out (normalized) positions
-public class MapControl : Window
+public class MapControl : SilkDev.Windows.Window
 {
 	private static MapControl _Self=null!; public static MapControl Self => _Self; //Singleton
 
@@ -216,7 +213,7 @@ public class MapControl : Window
 
 	//Find the closest vector to the map position within a radius, returning its item
 	public record struct VItem<T>(Vector2 Pos, T Item) where T: class;
-	public T? FindClosestVector<T>(IEnumerable<VItem<T>> VList, Vector2 PosOnMap, float ItemRadius, float SelectionRadius) where T: class
+	public T? FindClosestVector<T>(System.Collections.Generic.IEnumerable<VItem<T>> VList, Vector2 PosOnMap, float ItemRadius, float SelectionRadius) where T: class
 	{
 		//Find the closest item
 		VItem<T> ClosestVec=default;
@@ -399,7 +396,7 @@ public class MapControl : Window
 	public   void SelectAndCenterItem (int ItemID) => Misc.IFF(GameMap!=null, () => SelectAndCenterItemI(ItemID));
 	internal void SelectAndCenterItemI(int ItemID)
 	{
-		Item I=DS.Items.Get(ItemID) ?? throw new ArgumentOutOfRangeException("ItemID");
+		Item I=DS.Items.Get(ItemID) ?? throw new System.ArgumentOutOfRangeException("ItemID");
 		MapPos=I.Pos;
 		SelectItemI(I);
 	}
@@ -515,7 +512,7 @@ public class MapControl : Window
 
 	private FieldInfo[] AllMapItems =>
 		[.. PData.GetType().GetFields().Where(static F =>
-			Regex.IsMatch(F.Name, @"^(Has\w+Map|hasPin(?!Flea)|HasSeenMapUpdated)")
+			System.Text.RegularExpressions.Regex.IsMatch(F.Name, @"^(Has\w+Map|hasPin(?!Flea)|HasSeenMapUpdated)")
 		)];
 
 	private FieldInfo[] AllGameMarkers =>

@@ -36,7 +36,7 @@ internal class MoreMarkers
 			//Unfortunately, GameMap.OnAwake only happens once per game when the map is loaded, and it is what creates the spawned marker GameObjects.
 			//I could check to see if SpawnedMapMarkers is already the correct size here... but it’s safer to just restart the save, and users generally won’t be swapping this on more than once
 			if(IsEnabled)
-				_=new PopupMessage("Reload your save game for this to properly take effect");
+				_=new SilkDev.Windows.PopupMessage("Reload your save game for this to properly take effect");
 		};
 	}
 

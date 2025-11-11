@@ -1,13 +1,11 @@
 using SilkDev;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using static SilkDev.DevInput.Joystick;
-using static SilkDev.Misc;
 
 namespace PharloomAtlas;
 
-public partial class SideBar : Window
+public partial class SideBar : SilkDev.Windows.Window
 {
 	private static bool HasInitialized=false;
 	private static Config Conf => Config.C;
@@ -19,13 +17,13 @@ public partial class SideBar : Window
 	private readonly Sprite Arrow;
 	private readonly DataStorage DS;
 	private readonly Texture2D CTexRightBorder=Color.white.MakeTexture();
-	private readonly List<Texture2D> StoreTextures=[];
+	private readonly System.Collections.Generic.List<Texture2D> StoreTextures=[];
 	private Vector2 ScrollPosition=Vector2.zero;
 	private readonly GUISkin CustomSkin;
 
 	//Keypress delays
 	private DateTime LastKeyTime=DateTime.MinValue;
-	private string LastKeyOp=Empty;
+	private string LastKeyOp=Misc.Empty;
 
 	//Create the sidebar
 	internal SideBar(DataStorage DS) : base(nameof(SideBar), false, -50)
@@ -61,8 +59,8 @@ public partial class SideBar : Window
 			new ButtonsRowSection.CreateButton("Goto Top",				  SaveValuesWindow.Self.MoveToTopItem),
 			new ButtonsRowSection.CreateButton("Save",		static	() => MonitorSaveValues.Self.SaveIconValue(false)),
 			new ButtonsRowSection.CreateButton("Save+Send",	static	() => MonitorSaveValues.Self.SaveIconValue(true)),
-			new ButtonsRowSection.CreateButton("Copy",		static	() => SaveToClipboard(SaveValuesWindow.Self.SelectedItem?.ToString() ?? "Nothing Selected")),
-			new ButtonsRowSection.CreateButton("Copy All",	static	() => SaveToClipboard(SaveValuesWindow.Self.AllAsString))
+			new ButtonsRowSection.CreateButton("Copy",		static	() => Misc.SaveToClipboard(SaveValuesWindow.Self.SelectedItem?.ToString() ?? "Nothing Selected")),
+			new ButtonsRowSection.CreateButton("Copy All",	static	() => Misc.SaveToClipboard(SaveValuesWindow.Self.AllAsString))
 		]);
 		_=new ButtonsRowSection("Other", "Other", this, []);
 		FixUnlockedButtons();
@@ -110,7 +108,7 @@ public partial class SideBar : Window
 
 	//Draw the sidebar
 	protected override void PreOnGUI(Event Ev) =>
-		IFF(MapControl.Self.IsMapOpened, DrawArrow);
+		Misc.IFF(MapControl.Self.IsMapOpened, DrawArrow);
 	protected override void DoLayout(int ID, Event Ev)
 	{
 		//Draw the static GUI area
