@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace SilkDev;
@@ -99,6 +100,15 @@ public static class Extensions
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0029:Use coalesce expression", Justification="UnityEngine.Object.GetCachedPtr thing")]
 	public static T? NullSafe<T>(this T? UO) where T: UnityEngine.Object => UO==null ? null : UO;
+
+	//Turn a Task into a Coroutine IEnumerator
+	public static IEnumerator AsCoroutine(this Task Task, Misc.Ref<Exception?> Err)
+	{
+		while(!Task.IsCompleted)
+			yield return null;
+		if(Task.IsFaulted)
+			Err.Value=Task.Exception!;
+	}
 
 	//Streams
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]

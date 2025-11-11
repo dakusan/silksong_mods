@@ -14,7 +14,7 @@ public class PopupMessage
 	private readonly DateTime InitTime=DateTime.Now;
 	private DateTime CloseTime=DateTime.MinValue;
 
-	protected const string PressAnyKeyString="<color=red><size=20>Press any key to close this message.</size></color>";
+	protected virtual string PressAnyKeyString => "<color=red><size=20>Press any key to close this message.</size></color>";
 	protected static readonly DrawPopups DW=new();
 
 	public string Message;
@@ -47,7 +47,7 @@ public class PopupMessage
 	//Other virtual functions
 	protected virtual void OnClosing() { } //When close starts
 	protected virtual void OnClosed() { } //Once the window has completely closed
-	protected virtual bool BlockAnyKeyClose => false; //Prevent window from closing when any key is pressed
+	protected virtual bool BlockClose => false; //Prevent window from closing when any key is pressed
 
 	//Get the size of the window rectangle, accouting for the WindowGrowTime
 	private Vector2 SizeAtPercent(float PercentPassed) =>
@@ -168,7 +168,7 @@ public class PopupMessage
 				return;
 			PopupMessage LastWin=Popups.Peek();
 			LastWin.OnUpdate();
-			if(DevInput.Util.AnyKeyOrButtonPressed && !LastWin.BlockAnyKeyClose)
+			if(DevInput.Util.AnyKeyOrButtonPressed)
 				CloseLastPopup();
 		}
 		protected override void OnMouseEvent(Event Ev) =>
@@ -179,7 +179,7 @@ public class PopupMessage
 			OnNextFrame(CloseLastPopupReal);
 		private void CloseLastPopupReal()
 		{
-			if(Popups.Count==0 || (DateTime.Now-LastAction).TotalSeconds<TimeoutBeforeButtonActivates) //Not enough time has passed to detect an input event
+			if(Popups.Count==0 || Popups.Peek().BlockClose || (DateTime.Now-LastAction).TotalSeconds<TimeoutBeforeButtonActivates) //Not enough time has passed to detect an input event
 				return;
 			MinimizingPopup=Popups.Pop();
 			MinimizingPopup.IsShowing=false;

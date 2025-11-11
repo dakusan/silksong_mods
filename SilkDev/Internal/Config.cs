@@ -8,7 +8,7 @@ public class Config
 	public enum AutoLoadSaveSlotNumber { None=0, Slot1, Slot2, Slot3, Slot4 }
 	private static Config _C=null!; public static Config C => _C; //Singleton
 
-	public readonly ConfigEntryT<bool> BlockGameInput, ForceShowMouse, ShowMessageWhenGameInputBlocked, SkipIntro, ForceStackTrace, BlockMouse_UnityExplorer, BlockMouse_BepInExConfig;
+	public readonly ConfigEntryT<bool> BlockGameInput, ForceShowMouse, ShowMessageWhenGameInputBlocked, SkipIntro, ForceStackTrace, BlockMouse_UnityExplorer, BlockMouse_BepInExConfig, RunExtractAllTextures;
 	public readonly ConfigEntryT<KeyboardShortcut> Key_BlockInput, Key_ToggleMouse;
 	public readonly ConfigEntryT<Log.DebugLogLevelEnum> DebugLogLevel;
 	public readonly ConfigEntryT<AutoLoadSaveSlotNumber> AutoLoadSaveSlot;
@@ -34,6 +34,7 @@ public class Config
 		//Development settings
 		DebugLogLevel=Con.Bind("Development", "Debugging message log level", Log.DebugLogLevelEnum.Info, "What log level to show this plugin’s information messages at");
 		ForceStackTrace=Con.Bind("Development", "Output stacktrace on exception", true, "Outputs a stacktrace on any exception caught through this plugins interfaces (Catcher or any of the Window events/callbacks)");
+		RunExtractAllTextures=Con.Bind("Development", "Extract All Textures", false, $"Extracts all textures to PLUGIN_PATH/{ExtractAllTextures.TextureDirectory}/. Textures have md5 appended to name since there are name collisions.");
 
 		//Fix problems with other plugins
 		BlockMouse_UnityExplorer=Con.Bind("Fix other plugins", "No mouse passthrough on Unity Explorer", true, "Unity explorer does not block mouse events from reaching the rest of unity when the mouse is over it. This fixes that. This will run during Window.OnDraw Priority=-100.");

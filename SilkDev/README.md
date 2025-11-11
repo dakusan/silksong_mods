@@ -125,11 +125,12 @@ See [root project README](../#contributing) for details
     * 🔌 Unity stuff:
         * ⚙️ `UnityObject<T>`.`NullSafe()`: Returns null if the object or unity object are null.
             * 💡 This allows null operator chaining with UnityObjects that may have been destroyed by Unity.
+        * ⚙️ `Task`.`AsCoroutine(Misc.Ref<Exception?>)`: Turn a Task into a Coroutine IEnumerator
     * 📦🔌 Streams:
         * ⚙️ `Stream`.`ReadAllAndCloseS()`: Reads the entirety of a stream into a string.
         * ⚙️ `Stream`.`ReadAllAndCloseB()`: Reads the entirety of a stream into a byte array.
 * 📦 `FileOps`:
-    * ⚙️ *Generic file operations* so as to not have to include `System.IO`: `WriteFile(byte[] or string)`, `AppendFile`, `ReadFile`, `ReadFileBytes`, `PathCombine(string...)`, `GetFileName`, `GetDirectoryName`, `FileExists`, `DirectoryExists`, `CreateDirectory`, `FileCopy`, `FileMove`, `FileDelete`, `JSON.DeserializeJson`
+    * ⚙️ *Generic file operations* so as to not have to include `System.IO`: `WriteFile(byte[] or string)`, `WriteFileAsync(byte[] or string)`, `AppendFile`, `ReadFile`, `ReadFileBytes`, `PathCombine(string...)`, `InvalidNameChars`, `GetFileName`, `GetDirectoryName`, `FileExists`, `DirectoryExists`, `CreateDirectory`, `FileCopy`, `FileMove`, `FileDelete`, `JSON.DeserializeJson`
     * 🧾 JSON Functions:
         * ⚙️ `SerializeToJSONSorted(object)`: See `JSON.SortedConverter` above
         * ⚙️ `SerializeToJSON(object, bool Compact=false)`: Calls `JsonConvert.SerializeObject`. Changes to unix line encoding.
@@ -152,6 +153,7 @@ See [root project README](../#contributing) for details
     * ⚙️ `SteamUsername`: Get steam username.
         * 💡 Note: May not be available until a few seconds after the game loads.
     * ⚙️ `GetPluginPath`: Gets the path of the calling plugin.
+    * ⚙️ `Ref<T>(T Value)`: Simple reference class
     * ⚙️ `IFF(bool Cond, Action CallOnTrue)`: If-statement used for bypassing curley-cue function blocks.
     * ⚙️ `Vector2` `ScreenSize => new(Screen.width, Screen.height)`;
     * ⚙️ `const char NewLine='\n'`;

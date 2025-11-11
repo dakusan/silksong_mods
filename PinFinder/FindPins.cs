@@ -163,7 +163,7 @@ public static class FindPins
 		};
 
 		//Watch for freeze. When it happens inform the user of the freeze
-		Ref<DateTime> LastUpdate=new(new DateTime());
+		Misc.Ref<DateTime> LastUpdate=new(new DateTime());
 		Coroutine WatchForFreezeCo=Catcher.ExecCoroutine("WatchForFreeze", WatchForFreeze(LastUpdate));
 
 		//Process each file
@@ -236,7 +236,7 @@ public static class FindPins
 	}
 
 	//Watch for 15 second freeze every 5 seconds. When it happens inform the user of the freeze
-	private static IEnumerator WatchForFreeze(Ref<DateTime> LastUpdate)
+	private static IEnumerator WatchForFreeze(Misc.Ref<DateTime> LastUpdate)
 	{
 		while(true) {
 			yield return new WaitForSecondsRealtime(5f);
@@ -328,10 +328,5 @@ public static class FindPins
 	{
 		Log.Error("ERROR: "+Message);
 		PBWL.AddErrorLine(Message);
-	}
-
-	//Simple reference class
-	private class Ref<T>(T Value) {
-		public T Value { get; set; } = Value;
 	}
 }

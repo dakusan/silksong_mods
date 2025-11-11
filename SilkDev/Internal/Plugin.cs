@@ -36,6 +36,7 @@ internal class Plugin : BaseUnityPlugin
 			DevInput.Mouse.Visibility.Init();
 			new Harmony(PluginInfo.PLUGIN_GUID).PatchAll();
 			Window.OnNextFrame(static () => new DevInput.BlockKeys());
+			ExtractAllTextures.Init(Internal.Config.C.RunExtractAllTextures);
 			Log.Info($"Plugin {PluginInfo.PLUGIN_GUID} is loaded");
 		});
 	}
