@@ -1,13 +1,12 @@
-using SilkDev;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace PinFinder;
+namespace SilkDev.Windows;
 
-//Displays a window with (vertically) a progress bar, a message line, and 2 logs below it (an error and a normal). This is static so only 1 instance can occur at a time
+//A progress bar window with a message line and and 2 logs below it (an error and a normal)
 //Any public variables can be updated at any time and the window will auto adjust on the next frame draw
-public class ProgressBarWithLogs : SilkDev.Windows.Window
+public class ProgressBarWithLogs : Window
 {
 	//All functions confirm these are set before using them
 	private readonly Texture2D DarkGreyTex=new Color(0.25f, 0.25f, 0.25f, 1f).MakeTexture();

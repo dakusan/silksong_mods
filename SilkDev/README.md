@@ -30,7 +30,7 @@ Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework
 - Block game Input
 - Mouse cursor visibility and passthrough fixes
 - Quickly enter into your save slot, skipping intro screens
-- Extract all textures to `PLUGIN_PATH/Textures`
+- Extract all textures **in memory** to `PLUGIN_PATH/Textures`
 - Debugging message log level and stack traces
 - Tons of classes and functions to make development easier.
 
@@ -112,6 +112,8 @@ See [root project README](../#contributing) for details
         * 💡 Popup messages animate opening and closing (2 popups show at a time during this).
         * 💡 Automatic “Press any key to close this message.” message.
     * 📦 `DialogWindow`: A window that contains a message and optionally ok/cancel buttons.
+    * 📦 `ProgressBarWithLogs`: A progress bar window with a message line and and 2 logs below it (an error and a normal).
+        * 💡 Any public variables can be updated at any time and the window will auto adjust on the next frame draw.
 * 📂 `Hooks`:
     * 📦 `DynamicHook`: Dynamically add a Harmony method hook by class and function name.
         * 💡 Allows harmony hooks without including assemblies in compiles.

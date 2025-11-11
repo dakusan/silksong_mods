@@ -86,7 +86,7 @@ public abstract class Window
 	//Each window needs its own ID so Unity can order windows
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0025:Use expression body for property", Justification = "Invalid due to auto-property accessor")]
 	protected static int GetNextID { get => field++; } = 57819; //Random large ID so as to not conflict with other windows
-	private readonly int ID=GetNextID;
+	public readonly int ID=GetNextID;
 
 	//Toggle visibility. If in the middle of a draw phase it will wait until the very beginning of the next frame to change it.
 	public static bool IsInDrawPrepPhase{ get; private set; } = false;
@@ -105,6 +105,7 @@ public abstract class Window
 	public readonly bool HasNoStyling=false; //If the default empty constructor was called, this window has no styling
 	public GUIStyle? GUIStyle=null; //Set to GUIStyle.none to draw your own window completely. Uses GUI.skin.window if null.
 	public bool UnboundDraw=false; //If true, you can draw outside the window bounds
+	public bool IsClosed { get; private set; } = false; //If the window is closed
 	public int CloseButtonSize=15, CloseButtonPadding=2;
 	public string Title;
 	public Texture2D? BGTex { //For now this is only kept here as an automatically disposable texture. It’s not used elsewise.
@@ -185,6 +186,10 @@ public abstract class Window
 	//Make sure to call the base
 	public virtual void Close()
 	{
+		if(IsClosed)
+			return;
+		AlwaysCallPreOnGUI=AlwaysCallUpdate=Visible=false;
+		IsClosed=true;
 		OnNextFrame(() => {
 			BGTex=null;
 			if(!WinList.Remove(this))
