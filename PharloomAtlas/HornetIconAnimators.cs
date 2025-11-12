@@ -133,7 +133,7 @@ internal class HornetIconAnimators
 			MyMaterial?.SetTextureOffset("_OverlayTex", new Vector2(0f, -Mathf.Repeat(TimeSpan()*BaseSpeed*HighlightSpeed, 1f)));
 	}
 
-	private class AnimatorRainbow2 : HornetIconAnimator 
+	private class AnimatorRainbow2 : HornetIconAnimator
 	{
 		private static readonly Type TSprite=DynamicHook.FindType("tk2dSprite")!;
 		private static readonly PropertyInfo? TColor;

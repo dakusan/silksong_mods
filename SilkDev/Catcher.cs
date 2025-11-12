@@ -17,7 +17,7 @@ public static class Catcher
 		OutputStack=Config.C.ForceStackTrace;
 		Config.C.ForceStackTrace.SettingChanged += (_, _) => OutputStack=Config.C.ForceStackTrace;
 
-		//Anything caught by unity will have already 
+		//Anything caught by unity will have already
 		Application.logMessageReceived += (condition, stackTrace, type) => Misc.IFF(
 			OutputStack && type==LogType.Exception,
 			() => Log.Error($"EXCEPTION: {condition}\nStack trace:\n{stackTrace}")

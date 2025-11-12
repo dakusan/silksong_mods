@@ -327,7 +327,7 @@ public class MapControl : SilkDev.Windows.Window
 
 	//Handle transformations between local and world coordinates (zoomed in and out)
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] public Vector2 ToZoomOut(Vector2	Pos) => Pos/ZoomScale; //Normalize a zoomed in position
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public float   ToZoomOut(float	Pos) => Pos/ZoomScale; //Normalize a zoomed in distance 
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public float   ToZoomOut(float	Pos) => Pos/ZoomScale; //Normalize a zoomed in distance
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] public Vector2 ToZoomIn (Vector2	Pos) => Pos*ZoomScale; //Recast a normalized position to its zoomed in position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] public float   ToZoomIn (float	Pos) => Pos*ZoomScale; //Recast a normalized distance to its zoomed in distance
 	public Vector2 MapPos
@@ -358,7 +358,7 @@ public class MapControl : SilkDev.Windows.Window
 		(GameMap.transform.Find("Compass Icon")?.transform ?? DummyTransform).localScale=NewScaleVector;
 		foreach(Transform Child in GameMap.transform.Find("Map Markers")?.transform ?? DummyTransform)
 			Child.localScale=NewScaleVector;
-		foreach(MapPin GamePin in GameMap.GetComponentsInChildren<MapPin>()) 
+		foreach(MapPin GamePin in GameMap.GetComponentsInChildren<MapPin>())
 			GamePin.transform.localScale=NewScaleVector;
 	}
 

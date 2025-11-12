@@ -1,0 +1,72 @@
+#!/usr/bin/env perl
+use strict; use warnings;
+
+my @FileList=map({$_ =~ s/^\w\s+//; $_} grep({substr($_, 0, 1) ne 'D'} split(/\n/, `git diff --cached --name-status`)));
+my @Warnings;
+foreach my $File (@FileList)
+{
+	#Skip binary files
+	if($File =~ /\.(?:png|gif|jpe?g|bmp|ico|dll|cab|ttf|doc|wav|so(?:\..+)?|exe|svg|otf|lst|eot|woff|xlsx?|webm|docx|jar|phar)$/) {
+		next; }
+
+	#Get the file contents
+	open my $FileHandle, '+<', $File or die "Can’t open $File: $!";
+	my $FileContents=join('', <$FileHandle>);
+	my $FileContentsChanged=0;
+
+	#----------Check for problems----------
+	#Fix EOL white space
+	if($File !~ /\.(?:Designer\.cs|resx)$/i && $FileContents =~ /[ \t]+\r?\n/m) {
+		$FileContents =~ s/[ \t]+\r?\n/\n/mg;
+		$FileContentsChanged=1;
+		push(@Warnings, "$File removed EOL white spacing");
+	}
+
+	#Fix trailing newline
+	if($FileContents =~ s/\n\z//) {
+		$FileContentsChanged=1;
+		push(@Warnings, "$File had trailing newline removed");
+	}
+
+	#Fix incorrect line break format
+	if($File !~ /\.(?:cs(?!s)\w*|resx|sln|xmta)$/ && ($FileContents =~ /\r/)) {
+		push(@Warnings, "$File needs to be converted to linux line breaks"); }
+
+	#Remove UTF8 BOM
+	if(($FileContents =~ /^\xEF\xBB\xBF/)) {
+		push(@Warnings, "$File has UTF8 BOM"); }
+
+	#Warn on double tabs (a following line has tabbed over more than twice the previous line)
+	if(($FileContents =~ /^(\t+)([^\t]+)\n\1\t\t/m)) {
+		push(@Warnings, "$File has double tabs"); }
+
+	#Go files shouldn’t have semicolons
+	if($File =~ /\.go$/ && ($FileContents =~ /;[ \t]*(?:$|\/\/)/m)) {
+		push(@Warnings, "$File has EOL semicolons");
+	}
+
+	#Files should not have execute permission set unless they are this file or end in .sh
+	if($File !~ /(?:pre-commit|\.sh)$/ && (((stat "$File")[2] or die "Could not stat $File") & 07777 != 0664)) {
+		push(@Warnings, "$File had incorrect permissions");
+		chmod 0664, $File or warn "Failed to chmod 0664 on $File: $!";
+		system('git', 'add', $File)==0 or warn "Failed to add $File to git index: $?";
+	}
+
+	#If file has changed, write the changes
+	if($FileContentsChanged) {
+		seek($FileHandle, 0, 0);
+		truncate($FileHandle, 0);
+		print $FileHandle $FileContents;
+	}
+
+	close $FileHandle;
+
+	#Readd the file after changes
+	if($FileContentsChanged) {
+		system('git', 'add', $File)==0 or warn "Failed to add $File to git index: $?";
+	}
+}
+
+print (@Warnings ? join("\n", @Warnings)."\n" : "All checks successful\n");
+
+exit(@Warnings ? 1 : 0);

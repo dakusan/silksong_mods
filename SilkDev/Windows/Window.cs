@@ -260,7 +260,7 @@ public abstract class Window
 
 	//Excute actions once during the next frame on Layout
 	private static readonly List<(bool CallBeforeLayout, Action Action)> NextFrameList=[], ThisFrameList=[];
-	public static void OnNextFrame(Action A, bool CallBeforeLayout=true) => //Always called immediately after Layout.PreOnGUI. If CallBeforeLayout=true then called during Layout. Otherwise, when the next non-layout event is received 
+	public static void OnNextFrame(Action A, bool CallBeforeLayout=true) => //Always called immediately after Layout.PreOnGUI. If CallBeforeLayout=true then called during Layout. Otherwise, when the next non-layout event is received
 		NextFrameList.Add((CallBeforeLayout, A));
 
 	//Handle executing window events
@@ -331,7 +331,7 @@ public abstract class Window
 		if(CurEv.isMouse || CurEv.isScrollWheel)
 			SendMouseEvents(CurEv);
 
-		//Send window layouts 
+		//Send window layouts
 		foreach(Window Win in WinList)
 			_=GUI.Window(
 				Win.ID,

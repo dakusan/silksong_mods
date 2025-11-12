@@ -118,7 +118,7 @@ public class SearchWindow : SilkDev.Windows.Window
 		)))];
 	}
 
-	//Create a string with sized down title and Info with highlighted search terms 
+	//Create a string with sized down title and Info with highlighted search terms
 	private static string MakeItemInfoLine(string Title, string Info, string[] EscapedTerms)
 	{
 		Info=Misc.SanitizeRichString(Info);

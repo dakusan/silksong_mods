@@ -21,7 +21,7 @@ public class MapIcon
 		MyGO.transform.SetLocalPosition2D(Item.Pos);
 		MyGO.layer=5;
 
-		//Turn it into a Sprite 
+		//Turn it into a Sprite
 		SpriteRenderer IconSprite=MyGO.AddComponent<SpriteRenderer>();
 		IconSprite.sprite=MySprite;
 		IconSprite.sortingLayerName="HUD";

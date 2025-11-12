@@ -76,7 +76,7 @@ public class DynamicEnumConfig
 				&& M.GetParameters()[2].ParameterType==typeof(ConfigDescription)
 			) ?? throw new InvalidOperationException("Bind method not found."))
 			.MakeGenericMethod(BuildEnumType);
-	
+
 	//Get and set the value
 	public string Value {
 		get => MyDynamicEntry.BoxedValue.ToString();

@@ -81,7 +81,7 @@ internal static class Patch_OneAxisInputControl_IsPressed
 					MapControl.Self?.MapState==MapControl.MapStateEnum.Marker	&&	//If in marker mode and
 					(MapControl.Self?.SideBar.Visible ?? false)					&&	//Sidebar is visible and
 					PAction.Name=="Menu Super"										//"Menu Super" is pressed, then choose icon
-				)											|| (	
+				)											|| (
 					SaveValuesWindow.Self.Visible								&&	//Save value window (and map) are open
 					(PAction.Name=="Pane Right" || PAction.Name=="Pane Left")	&&	//Scrolling the inventory
 					(AD.LeftTrigger.IsPressed || AD.RightTrigger.IsPressed)			//One of the triggers is pressed

@@ -38,7 +38,7 @@ Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework
 
 <a id="installation"></a>
 ## ⚙️ Installation
-1. Install **[BepInEx](https://www.nexusmods.com/hollowknightsilksong/mods/26)**.  
+1. Install **[BepInEx](https://www.nexusmods.com/hollowknightsilksong/mods/26)**.
 1. [Download](https://www.nexusmods.com/hollowknightsilksong/mods/510?tab=files) and extract this mod into: `Hollow Knight Silksong/BepInEx/plugins/dakusan`<br>
 You should end up with paths like: `Hollow Knight Silksong/BepInEx/plugins/dakusan/SilkDev.dll`
 1. (Optional) If you use other *Dakusan* mods — such as [NoClip](https://www.nexusmods.com/hollowknightsilksong/mods/478) — place them in the same `dakusan` directory.
@@ -46,7 +46,7 @@ You should end up with paths like: `Hollow Knight Silksong/BepInEx/plugins/dakus
 
 <a id="usage"></a>
 ## 🧭 Usage
-- Open the config window in-game with **F1**.  
+- Open the config window in-game with **F1**.
 - Default mouse toggle hotkey: **F10**.
 - Default block game input hotkey: **F4**.
 
@@ -109,7 +109,7 @@ See [root project README](../#contributing) for details
             * 🗒️ Overridable event callbacks for `GameEvents` and `OnGUI` event types.
         * 🧾 TODO:
             * 🗒️ Catch events before UniverseLib so we can cancel events to their focused windows.
-            * 🗒️ Catch all windows and insert them into the chain, even if they aren’t made as Windows. 
+            * 🗒️ Catch all windows and insert them into the chain, even if they aren’t made as Windows.
     * 📦 `PopupMessage`:
         * 💡 Only 1 popup message shows at a time, determined by Stack (FILO).
         * 💡 Popup messages animate opening and closing (2 popups show at a time during this).

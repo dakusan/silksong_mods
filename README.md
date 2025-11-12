@@ -80,5 +80,5 @@ Contributions, suggestions, and feedback welcome!
 
 <a id="license"></a>
 ## 🧠 License
-This repository is open-source and intended for educational and community modding purposes.  
+This repository is open-source and intended for educational and community modding purposes.
 Licensed under [BSD 3 clause](LICENSE).
