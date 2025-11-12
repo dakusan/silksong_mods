@@ -61,6 +61,7 @@ See [root project README](../#contributing) for details
 ---
 <a id="source-code-class-documentation"></a>
 # 📘 Source Code Class Documentation
+> These classes are designed to be useful across any Unity project. I plan to move them into a universal Unity plugin/mod in the near future.
 * 📂 `Configs`:
     * 📦 `ConfigEntryT`: A ConfigEntry wrapper class that allows getting/setting the value without using `.Value`.
     * 📦 `DynamicEnumConfig`: Creates a ConfigEntry<Enum> with dynamic values.

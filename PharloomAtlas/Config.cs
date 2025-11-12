@@ -44,7 +44,7 @@ public class Config
 		IconSet=new				(Con,	  Title, "Icon set",								GetIconFiles(), "Pick your favorite icon set or create your own!", "Icons-FromGame.png");
 		HornetHighlightSpeed	=Con.Bind(Title, "Hornet marker highlight speed",			1f, AVR(0.2f, 5f, "Applies to all highlight types", IsAdvanced));
 		AlwaysShowMarkerLabels	=Con.Bind(Title, "Always show marker labels",				true, "Normally marker labels only show when you are over the marker. This will make all labels show all the time.");
-		IconSize				=Con.Bind(Title, "Icon/Marker size",						0.5f, AVR(0.3f, 2.5f, "The size of the icons on the map"));
+		IconSize				=Con.Bind(Title, "Icon/Marker size",						0.75f, AVR(0.3f, 2.5f, "The size of the icons on the map"));
 		IconSizeScalesWithZoom	=Con.Bind(Title, "Icon/Marker size scales with zoom",		true, "If true icons will always stay the same size at any zoom.", IsAdvanced);
 		Shortcut_EditMarkerLabel=Con.Bind(Title, "Shortcut: Edit Marker Label",				new KeyboardShortcut(KeyCode.KeypadPeriod));
 		HornetRevolvingDist		=Con.Bind(Title, "Hornet marker: Revolving: Distance",		.1f, AVR(.02f, 1f, "The distance of the revolutions", IsAdvanced));

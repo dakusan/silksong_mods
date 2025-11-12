@@ -6,7 +6,7 @@
 *Explore. Track. Master Pharloom.*
 </div>
 
-<img src="Assets/LogoSmall.png" alt="Pharloom Atlas Logo" align=right>
+<img src="Assets/LogoSmall.jpg" alt="Pharloom Atlas Logo" align=right>
 
 1. [Overview](#overview)
 1. [Core Highlights](#core-highlights)
