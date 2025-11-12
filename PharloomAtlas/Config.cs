@@ -1,6 +1,8 @@
 using BepInEx.Configuration;
 using SilkDev;
 using SilkDev.Configs;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace PharloomAtlas;
@@ -17,6 +19,7 @@ public class Config
 	public readonly ConfigEntryT<KeyboardShortcut> Shortcut_SB_Up, Shortcut_SB_Down, Shortcut_SB_Left, Shortcut_SB_Right, Shortcut_SB_ToggleItem, Shortcut_SB_ScrollUp, Shortcut_SB_ScrollDown, Shortcut_SB_SelectIcon;
 	public readonly ConfigEntryT<Color> Color_SideBar_Background, Color_SideBar_Interface, Color_SideBar_Highlight, Color_MarkerLabelText, Color_MarkerLabelBG;
 	public readonly ConfigEntryT<Rect> Rect_SaveValuesWindow, Rect_SearchWindow;
+	public readonly DynamicEnumConfig IconSet;
 	internal readonly ConfigEntryT<HornetIconAnimators.HornetHighlightTypes> HornetHighlights;
 
 	private ConfigDescription AVR<T>(T min, T max, string Description="", ConfigurationManagerAttributes? CMA=null) where T : System.IComparable => new(Description, new AcceptableValueRange<T>(min, max), CMA);
@@ -32,12 +35,13 @@ public class Config
 		AutoMap					=Con.Bind(Title, "Auto map",								false, "Areas that you have the map for will automatically fill in without needing to rest at a bench or have the quill");
 		UnlockMap				=Con.Bind(Title, "Unlock map",								false, "Unlocks The Moss Grotto map for you, so you have access to the inventory map and sidebar");
 		MapInAbyss				=Con.Bind(Title, "Show map in abyss",						false, "You got there!");
-		MapInAbyssUnspoiled	=Con.Bind(Title, "Show map in *****",						false, "You’ll know once you get there ;-)");
+		MapInAbyssUnspoiled		=Con.Bind(Title, "Show map in *****",						false, "You’ll know once you get there ;-)");
 
 		Title="Markers";
 		MoreMarkers				=Con.Bind(Title, "More markers",							false, "Gives 99 of every kind of marker");
 		ForceDisplayCompass		=Con.Bind(Title, "Force display Hornet pin (compass)",		false, "Force displaying Hornet’s location");
 		HornetHighlights		=Con.Bind(Title, "Highlight Hornet marker",					HornetIconAnimators.HornetHighlightTypes.Revolve, "Shiny");
+		IconSet=new				(Con,	  Title, "Icon set",								GetIconFiles(), "Pick your favorite icon set or create your own!", "Icons-FromGame.png");
 		HornetHighlightSpeed	=Con.Bind(Title, "Hornet marker highlight speed",			1f, AVR(0.2f, 5f, "Applies to all highlight types", IsAdvanced));
 		AlwaysShowMarkerLabels	=Con.Bind(Title, "Always show marker labels",				true, "Normally marker labels only show when you are over the marker. This will make all labels show all the time.");
 		IconSize				=Con.Bind(Title, "Icon/Marker size",						0.5f, AVR(0.3f, 2.5f, "The size of the icons on the map"));
@@ -130,4 +134,19 @@ public class Config
 			)
 		);
 	}
+
+	//Get the icon files — Enumerate all resources or files matching “Icons-*.png”.
+	//Dictionary keys are the filenames, and values are derived from the wildcard portion, with spaces added before capital letters that are preceded by lowercase letters or numbers.
+	private const string IconStrStart="Icons-", IconStrEnd=".png";
+	private Dictionary<string, string> GetIconFiles() =>
+		((HashSet<string>)[
+			.. FileOps.GetDirFiles(Misc.GetPluginPath, $"{IconStrStart}*{IconStrEnd}").Select(FileOps.GetFileName),
+			.. FileOps.GetResources().Where(FileName => FileName.StartsWith(IconStrStart) && FileName.EndsWith(IconStrEnd))
+		]).ToDictionary(
+			Str => Str,
+			Str => System.Text.RegularExpressions.Regex.Replace(
+				Str[IconStrStart.Length .. ^IconStrEnd.Length],
+				@"(?<=[a-z0-9])([A-Z])", " $1"
+			)
+		);
 }

@@ -63,6 +63,8 @@ See [root project README](../#contributing) for details
 # 📘 Source Code Class Documentation
 * 📂 `Configs`:
     * 📦 `ConfigEntryT`: A ConfigEntry wrapper class that allows getting/setting the value without using `.Value`.
+    * 📦 `DynamicEnumConfig`: Creates a ConfigEntry<Enum> with dynamic values.
+        * 💡 Dictionary values are only used as display text in the configuration interface. Everything else uses the dictionary keys.
     * 📦 `OrderedConfig`: A drop in wrapper for the `ConfigFile` class with the `.Bind()` functions. It optionally orders the config file sections and items by adding numbers to their front.
     * 📦 `PerSaveConfig`: Enabled configurations **per-user-saveslot** with **backups**.
     * 📦 `SpoilerPair`: Toggles the visibility of a pair of settings based upon if the spoiler has been reached yet.
@@ -153,7 +155,7 @@ See [root project README](../#contributing) for details
         * ⚙️ `Stream`.`ReadAllAndCloseS()`: Reads the entirety of a stream into a string.
         * ⚙️ `Stream`.`ReadAllAndCloseB()`: Reads the entirety of a stream into a byte array.
 * 📦 `FileOps`:
-    * ⚙️ *Generic file operations* so as to not have to include `System.IO`: `WriteFile(byte[] or string)`, `WriteFileAsync(byte[] or string)`, `AppendFile`, `ReadFile`, `ReadFileBytes`, `PathCombine(string...)`, `InvalidNameChars`, `GetFileName`, `GetDirectoryName`, `FileExists`, `DirectoryExists`, `CreateDirectory`, `FileCopy`, `FileMove`, `FileDelete`, `JSON.DeserializeJson`
+    * ⚙️ *Generic file operations* so as to not have to include `System.IO`: `WriteFile(byte[] or string)`, `WriteFileAsync(byte[] or string)`, `AppendFile`, `ReadFile`, `ReadFileBytes`, `PathCombine(string...)`, `InvalidNameChars`, `GetFileName`, `GetDirectoryName`, `GetDirFiles`, `FileExists`, `DirectoryExists`, `CreateDirectory`, `FileCopy`, `FileMove`, `FileDelete`, `JSON.DeserializeJson`
     * 🧾 JSON Functions:
         * ⚙️ `SerializeToJSONSorted(object)`: See `JSON.SortedConverter` above
         * ⚙️ `SerializeToJSON(object, bool Compact=false)`: Calls `JsonConvert.SerializeObject`. Changes to unix line encoding.
@@ -166,6 +168,7 @@ See [root project README](../#contributing) for details
         * ⚙️ `LoadEmbeddedResource(string Name)`: Loads an embedded resource by name from the calling assembly.
         * ⚙️ `LoadEmbeddedResource(string Name, Assembly Assembly)`: Loads an embedded resource by name from the given assembly.
         * ⚙️ `LoadLocalFileOrResource(string Name)`: If local file is available, use that. Otherwise, loads an embedded resource by name from the calling assembly.
+        * ⚙️ `GetResources()`: Returns the list of resources in the calling assembly.
 * 📦 `Log`:
     * ⚙️ `Log`.`Info(string Message)`, `Log`.`Info(object ObjToSerialize)`: Sends out log lines with log level set by BepInEx configuration.
     * ⚙️ `Log`.`Error(string Message)`: Sends log message as error.

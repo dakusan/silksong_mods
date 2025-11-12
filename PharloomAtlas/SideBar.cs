@@ -33,8 +33,16 @@ public partial class SideBar : SilkDev.Windows.Window
 		HasInitialized=true;
 
 		//Initializing different parts of the interface
+		int ArrowWidth=7, ArrowHeight=12;
 		(this.DS, Width, AlwaysCallPreOnGUI)=(DS, Conf.SideBarWidth, true);
-		Arrow=Sprite.Create(DS.IconPicsTex, new Rect(652, DS.IconPicsTex.height-463-12, 7, 12), new Vector2(1, 0.5f), 100f);
+		Arrow=Sprite.Create( //Arrow is always in the last icon at the top right corner
+			DS.IconPicsTex,
+			DataStorage.IconSprites.GetIconRectByID(DataStorage.IconLenX*DataStorage.IconLenY-1).
+				AddX(DataStorage.IconWidth-ArrowWidth).
+				AddY(DataStorage.IconHeight-ArrowHeight).
+				SetWidth(ArrowWidth).SetHeight(ArrowHeight),
+			new Vector2(1, 0.5f), 100f
+		);
 
 		//Set up the skin
 		if(CustomSkin==null) {

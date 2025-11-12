@@ -12,8 +12,7 @@ public class DataStorage
 	public readonly Dictionary<int, Category> Categories=[];
 	public readonly Dictionary<int, Item> Items;
 	public readonly Texture2D IconPicsTex;
-	private const int IconLenX=10, IconLenY=8, IconWidth=65, IconHeight=65, IconPadding=1;
-	private const string IconFile="Icons.png";
+	internal const int IconLenX=10, IconLenY=8, IconWidth=65, IconHeight=65, IconPadding=1;
 
 	//Create icon sprites when needed
 	public class IconSprites
@@ -46,7 +45,7 @@ public class DataStorage
 			}
 		}
 
-		private Rect GetIconRectByID(int IconID)
+		internal static Rect GetIconRectByID(int IconID)
 		{
 			int x=IconID%IconLenX, y=IconID/IconLenX;
 			return new(x*(IconWidth+IconPadding), (IconLenY-y-1)*(IconHeight+IconPadding), IconWidth, IconHeight);
@@ -104,14 +103,21 @@ public class DataStorage
 		foreach(Item Item in Items.Values)
 			Categories[Item.CategoryID].TotalCount++;
 
-		//Create the texture and sprites
+		//Create and update the sprite texture
 		IconPicsTex=new Texture2D(2, 2, TextureFormat.ARGB32, false);
-		if(!IconPicsTex.LoadImage(FileOps.LoadLocalFileOrResource(IconFile).ReadAllAndCloseB()))
+		if(!IconPicsTex.LoadImage(FileOps.LoadLocalFileOrResource(Config.C.IconSet.Value).ReadAllAndCloseB()))
 			throw new Exception($"Could not load icons texture, failing out");
 		IconPicsTex.Apply();
+		Config.C.IconSet.SettingChanged += (_, _) => Misc.IFF(
+			!IconPicsTex.LoadImage(FileOps.LoadLocalFileOrResource(Config.C.IconSet.Value).ReadAllAndCloseB()),
+			() => throw new Exception($"Could not load icons texture, failing out")
+		);
+
+		//Create the sprites
 		MyIconSprites=new IconSprites(IconPicsTex);
 		foreach(Category Category in Categories.Values)
 			Category.Sprite=MyIconSprites[Category.IconID];
+
 		LoadCategoryToggleStates(true);
 	}
 

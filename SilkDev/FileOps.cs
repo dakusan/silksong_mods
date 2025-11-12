@@ -31,6 +31,7 @@ public static class FileOps
 	public static char[]	InvalidNameChars(									) => Path.GetInvalidFileNameChars();
 	public static string	GetFileName		(string P							) => Path.GetFileName(P);
 	public static string	GetDirectoryName(string P							) => Path.GetDirectoryName(P);
+	public static string[]	GetDirFiles		(string Dir, string Pattern="*"		) => Directory.GetFiles(Dir, Pattern);
 	public static bool		FileExists		(string P							) => File.Exists(P);
 	public static bool		DirectoryExists	(string P							) => Directory.Exists(P);
 	public static DirInfo	CreateDirectory	(string P							) => Directory.CreateDirectory(P);
@@ -58,4 +59,5 @@ public static class FileOps
 		string FileName=PathCombine(GetDirectoryName(Assembly.Location), Name);
 		return FileExists(FileName) ? File.OpenRead(FileName) : LoadEmbeddedResource(Name, Assembly);
 	}
+	public static string[] GetResources() => Assembly.GetCallingAssembly().GetManifestResourceNames();
 }

@@ -139,8 +139,9 @@ public partial class SideBar
 			GUILayout.Space(AreaMargin);
 			GUI.DrawTextureWithTexCoords(
 				GUILayoutUtility.GetRect(IconSize, IconSize), MySprite.texture,
-				MySprite.textureRect.ConvertTexCoords(MySprite.texture)
-				//new Rect(MySprite.textureRect.x+13, MySprite.textureRect.y+13, 40f, 40f).ConvertTexCoords(MySprite.texture)
+				(	  Config.C.IconSet.Value!="Icons-Circles.png" ? MySprite.textureRect
+					: new Rect(MySprite.textureRect.x+13, MySprite.textureRect.y+13, 40f, 40f) //Zoom in on circles textures
+				).ConvertTexCoords(MySprite.texture)
 			);
 			if(IsMouseOver)
 				GUI.DrawTexture(GUILayoutUtility.GetLastRect(), CTexIconHover);

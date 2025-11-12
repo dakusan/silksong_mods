@@ -14,6 +14,7 @@ Enabled by default: [i]Sidebar &amp; map icons[/i] + [i]Highlight Hornet marker[
 [*][b]Icons, Markers &amp; Pins[/b][list]
 [*][b][img=middle]https://www.castledragmire.com/silksong/BenchSmall.png[/img] Icons[/b][list]
 [*]All notable location data imported from [url=https://mapgenie.io/hollow-knight-silksong/maps/pharloom]MapGenie.io[/url] and displayed on the in-game map.
+[*]Multiple icons textures available — add your own by placing `Icons-*.png` in the plugin directory.
 [*]Progress tracking — found icons automatically become invisible.
 [*]Icon categories and category groups can be toggled through 3 states:
     Show all (found markers appear translucent/greyed) • Show incomplete • Hide all
