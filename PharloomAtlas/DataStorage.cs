@@ -15,6 +15,47 @@ public class DataStorage
 	private const int IconLenX=10, IconLenY=8, IconWidth=65, IconHeight=65, IconPadding=1;
 	private const string IconFile="Icons.png";
 
+	//Create icon sprites when needed
+	public class IconSprites
+	{
+		private readonly Sprite?[] SpriteList=new Sprite?[IconLenX*IconLenY];
+		private readonly Texture2D IconPicsTex;
+		private const int ErrorTexSize=54;
+		internal IconSprites(Texture2D IconPicsTex)
+		{
+			this.IconPicsTex=IconPicsTex;
+
+			//Create the special error sprite (which is always the last square and is of size ErrorTexSize*ErrorTexSize)
+			int LastSpriteID=IconLenX*IconLenY-1;
+			SpriteList[LastSpriteID]=CreateSprite(GetIconRectByID(LastSpriteID).SetWidth(ErrorTexSize).SetHeight(ErrorTexSize));
+		}
+
+		public Sprite this[int IconID]
+		{
+			get {
+				//Instead of dealing with errors, just use an error icon when out of range
+				if(IconID is <0 or >=(IconLenX*IconLenY))
+					IconID=IconLenX*IconLenY-1;
+
+				//Return if already created
+				if(SpriteList[IconID]!=null)
+					return SpriteList[IconID]!;
+
+				//Create the sprite
+				return SpriteList[IconID]=CreateSprite(GetIconRectByID(IconID));
+			}
+		}
+
+		private Rect GetIconRectByID(int IconID)
+		{
+			int x=IconID%IconLenX, y=IconID/IconLenX;
+			return new(x*(IconWidth+IconPadding), (IconLenY-y-1)*(IconHeight+IconPadding), IconWidth, IconHeight);
+		}
+		private Sprite CreateSprite(Rect IconRect) =>
+			Sprite.Create(IconPicsTex, IconRect, new Vector2(0.5f, 0.5f), 100f);
+	}
+	public readonly IconSprites MyIconSprites;
+
 	//Load the data from the files
 	internal DataStorage()
 	{
@@ -60,20 +101,17 @@ public class DataStorage
 			Log.Error($"Invalid CategoryID[#{ItemData.CategoryID}] on Item[#{ItemID}]");
 			ItemData.CategoryID=Categories.First().Key;
 		}
+		foreach(Item Item in Items.Values)
+			Categories[Item.CategoryID].TotalCount++;
 
 		//Create the texture and sprites
 		IconPicsTex=new Texture2D(2, 2, TextureFormat.ARGB32, false);
 		if(!IconPicsTex.LoadImage(FileOps.LoadLocalFileOrResource(IconFile).ReadAllAndCloseB()))
 			throw new Exception($"Could not load icons texture, failing out");
 		IconPicsTex.Apply();
-		foreach(Category Category in Categories.Values) {
-			int x=Category.IconID%IconLenX, y=Category.IconID/IconLenX;
-			if(y>IconLenY)
-				throw new Exception($"Invalid Icon ID for Category \"{Category.Title}\": {Category.IconID}>{IconLenX*IconLenY}");
-			Rect IconRect=new(x*(IconWidth+IconPadding), (IconLenY-y-1)*(IconHeight+IconPadding), IconWidth, IconHeight);
-			Category.Sprite=Sprite.Create(IconPicsTex, IconRect, new Vector2(0.5f, 0.5f), 100f);
-		}
-
+		MyIconSprites=new IconSprites(IconPicsTex);
+		foreach(Category Category in Categories.Values)
+			Category.Sprite=MyIconSprites[Category.IconID];
 		LoadCategoryToggleStates(true);
 	}
 
@@ -100,16 +138,14 @@ public class DataStorage
 		}
 	}
 
-	internal void LoadIcons()
-	{
-		//Create all the icons
-		foreach(Item Item in Items.Values) {
-			Category MyCategory=Categories[Item.CategoryID];
-			MyCategory.TotalCount++;
-			MyCategory.CurrentCount++;
-			Item.MapIcon=new MapIcon(Item, Categories[Item.CategoryID].Sprite);
-		}
-	}
+	//Create all the icons
+	internal void LoadIcons() =>
+		Items.Values.ForEach(Item =>
+			Item.MapIcon=new MapIcon(
+				Item,
+				MyIconSprites[Item.IconID!=-1 ? Item.IconID : Categories[Item.CategoryID].IconID]
+			)
+		);
 
 	//Category state updating functions
 	public void CycleGroupCategoryState(CategoryGroup CG)

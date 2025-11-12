@@ -33,7 +33,7 @@ public class Category
 	public int TotalCount	{ get; internal set; }
 	public int CurrentCount { get; internal set; }
 	public string Title="";
-	public string? Template, Info;
+	public string? Info;
 	public Sprite Sprite	{ get; internal set; } = null!;
 	public CategoryToggleState ToggleState=CategoryToggleState.Unknown;
 //		internal Category() {} //Not yet ready for other people to make these. Would need some work.
@@ -44,6 +44,8 @@ public class Item
 {
 	public int ID			{ get; internal set; }
 	public int CategoryID	{ get; internal set; } //Locking down CategoryID to make sure only registered categories are used
+	public Sprite Sprite	{ get; internal set; } = null!;
+	public int IconID=-1;
 	public string Title="";
 	public string? Description;
 	public float x, y;

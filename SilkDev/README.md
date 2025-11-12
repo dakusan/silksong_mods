@@ -75,7 +75,7 @@ See [root project README](../#contributing) for details
         * 📦 `ResizeDragControl`: Adds controls on window’s for drag resizing, and can also handle window moving just like `GUI.DragWindow()`.
             * 💡 Can save to a config variable when moving/resizing finishes.
         * 📦 `Visibility`: Handle mouse cursor visibility.
-            * 💡 Provides a delegate to force mouse visibility via functions subscriptions.
+            * 🗒️ Provides a delegate to force mouse visibility via functions subscriptions.
     * 📦 `BlockKeys`: Blocks the keyboard from getting to the game via a shortcut key.
         * 💡 Has an unobstructive translucent popup that shows when keys are blocked.
         * 💡 Automatically initiated by the plugin.
@@ -92,21 +92,21 @@ See [root project README](../#contributing) for details
     * 📦 `SingleDelegate`: Wrapper for singlecast delegates with custom equality checking.
 * 📂 `Windows`:
     * 📦 `Window`:
-        * 🧾💡 Abstract class for a Unity based `GUI.Window()`. Features:
-            * Makes sure windows have a unique ID and custom handle all mouse events in order of zOrder. All other events are processed naturally.
-            * Mouse events are only called if the mouse is over the window, or it is dragging. Also adds `MouseMove`, `MouseEnterWindow`, and `MouseLeaveWindow`.
-            * Safe window moving and resizing.
-            * Optionally saves/restores window position via a ConfigEntry.
-            * Has a close button with optional event action.
-            * Can give priority that sets windows to bottom or topmost.
-            * Takes into account UniverseLib (Unity Explorer) windows at `Priority=-100` since they do not cancel the mouse themselves.
-            * Strict event call ordering by window order and priority. Full event system call ordering is available at the top of `Window.cs`.
-            * Options to call `PreOnGUI` and `Update` even if not visible.
-            * Fake windows can be created just for mouse handling.
-            * Overridable event callbacks for `GameEvents` and `OnGUI` event types.
-        * 🧾💡 TODO:
-            * Catch events before UniverseLib so we can cancel events to their focused windows.
-            * Catch all windows and insert them into the chain, even if they aren’t made as Windows. 
+        * 🧾🗒️ Abstract class for a Unity based `GUI.Window()`. Features:
+            * 🗒️ Makes sure windows have a unique ID and custom handle all mouse events in order of zOrder. All other events are processed naturally.
+            * 🗒️ Mouse events are only called if the mouse is over the window, or it is dragging. Also adds `MouseMove`, `MouseEnterWindow`, and `MouseLeaveWindow`.
+            * 🗒️ Safe window moving and resizing.
+            * 🗒️ Optionally saves/restores window position via a ConfigEntry.
+            * 🗒️ Has a close button with optional event action.
+            * 🗒️ Can give priority that sets windows to bottom or topmost.
+            * 🗒️ Takes into account UniverseLib (Unity Explorer) windows at `Priority=-100` since they do not cancel the mouse themselves.
+            * 🗒️ Strict event call ordering by window order and priority. Full event system call ordering is available at the top of `Window.cs`.
+            * 🗒️ Options to call `PreOnGUI` and `Update` even if not visible.
+            * 🗒️ Fake windows can be created just for mouse handling.
+            * 🗒️ Overridable event callbacks for `GameEvents` and `OnGUI` event types.
+        * 🧾 TODO:
+            * 🗒️ Catch events before UniverseLib so we can cancel events to their focused windows.
+            * 🗒️ Catch all windows and insert them into the chain, even if they aren’t made as Windows. 
     * 📦 `PopupMessage`:
         * 💡 Only 1 popup message shows at a time, determined by Stack (FILO).
         * 💡 Popup messages animate opening and closing (2 popups show at a time during this).
@@ -116,7 +116,7 @@ See [root project README](../#contributing) for details
         * 💡 Any public variables can be updated at any time and the window will auto adjust on the next frame draw.
 * 📂 `Hooks`:
     * 📦 `DynamicHook`: Dynamically add a Harmony method hook by class and function name.
-        * 💡 Allows harmony hooks without including assemblies in compiles.
+        * 🗒️ Allows harmony hooks without including assemblies in compiles.
     * 📦 `LiveHook`: Safe enable toggling of harmony method hooks.
 * 📂 `JSON`:
     * 📦 `FieldPropConverter`: Convert a class by setting its fields and properties, no matter their accessibility status.
@@ -185,5 +185,5 @@ See [root project README](../#contributing) for details
     * 📦 `RField<ObjType, FieldType>`, `RProp<ObjType, PropType>`, `RMethod<ObjType, RetType>`: Get via reflection fields, properties, or methods, with attached object for convenient `Get`/`Set`/`Invoke`/`(typecast)`.
         * 💡 Attached object can be changed via `public ObjType Obj`.
 * 📦 `TypedDisposer<T>(T Target, Action<T> Disposal) : IDisposable`
-    * 💡 Create disposable objects for RAII use. [Set with `using` for destruction at end of scope].
+    * 🗒️ Create disposable objects for RAII use. [Set with `using` for destruction at end of scope].
     * ⚙️ `Detach()`: Detach object so it won’t be disposed.

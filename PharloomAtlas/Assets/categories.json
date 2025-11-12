@@ -4,7 +4,7 @@
 			"Order": 1,
 			"IconID": 38,
 			"Title": "Plasmium Cocoon",
-			"Template": "Available in [ACT 3](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479260)"
+			"Info": "Available in [ACT 3](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479260)"
 		},
 		"13527": {
 			"Order": 0,
@@ -27,8 +27,7 @@
 		"13533": {
 			"Order": 1,
 			"IconID": 6,
-			"Title": "Bench",
-			"Template": "**Required:** Pay ?? Rosary toll"
+			"Title": "Bench"
 		},
 		"13534": {
 			"Order": 2,
@@ -38,14 +37,12 @@
 		"13535": {
 			"Order": 0,
 			"IconID": 5,
-			"Title": "Bellway Station",
-			"Template": "**Required:** Pay ?? Rosary toll"
+			"Title": "Bellway Station"
 		},
 		"13539": {
 			"Order": 3,
 			"IconID": 63,
-			"Title": "Ventrica Station",
-			"Template": "**Required:** Pay ?? Rosary toll"
+			"Title": "Ventrica Station"
 		}
 	},
 	"Collectibles": {
@@ -53,21 +50,18 @@
 			"Order": 3,
 			"IconID": 26,
 			"Title": "Lost Flea",
-			"Template": "**Required:** ??",
 			"Info": "Find **Lost Fleas** and collect rewards from the [Fleamaster Mooshka](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477856)"
 		},
 		"13545": {
 			"Order": 4,
 			"IconID": 27,
 			"Title": "Mask Shard",
-			"Template": "**Required:** ??",
 			"Info": "Collect four to add a permanent health Mask"
 		},
 		"13548": {
 			"Order": 10,
 			"IconID": 28,
 			"Title": "Spool Fragment",
-			"Template": "**Required:** ??",
 			"Info": "Collect two to gain an extra Spool"
 		},
 		"13550": {
@@ -85,7 +79,6 @@
 			"Order": 6,
 			"IconID": 56,
 			"Title": "Memory Locket",
-			"Template": "**Required:** ??",
 			"Info": "Memory Lockets are used to add new Tool slots to your Crests."
 		},
 		"13580": {
@@ -122,42 +115,36 @@
 			"Order": 5,
 			"IconID": 32,
 			"Title": "Memento",
-			"Template": "**Required:** ??",
 			"Info": "Decorative mementos that are displayed at [Bellhome](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479175)"
 		}
 	},
 	"Items": {
 		"13547": {
 			"Order": 4,
-			"IconID": 53,
+			"IconID": 74,
 			"Title": "Shard Bundle",
-			"Template": "**Required:** ??",
 			"Info": "Contains 80 - 220 Shell Shards. Break it open in your inventory."
 		},
 		"13554": {
 			"Order": 2,
 			"IconID": 48,
-			"Title": "Rosary",
-			"Template": "**Required:** ??"
+			"Title": "Rosary"
 		},
 		"13559": {
 			"Order": 3,
 			"IconID": 49,
 			"Title": "Rosary String",
-			"Template": "**Required:** ??",
 			"Info": "Contains 30 - 340 Rosaries. Break it open in your inventory."
 		},
 		"13560": {
 			"Order": 5,
 			"IconID": 47,
-			"Title": "Shell Shards",
-			"Template": "**Required:** ??"
+			"Title": "Shell Shards"
 		},
 		"13561": {
 			"Order": 1,
 			"IconID": 11,
-			"Title": "Craftmetal",
-			"Template": "**Required:** ??"
+			"Title": "Craftmetal"
 		},
 		"13563": {
 			"Order": 6,
@@ -175,21 +162,18 @@
 		"13549": {
 			"Order": 1,
 			"IconID": 12,
-			"Title": "Crest",
-			"Template": "**Required:** ??\n\n**Slots:**\n- ?? Red\n- ?? Blue\n- ?? Yellow"
+			"Title": "Crest"
 		},
 		"13567": {
 			"Order": 3,
 			"IconID": 62,
 			"Title": "Tool",
-			"Template": "**Required:** ??\n\n**Effect:** ??",
 			"Info": "_Collect all tools to unlock the Arsenal achievement._"
 		},
 		"13568": {
 			"Order": 2,
 			"IconID": 65,
-			"Title": "Silk Skill",
-			"Template": "**Effect:** ??"
+			"Title": "Silk Skill"
 		},
 		"13569": {
 			"Order": 0,
@@ -198,12 +182,12 @@
 		},
 		"13570": {
 			"Order": 4,
-			"IconID": 57,
+			"IconID": 4,
 			"Title": "Upgrade"
 		},
 		"13575": {
 			"Order": 5,
-			"IconID": 62,
+			"IconID": 61,
 			"Title": "Kit/Pouch Update"
 		}
 	},
@@ -211,39 +195,34 @@
 		"13523": {
 			"Order": 0,
 			"IconID": 3,
-			"Title": "Arena Battle",
-			"Template": "**Enemies:**\n- ??"
+			"Title": "Arena Battle"
 		},
 		"13579": {
 			"Order": 2,
 			"IconID": 18,
 			"Title": "Journal Entry",
-			"Template": "Defeat ?? to complete the hunter's notes.",
 			"Info": "Begin the [Bugs of Pharloom](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478042) wish to unlock the [Hunter's Journal](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478043)."
 		},
 		"13587": {
 			"Order": 1,
 			"IconID": 8,
-			"Title": "Boss",
-			"Template": "**Reward:**\n- ??"
+			"Title": "Boss"
 		}
 	},
 	"Quests": {
 		"13588": {
 			"Order": 0,
 			"IconID": 52,
-			"Title": "Objective",
-			"Template": "**Previous Objective:** ??  \n**Next Objective:** ??"
+			"Title": "Objective"
 		},
 		"13589": {
 			"Order": 2,
 			"IconID": 72,
-			"Title": "Wish",
-			"Template": "**Reward:**\n- ??"
+			"Title": "Wish"
 		},
 		"13590": {
 			"Order": 1,
-			"IconID": 45,
+			"IconID": 57,
 			"Title": "Quest Item"
 		}
 	},
@@ -251,8 +230,7 @@
 		"13571": {
 			"Order": 6,
 			"IconID": 31,
-			"Title": "Miscellaneous",
-			"Template": "**Required:** ??"
+			"Title": "Miscellaneous"
 		},
 		"13572": {
 			"Order": 2,
@@ -282,8 +260,7 @@
 		"13582": {
 			"Order": 4,
 			"IconID": 24,
-			"Title": "Locked Door",
-			"Template": "**Required:** ??"
+			"Title": "Locked Door"
 		},
 		"13583": {
 			"Order": 7,

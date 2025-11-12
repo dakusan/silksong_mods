@@ -168,6 +168,7 @@
 		"CategoryID": 13590,
 		"Title": "Mossberry",
 		"Description": "On a branch in the upper corner of the room.\n\n_Initially gathered as part of the [Berry Picking](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477876) Wish. After completing it, bring additional Mossberries to the druid for Rosaries - and an upgrade to the [Druid's Eye](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478255)._",
+		"IconID": 73,
 		"y": -12.648271114722569,
 		"x": -14.289680034006821,
 		"ImageURLs": [
@@ -218,6 +219,7 @@
 		"CategoryID": 13559,
 		"Title": "Frayed Rosary String",
 		"Description": "On a ledge",
+		"IconID": 13,
 		"y": -13.049679424920015,
 		"x": -13.375535836974635,
 		"ImageURLs": [
@@ -238,6 +240,7 @@
 		"CategoryID": 13590,
 		"Title": "Mossberry",
 		"Description": "**Required:** [Silkspear](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477871) (or bounce off an enemy's head with your downward attack)\n\n_Initially gathered as part of the [Berry Picking](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477876) Wish. After completing it, bring additional Mossberries to the druid for Rosaries - and an upgrade to the [Druid's Eye](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478255)._",
+		"IconID": 73,
 		"y": -11.895760015428095,
 		"x": -12.720379667884771,
 		"ImageURLs": [
@@ -411,6 +414,7 @@
 		"CategoryID": 13590,
 		"Title": "Simple Key",
 		"Description": "Can be bought from [Pebb](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477837) for 500 rosaries",
+		"IconID": 35,
 		"y": -11.172539911983186,
 		"x": -11.625068881153425
 	},
@@ -594,6 +598,7 @@
 		"CategoryID": 13559,
 		"Title": "Frayed Rosary String",
 		"Description": "At the bottom of some steps. Watch out for falling rocks as you approach.",
+		"IconID": 13,
 		"y": -9.901768810404121,
 		"x": -4.68114309916227,
 		"ImageURLs": [
@@ -663,6 +668,7 @@
 		"CategoryID": 13559,
 		"Title": "Frayed Rosary String",
 		"Description": "Held by a corpse near a suspended platform. Can only be reached by getting through the [Silk Wall](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477872)",
+		"IconID": 13,
 		"y": -8.51731072174205,
 		"x": -12.493802788013724,
 		"ImageURLs": [
@@ -736,6 +742,7 @@
 		"CategoryID": 13590,
 		"Title": "Mossberry",
 		"Description": "Held by a flying enemy.\n\n_Initially gathered as part of the [Berry Picking](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477876) Wish. After completing it, bring additional Mossberries to the druid for Rosaries - and an upgrade to the [Druid's Eye](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478255)._",
+		"IconID": 73,
 		"y": -8.933074879197747,
 		"x": -9.957456677230923,
 		"ImageURLs": [
@@ -1016,6 +1023,7 @@
 		"CategoryID": 13559,
 		"Title": "Frayed Rosary String",
 		"Description": "At the top of a secret room behind the [Breakable Wall](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478281). Be ready to fight some more flying enemies.",
+		"IconID": 13,
 		"y": -9.593969431465595,
 		"x": 6.064641402402202,
 		"ImageURLs": [
@@ -1141,6 +1149,7 @@
 		"CategoryID": 13554,
 		"Title": "Rosary Chest",
 		"Description": "Inside a chest in the [secret room](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477930), reached by hugging the left wall while falling down the pit.\n\nGuarded by two flying enemies.",
+		"IconID": 21,
 		"y": -12.259594499333218,
 		"x": -13.867207924909636,
 		"ImageURLs": [
@@ -1344,6 +1353,7 @@
 		"CategoryID": 13575,
 		"Title": "Tool Pouch Upgrade",
 		"Description": "Can be purchased from [Mort](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477946) for 220 Rosaries\n\n**Effect:** Increases the capacity for Tools and Shell Shards that can be carried\n\n_Fully upgrading your tool pouch is a requirement for 100% completion._",
+		"IconID": 23,
 		"y": -9.475953319360485,
 		"x": 14.178403967783133
 	},
@@ -1654,6 +1664,7 @@
 		"CategoryID": 13554,
 		"Title": "Rosary Chest",
 		"Description": "At the end of a tunnel in the [Secret Room](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477995). Jump and diagonal-slash the red fruit to get over the spikes.",
+		"IconID": 21,
 		"y": -8.55552090635549,
 		"x": -4.592914455549376,
 		"ImageURLs": [
@@ -1722,6 +1733,7 @@
 		"CategoryID": 13559,
 		"Title": "Rosary Necklace",
 		"Description": "On a string reached by bouncing on some red fruit.",
+		"IconID": 17,
 		"y": -8.812769295952315,
 		"x": 2.7167964120633243,
 		"ImageURLs": [
@@ -1838,6 +1850,7 @@
 		"CategoryID": 13559,
 		"Title": "Pale Rosary Necklace",
 		"Description": "In a small room at the top of the area.\n\n340 Rosaries",
+		"IconID": 20,
 		"y": -7.374472252308891,
 		"x": 16.61683497628856,
 		"ImageURLs": [
@@ -2065,6 +2078,7 @@
 		"CategoryID": 13559,
 		"Title": "Rosary String Dispenser",
 		"Description": "Costs 80 Rosaries to make a single Rosary String (60 Rosaries)",
+		"IconID": 22,
 		"y": -5.076733554298784,
 		"x": 12.008590473963373
 	},
@@ -2101,6 +2115,7 @@
 	"478053": {
 		"CategoryID": 13559,
 		"Title": "Frayed Rosary String",
+		"IconID": 13,
 		"y": -5.060722122100316,
 		"x": 16.765523894929366,
 		"ImageURLs": [
@@ -2121,6 +2136,7 @@
 		"CategoryID": 13559,
 		"Title": "Frayed Rosary String",
 		"Description": "Held by a corpse on a ledge above the water.",
+		"IconID": 13,
 		"y": -5.195109234971014,
 		"x": 16.11499445098316,
 		"ImageURLs": [
@@ -2204,6 +2220,7 @@
 		"CategoryID": 13547,
 		"Title": "Beast Shard",
 		"Description": "Dropped by [Craggler](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478088)\n\n140 Shell Shards",
+		"IconID": 16,
 		"y": -9.342221816723104,
 		"x": -14.754387258304945
 	},
@@ -2311,6 +2328,7 @@
 		"CategoryID": 13590,
 		"Title": "Mossberry",
 		"Description": "Held by a flying enemy high above the settlement. Make sure the [Lift](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478354) is active in case you fall. May move further to the east in Act 3.\n\n_Tip: Use [Silkspear](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477871) to one-shot the pest!_\n\n_Initially gathered as part of the [Berry Picking](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477876) Wish. After completing it, bring additional Mossberries to the druid for Rosaries - and an upgrade to the [Druid's Eye](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478255)._",
+		"IconID": 73,
 		"y": -10.422791445005103,
 		"x": -11.644183830593704,
 		"ImageURLs": [
@@ -2526,6 +2544,7 @@
 		"CategoryID": 13559,
 		"Title": "Frayed Rosary String",
 		"Description": "On a small platform above the water.",
+		"IconID": 13,
 		"y": -6.262730888431079,
 		"x": -4.35882960854552,
 		"ImageURLs": [
@@ -2545,6 +2564,7 @@
 		"CategoryID": 13590,
 		"Title": "Pollip Heart",
 		"Description": "**Required:** [Cling Grip](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478189)\n\n_Part of the [Rite of the Pollip](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478173) Wish._",
+		"IconID": 42,
 		"y": -5.3049194780902695,
 		"x": -3.8363024033415343,
 		"ImageURLs": [
@@ -2621,6 +2641,7 @@
 		"CategoryID": 13590,
 		"Title": "Pollip Heart",
 		"Description": "On a high-up platform in the north-east corner.\n\n_Part of the [Rite of the Pollip](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478173) Wish._",
+		"IconID": 42,
 		"y": -5.460306765275504,
 		"x": -5.520410687586704,
 		"ImageURLs": [
@@ -2678,6 +2699,7 @@
 		"CategoryID": 13590,
 		"Title": "Pollip Heart",
 		"Description": "Bounce off the flowers and hit the large purple plant to collect it.\n\n_Part of the [Rite of the Pollip](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478173) Wish._",
+		"IconID": 42,
 		"y": -4.086048148402213,
 		"x": -6.170460829709839,
 		"ImageURLs": [
@@ -2748,6 +2770,7 @@
 		"CategoryID": 13590,
 		"Title": "Pollip Heart",
 		"Description": "In a nook at the edge of the room. Easiest to reach when you drop down from above.\n\n_Part of the [Rite of the Pollip](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478173) Wish._",
+		"IconID": 42,
 		"y": -4.337177232395064,
 		"x": -7.888661387824314,
 		"ImageURLs": [
@@ -2795,6 +2818,7 @@
 		"CategoryID": 13590,
 		"Title": "Pollip Heart",
 		"Description": "Behind a [Breakable Wall](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479696). Smash through a Wood Wasp nest, drop down a hole, and move to the right to find it.\n\n**Required:** [Cling Grip](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478189)\n\n_Part of the [Rite of the Pollip](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478173) Wish._",
+		"IconID": 42,
 		"y": -2.8742834907864108,
 		"x": -6.326392773922066,
 		"ImageURLs": [
@@ -2855,6 +2879,7 @@
 		"CategoryID": 13590,
 		"Title": "Pollip Heart",
 		"Description": "Behind a [Breakable Wall](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479050).\n\n_Part of the [Rite of the Pollip](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478173) Wish._",
+		"IconID": 42,
 		"y": -4.94508140088584,
 		"x": -4.26222018144135,
 		"ImageURLs": [
@@ -3075,6 +3100,7 @@
 		"CategoryID": 13547,
 		"Title": "Beast Shard",
 		"Description": "Defeat [Marrowmaw](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478224) in a secret room\n\n140 Shell Shards",
+		"IconID": 16,
 		"y": -13.163853538862739,
 		"x": -12.362100056090881,
 		"ImageURLs": [
@@ -3180,6 +3206,7 @@
 		"CategoryID": 13590,
 		"Title": "Mossberry",
 		"Description": "Held by an enemy flying high above this area.\n\n_Initially gathered as part of the [Berry Picking](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477876) Wish. After completing it, bring additional Mossberries to the druid for Rosaries - and an upgrade to the [Druid's Eye](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478255)._",
+		"IconID": 73,
 		"y": -10.995780113033248,
 		"x": -17.870503288461506,
 		"ImageURLs": [
@@ -3264,6 +3291,7 @@
 		"CategoryID": 13590,
 		"Title": "Flintgem",
 		"Description": "Dropped by a Flintbeetle, which only spawns here after beginning the [Volatile Flintbeetles](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478221) Wish.",
+		"IconID": 29,
 		"y": -7.959094167098215,
 		"x": -6.930251368951517
 	},
@@ -3281,6 +3309,7 @@
 		"CategoryID": 13590,
 		"Title": "Flintgem",
 		"Description": "Dropped by a Flintbeetle, which only spawns here after beginning the [Volatile Flintbeetles](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478221) Wish.",
+		"IconID": 29,
 		"y": -10.114203526919361,
 		"x": -9.578044696149405,
 		"ImageURLs": [
@@ -3291,6 +3320,7 @@
 		"CategoryID": 13590,
 		"Title": "Flintgem",
 		"Description": "Dropped by a Flintbeetle, which only spawns here after beginning the [Volatile Flintbeetles](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478221) Wish.",
+		"IconID": 29,
 		"y": -9.329569104019342,
 		"x": -2.6501131235963413,
 		"ImageURLs": [
@@ -3311,6 +3341,7 @@
 		"CategoryID": 13575,
 		"Title": "Tool Pouch Upgrade",
 		"Description": "Complete [Loddie's](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478251) first challenge by hitting the target 15 times, or find it here in [Act 3](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479260).\n\n**Effect:** Increases the capacity for Tools and Shell Shards that can be carried\n\n_Fully upgrading your tool pouch is a requirement for 100% completion._",
+		"IconID": 23,
 		"y": -10.14339213212154,
 		"x": -1.2178992183101087
 	},
@@ -3455,6 +3486,7 @@
 		"CategoryID": 13559,
 		"Title": "Frayed Rosary String",
 		"Description": "**Required:** [Cling Grip](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478189)",
+		"IconID": 13,
 		"y": -3.962144642381844,
 		"x": 1.039281022554789,
 		"ImageURLs": [
@@ -3494,6 +3526,7 @@
 		"CategoryID": 13559,
 		"Title": "Frayed Rosary String",
 		"Description": "Inside a cage, entered from the [eastern side.](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478688)",
+		"IconID": 13,
 		"y": -3.530018116490055,
 		"x": 9.393495426691644,
 		"ImageURLs": [
@@ -3564,6 +3597,7 @@
 		"CategoryID": 13590,
 		"Title": "Simple Key",
 		"Description": "**Required:** Defeat Roachkeeper",
+		"IconID": 35,
 		"y": 0.04047624199235145,
 		"x": 14.424092942892486,
 		"ImageURLs": [
@@ -3685,6 +3719,7 @@
 		"CategoryID": 13559,
 		"Title": "Rosary String Dispenser",
 		"Description": "Costs 80 Rosaries to make a single Rosary String (60 Rosaries)",
+		"IconID": 22,
 		"y": -6.333841661242758,
 		"x": -12.4734602203863,
 		"ImageURLs": [
@@ -3861,6 +3896,7 @@
 		"CategoryID": 13590,
 		"Title": "Silver Bell",
 		"Description": "Has a chance to spawn here after beginning the [Silver Bells](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478206) Wish.",
+		"IconID": 50,
 		"y": -3.733701349356778,
 		"x": -2.0214858113897094,
 		"ImageURLs": [
@@ -3871,6 +3907,7 @@
 		"CategoryID": 13590,
 		"Title": "Silver Bell",
 		"Description": "Has a chance to spawn here after beginning the [Silver Bells](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478206) Wish.",
+		"IconID": 50,
 		"y": -4.457051751903961,
 		"x": -1.5781434743071827,
 		"ImageURLs": [
@@ -3891,6 +3928,7 @@
 		"CategoryID": 13590,
 		"Title": "Silver Bell",
 		"Description": "Has a chance to spawn here after beginning the [Silver Bells](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478206) Wish.",
+		"IconID": 50,
 		"y": -7.509061681322478,
 		"x": -1.004283701203022,
 		"ImageURLs": [
@@ -3910,6 +3948,7 @@
 		"CategoryID": 13590,
 		"Title": "Silver Bell",
 		"Description": "In a small nook next to a vertical drop.\n\nHas a chance to spawn here after beginning the [Silver Bells](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478206) Wish.",
+		"IconID": 50,
 		"y": -8.050723049895467,
 		"x": -1.3177105764790866,
 		"ImageURLs": [
@@ -3930,6 +3969,7 @@
 		"CategoryID": 13590,
 		"Title": "Silver Bell",
 		"Description": "Has a chance to spawn here after beginning the [Silver Bells](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478206) Wish.",
+		"IconID": 50,
 		"y": -8.262640680695583,
 		"x": -1.5426766918528756,
 		"ImageURLs": [
@@ -3949,6 +3989,7 @@
 		"CategoryID": 13590,
 		"Title": "Silver Bell",
 		"Description": "Has a chance to spawn here after beginning the [Silver Bells](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478206) Wish.",
+		"IconID": 50,
 		"y": -8.508531878439392,
 		"x": -0.8798683295301544,
 		"ImageURLs": [
@@ -3979,6 +4020,7 @@
 		"CategoryID": 13590,
 		"Title": "Silver Bell",
 		"Description": "Has a chance to spawn here after beginning the [Silver Bells](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478206) Wish.",
+		"IconID": 50,
 		"y": -8.699949721826016,
 		"x": -1.4978383392965355,
 		"ImageURLs": [
@@ -3989,6 +4031,7 @@
 		"CategoryID": 13590,
 		"Title": "Silver Bell",
 		"Description": "Has a chance to spawn here after beginning the [Silver Bells](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478206) Wish.",
+		"IconID": 50,
 		"y": -8.935618701422584,
 		"x": -1.1977115501389761,
 		"ImageURLs": [
@@ -4259,6 +4302,7 @@
 	"478363": {
 		"CategoryID": 13554,
 		"Title": "Rosary Chest",
+		"IconID": 21,
 		"y": -1.195932319827861,
 		"x": 10.767442401450694,
 		"ImageURLs": [
@@ -5170,6 +5214,7 @@
 		"CategoryID": 13590,
 		"Title": "Key of Indolent",
 		"Description": "At the edge of a room entered from above.",
+		"IconID": 53,
 		"y": 6.869419498368998,
 		"x": -10.817449301767624,
 		"ImageURLs": [
@@ -5220,6 +5265,7 @@
 		"CategoryID": 13559,
 		"Title": "Frayed Rosary String",
 		"Description": "Held by a corpse in the room behind the [Breakable Wall](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479002)",
+		"IconID": 13,
 		"y": 7.493106162134069,
 		"x": -9.160183866564992,
 		"ImageURLs": [
@@ -5230,6 +5276,7 @@
 		"CategoryID": 13559,
 		"Title": "Frayed Rosary String",
 		"Description": "On a high-up platform.",
+		"IconID": 13,
 		"y": 9.387425577511081,
 		"x": -11.096946984101606,
 		"ImageURLs": [
@@ -5240,6 +5287,7 @@
 		"CategoryID": 13590,
 		"Title": "Key of Heretic",
 		"Description": "Dropped by the final enemy in a room entered from above.",
+		"IconID": 54,
 		"y": 7.956779679643262,
 		"x": -10.922719972948158,
 		"ImageURLs": [
@@ -5290,6 +5338,7 @@
 		"CategoryID": 13559,
 		"Title": "Frayed Rosary String",
 		"Description": "In a nook at the very top of the area.\n\n**Required:** [Cling Grip](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478189)",
+		"IconID": 13,
 		"y": -7.358810792749125,
 		"x": -16.901886308580487,
 		"ImageURLs": [
@@ -5317,6 +5366,7 @@
 		"CategoryID": 13590,
 		"Title": "Plasmium",
 		"Description": "In a side-section of the tunnel, reached by dropping from above.\n\nPart of the [Alchemist's Assistant](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478482) Wish. To gather, equip the Needle Phial and fully charge an attack with it.",
+		"IconID": 41,
 		"y": -8.587424077618216,
 		"x": -18.069963426526385,
 		"ImageURLs": [
@@ -5337,6 +5387,7 @@
 		"CategoryID": 13590,
 		"Title": "Plasmium",
 		"Description": "Part of the [Alchemist's Assistant](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478482) Wish. To gather, equip the Needle Phial and fully charge an attack with it.",
+		"IconID": 41,
 		"y": -9.922747473535551,
 		"x": -17.17949428797357,
 		"ImageURLs": [
@@ -5347,6 +5398,7 @@
 		"CategoryID": 13590,
 		"Title": "Plasmium",
 		"Description": "Part of the [Alchemist's Assistant](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478482) Wish. To gather, equip the Needle Phial and fully charge an attack with it.",
+		"IconID": 41,
 		"y": -9.97482589213476,
 		"x": -20.106186592662368,
 		"ImageURLs": [
@@ -5575,6 +5627,7 @@
 		"CategoryID": 13547,
 		"Title": "Beast Shard",
 		"Description": "At the upper edge of the room behind the [Breakable Wall](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478534), found by proceeding through the [Passage](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478538).",
+		"IconID": 16,
 		"y": 0.5134241741911723,
 		"x": -14.7699849934004,
 		"ImageURLs": [
@@ -5655,6 +5708,7 @@
 		"CategoryID": 13559,
 		"Title": "Frayed Rosary String",
 		"Description": "Held by a corpse in a cage.",
+		"IconID": 13,
 		"y": -3.854473309539628,
 		"x": -13.299096983337321,
 		"ImageURLs": [
@@ -5753,6 +5807,7 @@
 		"CategoryID": 13559,
 		"Title": "Frayed Rosary String",
 		"Description": "At the edge of a side-room. Guarded by an Underworker and Underloft.",
+		"IconID": 13,
 		"y": 0.4910967512081754,
 		"x": 1.2782222444759554,
 		"ImageURLs": [
@@ -5823,6 +5878,7 @@
 		"CategoryID": 13559,
 		"Title": "Frayed Rosary String",
 		"Description": "At the top of a platforming challenge behind the [Breakable Wall](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479844) below.",
+		"IconID": 13,
 		"y": 2.1939885780276143,
 		"x": -2.5333247165387007,
 		"ImageURLs": [
@@ -5890,6 +5946,7 @@
 	"478591": {
 		"CategoryID": 13559,
 		"Title": "Rosary Necklace",
+		"IconID": 17,
 		"y": 4.750493649624332,
 		"x": -1.3561780987621717,
 		"ImageURLs": [
@@ -6386,6 +6443,7 @@
 		"CategoryID": 13590,
 		"Title": "Pale Oil",
 		"Description": "Used to upgrade your damage and complete the [Pinmaster's Oil](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478211) Wish.\n\nTo reach it, complete a box puzzle in the room to the east.",
+		"IconID": 40,
 		"y": 6.293191377449645,
 		"x": 5.856162619743891,
 		"ImageURLs": [
@@ -6493,6 +6551,7 @@
 		"CategoryID": 13590,
 		"Title": "Cogheart Piece 1",
 		"Description": "**Required:** Complete memory puzzle.\r\n\r\n**Solution:** (Bells numbered from left to right)\r\n- 1 - 2 - 7 - 4\n- 7 - 5 - 6 - 4 - 5\n- 2 - 7 - 3 - 5 - 6 - 1\r\n\nUsed to repair the [Automaton](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478616).",
+		"IconID": 37,
 		"y": 4.457195310911558,
 		"x": 8.360550899999296,
 		"ImageURLs": [
@@ -6884,6 +6943,7 @@
 		"CategoryID": 13559,
 		"Title": "Heavy Rosary Necklace",
 		"Description": "From this [Lost Flea](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478404), move left while alternating between the [Clawline](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478714) and [Drifter's Cloak](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477971)",
+		"IconID": 15,
 		"y": 7.29965200481378,
 		"x": 10.119105342979523,
 		"ImageURLs": [
@@ -7127,6 +7187,7 @@
 	"478837": {
 		"CategoryID": 13547,
 		"Title": "Beast Shard",
+		"IconID": 16,
 		"y": -15.662492256447003,
 		"x": 6.161382991746152,
 		"ImageURLs": [
@@ -7180,6 +7241,7 @@
 		"CategoryID": 13554,
 		"Title": "Rosary Chest",
 		"Description": "At the top of the room, reached through a platforming challenge in the room to the left.",
+		"IconID": 21,
 		"y": -9.526075211883551,
 		"x": 10.8188540600175,
 		"ImageURLs": [
@@ -7431,6 +7493,7 @@
 		"CategoryID": 13559,
 		"Title": "Frayed Rosary String",
 		"Description": "Inside a hanging decoration.",
+		"IconID": 13,
 		"y": 5.943972934963085,
 		"x": -8.491451935033453,
 		"ImageURLs": [
@@ -7460,6 +7523,7 @@
 		"CategoryID": 13554,
 		"Title": "Rosary Chest",
 		"Description": "It may be stolen by Grindle.",
+		"IconID": 21,
 		"y": 4.3761450532607284,
 		"x": -3.6388633025652837,
 		"ImageURLs": [
@@ -7515,6 +7579,7 @@
 		"CategoryID": 13590,
 		"Title": "Simple Key",
 		"Description": "Can be purchased from [Jubilana](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478877) for 650 Rosaries",
+		"IconID": 35,
 		"y": 7.813073377690884,
 		"x": 8.936591001724537
 	},
@@ -7536,6 +7601,7 @@
 		"CategoryID": 13559,
 		"Title": "Rosary Necklace",
 		"Description": "In a room behind the [Breakable Wall](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478886).",
+		"IconID": 17,
 		"y": 6.492505882984332,
 		"x": 0.31356958677571356,
 		"ImageURLs": [
@@ -7630,6 +7696,7 @@
 		"CategoryID": 13590,
 		"Title": "Cogheart Piece 2",
 		"Description": "**Required:** Complete memory puzzle.\n\n**Solution:** (Bells numbered from left to right)\n- 1 - 5 - 4 - 6\n- 3 - 6 - 5 - 1 - 7\n- 2 - 4 - 6 - 3 - 5 - 1\n\nUsed to repair the [Automaton](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478616).",
+		"IconID": 37,
 		"y": 6.778395733310276,
 		"x": -3.687150223538069,
 		"ImageURLs": [
@@ -7650,6 +7717,7 @@
 		"CategoryID": 13554,
 		"Title": "Rosary Chest",
 		"Description": "May be looted by Grindle.",
+		"IconID": 21,
 		"y": 8.37801090140637,
 		"x": -2.927049078525968,
 		"ImageURLs": [
@@ -7681,6 +7749,7 @@
 		"CategoryID": 13554,
 		"Title": "Rosary Chest",
 		"Description": "At the highest point of the area, reached via [Clawline](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478714).\n\nMay be empty after defeating the [Cogwork Dancers](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478606), if [Grindle](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478895) was rescued beforehand.",
+		"IconID": 21,
 		"y": 11.820249941351008,
 		"x": 0.7844957061342797,
 		"ImageURLs": [
@@ -7711,6 +7780,7 @@
 		"CategoryID": 13559,
 		"Title": "Frayed Rosary String",
 		"Description": "On a cart at the edge of the room.",
+		"IconID": 13,
 		"y": 8.745515830665,
 		"x": -0.10896204305714718,
 		"ImageURLs": [
@@ -7947,6 +8017,7 @@
 		"CategoryID": 13559,
 		"Title": "Pale Rosary Necklace",
 		"Description": "In a chest at the end of the area unlocked with a [Simple Key](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478911)",
+		"IconID": 20,
 		"y": 8.554817508179127,
 		"x": -0.2589903802476954,
 		"ImageURLs": [
@@ -8047,6 +8118,7 @@
 		"CategoryID": 13559,
 		"Title": "Frayed Rosary String",
 		"Description": "Held by a corpse on a high-up ledge.",
+		"IconID": 13,
 		"y": 2.8572594623918377,
 		"x": 15.294645990636361,
 		"ImageURLs": [
@@ -8087,6 +8159,7 @@
 		"CategoryID": 13590,
 		"Title": "Key of Apostate",
 		"Description": "Inside a cage. Hit it a few times to get the key out.\n\n_The thing above it is a Wardenfly stuck in a Barnak's mouth - it can't interacted with._",
+		"IconID": 45,
 		"y": 7.370851099680863,
 		"x": 12.924448805111432,
 		"ImageURLs": [
@@ -8996,6 +9069,7 @@
 		"CategoryID": 13590,
 		"Title": "Mossberry",
 		"Description": "Growing from the ceiling in [Weavenest Atla.](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=476902)\n\n_Initially gathered as part of the [Berry Picking](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477876) Wish. After completing it, bring additional Mossberries to the druid for Rosaries - and an upgrade to the [Druid's Eye](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478255)._",
+		"IconID": 73,
 		"y": -13.559669428685758,
 		"x": -13.118940777802763,
 		"ImageURLs": [
@@ -9318,6 +9392,7 @@
 		"CategoryID": 13547,
 		"Title": "Beast Shard",
 		"Description": "Defeat [Rhinogrund](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=480193)",
+		"IconID": 16,
 		"y": 8.900671317062859,
 		"x": 6.691883642479411,
 		"ImageURLs": [
@@ -9328,6 +9403,7 @@
 		"CategoryID": 13590,
 		"Title": "Cogheart Piece 3",
 		"Description": "**Required:** Complete memory puzzle\n\n**Solution:** (Bells numbered from left to right, starting on top row)\n- 7 - 2 - 4 - 6\n- 4 - 2 - 1 - 4 - 3\n- 1 - 5 - 6 - 2 - 7 - 3\n\nUsed to repair the [Automaton](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478616).",
+		"IconID": 37,
 		"y": 8.888100364082788,
 		"x": 8.177017138108639,
 		"ImageURLs": [
@@ -9345,6 +9421,7 @@
 		"CategoryID": 13590,
 		"Title": "Mossberry",
 		"Description": "_Initially gathered as part of the [Berry Picking](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477876) Wish. After completing it, bring additional Mossberries to the druid for Rosaries - and an upgrade to the [Druid's Eye](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478255)._",
+		"IconID": 73,
 		"y": 8.556313976445225,
 		"x": 6.5526338582580905,
 		"ImageURLs": [
@@ -9523,6 +9600,7 @@
 	"479127": {
 		"CategoryID": 13559,
 		"Title": "Frayed Rosary String",
+		"IconID": 13,
 		"y": 8.525787462407763,
 		"x": 15.548636389877537,
 		"ImageURLs": [
@@ -9679,6 +9757,7 @@
 		"CategoryID": 13547,
 		"Title": "Hornet Statuette",
 		"Description": "**Required:** Complete all donation wishes in Bone Bottom, then speak to Flick next to the notice board.\n- [Bone Bottom Repairs](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477884)\n- [A Lifesaving Bridge](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478220)\n- [An Icon of Hope](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478839)\n\nBreak it down in your inventory for 60 Shell Shards.",
+		"IconID": 16,
 		"y": -10.73476245355424,
 		"x": -11.630102479601476
 	},
@@ -9703,6 +9782,7 @@
 		"CategoryID": 13547,
 		"Title": "Pristine Core",
 		"Description": "**Required:** Purchase all of the Twelfth Architect's supplies, and return some time later.\r\n\r\nWhen destroyed, it breaks into 220 shell shards.",
+		"IconID": 16,
 		"y": 1.7779461050964045,
 		"x": 3.94456076756461,
 		"ImageURLs": [
@@ -9743,6 +9823,7 @@
 		"CategoryID": 13559,
 		"Title": "Rosary Necklace",
 		"Description": "On a ledge above the Wisp spawners.",
+		"IconID": 17,
 		"y": -2.210494316469905,
 		"x": 1.2990163469992098,
 		"ImageURLs": [
@@ -9853,6 +9934,7 @@
 		"CategoryID": 13575,
 		"Title": "Tool Pouch Upgrade",
 		"Description": "Complete [Bugs of Pharloom](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478042) Wish\n\n**Effect:** Increases the capacity for Tools and Shell Shards that can be carried\n\n_Fully upgrading your tool pouch is a requirement for 100% completion._",
+		"IconID": 23,
 		"y": -4.609684115038448,
 		"x": 7.34737469726565
 	},
@@ -10205,6 +10287,7 @@
 		"CategoryID": 13590,
 		"Title": "Simple Key",
 		"Description": "Held by a corpse sitting on the bench",
+		"IconID": 35,
 		"y": 2.1920219836817125,
 		"x": -8.948408007038367,
 		"ImageURLs": [
@@ -10375,6 +10458,7 @@
 		"CategoryID": 13590,
 		"Title": "Pale Oil",
 		"Description": "**Required:** Complete [Great Taste of Pharloom](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478889) Wish.\n\nBring it to [Pinmaster Plinney](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478210).",
+		"IconID": 40,
 		"y": 6.228500641400174,
 		"x": 1.4873061301527883,
 		"ImageURLs": [
@@ -10912,6 +10996,7 @@
 		"CategoryID": 13559,
 		"Title": "Heavy Rosary Necklace",
 		"Description": "Complete [Loddie's](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478251) second challenge by hitting the target 25 times.\n\nCannot be done in Act 3.",
+		"IconID": 15,
 		"y": -10.145182057243915,
 		"x": -1.0775967807400093
 	},
@@ -11642,6 +11727,7 @@
 		"CategoryID": 13575,
 		"Title": "Tool Pouch Upgrade",
 		"Description": "Find 20 Lost Fleas in Pharloom\n\n**Effect:** Increases the capacity for Tools and Shell Shards that can be carried\n\n_Fully upgrading your tool pouch is a requirement for 100% completion._",
+		"IconID": 23,
 		"y": 6.932541978105661,
 		"x": 22.481571109126733
 	},
@@ -12631,6 +12717,7 @@
 		"CategoryID": 13590,
 		"Title": "Pale Oil",
 		"Description": "Complete [Ecstasy of the End](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479444) Wish",
+		"IconID": 40,
 		"y": 7.257571101196305,
 		"x": 22.676244651127085
 	},
@@ -14810,6 +14897,7 @@
 		"CategoryID": 13590,
 		"Title": "Silver Bell",
 		"Description": "On the ground behind a [Breakable Wall](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479051).\n\nHas a chance to spawn here after beginning the [Silver Bells](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478206) Wish.",
+		"IconID": 50,
 		"y": -4.926348576199942,
 		"x": -1.1221720018659624,
 		"ImageURLs": [
@@ -14820,6 +14908,7 @@
 		"CategoryID": 13590,
 		"Title": "Silver Bell",
 		"Description": "Has a chance to spawn here after beginning the [Silver Bells](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478206) Wish.",
+		"IconID": 50,
 		"y": -4.226736615370527,
 		"x": -1.060571913937295,
 		"ImageURLs": [
@@ -14830,6 +14919,7 @@
 		"CategoryID": 13590,
 		"Title": "Silver Bell",
 		"Description": "At the top of the area behind the [Breakable Wall](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479051)\n\nHas a chance to spawn here after beginning the [Silver Bells](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478206) Wish.",
+		"IconID": 50,
 		"y": -4.666028012603775,
 		"x": -0.9589954827436458,
 		"ImageURLs": [
@@ -14978,6 +15068,7 @@
 		"CategoryID": 13547,
 		"Title": "Beast Shard",
 		"Description": "Dropped by the [Rhinogrund](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=480179)",
+		"IconID": 16,
 		"y": -9.545469673615536,
 		"x": 15.277538194974646
 	},
@@ -15110,6 +15201,7 @@
 		"CategoryID": 13571,
 		"Title": "Tool Pouch",
 		"Description": "If you didn't buy [Mort](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477946)'s Tool Pouch, it will be sold by [Grindle](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478522) in [Act 3](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479260)",
+		"IconID": 23,
 		"y": 0.22098529606087425,
 		"x": -16.438543080158567
 	},
@@ -15533,6 +15625,7 @@
 		"CategoryID": 13547,
 		"Title": "Pristine Core",
 		"Description": "Reward for beating the [Arena Battle](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=480259).\n\nBreaks into 220 shell shards",
+		"IconID": 16,
 		"y": 5.971992176678555,
 		"x": 3.652418532648788
 	},
@@ -16974,6 +17067,7 @@
 		"CategoryID": 13559,
 		"Title": "Heavy Rosary Necklace",
 		"Description": "Held by a corpse on a ledge, reached via [Breakable Ceiling](https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=480997).",
+		"IconID": 15,
 		"y": 5.487909206288748,
 		"x": -3.7948808112842585,
 		"ImageURLs": [
