@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UnityEngine;
+using fl = float;
 
 namespace SilkDev;
 
@@ -21,47 +22,9 @@ public static class Extensions
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect AddHeight	(this Rect R, float Height) { R.height	+=Height; return R; }
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Add		(this Rect R1, Rect R2)	=>	  new(R1.position+R2.position, R1.size+R2.size);
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Mul		(this Rect R1, float N)	=>	  new(R1.position*N, R1.size*N);
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Grow		(this Rect R,fl X,fl Y) =>	  R.Add(new(-X, -Y, X*2, Y*2)); //Give negative numbers to shrink
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Inverse	(this Rect R)			=>	  new(1/R.x, 1/R.y, 1/R.width, 1/R.height);
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect CenterIn	(this Vector2 InnerSize, Vector2 OuterSize) => new((OuterSize-InnerSize)/2, InnerSize);
-
-	//Textures
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect ConvertTexCoords(this Rect R, Texture2D Tex) => new(R.position/Tex.Size(), R.size/Tex.Size()); //Convert 2D absolute sprite texture coordinates into scaled 0-1.0 floats
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Vector2 Size(this Texture2D T) => new(T.width, T.height);
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static void TDestroy(this Texture2D T) => UnityEngine.Object.Destroy(T);
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static Texture2D MakeTexture(this Color c) => new Texture2D(2, 2).ReColor(c); //Create a 2x2 pixel texture to create solid colors
-	public static Texture2D ReColor(this Texture2D Tex, Color c) //Replace the pixels inside a texture with a color
-	{
-		for(int x=0; x<Tex.width; x++)
-			for(int y=0; y<Tex.height; y++)
-				Tex.SetPixel(x, y, c);
-		Tex.Apply();
-		return Tex;
-	}
-
-	//Copy an unreadable texture (Texture2D.isReadable) to a readable texture. Optional resize with second parameter.
-	public static Texture2D ToReadable(this Texture2D Tex, Vector2? ResizeDimensions=null)
-	{
-		Vector2 NewSize=ResizeDimensions ?? Tex.Size();
-		RenderTexture PrevRT=RenderTexture.active;
-		using TypedDisposer<RenderTexture> RT=new(
-			RenderTexture.GetTemporary((int)NewSize.x, (int)NewSize.y, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear),
-			(Target) => {
-				RenderTexture.active=PrevRT;
-				RenderTexture.ReleaseTemporary(Target);
-			}
-		);
-
-		Graphics.Blit(Tex, RT.Target);
-		RenderTexture.active=RT.Target;
-		using TypedDisposer<Texture2D> NewTex=new(
-			new Texture2D((int)NewSize.x, (int)NewSize.y, TextureFormat.ARGB32, false),
-			Target => Target.TDestroy()
-		);
-		NewTex.Target.ReadPixels(new Rect(Vector2.zero, NewSize), 0, 0);
-		NewTex.Target.Apply();
-		return NewTex.Detach();
-	}
 
 	//Delegate extensions
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]

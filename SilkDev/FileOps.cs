@@ -29,6 +29,7 @@ public static class FileOps
 	public static string	PathCombine		(string P1, string P2				) => Path.Combine(P1, P2);
 	public static string	PathCombine		(params string[] Parts				) => Parts.Aggregate(Path.Combine);
 	public static char[]	InvalidNameChars(									) => Path.GetInvalidFileNameChars();
+	public static string	FixFileName		(string P							) => string.Join("_", P.Split(InvalidNameChars()));
 	public static string	GetFileName		(string P							) => Path.GetFileName(P);
 	public static string	GetDirectoryName(string P							) => Path.GetDirectoryName(P);
 	public static string[]	GetDirFiles		(string Dir, string Pattern="*"		) => Directory.GetFiles(Dir, Pattern);

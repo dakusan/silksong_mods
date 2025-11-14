@@ -1,5 +1,6 @@
 using BepInEx;
 using SilkDev.Events;
+using SilkDev.Textures;
 using SilkDev.Windows;
 
 namespace SilkDev.Internal;
@@ -36,6 +37,7 @@ internal class Plugin : BaseUnityPlugin
 			new HarmonyLib.Harmony(PluginInfo.PLUGIN_GUID).PatchAll();
 			Window.OnNextFrame(static () => new DevInput.BlockKeys());
 			ExtractAllTextures.Init(Internal.Config.C.RunExtractAllTextures);
+			Window.OnNextFrame(() => _=new GameObjectSprites());
 			Log.Info($"Plugin {PluginInfo.PLUGIN_GUID} is loaded");
 		});
 	}

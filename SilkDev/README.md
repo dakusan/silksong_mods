@@ -31,6 +31,7 @@ Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework
 - Mouse cursor visibility and passthrough fixes
 - Quickly enter into your save slot, skipping intro screens
 - Extract all textures **in memory** to `PLUGIN_PATH/Textures`
+- Extract individual textures for objects under mouse by original texture or sprite render
 - Debugging message log level and stack traces
 - Tons of classes and functions to make development easier.
 
@@ -88,6 +89,7 @@ See [root project README](../#contributing) for details
             * 💡 Includes a minimum magnitude and an angle deviation that the joystick angle range must be within for triggering.
     * 📦 `Util`:
         * ⚙️ `AnyKeyOrButtonPressed`: Check if any key or button is currently pressed.
+        * ⚙️ `MousePos`: Get the mouse position in normal screen coordinates (upper left=0,0).
 * 📂 `Events`:
     * 📦 `EventRegister`: Register multiple events against a generic key.
     * 📦 `GameEvents`: Subscribe to game events (Currently: `Update`, `Game Loaded`, `Game Saved`).
@@ -117,6 +119,23 @@ See [root project README](../#contributing) for details
     * 📦 `DialogWindow`: A window that contains a message and optionally ok/cancel buttons.
     * 📦 `ProgressBarWithLogs`: A progress bar window with a message line and and 2 logs below it (an error and a normal).
         * 💡 Any public variables can be updated at any time and the window will auto adjust on the next frame draw.
+    *  📦 `DrawGeometry`: Draws on-screen geometry measured in pixels. Mouse interaction is ignored.
+        * 💡 Current shapes: Dot, Square, Rectangle
+        * 💡 Supports both colors and textures for both main/border and background.
+        * 💡 Border side textures are rotated 90° clockwise so a single texture works for top/bottom + sides.
+* 📂 `Textures`:
+    *  📦 GameObjectSprites.cs: Opens the **Game Object Sprites** window on keyboard shortcut, which allows you to browse and save the sprites/textures that were under your mouse.
+    *  📦 Extensions
+        * 📦🔌 `Texture2D` extensions:
+            * ⚙️ `Rect`.`ConvertTexCoords(Texture2D)`: Convert 2D absolute sprite texture coordinates into scaled 0-1.0 floats.
+            * ⚙️ `Texture2D`.`Size()`: Get a Vector2 of the width/height.
+            * ⚙️ `Texture2D`.`TDestroy()`: Destroy the texture via `UnityEngine.Object.Destroy()`.
+            * ⚙️ `Color`.`MakeTexture()`: Create a 2x2 pixel texture to create solid colors.
+            * ⚙️ `Texture2D`.`ReColor(Color)`: Replace the pixels inside a texture with a color.
+            * ⚙️ `Texture2D`.`ToReadable(Rect? TexCoords=null, Vector2? ResizeDimensions=null)`: Copy an unreadable texture (`Texture2D.isReadable`) to a readable texture.
+                * 🗒️ TexCoords when set will specify the coordinates to extract.
+                * 🗒️ ResizeDimensions when set will specify the final texture size.
+            * ⚙️ `SpriteRenderer`.`CaptureToTexture`: Renders a SpriteRenderer (with full transparency) into a Texture2D.
 * 📂 `Hooks`:
     * 📦 `DynamicHook`: Dynamically add a Harmony method hook by class and function name.
         * 🗒️ Allows harmony hooks without including assemblies in compiles.
@@ -130,16 +149,8 @@ See [root project README](../#contributing) for details
     * 💡 Automatically initiated by the plugin.
     * 📦🔌 `Rect` [math] extensions:
         * ⚙️ `Rect`.[(Set, Add)(X, Y, Width, Height)](float).
-        * ⚙️ `Rect`.[`Add(Rect)`, `Multiply(Rect)`, `Inverse()`].
+        * ⚙️ `Rect`.[`Add(Rect)`, `Multiply(Rect)`, `Inverse()`, `Grow(float, float)`].
         * ⚙️ `Vector2`.`CenterIn(Vector2)`: Center 2 sized rects against each other by size.
-    * 📦🔌 `Texture2D` extensions:
-        * ⚙️ `Rect`.`ConvertTexCoords(Texture2D)`: Convert 2D absolute sprite texture coordinates into scaled 0-1.0 floats.
-        * ⚙️ `Texture2D`.`Size()`: Get a Vector2 of the width/height.
-        * ⚙️ `Texture2D`.`TDestroy()`: Destroy the texture via `UnityEngine.Object.Destroy()`.
-        * ⚙️ `Color`.`MakeTexture()`: Create a 2x2 pixel texture to create solid colors.
-        * ⚙️ `Texture2D`.`ReColor(Color)`: Replace the pixels inside a texture with a color.
-        * ⚙️ `Texture2D`.`ToReadable(Vector2? ResizeDimensions=null)`: Copy an unreadable texture (`Texture2D.isReadable`) to a readable texture.
-            * 💡 Optional resize with second parameter.
     * 📦🔌 Delegate extensions:
         * ⚙️ `Delegate`.`Toggle(Delegate Handler, bool Enable)`: Adds/Removes a delegate from a multicast delegate chain.
     * 🔌 Generics extensions:
@@ -156,7 +167,7 @@ See [root project README](../#contributing) for details
         * ⚙️ `Stream`.`ReadAllAndCloseS()`: Reads the entirety of a stream into a string.
         * ⚙️ `Stream`.`ReadAllAndCloseB()`: Reads the entirety of a stream into a byte array.
 * 📦 `FileOps`:
-    * ⚙️ *Generic file operations* so as to not have to include `System.IO`: `WriteFile(byte[] or string)`, `WriteFileAsync(byte[] or string)`, `AppendFile`, `ReadFile`, `ReadFileBytes`, `PathCombine(string...)`, `InvalidNameChars`, `GetFileName`, `GetDirectoryName`, `GetDirFiles`, `FileExists`, `DirectoryExists`, `CreateDirectory`, `FileCopy`, `FileMove`, `FileDelete`, `JSON.DeserializeJson`
+    * ⚙️ *Generic file operations* so as to not have to include `System.IO`: `WriteFile(byte[] or string)`, `WriteFileAsync(byte[] or string)`, `AppendFile`, `ReadFile`, `ReadFileBytes`, `PathCombine(string...)`, `InvalidNameChars`, `FixFileName`, `GetFileName`, `GetDirectoryName`, `GetDirFiles`, `FileExists`, `DirectoryExists`, `CreateDirectory`, `FileCopy`, `FileMove`, `FileDelete`, `JSON.DeserializeJson`
     * 🧾 JSON Functions:
         * ⚙️ `SerializeToJSONSorted(object)`: See `JSON.SortedConverter` above
         * ⚙️ `SerializeToJSON(object, bool Compact=false)`: Calls `JsonConvert.SerializeObject`. Changes to unix line encoding.

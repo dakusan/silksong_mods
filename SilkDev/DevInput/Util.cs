@@ -1,4 +1,5 @@
 using InControl;
+using UnityEngine;
 
 namespace SilkDev.DevInput;
 
@@ -16,4 +17,7 @@ public static class Util
 		|| Device.DPad.IsPressed
 		|| (Device.LeftStick.HasChanged && Device.LeftStick.Value.magnitude > 0.1f)
 		|| (Device.RightStick.HasChanged && Device.RightStick.Value.magnitude > 0.1f);
+
+	//Get the mouse position in normal screen coordinates(upper left = 0,0).
+	public static Vector2 MousePos => new(Input.mousePosition.x, Screen.height-Input.mousePosition.y);
 }

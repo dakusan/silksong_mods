@@ -1,4 +1,5 @@
 using SilkDev;
+using SilkDev.Textures;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -170,7 +171,7 @@ public partial class SideBar
 			byte[] OutBytes;
 			try {
 				using TypedDisposer<Texture2D> ResizedTex=new(
-					NewTex.Target.ToReadable(NewSize),
+					NewTex.Target.ToReadable(ResizeDimensions: NewSize),
 					Target => Target.TDestroy()
 				);
 				OutBytes=ResizedTex.Target.EncodeToJPG(80);

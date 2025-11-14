@@ -1,10 +1,11 @@
 using SilkDev.Internal;
+using SilkDev.Textures;
 using UnityEngine;
 
 namespace SilkDev.DevInput;
 
 //Blocks the keyboard from getting to the game
-internal class BlockKeys : SilkDev.Windows.Window
+internal class BlockKeys : Windows.Window
 {
 	private readonly GUIStyle TextStyle=new(GUI.skin.label) { fontSize=40, alignment=TextAnchor.MiddleCenter, normal={ textColor=Color.red } };
 	private const int Width=350, Height=65, HeightOffset=40;

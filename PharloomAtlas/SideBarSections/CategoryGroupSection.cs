@@ -1,5 +1,6 @@
 using SilkDev;
 using SilkDev.DevInput.Mouse;
+using SilkDev.Textures;
 using UnityEngine;
 
 namespace PharloomAtlas;

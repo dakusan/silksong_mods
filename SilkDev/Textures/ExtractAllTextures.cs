@@ -4,7 +4,7 @@ using System.Collections;
 using System.Security.Cryptography;
 using UnityEngine;
 
-namespace SilkDev.Internal;
+namespace SilkDev.Textures;
 
 //Extract all textures. Called via the config
 internal class ExtractAllTextures : ProgressBarWithLogs
@@ -111,7 +111,7 @@ internal class ExtractAllTextures : ProgressBarWithLogs
 
 		//Get the PNG bytes and filename
 		string TexName=CurTex.name.Length==0 ? "NO-NAME" : CurTex.name;
-		TexName=string.Join("_", TexName.Split(FileOps.InvalidNameChars()));
+		TexName=FileOps.FixFileName(TexName);
 		CurName=$"{TexName}-{0:D32}.png";
 		byte[] PNGBytes;
 		string NewFileName;

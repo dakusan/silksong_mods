@@ -1,3 +1,4 @@
+using SilkDev.Textures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,22 +62,21 @@ public class PopupMessage
 		int BorderAndPadding=BorderWidth+Padding;
 		Vector2 FullSize=SizeAtPercent(1), CurrentSize=SizeAtPercent(PercentPassed);
 		Rect LocalWinRect=CurrentSize.CenterIn(FullSize);
-		Rect ContentRectOffset=new(BorderAndPadding, BorderAndPadding, BorderAndPadding*-2, BorderAndPadding*-2);
 
 		//Draw the window and border
 		GUI.DrawTexture(LocalWinRect, BorderTex);
-		GUI.DrawTexture(LocalWinRect.Add(new Rect(BorderWidth, BorderWidth, BorderWidth*-2, BorderWidth*-2)), BackgroundTex);
+		GUI.DrawTexture(LocalWinRect.Grow(-BorderWidth, -BorderWidth), BackgroundTex);
 
 		//If IsStillGrowing then set up a clip rectangle and adjust the final region for it
 		bool IsStillGrowing=(PercentPassed<1);
 		if(IsStillGrowing) {
-			Rect ClipRect=LocalWinRect.Add(ContentRectOffset);
+			Rect ClipRect=LocalWinRect.Grow(-BorderAndPadding, -BorderAndPadding);
 			GUI.BeginClip(ClipRect);
 			GUI.BeginClip(new Rect(-ClipRect.position, FullSize));
 		}
 
 		//Draw the full size window contents (which will be clipped if PercentPassed<1)
-		GUILayout.BeginArea(new Rect(Vector2.zero, FullSize).Add(ContentRectOffset));
+		GUILayout.BeginArea(new Rect(Vector2.zero, FullSize).Grow(-BorderAndPadding, -BorderAndPadding));
 		GUILayout.BeginVertical();
 		DrawContents();
 		GUILayout.EndVertical();
