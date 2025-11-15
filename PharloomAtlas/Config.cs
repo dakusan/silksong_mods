@@ -22,9 +22,9 @@ public class Config
 	public readonly DynamicEnumConfig IconSet;
 	internal readonly ConfigEntryT<HornetIconAnimators.HornetHighlightTypes> HornetHighlights;
 
-	private ConfigDescription AVR<T>(T min, T max, string Description="", ConfigurationManagerAttributes? CMA=null) where T : System.IComparable => new(Description, new AcceptableValueRange<T>(min, max), CMA);
-	private ConfigurationManagerAttributes NonBrowsable => new() { Browsable=false };
-	private ConfigurationManagerAttributes IsAdvanced => new() { IsAdvanced=true };
+	private static ConfigDescription AVR<T>(T min, T max, string Description="", ConfigurationManagerAttributes? CMA=null) where T : System.IComparable => new(Description, new AcceptableValueRange<T>(min, max), CMA);
+	private static ConfigurationManagerAttributes NonBrowsable => new() { Browsable=false };
+	private static ConfigurationManagerAttributes IsAdvanced => new() { IsAdvanced=true };
 
 	internal Config(ConfigFile PConfig)
 	{
@@ -141,7 +141,7 @@ public class Config
 	private Dictionary<string, string> GetIconFiles() =>
 		((HashSet<string>)[
 			.. FileOps.GetDirFiles(Misc.GetPluginPath, $"{IconStrStart}*{IconStrEnd}").Select(FileOps.GetFileName),
-			.. FileOps.GetResources().Where(FileName => FileName.StartsWith(IconStrStart) && FileName.EndsWith(IconStrEnd))
+			.. FileOps.GetResources().Where(static FileName => FileName.StartsWith(IconStrStart) && FileName.EndsWith(IconStrEnd))
 		]).ToDictionary(
 			Str => Str,
 			Str => System.Text.RegularExpressions.Regex.Replace(

@@ -32,7 +32,7 @@ public class DynamicEnumConfig
 		MethodInfo BindMethod=GetMethodInfo<T>(DynamicEnumType);
 
 		//Create the ConfigEntry
-		List<string> MyKeys=[.. Options.Select(KVP => KVP.Key)];
+		List<string> MyKeys=[.. Options.Select(static KVP => KVP.Key)];
 		object EntryObj=BindMethod.Invoke(CF, [
 			new ConfigDefinition(SectionName, KeyName),
 			Enum.ToObject(DynamicEnumType, MyKeys.IndexOf(Default ?? "") is int i && i!=-1 ? i : 0),
@@ -68,7 +68,7 @@ public class DynamicEnumConfig
 	private static MethodInfo GetMethodInfo<T>(TypeInfo BuildEnumType) =>
 		(typeof(T)
 			.GetMethods(BindingFlags.Public | BindingFlags.Instance)
-			.FirstOrDefault(M =>
+			.FirstOrDefault(static M =>
 				   M.Name=="Bind"
 				&& M.IsGenericMethodDefinition
 				&& M.GetParameters().Length==3

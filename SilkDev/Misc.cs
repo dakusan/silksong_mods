@@ -57,16 +57,16 @@ public static class Misc
 		MethodInfo? MI=
 			Hooks.DynamicHook.FindType("UnityExplorer.InspectorManager")
 			?.GetMethods(BindingFlags.Public | BindingFlags.Static)
-			.FirstOrDefault(m => m.Name=="Inspect" && m.GetParameters().Length==2 && m.GetParameters()[0].ParameterType==typeof(object));
+			.FirstOrDefault(static m => m.Name=="Inspect" && m.GetParameters().Length==2 && m.GetParameters()[0].ParameterType==typeof(object));
 		if(MI==null) {
-			Call_UnityExplorer_Inspect=_ => { };
+			Call_UnityExplorer_Inspect=static _ => { };
 			Log.Error("Could not find unity explorer");
 			return;
 		}
 
 		//Create a method to make unity explorer show up
 		PropertyInfo? ShowMenuPI=Hooks.DynamicHook.FindType("UnityExplorer.UI.UIManager")?.GetProperty("ShowMenu");
-		Action ShowMenuAction=(ShowMenuPI==null ? () => { } : () => ShowMenuPI.SetValue(null, true));
+		Action ShowMenuAction=(ShowMenuPI==null ? static () => { } : () => ShowMenuPI.SetValue(null, true));
 
 		//Create and run the delegate for the full action
 		Call_UnityExplorer_Inspect=RunGO => { _=MI.Invoke(null, [RunGO, null!]); ShowMenuAction(); };

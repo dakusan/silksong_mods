@@ -5,15 +5,15 @@ using UnityEngine;
 namespace SilkDev.DevInput;
 
 //Blocks the keyboard from getting to the game
-internal class BlockKeys : Windows.Window
+internal class BlockKeys() : Windows.Window(nameof(BlockKeys), false, 2000, true)
 {
 	private readonly GUIStyle TextStyle=new(GUI.skin.label) { fontSize=40, alignment=TextAnchor.MiddleCenter, normal={ textColor=Color.red } };
 	private const int Width=350, Height=65, HeightOffset=40;
 	private static Config Conf => Config.C;
 
-	public BlockKeys() : base(nameof(BlockKeys), true, 2000)
+	protected override void OnInit()
 	{
-		(BGTex, UnboundDraw, AlwaysCallUpdate)=(new Color(0, 0, 0, .5f).MakeTexture(), true, true);
+		(BGTex, UnboundDraw)=(new Color(0, 0, 0, .5f).MakeTexture(), true);
 		Visible=Conf.BlockGameInput;
 		Conf.BlockGameInput.SettingChanged += (_, _) =>
 			Visible=Conf.BlockGameInput;

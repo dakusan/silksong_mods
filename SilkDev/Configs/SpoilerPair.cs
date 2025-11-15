@@ -23,7 +23,7 @@ public class SpoilerPair<T> where T : System.IEquatable<T>
 	public void CanSpoil(bool CanSpoil)
 	{
 		static ConfigurationManagerAttributes? GetCMA(ConfigEntryBase CE) =>
-		(ConfigurationManagerAttributes?)CE.Description.Tags.FirstOrDefault(T => T is ConfigurationManagerAttributes);
+		(ConfigurationManagerAttributes?)CE.Description.Tags.FirstOrDefault(static T => T is ConfigurationManagerAttributes);
 		_=GetCMA(IsSpoiled.CE)?.Browsable=CanSpoil;
 		_=GetCMA(Unspoiled.CE)?.Browsable=!CanSpoil;
 	}

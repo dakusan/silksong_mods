@@ -33,7 +33,7 @@ public class PopupMessage
 
 	//Create the background textures
 	static PopupMessage() =>
-		Window.OnNextFrame(() => {
+		Window.OnNextFrame(static () => {
 			BackgroundTex=Color.black.MakeTexture();
 			BorderTex=Color.grey.MakeTexture();
 			DefaultTextStyle=new GUIStyle(GUI.skin.label) { fontSize=50, alignment=TextAnchor.MiddleCenter, wordWrap=true, richText=true };

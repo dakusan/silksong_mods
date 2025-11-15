@@ -64,12 +64,12 @@ public class MapControl : SilkDev.Windows.Window
 		StopMouseEventsIfMouseOver=false;
 
 		//Handle keys and settings changes
-		Conf.PanSpeed				.SettingChanged += (_, _) => SetPanSpeed(Conf.PanSpeed);
-		Conf.MarkerPanSpeed			.SettingChanged += (_, _) => SetMarkerPanSpeed(Conf.MarkerPanSpeed);
-		Conf.IconSize				.SettingChanged += (_, _) => SetIconSize(Conf.IconSize);
-		Conf.ForceDisplayCompass	.SettingChanged += (_, _) => DisplayingCompass=Conf.ForceDisplayCompass;
-		Conf.MapInAbyss				.SettingChanged += (_, _) => ExitMap(true, true, true);
-		Conf.IconSizeScalesWithZoom	.SettingChanged += (_, _) => {
+		Conf.PanSpeed				.SettingChanged +=			(_, _) => SetPanSpeed(Conf.PanSpeed);
+		Conf.MarkerPanSpeed			.SettingChanged +=			(_, _) => SetMarkerPanSpeed(Conf.MarkerPanSpeed);
+		Conf.IconSize				.SettingChanged +=			(_, _) => SetIconSize(Conf.IconSize);
+		Conf.ForceDisplayCompass	.SettingChanged += static	(_, _) => DisplayingCompass=Conf.ForceDisplayCompass;
+		Conf.MapInAbyss				.SettingChanged +=			(_, _) => ExitMap(true, true, true);
+		Conf.IconSizeScalesWithZoom	.SettingChanged +=			(_, _) => {
 			SetIconSize(Conf.IconSize);
 			IconSizeScalesWithZoom=Conf.IconSizeScalesWithZoom;
 		};
@@ -209,7 +209,7 @@ public class MapControl : SilkDev.Windows.Window
 
 	//Find the closest item to the map position within a radius
 	public Item? FindClosestItem(Vector2 PosOnMap, float SelectionRadius) =>
-		FindClosestVector(DS.Items.Values.Where(I => I.Visible).Select(I => new VItem<Item>(I.Pos, I)), PosOnMap, IconRadius, SelectionRadius);
+		FindClosestVector(DS.Items.Values.Where(static I => I.Visible).Select(static I => new VItem<Item>(I.Pos, I)), PosOnMap, IconRadius, SelectionRadius);
 
 	//Find the closest vector to the map position within a radius, returning its item
 	public record struct VItem<T>(Vector2 Pos, T Item) where T: class;

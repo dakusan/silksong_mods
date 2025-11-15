@@ -37,11 +37,11 @@ public static class TextureExtensions
 		Rect TC=TexCoords ?? Rect.zero;
 		using TypedDisposer<Texture2D>? RT2=
 			  TexCoords==null ? null
-			: new(new Texture2D((int)TC.size.x, (int)TC.size.y, TextureFormat.ARGB32, false), T => T.TDestroy());
+			: new(new Texture2D((int)TC.size.x, (int)TC.size.y, TextureFormat.ARGB32, false), static T => T.TDestroy());
 		if(RT2!=null) {
 			using TypedDisposer<Texture2D>? TextToCopyFrom=
 				  !UnityEngine.Experimental.Rendering.GraphicsFormatUtility.IsCompressedFormat(Tex.format) ? null
-				: new(Tex.ToReadable(), T => T.TDestroy()); //If compressed then we are forced to create a copy of the whole texture first before extracting what we need
+				: new(Tex.ToReadable(), static T => T.TDestroy()); //If compressed then we are forced to create a copy of the whole texture first before extracting what we need
 			Graphics.CopyTexture(TextToCopyFrom?.Target ?? Tex, 0, 0, (int)TC.x, (int)TC.y, (int)TC.width, (int)TC.height, RT2.Target, 0, 0, 0, 0);
 			Tex=RT2.Target;
 		}

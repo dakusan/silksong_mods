@@ -20,7 +20,7 @@ public partial class SideBar
 		//Constructors
 		public readonly CategoryGroup CG=CG;
 		static CategoryGroupSection() =>
-			new GUIStyle[] { TitleTextStyle, LabelTextStyle }.ForEach(GS =>
+			new GUIStyle[] { TitleTextStyle, LabelTextStyle }.ForEach(static GS =>
 				GS.padding=GS.margin=new RectOffset(0, 0, 0, 0)
 			);
 

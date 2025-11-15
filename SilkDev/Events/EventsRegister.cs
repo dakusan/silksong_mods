@@ -21,7 +21,7 @@ public class EventRegister<KeyType, ValueType>(string Name) where ValueType : De
 	{
 		if(!DictList.TryGetValue(Key, out var ActionList))
 			return false;
-		Catcher.RunList($"{Name} for {Key!}", ActionList.AsEnumerable().Select(D => D.Handler), CallWrapper);
+		Catcher.RunList($"{Name} for {Key!}", ActionList.AsEnumerable().Select(static D => D.Handler), CallWrapper);
 		return true;
 	}
 }

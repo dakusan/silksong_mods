@@ -146,9 +146,9 @@ public abstract class Window
 		OnNextFrame(() => {
 			WinList.Add(this);
 			WinOrderList.Add(this);
+			OFCall(OFuncs.OnInit);
 		});
 		FillOverriddenEvents();
-		OFCall(OFuncs.OnInit);
 	}
 
 	//Handle custom mouse events
@@ -179,7 +179,7 @@ public abstract class Window
 	//Custom mouse events (MouseMove|MouseEnterWindow|MouseLeaveWindow) are called when the Plugin receives Layout, before the pre-draw phrase starts.
 	//TouchStationary event calls are during HasMouseFocus().
 	[OA(DN,T)] protected virtual void OnMouseEvent	(Event Ev	 )=>DNC();
-	[OA(DN,T)] protected virtual void OnInit		(			 )=>DNC(); //Called at the end of the constructor
+	[OA(DN,T)] protected virtual void OnInit		(			 )=>DNC(); //Called at the beginning of the next frame
 
 	//Functions that have default code that can be overwritten
 	protected virtual void CloseButton() => Close(); //Called when the close button is clicked. If you just want to hide it, change this to => Visible=false;
@@ -250,12 +250,12 @@ public abstract class Window
 				)),
 			-3000 //Let all other update events run first
 		);
-		GameEvents.OnGameLoaded += SaveSlot =>
+		GameEvents.OnGameLoaded += static SaveSlot =>
 			WinList.ForEach(Win => Win.OFCall(OFuncs.OnGameLoaded, SaveSlot));
-		GameEvents.OnGameSaved += SaveSlot =>
+		GameEvents.OnGameSaved += static SaveSlot =>
 			WinList.ForEach(Win => Win.OFCall(OFuncs.OnGameSaved, SaveSlot));
 
-		OnNextFrame(() => {
+		OnNextFrame(static () => {
 			_=new BlockWindows_UnityExplorer(-100);
 			_=new BlockWindows_BepInExConfigManager(-100);
 		}, false);
@@ -432,16 +432,19 @@ public abstract class Window
 		NUM_ENUMS,
 	}
 	private void FillOverriddenEvents() =>
-		Enumerable.Range(0, (int)OFuncs.NUM_ENUMS).ForEach(i =>
+		Enumerable.Range(0, (int)OFuncs.NUM_ENUMS).ForEach(i => {
+			MethodInfo MI=GetType().GetMethod(((OFuncs)i).ToString(), BindingFlags.Instance|BindingFlags.NonPublic);
+			if(MI==null || MI.DeclaringType==typeof(Window))
+				return;
+
 			OverriddenFuncs[i]=
-				GetType().GetMethod(((OFuncs)i).ToString(), BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.DeclaredOnly)
-				?.CreateDelegate(
+				MI.CreateDelegate(
 					  i>=(int)OFuncs.NUM_NON_DRAW_ENUMS ? typeof(Action<Event>)
 					: (i is (int)OFuncs.OnUpdate or (int)OFuncs.OnInit) ? typeof(Action)
 					: typeof(Action<int>)
 					, this
-				)
-			);
+				);
+		});
 	private void OFCall(OFuncs OF) {
 		if(OverriddenFuncs[(int)OF] is Action A)
 			Catcher.Run(() => $"“{Title}”.{OF}", A);

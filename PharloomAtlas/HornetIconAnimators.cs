@@ -110,7 +110,7 @@ internal class HornetIconAnimators
 
 			//Set up config changes
 			static void UpdateScale() => MyMaterial!.SetTextureScale("_OverlayTex", new Vector2(1f, Conf.HornetRainbow1Scale));
-			Conf.HornetRainbow1Scale.SettingChanged += (_, _) => UpdateScale();
+			Conf.HornetRainbow1Scale.SettingChanged += static (_, _) => UpdateScale();
 			UpdateScale();
 		}
 

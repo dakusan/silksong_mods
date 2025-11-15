@@ -12,7 +12,7 @@ public static class Log
 	internal static void InitAfterConfig()
 	{
 		LLevel=GetNewLogLevel;
-		Internal.Config.C.DebugLogLevel.SettingChanged += (_, _) => LLevel=GetNewLogLevel;
+		Internal.Config.C.DebugLogLevel.SettingChanged += static (_, _) => LLevel=GetNewLogLevel;
 	}
 
 	private static LogLevel LLevel=LogLevel.Info;

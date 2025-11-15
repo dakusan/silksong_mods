@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Button=SilkDev.DevInput.Mouse.Button;
 
 namespace SilkDev.Textures;
@@ -21,13 +22,13 @@ public class GameObjectSprites : Window
 		AlreadyInitialized=true;
 
 		//Handle shortcut key to open window
-		Events.GameEvents.OnUpdate += () => Misc.IFF(
+		Events.GameEvents.OnUpdate += static () => Misc.IFF(
 			Conf.Key_GameObjectSprites.IsDown(),
-			() => OnNextFrame(CurWin != null ? CurWin.RunUpdate : () => CurWin=new GameObjectSprites())
+			() => OnNextFrame(CurWin != null ? CurWin.RunUpdate : static () => CurWin=new GameObjectSprites())
 		);
 
 		//Handle setting changed of whether to show LiveRectangles
-		Conf.GOSWindow_ShowMouseOver.SettingChanged += (_, _) => {
+		Conf.GOSWindow_ShowMouseOver.SettingChanged += static (_, _) => {
 			if(CurWin==null)
 				return;
 			if(Conf.GOSWindow_ShowMouseOver)
@@ -37,6 +38,9 @@ public class GameObjectSprites : Window
 				CurWin.LR=null;
 			}
 		};
+
+		//Close window on scene change
+		SceneManager.sceneLoaded += static (_, _) => CurWin?.Close();
 	}
 
 	//Helper classes
@@ -137,7 +141,7 @@ public class GameObjectSprites : Window
 		//Recursively check through all the root game objects for the scene
 		List<FoundObj> ObjList=[];
 		FindData FD=new(ObjList, Camera.allCameras[0], DevInput.Util.MousePos);
-		foreach(GameObject GO in UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects())
+		foreach(GameObject GO in SceneManager.GetActiveScene().GetRootGameObjects())
 			FindObjectsRecurse(FD, GO.transform, "");
 
 		return ObjList;
@@ -342,7 +346,7 @@ public class GameObjectSprites : Window
 				if(MOOList.TryGetValue(FO.GO, out MouseOverObjects AlreadyObj))
 					AlreadyObj.LastUpdate.Value=Now;
 				else
-					MOOList[FO.GO]=new MouseOverObjects(new DrawGeometry.Rectangle(FO.ScreenPos, BoxTex, 2), FO, new(Now));
+					MOOList[FO.GO]=new MouseOverObjects(new DrawGeometry.Rectangle(FO.ScreenPos, BoxTex, 2) { Priority=Priority-1 }, FO, new(Now));
 
 			//Swap the closest object to having a different background color
 			Vector2 MP=DevInput.Util.MousePos;
@@ -403,7 +407,7 @@ public class GameObjectSprites : Window
 		//Keep the list clear when not in use
 		public void ClearList()
 		{
-			MOOList.Values.ForEach(LR => LR.R.Close());
+			MOOList.Values.ForEach(static LR => LR.R.Close());
 			MOOList.Clear();
 			ClosestObj=null;
 		}

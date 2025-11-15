@@ -69,7 +69,7 @@ public class MarkerLabels : Window
 
 	//Get the vector list of currently placed markers
 	public static Vector2[] MarkerPositions =>
-		[.. PlayerData.instance.placedMarkers.AsEnumerable().SelectMany(MarkerList => MarkerList.List)];
+		[.. PlayerData.instance.placedMarkers.AsEnumerable().SelectMany(static MarkerList => MarkerList.List)];
 
 	//Get the Marker GameObject from its position
 	public static GameObject? GetMarkerGOFromPos(MarkerPos? Pos)
@@ -118,7 +118,7 @@ public class MarkerLabels : Window
 		//Determine which labels to show
 		List<(MarkerPos MP, string LabelText)> DrawList=[];
 		if(Conf.AlwaysShowMarkerLabels)
-			DrawList.AddRange(Labels.Select(KVP => (new MarkerPos(KVP.Key), KVP.Value)));
+			DrawList.AddRange(Labels.Select(static KVP => (new MarkerPos(KVP.Key), KVP.Value)));
 		else {
 			HashSet<string?> Candidates=[
 				SelectedMarker?.ToString(),
@@ -238,7 +238,7 @@ public class MarkerLabels : Window
 
 		//Determine the marker that we are the “most over”
 		MarkerPos? Closest=MC.FindClosestVector(
-			MarkerPositions.Select(V => new MapControl.VItem<MarkerPos>(V, new MarkerPos(V))),
+			MarkerPositions.Select(static V => new MapControl.VItem<MarkerPos>(V, new MarkerPos(V))),
 			MC.MouseCursorWorldPosition,
 			MarkerRadius, 0
 		);
@@ -313,7 +313,7 @@ public class MarkerLabels : Window
 		Labels.Clear();
 		try {
 			//Create list of current markers. For any that do not exist, move the label to the deleted list
-			List<string> CurMarkers=[.. MarkerPositions.Select(V => new MarkerPos(V).ToString())];
+			List<string> CurMarkers=[.. MarkerPositions.Select(static V => new MarkerPos(V).ToString())];
 			foreach((string Key, string Val) in FileOps.DeserializeJson<Dictionary<string, string>>(Conf.MarkerLabels))
 				if(CurMarkers.Contains(Key))
 					Labels[Key]=Val;

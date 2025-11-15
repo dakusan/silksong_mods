@@ -17,8 +17,8 @@ public class PrioritizedValues<TSelf, T>
 	public static TSelf operator +(PrioritizedValues<TSelf, T> e, (T Val, int Pri) v) => e.Add(v.Val, v.Pri);
 	public static TSelf operator +(PrioritizedValues<TSelf, T> e, T Value			) => e.Add(Value, 0);
 	public static TSelf operator -(PrioritizedValues<TSelf, T> e, T Value			) => e.Sub(Value);
-	public IEnumerable<T> Sorted()				 => Values.OrderBy			(v => v.Priority).Select(v => v.Value);
-	public IEnumerable<T> SortedDescending()	 => Values.OrderByDescending(v => v.Priority).Select(v => v.Value);
+	public IEnumerable<T> Sorted()				 => Values.OrderBy			(static v => v.Priority).Select(static v => v.Value);
+	public IEnumerable<T> SortedDescending()	 => Values.OrderByDescending(static v => v.Priority).Select(static v => v.Value);
 	protected virtual bool GetEquality(T a, T b) => a.Equals(b);
 
 	public TSelf Add(T Value, int Priority)
@@ -42,8 +42,8 @@ public class PrioritizedValues<TSelf, T>
 //Prioritized event list (higher priority runs first)
 public class PrioritizedEvents<A>(string Name) : PrioritizedValues<PrioritizedEvents<A>, SingleDelegate<A>> where A : Delegate
 {
-	public void Run(					) => Catcher.RunList(Name, SortedDescending().Select(D => D.Handler)			); //No parameters passed
-	public void Run(Action<A> RunEvents	) => Catcher.RunList(Name, SortedDescending().Select(D => D.Handler), RunEvents	); //Parameters passed
+	public void Run(					) => Catcher.RunList(Name, SortedDescending().Select(static D => D.Handler)				); //No parameters passed
+	public void Run(Action<A> RunEvents	) => Catcher.RunList(Name, SortedDescending().Select(static D => D.Handler), RunEvents	); //Parameters passed
 
 	//Convenience overloads to accept raw A (wrap internally)
 	public PrioritizedEvents<A> Add(A handler, int priority=0	) => base.Add(new SingleDelegate<A>(handler), priority	);

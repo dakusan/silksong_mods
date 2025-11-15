@@ -97,7 +97,7 @@ public static class FindPins
 	//Find all persistent objects in a scene
 	public static List<FoundObj> FindPersistentObjectsInScene(Scene TheScene) =>
 		TheScene.GetRootGameObjects()
-		.Aggregate(new List<FoundObj>(), (TheList, Parent) =>
+		.Aggregate(new List<FoundObj>(), static (TheList, Parent) =>
 			FindPersistentObjectsRecurse(TheList, Parent.transform)
 		);
 

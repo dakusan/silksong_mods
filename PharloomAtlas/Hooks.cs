@@ -102,7 +102,7 @@ internal static class Patch_OneAxisInputControl_WasPressed {
 [HarmonyPatch(typeof(MapMarkerMenu), "PanMap")]
 internal static class Patch_MapMarkerMenu_PanMap {
 	private static void Postfix(bool __result) =>
-		Misc.IFF(__result, () => Catcher.Run(nameof(Patch_MapMarkerMenu_PanMap), Exec));
+		Misc.IFF(__result, static () => Catcher.Run(nameof(Patch_MapMarkerMenu_PanMap), Exec));
 	private static void Exec() =>
 		MapControl.Self?.CursorMoveEvent();
 }

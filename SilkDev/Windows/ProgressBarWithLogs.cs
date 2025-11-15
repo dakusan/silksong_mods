@@ -7,7 +7,7 @@ namespace SilkDev.Windows;
 
 //A progress bar window with a message line and and 2 logs below it (an error and a normal)
 //Any public variables can be updated at any time and the window will auto adjust on the next frame draw
-public class ProgressBarWithLogs : Window
+public class ProgressBarWithLogs() : Window(nameof(ProgressBarWithLogs), true, 1000)
 {
 	//All functions confirm these are set before using them
 	private readonly Texture2D DarkGreyTex=new Color(0.25f, 0.25f, 0.25f, 1f).MakeTexture();
@@ -23,7 +23,7 @@ public class ProgressBarWithLogs : Window
 	public  float PercentAmount; //0-1
 	private float LineHeight;
 
-	public ProgressBarWithLogs() : base(nameof(ProgressBarWithLogs), true, 1000) =>
+	protected override void OnInit() =>
 		RecalculateLineHeight();
 
 	protected override void DoLayout(int ID, Event Ev)
