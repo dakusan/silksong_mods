@@ -37,7 +37,7 @@ internal class Plugin : BaseUnityPlugin
 			new HarmonyLib.Harmony(PluginInfo.PLUGIN_GUID).PatchAll();
 			Window.OnNextFrame(static () => new DevInput.BlockKeys());
 			ExtractAllTextures.Init(Internal.Config.C.RunExtractAllTextures);
-			Window.OnNextFrame(() => _=new GameObjectSprites());
+			GameObjectSprites.Init();
 			Log.Info($"Plugin {PluginInfo.PLUGIN_GUID} is loaded");
 		});
 	}

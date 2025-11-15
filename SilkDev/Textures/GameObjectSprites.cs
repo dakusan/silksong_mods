@@ -10,6 +10,35 @@ namespace SilkDev.Textures;
 //Opens the “Game Object Sprites” window on keyboard shortcut, which allows you to browse and save the sprites/textures that were under your mouse.
 public class GameObjectSprites : Window
 {
+	//Only allow 1 instance and 1 initialization
+	private static GameObjectSprites? CurWin=null;
+	private static bool AlreadyInitialized=false;
+	internal static void Init()
+	{
+		//Only allow initialization once
+		if(AlreadyInitialized)
+			return;
+		AlreadyInitialized=true;
+
+		//Handle shortcut key to open window
+		Events.GameEvents.OnUpdate += () => Misc.IFF(
+			Conf.Key_GameObjectSprites.IsDown(),
+			() => OnNextFrame(CurWin != null ? CurWin.RunUpdate : () => CurWin=new GameObjectSprites())
+		);
+
+		//Handle setting changed of whether to show LiveRectangles
+		Conf.GOSWindow_ShowMouseOver.SettingChanged += (_, _) => {
+			if(CurWin==null)
+				return;
+			if(Conf.GOSWindow_ShowMouseOver)
+				CurWin.LR ??= new(CurWin);
+			else {
+				CurWin.LR?.Close();
+				CurWin.LR=null;
+			}
+		};
+	}
+
 	//Helper classes
 	public record class FoundObj(string Name, string ParentTree, GameObject GO) {
 		public Rect ScreenPos => GO==null ? Rect.zero : WorldBoundsToScreenRect(GO.GetComponent<SpriteRenderer>().bounds);
@@ -64,26 +93,26 @@ public class GameObjectSprites : Window
 		}
 	}
 
-	internal GameObjectSprites() : base("FILLED IN BELOW", Conf.Rect_GameObjectSprites)
+	private GameObjectSprites() : base("FILLED IN BELOW", Conf.Rect_GameObjectSprites)
 	{
 		LabelStyleBold=new GUIStyle(LabelStyle) { fontStyle=FontStyle.Bold };
 		EllipsesStyle=new GUIStyle(LabelStyle) { normal={ textColor=Color.red } };
 		EllipsesWidth=EllipsesStyle.CalcSize(new GUIContent(EllipsesStr)).x;
-		AlwaysCallUpdate=true;
 		Resizer!.MinSize=new Vector2(MinListWidth+50, MinListWidth+50);
+		Visible=true;
 
-		LR=new(this);
+		if(Conf.GOSWindow_ShowMouseOver)
+			LR=new(this);
+		RunUpdate();
 	}
 
 	protected override void OnUpdate()
 	{
-		if(Conf.Key_GameObjectSprites.IsDown()) //Shortcut key pressed to run update
-			OnNextFrame(RunUpdate);
-		if(CurFoundObj!=null) {
-			if(Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow)) //Update the selected object
-				CurFoundObj=FOList[Mathf.Clamp(FOList.IndexOf(CurFoundObj)+(Input.GetKeyDown(KeyCode.UpArrow) ? -1 : 1), 0, FOList.Count-1)];
-			ShowSelection.Rect=CurFoundObj.ScreenPos; //Update the position of the selection window
-		}
+		if(CurFoundObj==null)
+			return;
+		if(Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow)) //Update the selected object
+			CurFoundObj=FOList[Mathf.Clamp(FOList.IndexOf(CurFoundObj)+(Input.GetKeyDown(KeyCode.UpArrow) ? -1 : 1), 0, FOList.Count-1)];
+		ShowSelection.Rect=CurFoundObj.ScreenPos; //Update the position of the selection window
 	}
 
 	private void RunUpdate()
@@ -96,8 +125,7 @@ public class GameObjectSprites : Window
 			FO => (FO.ScreenPos.center-MP).magnitude
 		));
 
-		//Make sure the window is visible and select the first item if available
-		Visible=true;
+		//Select the first item if available
 		if(FOList.Count>0)
 			(CurFoundObj, GetTexFromSprite)=(FOList[0], false);
 	}
@@ -269,20 +297,20 @@ public class GameObjectSprites : Window
 			]));
 	}
 
-	public override void Close() => Visible=false;
-
-	public override bool Visible {
-		get => base.Visible;
-		set {
-			LR.Visible=base.Visible=value;
-			if(!value)
-				CurFoundObj=null;
-		}
-	}
+	//Destroy the window
+	public override void Close() => OnNextFrame(() => {
+		SelectTex.TDestroy();
+		TooltipBorderTex.TDestroy();
+		ShowSelection.Close();
+		CurFoundObj=null;
+		LR?.Close();
+		base.Close();
+		CurWin=null;
+	});
 
 	//On mouse move, show boxes for all game objects we are over
-	private readonly LiveRectangles LR;
-	private class LiveRectangles(GameObjectSprites Parent) : Window("Live GameObjectSprite Rectangles", false, -300)
+	private LiveRectangles? LR=null;
+	private class LiveRectangles(GameObjectSprites Parent) : Window("Live GameObjectSprite Rectangles", true, -300)
 	{
 		private readonly Texture2D BoxTex=Color.red.MakeTexture(), SelectedTex=new Color(0, 0, 1, 0.35f).MakeTexture();
 		private record class MouseOverObjects(DrawGeometry.Rectangle R, FoundObj FO, Misc.Ref<DateTime> LastUpdate);
@@ -372,13 +400,13 @@ public class GameObjectSprites : Window
 			MOOList.Clear();
 			ClosestObj=null;
 		}
-		public override bool Visible
-		{
-			get => base.Visible;
-			set {
-				ClearList();
-				base.Visible=value;
-			}
-		}
+
+		//Destroy the window
+		public override void Close() => OnNextFrame(() => {
+			ClearList();
+			BoxTex.TDestroy();
+			SelectedTex.TDestroy();
+			base.Close();
+		});
 	}
 }
