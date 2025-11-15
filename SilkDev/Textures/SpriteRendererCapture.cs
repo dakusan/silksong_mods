@@ -1,24 +1,55 @@
-using SilkDev;
 using UnityEngine;
 
 namespace SilkDev.Textures;
 
-public static class SpriteRendererCapture
+//Base for sprite extraction
+public abstract class SpriteObject(string Name, string ParentTree, GameObject GO)
 {
-	private const int CaptureLayer=31;
+	//Base information
+	public readonly string Name=Name, ParentTree=ParentTree;
+	public GameObject GO=GO;
+	public Rect ScreenPos => GO==null ? Rect.zero : GameObjectSprites.WorldBoundsToScreenRect(Bounds);
 
-	//Renders a SpriteRenderer (with full transparency) into a Texture2D
-	public static Texture2D CaptureToTexture(this SpriteRenderer Renderer, float? PixelsPerUnit=null, int MaxSize=2048)
+	//Overridden functions
+	public abstract bool IsSafe			{ get; }
+	public abstract Bounds Bounds		{ get; }
+	public abstract Texture2D Texture	{ get; }
+	public abstract Rect TextureRect	{ get; }
+	public abstract float? PPU			{ get; }
+
+	//Shared functions
+	public static Rect TextureRectFromUVs(Vector2[] UVs, Vector2 TextureSize)
 	{
-		Sprite Sprite=Renderer.NullSafe()?.sprite.NullSafe() ?? throw new System.ArgumentException("Could not get sprite from Renderer");
-		float PPU=PixelsPerUnit ?? Sprite.pixelsPerUnit;
+		//Find the axis-aligned UV bounds in the atlas (handles pack-time flipping/rotation automatically)
+		float MinU=float.MaxValue, MinV=float.MaxValue;
+		float MaxU=float.MinValue, MaxV=float.MinValue;
+		foreach(Vector2 UV in UVs) {
+			MinU=Mathf.Min(MinU, UV.x);
+			MaxU=Mathf.Max(MaxU, UV.x);
+			MinV=Mathf.Min(MinV, UV.y);
+			MaxV=Mathf.Max(MaxV, UV.y);
+		}
+		Rect uvRect=new(MinU, MinV, MaxU-MinU, MaxV-MinV);
+		uvRect.position*=TextureSize;
+		uvRect.size*=TextureSize;
+		return uvRect;
+	}
+
+	//Renders a SpriteObject (with full transparency) into a Texture2D
+	private const int CaptureLayer=31;
+	public Texture2D CaptureToTexture(float? PixelsPerUnit=null, int MaxSize=2048)
+	{
+		//Init
+		if(!IsSafe)
+			throw new System.ArgumentException("Could not get sprite from Renderer");
+		float MyPPU=PixelsPerUnit ?? PPU ?? 100f;
 
 		//Set a unique temporary layer
-		int OriginalLayer=Renderer.gameObject.layer; // Remember original layer
-		Renderer.gameObject.layer=CaptureLayer;
+		int OriginalLayer=GO.layer; //Remember original layer
+		GO.layer=CaptureLayer;
 
 		//Create camera that only renders that layer
-		Bounds B=Renderer.bounds;
+		Bounds B=Bounds;
 		GameObject CamGO=new("SpriteRendererCaptureCam");
 		var Cam=CamGO.AddComponent<Camera>();
 		Cam.orthographic		=true;
@@ -29,8 +60,8 @@ public static class SpriteRendererCapture
 		Cam.transform.position	=B.center-Vector3.forward*10f;
 
 		//Resize if necessary
-		int Width =Mathf.CeilToInt(B.size.x*PPU);
-		int Height=Mathf.CeilToInt(B.size.y*PPU);
+		int Width =Mathf.CeilToInt(B.size.x*MyPPU);
+		int Height=Mathf.CeilToInt(B.size.y*MyPPU);
 		float AspectRatio=Width/(float)Height;
 		if(Width>MaxSize) {
 			Width=MaxSize;
@@ -51,7 +82,7 @@ public static class SpriteRendererCapture
 		Tex.Apply();
 
 		//Cleanup
-		Renderer.gameObject.layer=OriginalLayer;
+		GO.layer=OriginalLayer;
 		Cam.targetTexture=null;
 		RenderTexture.active=null;
 		Object.DestroyImmediate(RT);
@@ -59,4 +90,39 @@ public static class SpriteRendererCapture
 
 		return Tex;
 	}
+}
+
+//The different types of sprites we can extract
+public class SpriteObject_SpriteRenderer(string Name, string ParentTree, SpriteRenderer SR) : SpriteObject(Name, ParentTree, SR.gameObject)
+{
+	public SpriteRenderer SR			=  SR;
+	public override bool IsSafe			=> SR.NullSafe()?.sprite!=null;
+	public override Bounds Bounds		=> SR.bounds;
+	public override Texture2D Texture	=> SR.sprite.texture;
+	public override Rect TextureRect	=> SR.sprite.textureRect;
+	public override float? PPU			=> SR.sprite.pixelsPerUnit;
+}
+
+public class SpriteObject_tk2dBaseSprite(string Name, string ParentTree, tk2dBaseSprite TKS) : SpriteObject(Name, ParentTree, TKS.gameObject)
+{
+	public tk2dBaseSprite TKS			=  TKS;
+	public override bool IsSafe			=> TKS.NullSafe()?.CurrentSprite!=null && TKS.GetComponent<Renderer>()!=null && TKS.Collection!=null;
+	public override Bounds Bounds		=> TKS.GetComponent<Renderer>().bounds;
+	public override Texture2D Texture	=> (Texture2D)TKS.CurrentSprite.material.mainTexture;
+	public override Rect TextureRect	=> TextureRectFromUVs(TKS.CurrentSprite.uvs, Texture.Size());
+	public override float? PPU			=> 1f/TKS.CurrentSprite.texelSize.x;
+}
+
+//NOTE: I haven’t really been able to capture a worthwhile MeshFilter that wasn’t just a blank texture, so not sure how well this works
+public class SpriteObject_MeshFilter(string Name, string ParentTree, MeshFilter MF) : SpriteObject(Name, ParentTree, MF.gameObject)
+{
+	public MeshFilter MF				=  MF;
+	public override bool IsSafe			=> MF.NullSafe()?.sharedMesh.NullSafe()!=null && MF.GetComponent<Renderer>()?.sharedMaterial!=null;
+	public override Bounds Bounds		=> MF.sharedMesh.bounds;
+	public override Texture2D Texture	=> (Texture2D)MF.GetComponent<Renderer>().sharedMaterial.mainTexture;
+	public override Rect TextureRect	=> TextureRectFromUVs(MF.sharedMesh.uv, Texture.Size());
+	public override float? PPU			{ get {
+		Vector2 PPU2=TextureRect.size/Bounds.size;
+		return Mathf.Approximately(PPU2.x, PPU2.y) ? PPU2.x : null;
+	} }
 }

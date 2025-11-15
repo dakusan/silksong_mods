@@ -44,9 +44,6 @@ public class GameObjectSprites : Window
 	}
 
 	//Helper classes
-	public record class FoundObj(string Name, string ParentTree, GameObject GO) {
-		public Rect ScreenPos => GO==null ? Rect.zero : WorldBoundsToScreenRect(GO.GetComponent<SpriteRenderer>().bounds);
-	}
 	private record class LabelInfo(string Label, GUIStyle Style, float Width);
 	private static Internal.Config Conf => Internal.Config.C;
 
@@ -57,7 +54,7 @@ public class GameObjectSprites : Window
 	private readonly float EllipsesWidth;
 
 	//Members
-	private readonly List<FoundObj> FOList=[];
+	private readonly List<SpriteObject> SOList=[];
 	private readonly DrawGeometry.Rectangle ShowSelection=new(0, 0, 0, 0, new Color(0, 1, 0, 0.35f)) { Visible=false, Priority=-1 };
 	public Texture2D? TexImage
 	{
@@ -75,7 +72,7 @@ public class GameObjectSprites : Window
 
 	//Set the currently selected object
 	private bool GetTexFromSprite=false;
-	public FoundObj? CurFoundObj {
+	public SpriteObject? CurFoundObj {
 		get;
 		private set {
 			//Do not check for setting the same thing again as GetTexFromSprite may be different
@@ -89,8 +86,7 @@ public class GameObjectSprites : Window
 
 			//Update the texture image
 			try {
-				SpriteRenderer SR=value.GO.GetComponent<SpriteRenderer>();
-				TexImage=GetTexFromSprite ? SR.CaptureToTexture() : SR.sprite.texture.ToReadable(TexCoords: SR.sprite.textureRect);
+				TexImage=GetTexFromSprite ? value.CaptureToTexture() : value.Texture.ToReadable(TexCoords: value.TextureRect);
 			} catch(Exception e) {
 				_=new PopupMessage($"Sprite load failed:\n<size=25>{Misc.SanitizeRichString(e.Message)}</size>");
 			}
@@ -115,7 +111,7 @@ public class GameObjectSprites : Window
 		if(CurFoundObj==null)
 			return;
 		if(Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow)) //Update the selected object
-			CurFoundObj=FOList[Mathf.Clamp(FOList.IndexOf(CurFoundObj)+(Input.GetKeyDown(KeyCode.UpArrow) ? -1 : 1), 0, FOList.Count-1)];
+			CurFoundObj=SOList[Mathf.Clamp(SOList.IndexOf(CurFoundObj)+(Input.GetKeyDown(KeyCode.UpArrow) ? -1 : 1), 0, SOList.Count-1)];
 		ShowSelection.Rect=CurFoundObj.ScreenPos; //Update the position of the selection window
 	}
 
@@ -124,25 +120,31 @@ public class GameObjectSprites : Window
 		//Get the new list
 		Vector2 MP=DevInput.Util.MousePos;
 		CurFoundObj=null;
-		FOList.Clear();
-		FOList.AddRange(GetObjectsUnderCursor().OrderBy(
-			FO => (FO.ScreenPos.center-MP).magnitude
+		SOList.Clear();
+		SOList.AddRange(GetObjectsUnderCursor().OrderBy(
+			SO => (SO.ScreenPos.center-MP).magnitude
 		));
 
 		//Select the first item if available
-		if(FOList.Count>0)
-			(CurFoundObj, GetTexFromSprite)=(FOList[0], false);
+		if(SOList.Count>0)
+			(CurFoundObj, GetTexFromSprite)=(SOList[0], false);
 	}
 
 	//Find all the GameObjects under the cursor
-	private record class FindData(List<FoundObj> ObjList, Camera Camera, Vector2 MousePos);
-	public static List<FoundObj> GetObjectsUnderCursor()
+	private record class FindData(List<SpriteObject> ObjList, Camera Camera, Vector2 MousePos);
+	public static List<SpriteObject> GetObjectsUnderCursor()
 	{
 		//Recursively check through all the root game objects for the scene
-		List<FoundObj> ObjList=[];
+		List<SpriteObject> ObjList=[];
 		FindData FD=new(ObjList, Camera.allCameras[0], DevInput.Util.MousePos);
 		foreach(GameObject GO in SceneManager.GetActiveScene().GetRootGameObjects())
 			FindObjectsRecurse(FD, GO.transform, "");
+
+		//Don’t forget our hero!
+		GameObject HeroGO=HeroController.instance.gameObject;
+		SpriteObject HeroSO=new SpriteObject_tk2dBaseSprite(HeroGO.name, Misc.Empty, HeroGO.GetComponent<tk2dBaseSprite>());
+		if(HeroSO!=null && WorldBoundsToScreenRect(FD.Camera, HeroSO.Bounds).Contains(FD.MousePos))
+			FD.ObjList.Add(HeroSO);
 
 		return ObjList;
 	}
@@ -155,18 +157,24 @@ public class GameObjectSprites : Window
 			return;
 
 		//If a SpriteRenderer then add it if its projected Rect contains the mouse cursor
-		if(
-			   CurObject.GetComponent<SpriteRenderer>() is SpriteRenderer SR
-			&& WorldBoundsToScreenRect(FD.Camera, SR.bounds).Contains(FD.MousePos)
-		)
-			FD.ObjList.Add(new FoundObj(CurObject.gameObject.name, ParentTree, CurObject.gameObject));
+		SpriteObject? CurSO=CurObject switch {
+			Transform G when G.TryGetComponent<SpriteRenderer>(out var SR )
+				=> new SpriteObject_SpriteRenderer	(CurObject.gameObject.name, ParentTree, SR ),
+			Transform G when G.TryGetComponent<tk2dBaseSprite>(out var TKS)
+				=> new SpriteObject_tk2dBaseSprite	(CurObject.gameObject.name, ParentTree, TKS),
+			Transform G when G.TryGetComponent<MeshFilter	 >(out var MF )
+				=> new SpriteObject_MeshFilter		(CurObject.gameObject.name, ParentTree, MF ),
+			_ => null
+		};
+		if(CurSO!=null && CurSO.IsSafe && WorldBoundsToScreenRect(FD.Camera, CurSO.Bounds).Contains(FD.MousePos))
+			FD.ObjList.Add(CurSO);
 
 		//Check all children
 		foreach(Transform Child in CurObject)
 			FindObjectsRecurse(FD, Child, $"{ParentTree}{CurObject.gameObject.name}/");
 	}
 
-	//Convert bounds to a rectangle on the screen 
+	//Convert bounds to a rectangle on the screen
 	public static Rect WorldBoundsToScreenRect(Bounds B) => WorldBoundsToScreenRect(Camera.allCameras[0], B);
 	private static Rect WorldBoundsToScreenRect(Camera Camera, Bounds B)
 	{
@@ -207,21 +215,21 @@ public class GameObjectSprites : Window
 		GUILayout.BeginVertical(GUILayout.Width(LeftWidth));
 		ScrollPosition=GUILayout.BeginScrollView(ScrollPosition, false, true, GUIStyle.none, GUI.skin.verticalScrollbar, GUI.skin.scrollView);
 		(string? Parent, string? Name) TooltipString=(null, null);
-		foreach(FoundObj FO in FOList) {
+		foreach(SpriteObject SO in SOList) {
 			//Get the label parts to draw
-			float ParentNameWidth=LabelStyle.CalcSize(new GUIContent(FO.ParentTree)).x;
-			float NameWidth=LabelStyleBold.CalcSize(new GUIContent(FO.Name)).x;
+			float ParentNameWidth=LabelStyle.CalcSize(new GUIContent(SO.ParentTree)).x;
+			float NameWidth=LabelStyleBold.CalcSize(new GUIContent(SO.Name)).x;
 			LabelInfo[] LI=
 				ParentNameWidth+NameWidth<=LabelMaxWidth ?
 					[
-						new LabelInfo(FO.ParentTree, LabelStyle, ParentNameWidth),
-						new LabelInfo(FO.Name, LabelStyleBold, NameWidth),
+						new LabelInfo(SO.ParentTree, LabelStyle, ParentNameWidth),
+						new LabelInfo(SO.Name, LabelStyleBold, NameWidth),
 					]
 				:
 					[
-						new LabelInfo(FO.ParentTree, LabelStyle, LabelMaxWidth-NameWidth-EllipsesWidth),
+						new LabelInfo(SO.ParentTree, LabelStyle, LabelMaxWidth-NameWidth-EllipsesWidth),
 						new LabelInfo(EllipsesStr, EllipsesStyle, EllipsesWidth),
-						new LabelInfo(FO.Name, LabelStyleBold, NameWidth),
+						new LabelInfo(SO.Name, LabelStyleBold, NameWidth),
 					];
 
 			//Draw the label parts
@@ -234,19 +242,19 @@ public class GameObjectSprites : Window
 			Rect LabelRect=GUILayoutUtility.GetLastRect();
 			bool IsMouseOver=LabelRect.Contains(Event.current.mousePosition);
 			if(IsMouseOver && LI.Length==3)
-				TooltipString=(FO.ParentTree, FO.Name);
+				TooltipString=(SO.ParentTree, SO.Name);
 
 			//Check to see if clicked
 			if(IsMouseOver && Event.current.type==EventType.MouseDown)
 				if(Button.CurrentButton==Button.Enum.Middle)
-					Misc.UnityExplorer_Inspect(FO.GO);
+					Misc.UnityExplorer_Inspect(SO.GO);
 				else {
 					GetTexFromSprite=Button.CurrentButton!=Button.Enum.Left;
-					OnNextFrame(() => CurFoundObj=FO);
+					OnNextFrame(() => CurFoundObj=SO);
 				}
 
 			//Highlight the label if selected
-			if(CurFoundObj==FO)
+			if(CurFoundObj==SO)
 				GUI.DrawTexture(LabelRect, SelectTex);
 		}
 		GUILayout.EndScrollView();
@@ -298,12 +306,12 @@ public class GameObjectSprites : Window
 		if(!GUI.Button(new Rect(WindowRect.width-(CloseButtonSize-CloseButtonPadding)*3, CloseButtonPadding, CloseButtonSize, CloseButtonSize), "?"))
 			return;
 		PopupMessage PM=new(string.Join(Misc.NewLine, ["",
-				"Clicking a line item:",
-				"    * Left click=Display its direct texture",
-				"    * Right click=Display its rendered sprite (this feature is twitchy)",
-				"    * Middle click=Open object in unity explorer (if installed)", "",
-				"Left click a picture to save it to:",
-				"<size=25>"+Misc.SanitizeRichString(FileOps.PathCombine(Misc.GetPluginPath, ExtractAllTextures.TextureDirectory, " "))+"\n<b><color=green>[YYYY-MM-DD_HH_mm_SS SPRITE_NAME].png</color></b></size>"
+			"Clicking a line item:",
+			"    * Left click=Display its direct texture",
+			"    * Right click=Display its rendered sprite (this feature is twitchy)",
+			"    * Middle click=Open object in unity explorer (if installed)", "",
+			"Left click a picture to save it to:",
+			"<size=25>"+Misc.SanitizeRichString(FileOps.PathCombine(Misc.GetPluginPath, ExtractAllTextures.TextureDirectory, " "))+"\n<b><color=green>[YYYY-MM-DD_HH_mm_SS SPRITE_NAME].png</color></b></size>"
 		]));
 		OnNextFrame(() => PM.OverrideTextStyle=new GUIStyle(PopupMessage.DefaultTextStyle) { alignment=TextAnchor.MiddleLeft });
 	}
@@ -324,7 +332,7 @@ public class GameObjectSprites : Window
 	private class LiveRectangles(GameObjectSprites Parent) : Window("Live GameObjectSprite Rectangles", true, -300)
 	{
 		private readonly Texture2D BoxTex=Color.red.MakeTexture(), SelectedTex=new Color(0, 0, 1, 0.35f).MakeTexture();
-		private record class MouseOverObjects(DrawGeometry.Rectangle R, FoundObj FO, Misc.Ref<DateTime> LastUpdate);
+		private record class MouseOverObjects(DrawGeometry.Rectangle R, SpriteObject SO, Misc.Ref<DateTime> LastUpdate);
 		private readonly Dictionary<GameObject, MouseOverObjects> MOOList=[];
 		private readonly GameObjectSprites Parent=Parent;
 		private MouseOverObjects? ClosestObj=null;
@@ -342,17 +350,17 @@ public class GameObjectSprites : Window
 
 			//Add any new objects that we weren’t over previously
 			DateTime Now=DateTime.Now;
-			foreach(FoundObj FO in GetObjectsUnderCursor())
-				if(MOOList.TryGetValue(FO.GO, out MouseOverObjects AlreadyObj))
+			foreach(SpriteObject SO in GetObjectsUnderCursor())
+				if(MOOList.TryGetValue(SO.GO, out MouseOverObjects AlreadyObj))
 					AlreadyObj.LastUpdate.Value=Now;
 				else
-					MOOList[FO.GO]=new MouseOverObjects(new DrawGeometry.Rectangle(FO.ScreenPos, BoxTex, 2) { Priority=Priority-1 }, FO, new(Now));
+					MOOList[SO.GO]=new MouseOverObjects(new DrawGeometry.Rectangle(SO.ScreenPos, BoxTex, 2) { Priority=Priority-1 }, SO, new(Now));
 
 			//Swap the closest object to having a different background color
 			Vector2 MP=DevInput.Util.MousePos;
 			MouseOverObjects? NewClosestObj=
 				  MOOList.Count==0 ? null
-				: MOOList.Values.OrderBy(MOO => (MOO.FO.ScreenPos.center-MP).magnitude).FirstOrDefault();
+				: MOOList.Values.OrderBy(MOO => (MOO.SO.ScreenPos.center-MP).magnitude).FirstOrDefault();
 			if(NewClosestObj!=ClosestObj) {
 				_=ClosestObj?.R.BGTexture.Texture=null;
 				_=NewClosestObj?.R.BGTexture.Texture=SelectedTex;
@@ -378,12 +386,12 @@ public class GameObjectSprites : Window
 				return;
 
 			const int LabelPaddingX=5, LabelPaddingY=2;
-			Vector2 LabelSize=Parent.LabelStyle.CalcSize(new GUIContent(ClosestObj.FO.Name))+new Vector2(LabelPaddingX*2, LabelPaddingY*2);
+			Vector2 LabelSize=Parent.LabelStyle.CalcSize(new GUIContent(ClosestObj.SO.Name))+new Vector2(LabelPaddingX*2, LabelPaddingY*2);
 			Rect BoxRect=LabelSize.CenterIn(ClosestObj.R.Rect.size);
 			BoxRect.position += ClosestObj.R.Rect.position;
 			GUI.DrawTexture(BoxRect.Grow(1, 1), Texture2D.whiteTexture);
 			GUI.DrawTexture(BoxRect, Parent.TooltipBorderTex);
-			GUI.Label(BoxRect.Grow(-LabelPaddingX, -LabelPaddingY), ClosestObj.FO.Name, Parent.LabelStyle);
+			GUI.Label(BoxRect.Grow(-LabelPaddingX, -LabelPaddingY), ClosestObj.SO.Name, Parent.LabelStyle);
 		}
 
 		//Handle window events
@@ -401,7 +409,7 @@ public class GameObjectSprites : Window
 
 			//Update the positions of the rectangles
 			foreach(MouseOverObjects MOO in MOOList.Values)
-				MOO.R.Rect=MOO.FO.ScreenPos;
+				MOO.R.Rect=MOO.SO.ScreenPos;
 		}
 
 		//Keep the list clear when not in use
