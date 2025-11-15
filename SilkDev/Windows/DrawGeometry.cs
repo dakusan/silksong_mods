@@ -119,6 +119,8 @@ public static class DrawGeometry
 		public   Rectangle(Vector2 Pos,  int Width, int Height, Texture2D Tex, int BorderSize=-1)			: this(     (int) Pos.x, (int) Pos.y, Width, Height, Tex  , BorderSize)				{ }
 		public   Rectangle(Vector2 Pos,  Vector2 Size,          Color   Color, int BorderSize=-1)			: this(Pos, (int)Size.x, (int)Size.y,                Color, BorderSize)				{ }
 		public   Rectangle(Vector2 Pos,  Vector2 Size,          Texture2D Tex, int BorderSize=-1)			: this(Pos, (int)Size.x, (int)Size.y,                Tex  , BorderSize)				{ }
+		public   Rectangle(Rect Rect,                           Color   Color, int BorderSize=-1)			: this(Rect.position,    Rect.size,                  Color, BorderSize)				{ }
+		public   Rectangle(Rect Rect,                           Texture2D Tex, int BorderSize=-1)			: this(Rect.position,    Rect.size,                  Tex  , BorderSize)				{ }
 		internal Rectangle(int X, int Y, int Width, int Height, Color   Color, int BorderSize, string Title): base(X, Y, Color, Title) => (_Width, _Height, _BorderSize)=(Width, Height, BorderSize);
 		internal Rectangle(int X, int Y, int Width, int Height, Texture2D Tex, int BorderSize, string Title): base(X, Y, Tex  , Title) => (_Width, _Height, _BorderSize)=(Width, Height, BorderSize);
 		public Rect Rect { get => new(X, Y, _Width, _Height); set => (X, Y, _Width, _Height)=((int)value.x, (int)value.y, (int)value.width, (int)value.height); }

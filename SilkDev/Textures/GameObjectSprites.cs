@@ -8,13 +8,14 @@ using Button=SilkDev.DevInput.Mouse.Button;
 namespace SilkDev.Textures;
 
 //Opens the “Game Object Sprites” window on keyboard shortcut, which allows you to browse and save the sprites/textures that were under your mouse.
-public class GameObjectSprites: Window
+public class GameObjectSprites : Window
 {
 	//Helper classes
 	public record class FoundObj(string Name, string ParentTree, GameObject GO) {
 		public Rect ScreenPos => GO==null ? Rect.zero : WorldBoundsToScreenRect(GO.GetComponent<SpriteRenderer>().bounds);
 	}
 	private record class LabelInfo(string Label, GUIStyle Style, float Width);
+	private static Internal.Config Conf => Internal.Config.C;
 
 	//Constants
 	private const string EllipsesStr="...";
@@ -63,18 +64,20 @@ public class GameObjectSprites: Window
 		}
 	}
 
-	internal GameObjectSprites() : base("FILLED IN BELOW", Internal.Config.C.Rect_GameObjectSprites)
+	internal GameObjectSprites() : base("FILLED IN BELOW", Conf.Rect_GameObjectSprites)
 	{
 		LabelStyleBold=new GUIStyle(LabelStyle) { fontStyle=FontStyle.Bold };
 		EllipsesStyle=new GUIStyle(LabelStyle) { normal={ textColor=Color.red } };
 		EllipsesWidth=EllipsesStyle.CalcSize(new GUIContent(EllipsesStr)).x;
 		AlwaysCallUpdate=true;
 		Resizer!.MinSize=new Vector2(MinListWidth+50, MinListWidth+50);
+
+		LR=new(this);
 	}
 
 	protected override void OnUpdate()
 	{
-		if(Internal.Config.C.Key_GameObjectSprites.IsDown()) //Shortcut key pressed to run update
+		if(Conf.Key_GameObjectSprites.IsDown()) //Shortcut key pressed to run update
 			OnNextFrame(RunUpdate);
 		if(CurFoundObj!=null) {
 			if(Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow)) //Update the selected object
@@ -270,6 +273,112 @@ public class GameObjectSprites: Window
 
 	public override bool Visible {
 		get => base.Visible;
-		set => Misc.IFF(!(base.Visible=value), () => CurFoundObj=null);
+		set {
+			LR.Visible=base.Visible=value;
+			if(!value)
+				CurFoundObj=null;
+		}
+	}
+
+	//On mouse move, show boxes for all game objects we are over
+	private readonly LiveRectangles LR;
+	private class LiveRectangles(GameObjectSprites Parent) : Window("Live GameObjectSprite Rectangles", false, -300)
+	{
+		private readonly Texture2D BoxTex=Color.red.MakeTexture(), SelectedTex=new Color(0, 0, 1, 0.35f).MakeTexture();
+		private record class MouseOverObjects(DrawGeometry.Rectangle R, FoundObj FO, Misc.Ref<DateTime> LastUpdate);
+		private readonly Dictionary<GameObject, MouseOverObjects> MOOList=[];
+		private readonly GameObjectSprites Parent=Parent;
+		private MouseOverObjects? ClosestObj=null;
+
+		//Update the lists
+		protected override void OnMouseEvent(Event Ev)
+		{
+			//If click, select a new object
+			if(Ev.type==EventType.MouseDown && Button.CurrentButton==Button.Enum.Left)
+				Parent.RunUpdate();
+
+			//Only handle mouse move
+			if(Ev.type!=EventType.MouseMove)
+				return;
+
+			//Add any new objects that we weren’t over previously
+			DateTime Now=DateTime.Now;
+			foreach(FoundObj FO in GetObjectsUnderCursor())
+				if(MOOList.TryGetValue(FO.GO, out MouseOverObjects AlreadyObj))
+					AlreadyObj.LastUpdate.Value=Now;
+				else
+					MOOList[FO.GO]=new MouseOverObjects(new DrawGeometry.Rectangle(FO.ScreenPos, BoxTex, 2), FO, new(Now));
+
+			//Swap the closest object to having a different background color
+			Vector2 MP=DevInput.Util.MousePos;
+			MouseOverObjects? NewClosestObj=
+				  MOOList.Count==0 ? null
+				: MOOList.Values.OrderBy(MOO => (MOO.FO.ScreenPos.center-MP).magnitude).FirstOrDefault();
+			if(NewClosestObj!=ClosestObj) {
+				_=ClosestObj?.R.BGTexture.Texture=null;
+				_=NewClosestObj?.R.BGTexture.Texture=SelectedTex;
+				ClosestObj=NewClosestObj;
+			}
+
+			//Clear objects we are no longer over
+			List<GameObject> KeysToRemove=new(MOOList.Count);
+			foreach((GameObject GO, MouseOverObjects MOO) in MOOList) {
+				if(MOO.LastUpdate.Value==Now)
+					continue;
+				KeysToRemove.Add(GO);
+				MOO.R.Close();
+			}
+			foreach(GameObject GO in KeysToRemove)
+				_=MOOList.Remove(GO);
+		}
+
+		//Draw closest object label
+		protected override void DoLayout(int ID, Event Ev)
+		{
+			if(ClosestObj==null)
+				return;
+
+			const int LabelPaddingX=5, LabelPaddingY=2;
+			Vector2 LabelSize=Parent.LabelStyle.CalcSize(new GUIContent(ClosestObj.FO.Name))+new Vector2(LabelPaddingX*2, LabelPaddingY*2);
+			Rect BoxRect=LabelSize.CenterIn(ClosestObj.R.Rect.size);
+			BoxRect.position += ClosestObj.R.Rect.position;
+			GUI.DrawTexture(BoxRect.Grow(1, 1), Texture2D.whiteTexture);
+			GUI.DrawTexture(BoxRect, Parent.TooltipBorderTex);
+			GUI.Label(BoxRect.Grow(-LabelPaddingX, -LabelPaddingY), ClosestObj.FO.Name, Parent.LabelStyle);
+		}
+
+		//Handle window events
+		protected override void OnInit() => UnboundDraw=true;
+		protected override bool IsMouseOverWindow(Vector2 _) => true; //Always take mouse events
+		protected override void OnUpdate()
+		{
+			//Handle empty list and no longer has mouse focus
+			if(MOOList.Count==0)
+				return;
+			if(!HasMouseFocus) {
+				ClearList();
+				return;
+			}
+
+			//Update the positions of the rectangles
+			foreach(MouseOverObjects MOO in MOOList.Values)
+				MOO.R.Rect=MOO.FO.ScreenPos;
+		}
+
+		//Keep the list clear when not in use
+		public void ClearList()
+		{
+			MOOList.Values.ForEach(LR => LR.R.Close());
+			MOOList.Clear();
+			ClosestObj=null;
+		}
+		public override bool Visible
+		{
+			get => base.Visible;
+			set {
+				ClearList();
+				base.Visible=value;
+			}
+		}
 	}
 }

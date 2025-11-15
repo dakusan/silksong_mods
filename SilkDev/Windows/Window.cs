@@ -148,6 +148,7 @@ public abstract class Window
 			WinOrderList.Add(this);
 		});
 		FillOverriddenEvents();
+		OFCall(OFuncs.OnInit);
 	}
 
 	//Handle custom mouse events
@@ -178,6 +179,7 @@ public abstract class Window
 	//Custom mouse events (MouseMove|MouseEnterWindow|MouseLeaveWindow) are called when the Plugin receives Layout, before the pre-draw phrase starts.
 	//TouchStationary event calls are during HasMouseFocus().
 	[OA(DN,T)] protected virtual void OnMouseEvent	(Event Ev	 )=>DNC();
+	[OA(DN,T)] protected virtual void OnInit		(			 )=>DNC(); //Called at the end of the constructor
 
 	//Functions that have default code that can be overwritten
 	protected virtual void CloseButton() => Close(); //Called when the close button is clicked. If you just want to hide it, change this to => Visible=false;
@@ -419,6 +421,7 @@ public abstract class Window
 		OnUpdate=0,
 		OnGameLoaded,
 		OnGameSaved,
+		OnInit,
 		NUM_NON_DRAW_ENUMS,
 
 		PreOnGUI=NUM_NON_DRAW_ENUMS,
@@ -434,7 +437,7 @@ public abstract class Window
 				GetType().GetMethod(((OFuncs)i).ToString(), BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.DeclaredOnly)
 				?.CreateDelegate(
 					  i>=(int)OFuncs.NUM_NON_DRAW_ENUMS ? typeof(Action<Event>)
-					: i==(int)OFuncs.OnUpdate ? typeof(Action)
+					: (i is (int)OFuncs.OnUpdate or (int)OFuncs.OnInit) ? typeof(Action)
 					: typeof(Action<int>)
 					, this
 				)

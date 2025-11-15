@@ -29,11 +29,37 @@ Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework
 ## ✨ Core Highlights
 - Block game Input
 - Mouse cursor visibility and passthrough fixes
-- Quickly enter into your save slot, skipping intro screens
+- Quickly enter into your save slot and skip intro screens
 - Extract all textures **in memory** to `PLUGIN_PATH/Textures`
 - Extract individual textures for objects under mouse by original texture or sprite render
 - Debugging message log level and stack traces
-- Tons of classes and functions to make development easier.
+- Tons of classes and functions to make development easier [See Documentation](#source-code-class-documentation). Most useful include:
+    - Configs
+        - Order sorted configurations
+        - Dynamic String->String config entries
+        - Per-user-saveslot configurations
+    - User Input
+        - Mouse Visibility
+        - Joystick direction and magnitude
+    - Events
+        - Event registration priority based callbacks
+        - Event callbacks for major game events
+    - Textures/Sprites
+        - Extract sprite textures
+        - Useful texture extensions
+    - Windows
+        - Powerful IMGUI Window class
+            - Mouse events are only called if the mouse is over the window, or it is dragging.
+                - Custom handle all mouse events in order of zOrder.
+                - Also adds MouseMove, MouseEnterWindow, and MouseLeaveWindow.
+                - Takes into account UniverseLib (Unity Explorer) windows since they do not cancel the mouse themselves.
+            - Overridable event callbacks for GameEvents and all OnGUI event types.
+                - Strict event call ordering by window order and priority.
+                    - Can give priority that sets windows to bottom or topmost.
+            - Safe window moving and resizing with saving via a ConfigEntry.
+            - Fake windows can be created just for [mouse handling] events.
+        - Simple dialog, popup, and progress bar windows
+        - Draw geometry based objects on screen
 
 *(See the [Nexus Mods page](https://www.nexusmods.com/hollowknightsilksong/mods/510) for the full feature list.)*
 

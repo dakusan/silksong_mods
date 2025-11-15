@@ -27,7 +27,7 @@ internal class BlockKeys : Windows.Window
 
 	protected override void DoLayout(int ID, Event Ev)
 	{
-		if(!Conf.ShowMessageWhenGameInputBlocked)
+		if(!Conf.MessageOnInputBlocked)
 			return;
 		Rect WindowRect=new(Screen.width/2-Width/2, HeightOffset, Width, Height);
 		GUI.DrawTexture(WindowRect, BGTex);
