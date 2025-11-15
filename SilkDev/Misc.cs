@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
@@ -41,6 +42,36 @@ public static class Misc
 	//Get plugin path
 	public static string GetPluginPath =>
 		FileOps.GetDirectoryName(Assembly.GetCallingAssembly().Location);
+
+	//Open Unity Explorer inspection on game object (if plugin is loaded)
+	private static Action<GameObject>? Call_UnityExplorer_Inspect=null;
+	public static void UnityExplorer_Inspect(GameObject GO)
+	{
+		//If we already created the function call, nothing else to do
+		if(Call_UnityExplorer_Inspect!=null) {
+			Call_UnityExplorer_Inspect(GO);
+			return;
+		}
+
+		//Get the method to open a GameObject in the inspector
+		MethodInfo? MI=
+			Hooks.DynamicHook.FindType("UnityExplorer.InspectorManager")
+			?.GetMethods(BindingFlags.Public | BindingFlags.Static)
+			.FirstOrDefault(m => m.Name=="Inspect" && m.GetParameters().Length==2 && m.GetParameters()[0].ParameterType==typeof(object));
+		if(MI==null) {
+			Call_UnityExplorer_Inspect=_ => { };
+			Log.Error("Could not find unity explorer");
+			return;
+		}
+
+		//Create a method to make unity explorer show up
+		PropertyInfo? ShowMenuPI=Hooks.DynamicHook.FindType("UnityExplorer.UI.UIManager")?.GetProperty("ShowMenu");
+		Action ShowMenuAction=(ShowMenuPI==null ? () => { } : () => ShowMenuPI.SetValue(null, true));
+
+		//Create and run the delegate for the full action
+		Call_UnityExplorer_Inspect=RunGO => { _=MI.Invoke(null, [RunGO, null!]); ShowMenuAction(); };
+		Call_UnityExplorer_Inspect(GO);
+	}
 
 	//Simple reference class
 	public class Ref<T>(T Value) {

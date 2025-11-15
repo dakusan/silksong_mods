@@ -27,7 +27,7 @@ Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework
 
 <a id="core-highlights"></a>
 ## ✨ Core Highlights
-- Block game Input
+- Block game input
 - Mouse cursor visibility and passthrough fixes
 - Quickly enter into your save slot and skip intro screens
 - Extract all textures **in memory** to `PLUGIN_PATH/Textures`
@@ -35,11 +35,11 @@ Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework
 - Debugging message log level and stack traces
 - Tons of classes and functions to make development easier [See Documentation](#source-code-class-documentation). Most useful include:
     - Configs
-        - Order sorted configurations
+        - Configurations properly sorted by order
         - Dynamic String->String config entries
         - Per-user-saveslot configurations
-    - User Input
-        - Mouse Visibility
+    - User input
+        - Mouse visibility
         - Joystick direction and magnitude
     - Events
         - Event registration priority based callbacks
@@ -49,15 +49,15 @@ Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework
         - Useful texture extensions
     - Windows
         - Powerful IMGUI Window class
-            - Mouse events are only called if the mouse is over the window, or it is dragging.
-                - Custom handle all mouse events in order of zOrder.
-                - Also adds MouseMove, MouseEnterWindow, and MouseLeaveWindow.
-                - Takes into account UniverseLib (Unity Explorer) windows since they do not cancel the mouse themselves.
-            - Overridable event callbacks for GameEvents and all OnGUI event types.
-                - Strict event call ordering by window order and priority.
-                    - Can give priority that sets windows to bottom or topmost.
-            - Safe window moving and resizing with saving via a ConfigEntry.
-            - Fake windows can be created just for [mouse handling] events.
+            - Mouse events are only called if the mouse is over the window, or it is dragging
+                - Custom handle all mouse events in order of zOrder
+                - Adds mouse events: MouseMove, MouseEnterWindow, and MouseLeaveWindow
+                - Takes into account UniverseLib (Unity Explorer) windows since they do not cancel the mouse themselves
+            - Overridable event callbacks for GameEvents and all OnGUI event types
+                - Strict event call ordering by window order and priority
+                    - Can give priority that sets windows to bottom or topmost
+            - Safe window moving and resizing with saving via a ConfigEntry
+            - Fake windows can be created just for [mouse handling] events
         - Simple dialog, popup, and progress bar windows
         - Draw geometry based objects on screen
 
@@ -217,6 +217,7 @@ See [root project README](../#contributing) for details
     * ⚙️ `SteamUsername`: Get steam username.
         * 💡 Note: May not be available until a few seconds after the game loads.
     * ⚙️ `GetPluginPath`: Gets the path of the calling plugin.
+    * ⚙️ `UnityExplorer_Inspect`: Open Unity Explorer inspection on game object (if plugin is loaded)
     * ⚙️ `Ref<T>(T Value)`: Simple reference class
     * ⚙️ `IFF(bool Cond, Action CallOnTrue)`: If-statement used for bypassing curley-cue function blocks.
     * ⚙️ `Vector2` `ScreenSize => new(Screen.width, Screen.height)`;

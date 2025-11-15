@@ -123,7 +123,7 @@ public abstract class Window
 	public Rect WindowRect; //For fake windows or windows that you want to ignore the mouse set this to Rect.zero and override IsMouseOverWindow(). Otherwise Unity will block your mouse use.
 
 	//Event calling flags
-	public int Priority; //Priority 0 windows are ordered naturally by Unity window focus. Other windows are sent to the front (if positive) or back (if negative) in descending value order during the first Layout call to the plugin. UniverseLib windows have priority -100.
+	public int Priority=0; //Priority 0 windows are ordered naturally by Unity window focus. Other windows are sent to the front (if positive) or back (if negative) in descending value order during the first Layout call to the plugin. UniverseLib windows have priority -100.
 	public bool AlwaysCallPreOnGUI=false; //If true, the PreOnGUI() function is called even if not visible
 	public bool AlwaysCallUpdate=false; //If true, the Update() function is called even if not visible
 

@@ -15,13 +15,14 @@ public class PopupMessage
 	private readonly DateTime InitTime=DateTime.Now;
 	private DateTime CloseTime=DateTime.MinValue;
 
-	protected virtual string PressAnyKeyString => "<color=red><size=20>Press any key to close this message.</size></color>";
+	protected virtual string PressAnyKeyString => "<color=red><size=20>Press any key or click to close this message.</size></color>";
 	protected static readonly DrawPopups DW=new();
 
+	public static GUIStyle DefaultTextStyle=null!;
+	public GUIStyle? OverrideTextStyle=null;
 	public string Message;
 	public int FullWidth=1200, FullHeight=800;
 	public bool IsShowing { get; private set; } = true; //Purely for reference. Does not affect anything.
-	public static GUIStyle TextStyle=null!;
 
 	//Warning: Message is in rich text so use Misc.SanitizeRichString if it could contain html tags
 	public PopupMessage(string Message)
@@ -35,15 +36,15 @@ public class PopupMessage
 		Window.OnNextFrame(() => {
 			BackgroundTex=Color.black.MakeTexture();
 			BorderTex=Color.grey.MakeTexture();
-			TextStyle=new GUIStyle(GUI.skin.label) { fontSize=50, alignment=TextAnchor.MiddleCenter, wordWrap=true, richText=true };
+			DefaultTextStyle=new GUIStyle(GUI.skin.label) { fontSize=50, alignment=TextAnchor.MiddleCenter, wordWrap=true, richText=true };
 		});
 
 	//Default contents drawer that shows the message. This can be overwritten in a derived class
-	protected virtual void DrawContents() =>
-		GUILayout.Label(
-			$"{PressAnyKeyString}{Misc.NewLine}{Message}",
-			TextStyle, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true)
-		);
+	protected virtual void DrawContents()
+	{
+		GUILayout.Label(PressAnyKeyString, DefaultTextStyle, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
+		GUILayout.Label($"{Message}", OverrideTextStyle ?? DefaultTextStyle, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+	}
 
 	//Other virtual functions
 	protected virtual void OnClosing() { } //When close starts

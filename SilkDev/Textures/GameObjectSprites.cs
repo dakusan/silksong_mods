@@ -233,10 +233,13 @@ public class GameObjectSprites : Window
 				TooltipString=(FO.ParentTree, FO.Name);
 
 			//Check to see if clicked
-			if(IsMouseOver && Event.current.type==EventType.MouseDown && Button.CurrentButton!=Button.Enum.Middle) {
-				GetTexFromSprite=Button.CurrentButton!=Button.Enum.Left;
-				OnNextFrame(() => CurFoundObj=FO);
-			}
+			if(IsMouseOver && Event.current.type==EventType.MouseDown)
+				if(Button.CurrentButton==Button.Enum.Middle)
+					Misc.UnityExplorer_Inspect(FO.GO);
+				else {
+					GetTexFromSprite=Button.CurrentButton!=Button.Enum.Left;
+					OnNextFrame(() => CurFoundObj=FO);
+				}
 
 			//Highlight the label if selected
 			if(CurFoundObj==FO)
@@ -288,13 +291,17 @@ public class GameObjectSprites : Window
 		}
 
 		//Add the help button
-		if(GUI.Button(new Rect(WindowRect.width-(CloseButtonSize-CloseButtonPadding)*3, CloseButtonPadding, CloseButtonSize, CloseButtonSize), "?"))
-			_=new PopupMessage("\n"+string.Join(""+Misc.NewLine+Misc.NewLine, [
-					"Left click a line to get its direct texture.",
-					"Right click a line to get its rendered sprite (this feature is twitchy).",
-					"Left click a picture to save it to:",
-					"<size=25>"+Misc.SanitizeRichString(FileOps.PathCombine(Misc.GetPluginPath, ExtractAllTextures.TextureDirectory, " "))+"\n<b>[YYYY-MM-DD_HH_mm_SS SPRITE_NAME].png</b></size>"
-			]));
+		if(!GUI.Button(new Rect(WindowRect.width-(CloseButtonSize-CloseButtonPadding)*3, CloseButtonPadding, CloseButtonSize, CloseButtonSize), "?"))
+			return;
+		PopupMessage PM=new(string.Join(Misc.NewLine, ["",
+				"Clicking a line item:",
+				"    * Left click=Display its direct texture",
+				"    * Right click=Display its rendered sprite (this feature is twitchy)",
+				"    * Middle click=Open object in unity explorer (if installed)", "",
+				"Left click a picture to save it to:",
+				"<size=25>"+Misc.SanitizeRichString(FileOps.PathCombine(Misc.GetPluginPath, ExtractAllTextures.TextureDirectory, " "))+"\n<b><color=green>[YYYY-MM-DD_HH_mm_SS SPRITE_NAME].png</color></b></size>"
+		]));
+		OnNextFrame(() => PM.OverrideTextStyle=new GUIStyle(PopupMessage.DefaultTextStyle) { alignment=TextAnchor.MiddleLeft });
 	}
 
 	//Destroy the window
