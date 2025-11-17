@@ -31,7 +31,7 @@ public class Category
 	public readonly int Order, IconID;
 	public int ID			{ get; internal set; }
 	public int TotalCount	{ get; internal set; }
-	public int CurrentCount { get; internal set; }
+	public int CurrentCount { get; internal set; } = 0;
 	public string Title="";
 	public string? Info;
 	public Sprite Sprite	{ get; internal set; } = null!;
@@ -71,6 +71,7 @@ public class Item
 		set {
 			if(field==value)
 				return;
+			MapControl.Self.DS.Categories[CategoryID].CurrentCount+=(value ? 1 : -1);
 			field=value;
 			MapIcon?.SetIsFound(value);
 		}

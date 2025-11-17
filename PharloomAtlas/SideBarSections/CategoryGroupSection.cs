@@ -129,7 +129,10 @@ public partial class SideBar
 			bool IsMouseOver=SB.CheckHasMouse && new Rect(AreaRect.x, AreaRect.y+2, ColumnWidth, IconSize).Contains(Event.current.mousePosition);
 			if(IsMouseOver && Event.current.type==EventType.MouseDown && Button.CurrentButton==Button.Enum.Left)
 				SB.DS.SetCategoryState(CategoryInfo, DataStorage.GetNextToggleState(CategoryInfo.ToggleState));
-			LabelTextStyle.normal.textColor=(IsMouseOver ? Color.white : NormalLabelTextColor);
+			LabelTextStyle.normal.textColor=
+				CategoryInfo.CurrentCount>=CategoryInfo.TotalCount ?
+					  (IsMouseOver ? new Color(46/255f, 111/255f, 64/255f) : Color.green) //Forest green
+					: (IsMouseOver ? Color.white : NormalLabelTextColor);
 			LabelTextStyle.fontStyle=(CategoryInfo.ToggleState==CategoryToggleState.All ? FontStyle.Bold : FontStyle.Normal);
 
 			//Draw the category

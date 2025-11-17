@@ -31,7 +31,7 @@ Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework
 - Mouse cursor visibility and passthrough fixes
 - Quickly enter into your save slot and skip intro screens
 - Extract all textures **in memory** to `PLUGIN_PATH/Textures`
-- Extract individual textures for objects under mouse by original texture or sprite render
+- Extract individual textures for game objects under mouse by original texture or sprite render
 - Debugging message log level and stack traces
 - Tons of classes and functions to make development easier [See Documentation](#source-code-class-documentation). Most useful include:
     - Configs
