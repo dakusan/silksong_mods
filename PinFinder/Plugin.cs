@@ -1,6 +1,5 @@
 using BepInEx;
 using SilkDev;
-using SilkDev.Windows;
 
 namespace PinFinder;
 
@@ -37,21 +36,6 @@ internal class Plugin : BaseUnityPlugin
 			(Logger=base.Logger).LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded");
 		});
 
-		//Handle other setting changes
-		bool DialogOpen=false;
-		MyConfig.StartPinFindingProcess.SettingChanged += (_, _) => Window.OnNextFrame(() => {
-			if(!MyConfig.StartPinFindingProcess || DialogOpen)
-				return;
-			MyConfig.StartPinFindingProcess.V=false;
-			DialogOpen=true;
-			_=!FileOps.FileExists(FileOps.PathCombine(Misc.GetPluginPath, PinFinder.Config.PinsJson))
-				? StartCoroutine(FindPins.StartProcess())
-				: (object)new DialogWindow
-					($"{PinFinder.Config.PinsJson} already exists. Are you sure you wish to overwrite it? (A backup will be made)")
-					{ ConfirmationDialogCallback=Confirmed => {
-						DialogOpen=false;
-						_=(Confirmed ? StartCoroutine(FindPins.StartProcess()) : null);
-					} };
-		});
+		FindPins.Init();
 	}
 }

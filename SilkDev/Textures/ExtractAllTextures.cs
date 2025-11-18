@@ -67,6 +67,9 @@ internal class ExtractAllTextures : ProgressBarWithLogs
 		Texture2D[] AllTextures=Resources.FindObjectsOfTypeAll<Texture2D>();
 		int Cur=0, Total=AllTextures.Length;
 		foreach(Texture2D CurTex in AllTextures) {
+			if(IsClosed)
+				break;
+
 			PercentAmount=++Cur/(float)Total;
 			PercentText=$"{Cur}/{Total} [{PercentAmount*100:0}%]";
 			MessageText=$"Processing {CurTex?.name ?? "NULL TEXTURE"}";
@@ -74,8 +77,13 @@ internal class ExtractAllTextures : ProgressBarWithLogs
 		}
 
 		//Mark as complete and inform the user of the success
-		MessageText=$"[Press any key to close] Finished processing {Total} textures [Written: {NumWritten}, Existed: {NumAlreadyExisted}, Failed: {NumFailed}]";
-		Log.Info(MessageText);
+		string SuccessMessage=(IsClosed ? $"Processing cancelled {Cur}/{Total}" : $"Finished processing {Total}")+" textures";
+		string NumbersOutput=$"Written: {NumWritten}, Existed: {NumAlreadyExisted}, Failed: {NumFailed}";
+		Log.Info($"{SuccessMessage}: {NumbersOutput}");
+		if(IsClosed)
+			_=new PopupMessage($"<b>{SuccessMessage}</b>\n{NumbersOutput}");
+		else
+			MessageText=NumbersOutput;
 		CurrentlyRunning=false;
 	}
 

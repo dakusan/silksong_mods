@@ -17,6 +17,32 @@ public static class FindPins
 	//This can only run one at a time
 	public static bool CurrentlyRunning { get; private set; } = false;
 	private static ProgressBarWithLogs PBWL=null!;
+	private const string MustClose="<color=red><size=50>You <size=60><b>MUST</b></size> now close this window with alt+f4 and restart</size>";
+
+	//Initialize
+	internal static void Init()
+	{
+		//Handle other setting changes
+		Config MyConfig=Config.C;
+		bool DialogOpen=false;
+		MyConfig.StartPinFindingProcess.SettingChanged += (_, _) => Window.OnNextFrame(() => {
+			//Confirm we are ready to start
+			bool StartFindConfig=MyConfig.StartPinFindingProcess;
+			MyConfig.StartPinFindingProcess.V=false;
+			if(!StartFindConfig || DialogOpen)
+				return;
+
+			//Ask the user if they want to start if the final file already exists
+			DialogOpen=true;
+			_=!FileOps.FileExists(FileOps.PathCombine(Misc.GetPluginPath, Config.PinsJson))
+				? Catcher.ExecCoroutine("Find Pins", StartProcess())
+				: (object)new DialogWindow
+					($"{Config.PinsJson} already exists. Are you sure you wish to overwrite it? (A backup will be made)") {
+						ConfirmationDialogCallback=Confirmed =>
+							(DialogOpen, _)=(false, Confirmed ? Catcher.ExecCoroutine("Find Pins", StartProcess()) : null)
+					};
+		});
+	}
 
 	//The data on found objects
 	public class FoundObj(string SceneName, string ObjName, object Value, Vector2 LocalPosition, FoundObj.FOType Type)
@@ -187,6 +213,10 @@ public static class FindPins
 			PB_RunTime=(int)(DateTime.Now-StartTime).TotalSeconds;
 			PB_Update();
 
+			//Check for bar closed
+			if(PBWL.IsClosed)
+				break;
+
 			//Process the scene items
 			List<FoundObj> RetObjects=[];
 			yield return LoadAllPersistentObjectsInScene(SceneFile, RetObjects, true);
@@ -202,7 +232,13 @@ public static class FindPins
 		}
 
 		//Output the found data
-		Log.Info($"Finished processing {AllScenes.Length} scenes at {(DateTime.Now-StartTime).TotalSeconds} seconds");
+		string SuccessMessage=(PBWL.IsClosed ? "Stopped" : "Finished")+$" processing {PB_CurrentFile}/{AllScenes.Length} scenes at {(DateTime.Now-StartTime).TotalSeconds} seconds";
+		Log.Info(SuccessMessage);
+		if(PBWL.IsClosed) {
+			CurrentlyRunning=false;
+			_=new DialogWindow($"{MustClose}</color>\n\n{SuccessMessage}", FontSize:20, Height:480);
+			yield break;
+		}
 
 		//Combine all the files into a final JSON
 		PB_FileName=$"Combining files into {Config.PinsJson}";
@@ -222,18 +258,18 @@ public static class FindPins
 					.Aggregate(static (Acc, List) => { Acc.AddRange(List); return Acc; })
 					?.ToArray() ?? throw new Exception("Data is null")
 			));
-			_=new DialogWindow("Process complete. You should now close this window with alt+f4");
+			_=new DialogWindow($"{MustClose}</color>\n<size=35><color=green>Process complete</color></size>\n\n{SuccessMessage}", FontSize:20, Height:480);
 			try { Directory.Delete(SaveDir, true); } catch(Exception e) { LogError($"Error deleting temp files: {e.Message}"); }
 		} catch(Exception e) {
 			LogError($"Error combining files and writing final file: {e.Message}");
-			_=new DialogWindow($"Process failed on the final step. You should now close this window with alt+f4.\n\n<color=red>{e.Message}</color>", FontSize:50, Height: 480);
+			_=new DialogWindow($"{MustClose}\n<size=35>Process failed on the final step.</size>\n{e.Message}</color>", FontSize:20, Height:480);
 		}
 
 		CurrentlyRunning=false;
 
 		//Since the session is foobared anyways, may as well leave these things as they are
-		//ProgressBarWithLogs.Enable(false);
-		//NCActivate.Toggle(false);
+		//PBWL.Close();
+		//NCActivate.Self.Toggle(false);
 	}
 
 	//Watch for 15 second freeze every 5 seconds. When it happens inform the user of the freeze
@@ -245,7 +281,7 @@ public static class FindPins
 				break;
 			if((DateTime.Now-LastUpdate.Value).TotalSeconds<15)
 				continue;
-			_=new DialogWindow("The processor has been on this scene for 15+ seconds. <color=red>Press alt+f4 to close the window and restart the process.</color> It will continue where it left off.\n\n<color=green><size=50%>This is normal. It generally happens to me around scene #400</size></color>", FontSize:50, Height:480);
+			_=new DialogWindow($"{MustClose}\nThe processor has been on this scene for 15+ seconds. It will continue where it left off after you exit and restart the pin finding process.</color>\n\n<color=green><size=50%>This is normal. It generally happens to me around scene #400</size></color>", FontSize:30, Height:480);
 			break;
 		}
 	}
