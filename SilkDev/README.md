@@ -31,11 +31,12 @@ Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework
 - Mouse cursor visibility and passthrough fixes
 - Quickly enter into your save slot and skip intro screens
 - Extract all textures **in memory** to `PLUGIN_PATH/Textures`
-- Extract individual textures for game objects under mouse by original texture or sprite render
+- Extract sprite textures — by original texture or sprite render
 - Debugging message log level and stack traces
 - Tons of classes and functions to make development easier [See Documentation](#source-code-class-documentation). Most useful include:
     - Configs
         - Configurations properly sorted by order
+            - Configurations can have a timeout inbetween saving to file (immediate on game exit)
         - Dynamic String->String config entries
         - Per-user-saveslot configurations
     - User input
@@ -61,7 +62,7 @@ Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework
         - Simple dialog, popup, and progress bar windows
         - Draw geometry based objects on screen
 
-*(See the [Nexus Mods page](https://www.nexusmods.com/hollowknightsilksong/mods/510) for the full feature list.)*
+*(See the [Nexus Mods page](https://www.nexusmods.com/hollowknightsilksong/mods/510) for further details.)*
 
 <a id="installation"></a>
 ## ⚙️ Installation

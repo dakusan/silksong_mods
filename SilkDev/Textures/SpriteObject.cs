@@ -8,7 +8,7 @@ public abstract class SpriteObject(string Name, string ParentTree, GameObject GO
 	//Base information
 	public readonly string Name=Name, ParentTree=ParentTree;
 	public GameObject GO=GO;
-	public Rect ScreenPos => GO==null ? Rect.zero : GameObjectSprites.WorldBoundsToScreenRect(Bounds);
+	public Rect ScreenPos => GO==null ? Rect.zero : ExtractSpritesWindow.WorldBoundsToScreenRect(Bounds);
 
 	//Overridden functions
 	public abstract bool IsSafe			{ get; }

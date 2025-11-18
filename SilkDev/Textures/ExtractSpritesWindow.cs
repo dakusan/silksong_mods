@@ -8,11 +8,11 @@ using Button=SilkDev.DevInput.Mouse.Button;
 
 namespace SilkDev.Textures;
 
-//Opens the “Game Object Sprites” window on keyboard shortcut, which allows you to browse and save the sprites/textures that were under your mouse.
-public class GameObjectSprites : Window
+//Opens the “Extract Sprites” window on keyboard shortcut, which allows you to browse and save the sprites/textures that were under your mouse.
+public class ExtractSpritesWindow : Window
 {
 	//Only allow 1 instance and 1 initialization
-	private static GameObjectSprites? CurWin=null;
+	private static ExtractSpritesWindow? CurWin=null;
 	private static bool AlreadyInitialized=false;
 	internal static void Init()
 	{
@@ -23,15 +23,15 @@ public class GameObjectSprites : Window
 
 		//Handle shortcut key to open window
 		Events.GameEvents.OnUpdate += static () => Misc.IFF(
-			Conf.Key_GameObjectSprites.IsDown(),
-			() => OnNextFrame(CurWin != null ? CurWin.RunUpdate : static () => CurWin=new GameObjectSprites())
+			Conf.Key_ExtractSprites.IsDown(),
+			() => OnNextFrame(CurWin != null ? CurWin.RunUpdate : static () => CurWin=new ExtractSpritesWindow())
 		);
 
 		//Handle setting changed of whether to show LiveRectangles
-		Conf.GOSWindow_ShowMouseOver.SettingChanged += static (_, _) => {
+		Conf.ESWindow_ShowMouseOver.SettingChanged += static (_, _) => {
 			if(CurWin==null)
 				return;
-			if(Conf.GOSWindow_ShowMouseOver)
+			if(Conf.ESWindow_ShowMouseOver)
 				CurWin.LR ??= new(CurWin);
 			else {
 				CurWin.LR?.Close();
@@ -48,7 +48,7 @@ public class GameObjectSprites : Window
 	private static Internal.Config Conf => Internal.Config.C;
 
 	//Constants
-	private const string EllipsesStr="...";
+	private const string EllipsesStr="...", WindowTitle="Extract Sprites: ";
 	private readonly GUIStyle EllipsesStyle, LabelStyleBold, LabelStyle=new(GUI.skin.label) { fontSize=14, wordWrap=false, richText=false, margin=new RectOffset(0, 0, 0, 0), padding=new RectOffset(0, 0, 0, 0) };
 	private readonly Texture2D SelectTex=new Color(1, 1, 0, 0.5f).MakeTexture(), TooltipBorderTex=Color.black.MakeTexture();
 	private readonly float EllipsesWidth;
@@ -93,7 +93,7 @@ public class GameObjectSprites : Window
 		}
 	}
 
-	private GameObjectSprites() : base("FILLED IN BELOW", Conf.Rect_GameObjectSprites)
+	private ExtractSpritesWindow() : base(WindowTitle, Conf.Rect_ExtractSprites)
 	{
 		LabelStyleBold=new GUIStyle(LabelStyle) { fontStyle=FontStyle.Bold };
 		EllipsesStyle=new GUIStyle(LabelStyle) { normal={ textColor=Color.red } };
@@ -101,7 +101,7 @@ public class GameObjectSprites : Window
 		Resizer!.MinSize=new Vector2(MinListWidth+50, MinListWidth+50);
 		Visible=true;
 
-		if(Conf.GOSWindow_ShowMouseOver)
+		if(Conf.ESWindow_ShowMouseOver)
 			LR=new(this);
 		RunUpdate();
 	}
@@ -110,7 +110,7 @@ public class GameObjectSprites : Window
 	{
 		if(CurFoundObj==null)
 			return;
-		if(Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow)) //Update the selected object
+		if(Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow)) //Update the selected item
 			CurFoundObj=SOList[Mathf.Clamp(SOList.IndexOf(CurFoundObj)+(Input.GetKeyDown(KeyCode.UpArrow) ? -1 : 1), 0, SOList.Count-1)];
 		ShowSelection.Rect=CurFoundObj.ScreenPos; //Update the position of the selection window
 	}
@@ -121,7 +121,7 @@ public class GameObjectSprites : Window
 		Vector2 MP=DevInput.Util.MousePos;
 		CurFoundObj=null;
 		SOList.Clear();
-		SOList.AddRange(GetObjectsUnderCursor().OrderBy(
+		SOList.AddRange(GetSpritesUnderCursor().OrderBy(
 			SO => (SO.ScreenPos.center-MP).magnitude
 		));
 
@@ -130,15 +130,15 @@ public class GameObjectSprites : Window
 			(CurFoundObj, GetTexFromSprite)=(SOList[0], false);
 	}
 
-	//Find all the GameObjects under the cursor
+	//Find all the SpriteObjects under the cursor
 	private record class FindData(List<SpriteObject> ObjList, Camera Camera, Vector2 MousePos);
-	public static List<SpriteObject> GetObjectsUnderCursor()
+	public static List<SpriteObject> GetSpritesUnderCursor()
 	{
 		//Recursively check through all the root game objects for the scene
 		List<SpriteObject> ObjList=[];
 		FindData FD=new(ObjList, Camera.allCameras[0], DevInput.Util.MousePos);
 		foreach(GameObject GO in SceneManager.GetActiveScene().GetRootGameObjects())
-			FindObjectsRecurse(FD, GO.transform, "");
+			FindSpritesRecurse(FD, GO.transform, "");
 
 		//Don’t forget our hero!
 		GameObject HeroGO=HeroController.instance.gameObject;
@@ -150,7 +150,7 @@ public class GameObjectSprites : Window
 	}
 
 	//Go through visibility trees and find visible sprites
-	private static void FindObjectsRecurse(FindData FD, Transform CurObject, string ParentTree)
+	private static void FindSpritesRecurse(FindData FD, Transform CurObject, string ParentTree)
 	{
 		//If not visible then stop here
 		if(!CurObject.gameObject.activeSelf)
@@ -171,7 +171,7 @@ public class GameObjectSprites : Window
 
 		//Check all children
 		foreach(Transform Child in CurObject)
-			FindObjectsRecurse(FD, Child, $"{ParentTree}{CurObject.gameObject.name}/");
+			FindSpritesRecurse(FD, Child, $"{ParentTree}{CurObject.gameObject.name}/");
 	}
 
 	//Convert bounds to a rectangle on the screen
@@ -203,7 +203,7 @@ public class GameObjectSprites : Window
 		float LabelMaxWidth=LeftWidth-GUI.skin.verticalScrollbar.fixedWidth-1;
 
 		//Title the window with our sprite and display sizes
-		Title="Game Object Sprites "+(
+		Title=WindowTitle+(
 			  !HasImage ? "No sprite selected"
 			: $"{TexImage!.width}*{TexImage.height} -> {ImageDisplayWidth}*{ImageDisplayHeight}"
 		);
@@ -308,8 +308,8 @@ public class GameObjectSprites : Window
 		PopupMessage PM=new(string.Join(Misc.NewLine, ["",
 			"Clicking a line item:",
 			"    * Left click=Display its direct texture",
-			"    * Right click=Display its rendered sprite (this feature is twitchy)",
-			"    * Middle click=Open object in unity explorer (if installed)", "",
+			"    * Right click=Display its rendered sprite (this feature can be twitchy)",
+			"    * Middle click=Open sprite in unity explorer (if installed)", "",
 			"Left click a picture to save it to:",
 			"<size=25>"+Misc.SanitizeRichString(FileOps.PathCombine(Misc.GetPluginPath, ExtractAllTextures.TextureDirectory, " "))+"\n<b><color=green>[YYYY-MM-DD_HH_mm_SS SPRITE_NAME].png</color></b></size>"
 		]));
@@ -327,20 +327,20 @@ public class GameObjectSprites : Window
 		CurWin=null;
 	});
 
-	//On mouse move, show boxes for all game objects we are over
+	//On mouse move, show boxes for all sprites we are over
 	private LiveRectangles? LR=null;
-	private class LiveRectangles(GameObjectSprites Parent) : Window("Live GameObjectSprite Rectangles", true, -300)
+	private class LiveRectangles(ExtractSpritesWindow Parent) : Window("Live ExtractSprite Rectangles", true, -300)
 	{
 		private readonly Texture2D BoxTex=Color.red.MakeTexture(), SelectedTex=new Color(0, 0, 1, 0.35f).MakeTexture();
-		private record class MouseOverObjects(DrawGeometry.Rectangle R, SpriteObject SO, Misc.Ref<DateTime> LastUpdate);
-		private readonly Dictionary<GameObject, MouseOverObjects> MOOList=[];
-		private readonly GameObjectSprites Parent=Parent;
-		private MouseOverObjects? ClosestObj=null;
+		private record class MouseOverSprites(DrawGeometry.Rectangle R, SpriteObject SO, Misc.Ref<DateTime> LastUpdate);
+		private readonly Dictionary<GameObject, MouseOverSprites> MOOList=[];
+		private readonly ExtractSpritesWindow Parent=Parent;
+		private MouseOverSprites? ClosestObj=null;
 
 		//Update the lists
 		protected override void OnMouseEvent(Event Ev)
 		{
-			//If click, select a new object
+			//If click, select a new sprite
 			if(Ev.type==EventType.MouseDown && Button.CurrentButton==Button.Enum.Left)
 				Parent.RunUpdate();
 
@@ -348,17 +348,17 @@ public class GameObjectSprites : Window
 			if(Ev.type!=EventType.MouseMove)
 				return;
 
-			//Add any new objects that we weren’t over previously
+			//Add any new sprites that we weren’t over previously
 			DateTime Now=DateTime.Now;
-			foreach(SpriteObject SO in GetObjectsUnderCursor())
-				if(MOOList.TryGetValue(SO.GO, out MouseOverObjects AlreadyObj))
+			foreach(SpriteObject SO in GetSpritesUnderCursor())
+				if(MOOList.TryGetValue(SO.GO, out MouseOverSprites AlreadyObj))
 					AlreadyObj.LastUpdate.Value=Now;
 				else
-					MOOList[SO.GO]=new MouseOverObjects(new DrawGeometry.Rectangle(SO.ScreenPos, BoxTex, 2) { Priority=Priority-1 }, SO, new(Now));
+					MOOList[SO.GO]=new MouseOverSprites(new DrawGeometry.Rectangle(SO.ScreenPos, BoxTex, 2) { Priority=Priority-1 }, SO, new(Now));
 
-			//Swap the closest object to having a different background color
+			//Swap the closest sprite to having a different background color
 			Vector2 MP=DevInput.Util.MousePos;
-			MouseOverObjects? NewClosestObj=
+			MouseOverSprites? NewClosestObj=
 				  MOOList.Count==0 ? null
 				: MOOList.Values.OrderBy(MOO => (MOO.SO.ScreenPos.center-MP).magnitude).FirstOrDefault();
 			if(NewClosestObj!=ClosestObj) {
@@ -367,9 +367,9 @@ public class GameObjectSprites : Window
 				ClosestObj=NewClosestObj;
 			}
 
-			//Clear objects we are no longer over
+			//Clear sprites we are no longer over
 			List<GameObject> KeysToRemove=new(MOOList.Count);
-			foreach((GameObject GO, MouseOverObjects MOO) in MOOList) {
+			foreach((GameObject GO, MouseOverSprites MOO) in MOOList) {
 				if(MOO.LastUpdate.Value==Now)
 					continue;
 				KeysToRemove.Add(GO);
@@ -379,7 +379,7 @@ public class GameObjectSprites : Window
 				_=MOOList.Remove(GO);
 		}
 
-		//Draw closest object label
+		//Draw closest sprite label
 		protected override void DoLayout(int ID, Event Ev)
 		{
 			if(ClosestObj==null)
@@ -408,7 +408,7 @@ public class GameObjectSprites : Window
 			}
 
 			//Update the positions of the rectangles
-			foreach(MouseOverObjects MOO in MOOList.Values)
+			foreach(MouseOverSprites MOO in MOOList.Values)
 				MOO.R.Rect=MOO.SO.ScreenPos;
 		}
 
