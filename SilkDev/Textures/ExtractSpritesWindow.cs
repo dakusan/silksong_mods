@@ -71,6 +71,7 @@ public class ExtractSpritesWindow : Window
 		public readonly Texture2D Tex;
 		public readonly Type TexType;
 		public readonly DateTime CreationTime=DateTime.Now;
+		public bool HighlightSpriteOnSheet=true;
 
 		//Initialization
 		public CurrentObj(SpriteObject SO, Type TexType=Type.CroppedTexture)
@@ -320,18 +321,30 @@ public class ExtractSpritesWindow : Window
 			GUI.DrawTexture(TextureRect, CurFoundObj!.Tex);
 			GUILayout.EndVertical();
 
-			//Save the texture
-			if(Event.current.type==EventType.MouseDown && Button.CurrentButton==Button.Enum.Left && TextureRect.Contains(Event.current.mousePosition))
+			//Highlight the sprite on the sprite sheet
+			if(CurFoundObj.HighlightSpriteOnSheet && CurFoundObj.TexType==CurrentObj.Type.FullTexture) {
+				Rect AdjustedTexRect=CurFoundObj.SO.TextureRect;
+				AdjustedTexRect.y=CurFoundObj.height-AdjustedTexRect.y-AdjustedTexRect.height;
+				AdjustedTexRect=AdjustedTexRect.Mul(ImageDisplayWidth/CurFoundObj.width);
+				AdjustedTexRect.position+=TextureRect.position;
+				GUI.DrawTexture(AdjustedTexRect, SelectTex);
+			}
+
+			//Interact with the image
+			bool IsMouseInteract=(Event.current.type==EventType.MouseDown && TextureRect.Contains(Event.current.mousePosition));
+			if(IsMouseInteract && Button.CurrentButton==Button.Enum.Left) //Save the texture
 				try {
 					string DirName=FileOps.PathCombine(Misc.GetPluginPath, ExtractAllTextures.TextureDirectory);
 					if(!FileOps.DirectoryExists(DirName))
 						_=FileOps.CreateDirectory(DirName);
-					string FileName=$"{DateTime.Now:yyyy-MM-dd_HH_mm_ss} {FileOps.FixFileName(CurFoundObj!.Name ?? "NO NAME")}.png";
-					FileOps.WriteFile(FileOps.PathCombine(DirName, FileName), CurFoundObj!.EncodeToPNG());
+					string FileName=$"{DateTime.Now:yyyy-MM-dd_HH_mm_ss} {FileOps.FixFileName(CurFoundObj.Name ?? "NO NAME")}.png";
+					FileOps.WriteFile(FileOps.PathCombine(DirName, FileName), CurFoundObj.EncodeToPNG());
 					_=new PopupMessage($"File saved to:\n<size=25>{Misc.SanitizeRichString(FileOps.PathCombine(DirName, " "))}\n<b>{Misc.SanitizeRichString(FileName)}</b></size>");
 				} catch(Exception e) {
 					_=new PopupMessage($"Error saving file:\n<size=25>{Misc.SanitizeRichString(e.Message)}</size>");
 				}
+			else if(IsMouseInteract && Button.CurrentButton==Button.Enum.Right) //Highlight the sprite on the sprite sheet
+				CurFoundObj.HighlightSpriteOnSheet=!CurFoundObj.HighlightSpriteOnSheet;
 		}
 
 		//End the window layout
@@ -367,16 +380,18 @@ public class ExtractSpritesWindow : Window
 -You’ll see lots of sprites
 *Double left click=Open sprite in unity explorer
 -If installed
-*<size=35>Clicking the line for an animated sprite multiple times can yield its different frames.
-</size>
-Left click a picture to save it to:<size=25>
-#</size>";
+*<size=35>Clicking an animated sprite line multiple times can show new frames<size=25>
+
+</size> * <u>Left click an image to save it to:</u>
+#<size=15>
+
+</size> * Right click sprite sheet to toggle highlight. Try with animated sprites!";
 
 		const string Bullet="\n</size>    * ", SubBullet="<size=25>\n             ";
 		PopupMessage PM=new(HelpText
 			.Replace("\n*", Bullet)
 			.Replace("\n-", SubBullet)
-			.Replace("#", Misc.SanitizeRichString(FileOps.PathCombine(Misc.GetPluginPath, ExtractAllTextures.TextureDirectory, " "))+"\n<b><color=green>[YYYY-MM-DD_HH_mm_SS SPRITE_NAME].png</color></b>\n")
+			.Replace("#", Misc.SanitizeRichString(FileOps.PathCombine(Misc.GetPluginPath, ExtractAllTextures.TextureDirectory, " "))+"\n<b><color=green>[YYYY-MM-DD_HH_mm_SS SPRITE_NAME].png</color></b>")
 		);
 		OnNextFrame(() => PM.OverrideTextStyle=new GUIStyle(PopupMessage.DefaultTextStyle) { alignment=TextAnchor.MiddleLeft });
 	}
