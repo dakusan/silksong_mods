@@ -31,7 +31,7 @@ Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework
 - Mouse cursor visibility and passthrough fixes
 - Quickly enter into your save slot and skip intro screens
 - Extract all textures **in memory** to `PLUGIN_PATH/Textures`
-- Extract sprite textures — by original texture or sprite render
+- Extract sprite textures — from original sprite sheet, by sprite render, or entire sprite sheet
 - Debugging message log level and stack traces
 - Tons of classes and functions to make development easier [See Documentation](#source-code-class-documentation). Most useful include:
     - Configs

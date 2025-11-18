@@ -56,14 +56,6 @@ public class ExtractSpritesWindow : Window
 	//Members
 	private readonly List<SpriteObject> SOList=[];
 	private readonly DrawGeometry.Rectangle ShowSelection=new(0, 0, 0, 0, new Color(0, 1, 0, 0.35f)) { Visible=false, Priority=-1 };
-	public Texture2D? TexImage
-	{
-		get;
-		set {
-			field?.TDestroy();
-			field=value;
-		}
-	} = null;
 	private Vector2 ScrollPosition=Vector2.zeroVector;
 	public int MinListWidth {
 		get;
@@ -71,28 +63,68 @@ public class ExtractSpritesWindow : Window
 	} = 200;
 
 	//Set the currently selected object
-	private bool GetTexFromSprite=false;
-	public SpriteObject? CurFoundObj {
-		get;
-		private set {
-			//Do not check for setting the same thing again as GetTexFromSprite may be different
-			field=value;
+	public class CurrentObj
+	{
+		//Members
+		public enum Type { None, Failed, CroppedTexture, Rendered, FullTexture };
+		public readonly SpriteObject SO;
+		public readonly Texture2D Tex;
+		public readonly Type TexType;
+		public readonly DateTime CreationTime=DateTime.Now;
 
-			//Clear out the current data and update the visibility of the ShowSelection window
-			TexImage=null;
-			ShowSelection.Visible=(value!=null);
-			if(value==null)
-				return;
-
-			//Update the texture image
+		//Initialization
+		public CurrentObj(SpriteObject SO, Type TexType=Type.CroppedTexture)
+		{
+			(this.SO, this.TexType)=(SO, TexType);
 			try {
-				TexImage=GetTexFromSprite ? value.CaptureToTexture() : value.Texture.ToReadable(TexCoords: value.TextureRect);
+				Tex=TexType switch {
+					Type.CroppedTexture	=> SO.Texture.ToReadable(TexCoords: SO.TextureRect),
+					Type.Rendered		=> SO.CaptureToTexture(),
+					Type.FullTexture	=> SO.Texture,
+					_					=> throw new ArgumentException("TexType is not valid")
+				};
 			} catch(Exception e) {
+				if(Tex!=null && IsDisposable) //This should not be possible
+					Tex.TDestroy();
+				(this.TexType, Tex)=(Type.Failed, Color.red.MakeTexture()); //Add a red color texture, just in case
 				_=new PopupMessage($"Sprite load failed:\n<size=25>{Misc.SanitizeRichString(e.Message)}</size>");
 			}
 		}
-	}
 
+		//Pass through functions
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification="Wrapped field")] public int width  => Tex.width;
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification="Wrapped field")] public int height => Tex.height;
+		public static implicit operator Texture2D?(CurrentObj? CO)	=> CO?.Tex;
+		public Rect		ScreenPos									=> SO.ScreenPos;
+		public string	Name										=> TexType!=Type.FullTexture ? SO.Name : Tex.name ?? "NO NAME";
+
+		//Helper functions
+		public bool HasTexture		=> TexType is not (Type.None or Type.Failed);
+		public bool IsDisposable	=> TexType is not (Type.None or Type.FullTexture);
+		public void Destroy()		=> Misc.IFF(IsDisposable, Tex.TDestroy);
+
+		//Encode to PNG
+		public byte[] EncodeToPNG()
+		{
+			if(!HasTexture)
+				return [];
+			else if(TexType!=Type.FullTexture || Tex.isReadable)
+				return Tex.EncodeToPNG();
+
+			using TypedDisposer<Texture2D> CopiedTex=new(Tex.ToReadable(), T => T.TDestroy());
+			return CopiedTex.Target.EncodeToPNG();
+		}
+	}
+	public CurrentObj? CurFoundObj {
+		get;
+		set {
+			field?.Destroy(); //Clear out the current data
+			field=value; //Do not check for setting the same thing again as GetTexFromSprite may be different
+			ShowSelection.Visible=(value!=null); //Update the visibility of the ShowSelection window
+		}
+	} = null;
+
+	//Initialization
 	private ExtractSpritesWindow() : base(WindowTitle, Conf.Rect_ExtractSprites)
 	{
 		LabelStyleBold=new GUIStyle(LabelStyle) { fontStyle=FontStyle.Bold };
@@ -111,7 +143,7 @@ public class ExtractSpritesWindow : Window
 		if(CurFoundObj==null)
 			return;
 		if(Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow)) //Update the selected item
-			CurFoundObj=SOList[Mathf.Clamp(SOList.IndexOf(CurFoundObj)+(Input.GetKeyDown(KeyCode.UpArrow) ? -1 : 1), 0, SOList.Count-1)];
+			CurFoundObj=new CurrentObj(SOList[Mathf.Clamp(SOList.IndexOf(CurFoundObj.SO)+(Input.GetKeyDown(KeyCode.UpArrow) ? -1 : 1), 0, SOList.Count-1)]);
 		ShowSelection.Rect=CurFoundObj.ScreenPos; //Update the position of the selection window
 	}
 
@@ -127,7 +159,7 @@ public class ExtractSpritesWindow : Window
 
 		//Select the first item if available
 		if(SOList.Count>0)
-			(CurFoundObj, GetTexFromSprite)=(SOList[0], false);
+			CurFoundObj=new CurrentObj(SOList[0]);
 	}
 
 	//Find all the SpriteObjects under the cursor
@@ -141,10 +173,12 @@ public class ExtractSpritesWindow : Window
 			FindSpritesRecurse(FD, GO.transform, "");
 
 		//Don’t forget our hero!
-		GameObject HeroGO=HeroController.instance.gameObject;
-		SpriteObject HeroSO=new SpriteObject_tk2dBaseSprite(HeroGO.name, Misc.Empty, HeroGO.GetComponent<tk2dBaseSprite>());
-		if(HeroSO!=null && WorldBoundsToScreenRect(FD.Camera, HeroSO.Bounds).Contains(FD.MousePos))
-			FD.ObjList.Add(HeroSO);
+		GameObject? HeroGO=HeroController.instance?.gameObject;
+		if(HeroGO!=null) {
+			SpriteObject HeroSO=new SpriteObject_tk2dBaseSprite(HeroGO.name, Misc.Empty, HeroGO.GetComponent<tk2dBaseSprite>());
+			if(HeroSO!=null && WorldBoundsToScreenRect(FD.Camera, HeroSO.Bounds).Contains(FD.MousePos))
+				FD.ObjList.Add(HeroSO);
+		}
 
 		return ObjList;
 	}
@@ -185,14 +219,16 @@ public class ExtractSpritesWindow : Window
 		return MyRect;
 	}
 
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0042:Deconstruct variable declaration", Justification="Keeping previous code unchanged")]
 	protected override void DoLayout(int ID, Event Ev)
 	{
 		//Precalculations
 		RectOffset WinPad=GUI.skin.window.padding;
-		bool HasImage=(TexImage!=null);
+		bool HasImage=(CurFoundObj?.HasTexture==true);
+		(int width, int height) TexImage=(HasImage ? (CurFoundObj!.width, CurFoundObj!.height) : (0, 0));
 		float AvailableHeight=WindowRect.height-WinPad.vertical-LabelStyle.lineHeight;
-		float Aspect=(!HasImage ? 0 : TexImage!.width/(float)TexImage.height);
-		float ImageDisplayHeight=!HasImage ? 0 : Math.Min(AvailableHeight, TexImage!.height);
+		float Aspect=(!HasImage ? 0 : TexImage.width/(float)TexImage.height);
+		float ImageDisplayHeight=!HasImage ? 0 : Math.Min(AvailableHeight, TexImage.height);
 		float ImageDisplayWidth=ImageDisplayHeight*Aspect;
 		float LeftWidth=WindowRect.width-ImageDisplayWidth-WinPad.horizontal;
 		if(LeftWidth<MinListWidth) {
@@ -205,7 +241,7 @@ public class ExtractSpritesWindow : Window
 		//Title the window with our sprite and display sizes
 		Title=WindowTitle+(
 			  !HasImage ? "No sprite selected"
-			: $"{TexImage!.width}*{TexImage.height} -> {ImageDisplayWidth}*{ImageDisplayHeight}"
+			: $"{TexImage.width}*{TexImage.height} -> {ImageDisplayWidth}*{ImageDisplayHeight}"
 		);
 
 		//Begin the window layout
@@ -244,18 +280,33 @@ public class ExtractSpritesWindow : Window
 			if(IsMouseOver && LI.Length==3)
 				TooltipString=(SO.ParentTree, SO.Name);
 
-			//Check to see if clicked
-			if(IsMouseOver && Event.current.type==EventType.MouseDown)
-				if(Button.CurrentButton==Button.Enum.Middle)
-					Misc.UnityExplorer_Inspect(SO.GO);
-				else {
-					GetTexFromSprite=Button.CurrentButton!=Button.Enum.Left;
-					OnNextFrame(() => CurFoundObj=SO);
-				}
-
 			//Highlight the label if selected
-			if(CurFoundObj==SO)
+			if(CurFoundObj?.SO==SO)
 				GUI.DrawTexture(LabelRect, SelectTex);
+
+			//Check to see if clicked
+			if(!IsMouseOver || Event.current.type!=EventType.MouseDown)
+				continue;
+
+			//On double left click open the unity inspector
+			if(
+				   CurFoundObj?.SO==SO
+				&& CurFoundObj.TexType==CurrentObj.Type.CroppedTexture
+				&& Button.CurrentButton==Button.Enum.Left
+				&& (DateTime.Now-CurFoundObj.CreationTime).TotalSeconds<0.25f
+			) {
+				Misc.UnityExplorer_Inspect(SO.GO);
+				continue;
+			}
+
+			//Update the texture
+			CurrentObj.Type NewType=Button.CurrentButton switch {
+				Button.Enum.Left	=> CurrentObj.Type.CroppedTexture,
+				Button.Enum.Right	=> CurrentObj.Type.Rendered,
+				Button.Enum.Middle	=> CurrentObj.Type.FullTexture,
+				_					=> CurrentObj.Type.CroppedTexture,
+			};
+			OnNextFrame(() => CurFoundObj=new CurrentObj(SO, NewType));
 		}
 		GUILayout.EndScrollView();
 		GUILayout.EndVertical();
@@ -266,7 +317,7 @@ public class ExtractSpritesWindow : Window
 			GUILayout.BeginVertical(GUILayout.Width(ImageDisplayWidth), GUILayout.Height(AvailableHeight));
 			GUILayout.Space(Math.Max((AvailableHeight-ImageDisplayHeight)/2, 0));
 			Rect TextureRect=GUILayoutUtility.GetRect(ImageDisplayWidth, ImageDisplayHeight);
-			GUI.DrawTexture(TextureRect, TexImage);
+			GUI.DrawTexture(TextureRect, CurFoundObj!.Tex);
 			GUILayout.EndVertical();
 
 			//Save the texture
@@ -276,7 +327,7 @@ public class ExtractSpritesWindow : Window
 					if(!FileOps.DirectoryExists(DirName))
 						_=FileOps.CreateDirectory(DirName);
 					string FileName=$"{DateTime.Now:yyyy-MM-dd_HH_mm_ss} {FileOps.FixFileName(CurFoundObj!.Name ?? "NO NAME")}.png";
-					FileOps.WriteFile(FileOps.PathCombine(DirName, FileName), TexImage.EncodeToPNG());
+					FileOps.WriteFile(FileOps.PathCombine(DirName, FileName), CurFoundObj!.EncodeToPNG());
 					_=new PopupMessage($"File saved to:\n<size=25>{Misc.SanitizeRichString(FileOps.PathCombine(DirName, " "))}\n<b>{Misc.SanitizeRichString(FileName)}</b></size>");
 				} catch(Exception e) {
 					_=new PopupMessage($"Error saving file:\n<size=25>{Misc.SanitizeRichString(e.Message)}</size>");
@@ -305,14 +356,28 @@ public class ExtractSpritesWindow : Window
 		//Add the help button
 		if(!GUI.Button(new Rect(WindowRect.width-(CloseButtonSize-CloseButtonPadding)*3, CloseButtonPadding, CloseButtonSize, CloseButtonSize), "?"))
 			return;
-		PopupMessage PM=new(string.Join(Misc.NewLine, ["",
-			"Clicking a line item:",
-			"    * Left click=Display its direct texture",
-			"    * Right click=Display its rendered sprite (this feature can be twitchy)",
-			"    * Middle click=Open sprite in unity explorer (if installed)", "",
-			"Left click a picture to save it to:",
-			"<size=25>"+Misc.SanitizeRichString(FileOps.PathCombine(Misc.GetPluginPath, ExtractAllTextures.TextureDirectory, " "))+"\n<b><color=green>[YYYY-MM-DD_HH_mm_SS SPRITE_NAME].png</color></b></size>"
-		]));
+
+		const string HelpText=
+@"<size=+0>Clicking a line item:
+*Left click=Display single sprite from sprite sheet
+-Will probably contain a few other sprite textures parts that you’d need to clip
+*Right click=Display the rendered sprite
+-Feature can be twitchy
+*Middle click=Display the full sprite sheet
+-You’ll see lots of sprites
+*Double left click=Open sprite in unity explorer
+-If installed
+*<size=35>Clicking the line for an animated sprite multiple times can yield its different frames.
+</size>
+Left click a picture to save it to:<size=25>
+#</size>";
+
+		const string Bullet="\n</size>    * ", SubBullet="<size=25>\n             ";
+		PopupMessage PM=new(HelpText
+			.Replace("\n*", Bullet)
+			.Replace("\n-", SubBullet)
+			.Replace("#", Misc.SanitizeRichString(FileOps.PathCombine(Misc.GetPluginPath, ExtractAllTextures.TextureDirectory, " "))+"\n<b><color=green>[YYYY-MM-DD_HH_mm_SS SPRITE_NAME].png</color></b>\n")
+		);
 		OnNextFrame(() => PM.OverrideTextStyle=new GUIStyle(PopupMessage.DefaultTextStyle) { alignment=TextAnchor.MiddleLeft });
 	}
 
