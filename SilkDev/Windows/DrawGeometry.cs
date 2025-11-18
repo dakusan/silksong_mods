@@ -150,8 +150,8 @@ public static class DrawGeometry
 
 			//Draw a hollow rectangle by drawing the borders
 			int BS=_BorderSize;
-			GUI.DrawTexture				(new Rect(X,			Y,				_Width,	BS			), MainTex				);
-			GUI.DrawTexture				(new Rect(X,			Y+_Height-BS,	_Width,	BS			), MainTex				);
+			GUI.DrawTexture				(new Rect(X,			Y,				_Width,	BS				), MainTex				);
+			GUI.DrawTexture				(new Rect(X,			Y+_Height-BS,	_Width,	BS				), MainTex				);
 			GUI.DrawTextureWithTexCoords(new Rect(X,			Y+BS,			BS,		_Height-BS*2	), MainTex, Rotate90CW	);
 			GUI.DrawTextureWithTexCoords(new Rect(X+_Width-BS,	Y+BS,			BS,		_Height-BS*2	), MainTex, Rotate90CW	);
 		}

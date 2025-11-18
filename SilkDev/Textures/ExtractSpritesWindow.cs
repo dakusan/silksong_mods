@@ -322,13 +322,14 @@ public class ExtractSpritesWindow : Window
 			GUILayout.EndVertical();
 
 			//Highlight the sprite on the sprite sheet
-			if(CurFoundObj.HighlightSpriteOnSheet && CurFoundObj.TexType==CurrentObj.Type.FullTexture) {
-				Rect AdjustedTexRect=CurFoundObj.SO.TextureRect;
-				AdjustedTexRect.y=CurFoundObj.height-AdjustedTexRect.y-AdjustedTexRect.height;
-				AdjustedTexRect=AdjustedTexRect.Mul(ImageDisplayWidth/CurFoundObj.width);
-				AdjustedTexRect.position+=TextureRect.position;
-				GUI.DrawTexture(AdjustedTexRect, SelectTex);
-			}
+			if(CurFoundObj.HighlightSpriteOnSheet && CurFoundObj.TexType==CurrentObj.Type.FullTexture)
+				GUI.DrawTexture(
+					CurFoundObj.SO.TextureRect
+						.SetY(Y => CurFoundObj.height-Y-CurFoundObj.SO.TextureRect.height) //Adjust for flipped y axis
+						.Mul(ImageDisplayWidth/CurFoundObj.width) //Adjust to resized texture size
+						.AddPos(TextureRect.position), //Offset to drawn texture
+					SelectTex
+				);
 
 			//Interact with the image
 			bool IsMouseInteract=(Event.current.type==EventType.MouseDown && TextureRect.Contains(Event.current.mousePosition));
@@ -467,8 +468,7 @@ public class ExtractSpritesWindow : Window
 
 			const int LabelPaddingX=5, LabelPaddingY=2;
 			Vector2 LabelSize=Parent.LabelStyle.CalcSize(new GUIContent(ClosestObj.SO.Name))+new Vector2(LabelPaddingX*2, LabelPaddingY*2);
-			Rect BoxRect=LabelSize.CenterIn(ClosestObj.R.Rect.size);
-			BoxRect.position += ClosestObj.R.Rect.position;
+			Rect BoxRect=LabelSize.CenterIn(ClosestObj.R.Rect.size).AddPos(ClosestObj.R.Rect.position);
 			GUI.DrawTexture(BoxRect.Grow(1, 1), Texture2D.whiteTexture);
 			GUI.DrawTexture(BoxRect, Parent.TooltipBorderTex);
 			GUI.Label(BoxRect.Grow(-LabelPaddingX, -LabelPaddingY), ClosestObj.SO.Name, Parent.LabelStyle);

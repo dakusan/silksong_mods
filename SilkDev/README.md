@@ -175,7 +175,8 @@ See [root project README](../#contributing) for details
 * 📦 `Extensions`:
     * 💡 Automatically initiated by the plugin.
     * 📦🔌 `Rect` [math] extensions:
-        * ⚙️ `Rect`.[(Set, Add)(X, Y, Width, Height)](float).
+        * ⚙️ `Rect`.&#91;(Set, Add)(X, Y, Width, Height)](float), `Rect`.&#91;(Set, Add)(Pos, Size)](Vector2).
+            * ⚙️ Also includes `Set` variant for each in the form <code>Set**VAR**(Func<**TYPE**, **TYPE**>)</code>. Example: `.SetX(X => X*5)`
         * ⚙️ `Rect`.[`Add(Rect)`, `Multiply(Rect)`, `Inverse()`, `Grow(float, float)`].
         * ⚙️ `Vector2`.`CenterIn(Vector2)`: Center 2 sized rects against each other by size.
     * 📦🔌 Delegate extensions:

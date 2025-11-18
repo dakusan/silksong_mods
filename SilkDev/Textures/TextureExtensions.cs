@@ -41,7 +41,7 @@ public static class TextureExtensions
 		if(RT2!=null) {
 			using TypedDisposer<Texture2D>? TextToCopyFrom=
 				  !UnityEngine.Experimental.Rendering.GraphicsFormatUtility.IsCompressedFormat(Tex.format) ? null
-				: new(Tex.ToReadable(), static T => T.TDestroy()); //If compressed then we are forced to create a copy of the whole texture first before extracting what we need
+				: new(Tex.ToReadable(), static T => T.TDestroy()); //If compressed then we are forced to create a copy of the whole texture first before extracting what we need //TODO: We could theoretically do compressed textures via multiples of 4 receivers for copies
 			Graphics.CopyTexture(TextToCopyFrom?.Target ?? Tex, 0, 0, (int)TC.x, (int)TC.y, (int)TC.width, (int)TC.height, RT2.Target, 0, 0, 0, 0);
 			Tex=RT2.Target;
 		}

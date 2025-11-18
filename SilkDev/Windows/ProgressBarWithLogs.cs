@@ -67,12 +67,10 @@ public class ProgressBarWithLogs() : Window(nameof(ProgressBarWithLogs), null, 1
 			ErrorLines.Count==0 ? Misc.Empty : "<color=red>"+Misc.SanitizeRichString(string.Join(Misc.NewLine, ErrorLines))+$"</color>{Misc.NewLine}",
 			Misc.SanitizeRichString(string.Join(Misc.NewLine, LogLines)),
 		]);
-		MessageTextRect.x+=Margin;
-		MessageTextRect.width-=Margin*2;
 		PercentTextStyle.fontSize=Mathf.CeilToInt(DefaultPercentFontSize-(DefaultBarHeight-BarHeight)/1.5f);
 		CalculateFontSize(PercentText, PercentTextStyle, PBRect.width);
 		GUI.Label(PBRect, PercentText, PercentTextStyle);
-		GUI.Label(MessageTextRect, NewMessageText, MessageTextStyle);
+		GUI.Label(MessageTextRect.AddX(Margin).AddWidth(Margin*-2), NewMessageText, MessageTextStyle);
 
 		//Show the close button
 		if(GUI.Button(new Rect(WindowRect.width-CloseButtonSize-CloseButtonPadding, CloseButtonPadding, CloseButtonSize, CloseButtonSize), "X"))

@@ -29,10 +29,7 @@ public abstract class SpriteObject(string Name, string ParentTree, GameObject GO
 			MinV=Mathf.Min(MinV, UV.y);
 			MaxV=Mathf.Max(MaxV, UV.y);
 		}
-		Rect uvRect=new(MinU, MinV, MaxU-MinU, MaxV-MinV);
-		uvRect.position*=TextureSize;
-		uvRect.size*=TextureSize;
-		return uvRect;
+		return new Rect(MinU, MinV, MaxU-MinU, MaxV-MinV).Mul(TextureSize);
 	}
 
 	//Renders a SpriteObject (with full transparency) into a Texture2D

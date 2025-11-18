@@ -12,18 +12,29 @@ namespace SilkDev;
 public static class Extensions
 {
 	//Rect extensions
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect SetX		(this Rect R, float X     ) { R.x		 =X     ; return R; }
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect AddX		(this Rect R, float X     ) { R.x		+=X     ; return R; }
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect SetY		(this Rect R, float Y     ) { R.y		 =Y     ; return R; }
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect AddY		(this Rect R, float Y     ) { R.y		+=Y     ; return R; }
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect SetWidth	(this Rect R, float Width ) { R.width	 =Width ; return R; }
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect AddWidth	(this Rect R, float Width ) { R.width	+=Width ; return R; }
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect SetHeight	(this Rect R, float Height) { R.height	 =Height; return R; }
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect AddHeight	(this Rect R, float Height) { R.height	+=Height; return R; }
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Add		(this Rect R1, Rect R2)	=>	  new(R1.position+R2.position, R1.size+R2.size);
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Mul		(this Rect R1, float N)	=>	  new(R1.position*N, R1.size*N);
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Grow		(this Rect R,fl X,fl Y) =>	  R.Add(new(-X, -Y, X*2, Y*2)); //Give negative numbers to shrink
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Inverse	(this Rect R)			=>	  new(1/R.x, 1/R.y, 1/R.width, 1/R.height);
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect SetX		(this Rect R, float X     )	{ R.x		 =X		; return R; }
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect AddX		(this Rect R, float X     )	{ R.x		+=X		; return R; }
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect SetY		(this Rect R, float Y     )	{ R.y		 =Y		; return R; }
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect AddY		(this Rect R, float Y     )	{ R.y		+=Y		; return R; }
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect SetWidth	(this Rect R, float Width )	{ R.width	 =Width	; return R; }
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect AddWidth	(this Rect R, float Width )	{ R.width	+=Width	; return R; }
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect SetHeight	(this Rect R, float Height)	{ R.height	 =Height; return R; }
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect AddHeight	(this Rect R, float Height)	{ R.height	+=Height; return R; }
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect SetPos	(this Rect R, Vector2 Pos )	{ R.position =Pos	; return R; }
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect AddPos	(this Rect R, Vector2 Pos )	{ R.position+=Pos	; return R; }
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect SetSize	(this Rect R, Vector2 Size)	{ R.size	 =Size	; return R; }
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect AddSize	(this Rect R, Vector2 Size)	{ R.size	+=Size	; return R; }
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect SetX		(this Rect R, Func<float,	float  > MFunc)	{ R.x		=MFunc(R.x			); return R; }
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect SetY		(this Rect R, Func<float,	float  > MFunc)	{ R.y		=MFunc(R.y			); return R; }
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect SetWidth	(this Rect R, Func<float,	float  > MFunc)	{ R.width	=MFunc(R.width		); return R; }
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect SetHeight	(this Rect R, Func<float,	float  > MFunc)	{ R.height	=MFunc(R.height		); return R; }
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect SetPos	(this Rect R, Func<Vector2,	Vector2> MFunc)	{ R.position=MFunc(R.position	); return R; }
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect SetSize	(this Rect R, Func<Vector2,	Vector2> MFunc)	{ R.size	=MFunc(R.size		); return R; }
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Add		(this Rect R1, Rect R2	) => new(R1.position+R2.position, R1.size+R2.size);
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Mul		(this Rect R1, float N	) => new(R1.position*N, R1.size*N);
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Mul		(this Rect R1, Vector2 V) => new(R1.position*V, R1.size*V);
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Grow		(this Rect R,fl X,fl Y	) => R.Add(new(-X, -Y, X*2, Y*2)); //Give negative numbers to shrink
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Inverse	(this Rect R			) => new(1/R.x, 1/R.y, 1/R.width, 1/R.height);
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect CenterIn	(this Vector2 InnerSize, Vector2 OuterSize) => new((OuterSize-InnerSize)/2, InnerSize);
 
 	//Delegate extensions
