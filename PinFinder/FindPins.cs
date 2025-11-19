@@ -17,7 +17,7 @@ public static class FindPins
 	//This can only run one at a time
 	public static bool CurrentlyRunning { get; private set; } = false;
 	private static ProgressBarWithLogs PBWL=null!;
-	private const string MustClose="<color=red><size=50>You <size=60><b>MUST</b></size> now close this window with alt+f4 and restart</size>";
+	private const string MustClose="<color=red><size=50>You <size=60><b>MUST</b></size> now close this game with alt+f4 and restart it</size>";
 
 	//Initialize
 	internal static void Init()

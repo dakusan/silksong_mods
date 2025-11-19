@@ -132,6 +132,7 @@ public class ExtractSpritesWindow : Window
 	//Initialization
 	private ExtractSpritesWindow() : base(WindowTitle, Conf.Rect_ExtractSprites)
 	{
+		DevInput.Mouse.Visibility.ForceEvent += ForceCursor; //Keep the mouse visible
 		LabelStyleBold=new GUIStyle(LabelStyle) { fontStyle=FontStyle.Bold };
 		EllipsesStyle=new GUIStyle(LabelStyle) { normal={ textColor=Color.red } };
 		EllipsesWidth=EllipsesStyle.CalcSize(new GUIContent(EllipsesStr)).x;
@@ -399,6 +400,7 @@ public class ExtractSpritesWindow : Window
 
 	//Destroy the window
 	public override void Close() => OnNextFrame(() => {
+		DevInput.Mouse.Visibility.ForceEvent -= ForceCursor;
 		SelectTex.TDestroy();
 		TooltipBorderTex.TDestroy();
 		ShowSelection.Close();
@@ -407,6 +409,7 @@ public class ExtractSpritesWindow : Window
 		base.Close();
 		CurWin=null;
 	});
+	private static bool ForceCursor() => true;
 
 	//Determine which TexType we want to display depending on the button clicked
 	public static CurrentObj.Type MouseClickToTexType =>

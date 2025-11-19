@@ -153,7 +153,7 @@ public partial class SideBar : SilkDev.Windows.Window
 	{
 		Rect ArrowTexRect=Arrow.textureRect;
 		if(Visible)
-			ArrowTexRect=ArrowTexRect.AddX(Arrow.rect.width).SetWidth(W => W*-1);
+			ArrowTexRect=ArrowTexRect.AddX(Arrow.rect.width).SetWidth(static W => W*-1);
 		GUI.DrawTextureWithTexCoords(
 			new Rect(ArrowPos, Arrow.rect.size).AddX(Visible ? Width : 0),
 			Arrow.texture, ArrowTexRect.ConvertTexCoords(Arrow.texture)
