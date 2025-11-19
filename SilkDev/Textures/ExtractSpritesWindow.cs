@@ -24,7 +24,11 @@ public class ExtractSpritesWindow : Window
 		//Handle shortcut key to open window
 		Events.GameEvents.OnUpdate += static () => Misc.IFF(
 			Conf.Key_ExtractSprites.IsDown(),
-			() => OnNextFrame(CurWin != null ? CurWin.RunUpdate : static () => CurWin=new ExtractSpritesWindow())
+			static () => OnNextFrame(
+				CurWin != null
+					? static () => CurWin.RunUpdate()
+					: static () => CurWin=new ExtractSpritesWindow()
+			)
 		);
 
 		//Handle setting changed of whether to show LiveRectangles
@@ -112,7 +116,7 @@ public class ExtractSpritesWindow : Window
 			else if(TexType!=Type.FullTexture || Tex.isReadable)
 				return Tex.EncodeToPNG();
 
-			using TypedDisposer<Texture2D> CopiedTex=new(Tex.ToReadable(), T => T.TDestroy());
+			using TypedDisposer<Texture2D> CopiedTex=new(Tex.ToReadable(), static T => T.TDestroy());
 			return CopiedTex.Target.EncodeToPNG();
 		}
 	}
@@ -148,7 +152,7 @@ public class ExtractSpritesWindow : Window
 		ShowSelection.Rect=CurFoundObj.ScreenPos; //Update the position of the selection window
 	}
 
-	private void RunUpdate()
+	private void RunUpdate(CurrentObj.Type TexType=CurrentObj.Type.CroppedTexture)
 	{
 		//Get the new list
 		Vector2 MP=DevInput.Util.MousePos;
@@ -160,7 +164,7 @@ public class ExtractSpritesWindow : Window
 
 		//Select the first item if available
 		if(SOList.Count>0)
-			CurFoundObj=new CurrentObj(SOList[0]);
+			CurFoundObj=new CurrentObj(SOList[0], TexType);
 	}
 
 	//Find all the SpriteObjects under the cursor
@@ -301,12 +305,7 @@ public class ExtractSpritesWindow : Window
 			}
 
 			//Update the texture
-			CurrentObj.Type NewType=Button.CurrentButton switch {
-				Button.Enum.Left	=> CurrentObj.Type.CroppedTexture,
-				Button.Enum.Right	=> CurrentObj.Type.Rendered,
-				Button.Enum.Middle	=> CurrentObj.Type.FullTexture,
-				_					=> CurrentObj.Type.CroppedTexture,
-			};
+			CurrentObj.Type NewType=MouseClickToTexType;
 			OnNextFrame(() => CurFoundObj=new CurrentObj(SO, NewType));
 		}
 		GUILayout.EndScrollView();
@@ -371,7 +370,7 @@ public class ExtractSpritesWindow : Window
 		if(!GUI.Button(new Rect(WindowRect.width-(CloseButtonSize-CloseButtonPadding)*3, CloseButtonPadding, CloseButtonSize, CloseButtonSize), "?"))
 			return;
 
-		const string HelpText=
+		const string HelpText= //Last <size> block purposefully not closed
 @"<size=+0>Clicking a line item:
 *Left click=Display single sprite from sprite sheet
 -Will probably contain a few other sprite textures parts that you’d need to clip
@@ -386,13 +385,14 @@ public class ExtractSpritesWindow : Window
 </size> * <u>Left click an image to save it to:</u>
 #<size=15>
 
-</size> * Right click sprite sheet to toggle highlight. Try with animated sprites!";
+</size> * Right click sprite sheet to toggle highlight. Try with animated sprites!<size=20>
+ * Once the “Extract Sprites” window is open you can also left/right/middle click on sprites in the game window<size=11> (Config required: Boxes around sprites)</size>";
 
 		const string Bullet="\n</size>    * ", SubBullet="<size=25>\n             ";
 		PopupMessage PM=new(HelpText
 			.Replace("\n*", Bullet)
 			.Replace("\n-", SubBullet)
-			.Replace("#", Misc.SanitizeRichString(FileOps.PathCombine(Misc.GetPluginPath, ExtractAllTextures.TextureDirectory, " "))+"\n<b><color=green>[YYYY-MM-DD_HH_mm_SS SPRITE_NAME].png</color></b>")
+			.Replace("#", Misc.SanitizeRichString(FileOps.PathCombine(Misc.GetPluginPath, ExtractAllTextures.TextureDirectory, "\u00A0"))+"\n<b><color=green>[YYYY-MM-DD_HH_mm_SS SPRITE_NAME].png</color></b>")
 		);
 		OnNextFrame(() => PM.OverrideTextStyle=new GUIStyle(PopupMessage.DefaultTextStyle) { alignment=TextAnchor.MiddleLeft });
 	}
@@ -408,6 +408,15 @@ public class ExtractSpritesWindow : Window
 		CurWin=null;
 	});
 
+	//Determine which TexType we want to display depending on the button clicked
+	public static CurrentObj.Type MouseClickToTexType =>
+		Button.CurrentButton switch {
+			Button.Enum.Left	=> CurrentObj.Type.CroppedTexture,
+			Button.Enum.Right	=> CurrentObj.Type.Rendered,
+			Button.Enum.Middle	=> CurrentObj.Type.FullTexture,
+			_					=> CurrentObj.Type.CroppedTexture,
+		};
+
 	//On mouse move, show boxes for all sprites we are over
 	private LiveRectangles? LR=null;
 	private class LiveRectangles(ExtractSpritesWindow Parent) : Window("Live ExtractSprite Rectangles", true, -300)
@@ -422,8 +431,8 @@ public class ExtractSpritesWindow : Window
 		protected override void OnMouseEvent(Event Ev)
 		{
 			//If click, select a new sprite
-			if(Ev.type==EventType.MouseDown && Button.CurrentButton==Button.Enum.Left)
-				Parent.RunUpdate();
+			if(Ev.type==EventType.MouseDown)
+				Parent.RunUpdate(MouseClickToTexType);
 
 			//Only handle mouse move
 			if(Ev.type!=EventType.MouseMove)
