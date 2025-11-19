@@ -1,7 +1,7 @@
 <a id="readme"></a>
 <div align="center">
 
-# 🌐 Web Server
+# 🌐️ Web Server
 <i>Crowdsource Silksong data</i>
 </div>
 
@@ -12,7 +12,7 @@
 1. [Contributing, Credits, and License](#contributing-credits-license)<br clear="all">
 ---
 <a id="overview"></a>
-## 📖 Overview
+## 📖️ Overview
 A lightweight web server for receiving and managing Pharloom Atlas user contribution data, enabling community crowdsourcing.
 
 [See Nexus Mods page for further details.](https://www.nexusmods.com/hollowknightsilksong/mods/755)
@@ -26,13 +26,13 @@ A lightweight web server for receiving and managing Pharloom Atlas user contribu
 1. The [Pharloom Atlas mod](../PharloomAtlas) would have to be redirected to your web server.
 
 <a id="usage"></a>
-## 🧭 Usage
+## 🧭️ Usage
 - See [Pharloom Atlas ](../PharloomAtlas/#readme): [Web Integration](../PharloomAtlas/#web-integration) and [Additional Contributions](../PharloomAtlas/#additional-contributions)
 
 <a id="developer-notes"></a>
-## 🧩 Developer Notes
+## 🧩️ Developer Notes
 - Source code organized under `WebServer/`.
 
 <a id="contributing-credits-license"></a>
-## 🤝 Contributing, Credits, and License
+## 🤝🏻 Contributing, Credits, and License
 See [root project README](../#contributing) for details

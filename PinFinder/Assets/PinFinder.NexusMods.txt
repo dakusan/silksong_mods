@@ -1,0 +1,28 @@
+[center][img]https://www.castledragmire.com/silksong/DecorTop.png[/img][/center]
+
+[center][size=6][b]Hollow Knight Silksong: Pin Finder[/b][/size]
+[size=4]Automatically scans every scene and dumps the exact position + save-flag of every collectible, bench, switch, lore tablet, etc.[/size][/center]
+
+[center][size=5][u]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;📖️ [b]Overview[/b] 📖️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[/u][/size][/center]
+
+Developer utility used to create accurate data files for mods like [url=https://www.nexusmods.com/hollowknightsilksong/mods/755]Pharloom Atlas[/url].
+Runs once (or on demand), writes a clean JSON to the plugin folder. Process can be paused and restarted without losing anything.
+
+[center][size=5]️[u]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚙️ [b]Installation[/b] ⚙️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[/u][/size][/center][list=1]
+[*]Install [url=https://www.nexusmods.com/hollowknightsilksong/mods/26]BepInEx[/url]
+[*]Extract this mod’s zip into [b]Hollow Knight Silksong/BepInEx/plugins/dakusan/[/b]
+[*]You should now have (for example): [b]Hollow Knight Silksong/BepInEx/plugins/dakusan/SilkDev.dll[/b]
+[*]If you use my other mods — [url=https://www.nexusmods.com/hollowknightsilksong/mods/510]Plugin Developer Tools[/url], [url=https://www.nexusmods.com/hollowknightsilksong/mods/478]NoClip[/url] — move them into the same [b]dakusan[/b] folder.
+[*]Launch game → open config (F1) → click “Start Process”
+[/list]
+Includes my shared library: [url=https://www.nexusmods.com/hollowknightsilksong/mods/510]Plugin Developer Tools (SilkDev)[/url]
+
+[center][size=5]️[u]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🗣️ [b]Bla bla bla[/b] 🗣️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[/u][/size][/center]
+This was my first attempt (from back in September) at matching save values to marker locations from MapGenie.io for my [url=https://www.nexusmods.com/hollowknightsilksong/mods/755]Pharloom Atlas mod[/url].
+
+While this won’t be useful to most people, the basis behind it could be useful for other projects (like if and when I backport Pharloom Atlas to Hollow Knight). Source code coming soon (when I release the source for Pharloom Atlas).
+
+
+
+[center][img]https://www.castledragmire.com/silksong/PinFinderLogoSmall.jpg?v=1[/img]
+[img]https://www.castledragmire.com/silksong/DecorBottom.png[/img][/center]

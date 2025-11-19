@@ -1,0 +1,78 @@
+[center][img]https://www.castledragmire.com/silksong/DecorTop.png[/img][/center]
+
+[center][size=6][b]Hollow Knight Silksong: Plugin Developer Tools (SilkDev)[/b][/size]
+[size=4]The backbone of all my Silksong mods — with handy player utilities and a massive quality-of-life toolkit for modders.[/size][/center]
+
+[center][size=5][u]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✨️ [b]Player-Facing Goodies[/b] ✨️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[/u][/size][/center][list]
+[*]Skip intro & auto-load save slot
+[*]Block game input while typing (great with Unity Explorer)
+[*]Force-show mouse cursor ([b]F10[/b] by default)
+[*]Extract individual sprites — single frame, rendered sprite, or full sheet (see “Extracting Sprites” :section below)
+[*]One-click texture extraction[list]
+[*]Press [b]F1[/b] → [b]Extract all textures[/b]
+[*]Dumps to [i][b][color=green]PLUGIN_PATH[/color][/b]/Textures/[b][color=green]NAME[/color][/b]-[b][color=green]MD5[/color][/b].png[/i] (no duplicates)
+[/list][/list]
+
+[center][size=5][u]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🛠️ [b]Modder-Facing Power Tools[/b] 🛠️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[/u][/size]
+Debugging ● Configurations ● Input ● Events ● Textures ● Windows[/center]
+
+[list]
+[*]Configurable log levels + full stack traces on errors
+[*]Tons of classes and functions to make development easier. Most useful include:[list]
+[*]Configs[list]
+[*]Configurations properly sorted by order[list]
+[*]Configurable delayed saving (instant on exit)
+[/list]
+[*]Dynamic string→string entries
+[*]Per-user-saveslot configs with backups
+[/list]
+[*]Input helpers (mouse visibility, joystick vector, etc.)
+[*]Priority-based event system with callbacks for major game events
+[*]Texture/sprite extraction and other texture extensions
+[*]Robust IMGUI window base class[list]
+[*]Proper ordered mouse handling even over Unity Explorer windows
+[*]New mouse events: MouseMove, MouseEnterWindow, MouseLeaveWindow
+[*]Overridable event callbacks for GameEvents and all OnGUI event types[list]
+[*]Strict event call ordering by window z-order and priority
+[*]Priority flagging to force windows topmost or bottommost[/list]
+[*]Safe drag/resize with config saving
+[*]Fake windows for mouse-only capture
+[*]Simple dialog, popup & progress bar windows
+[*]Screen-space geometry drawing
+[/list]
+[*]Reflection shortcuts, safe coroutines, JSON utilities & more
+[/list][/list]
+
+[size=3]Full source + detailed class docs in the GitHub repo (coming soon)[/size]
+
+[center][size=5][u]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚙️ [b]Installation[/b] ⚙️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[/u][/size][/center][list=1]
+[*]Install [url=https://www.nexusmods.com/hollowknightsilksong/mods/26]BepInEx[/url]
+[*]Extract this mod’s zip into [b]Hollow Knight Silksong/BepInEx/plugins/dakusan/[/b]
+[*]You should now have (for example): [b]Hollow Knight Silksong/BepInEx/plugins/dakusan/SilkDev.dll[/b]
+[*]If you use my other mods — [url=https://www.nexusmods.com/hollowknightsilksong/mods/478]NoClip[/url] — move them into the same [b]dakusan[/b] folder.
+[*]Run the game – done!
+[/list]
+You may also want to check out my [url=https://www.nexusmods.com/hollowknightsilksong/mods/478]NoClip mod[/url] for development help.
+&nbsp;
+
+[center][size=5][u]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🧩️ [b]Extracting Sprites[/b] 🧩️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[/u][/size][/center][list]
+[*]Set a shortcut in config (default: none – I ship it disabled because it’s included in many of my mods)
+[*]Hover a sprite → press shortcut → ranked list ordered by distance to cursor
+[*]Once open you can left/right/middle-click anywhere in the game window to select
+[*][b]Show boxes around sprites …[/b] config: red outlines on hovered sprites, blue fill + name on closest
+[*]Click list items to display:[list]
+[*]Left → single sprite from sprite sheet [size=1](may include surrounding sheet parts)[/size]
+[*]Right → rendered sprite [size=1](can be twitchy)[/size]
+[*]Middle → full sprite sheet [size=1](lots of sprites)[/size]
+[*]Double-left → open sprite in Unity Explorer [size=1](if installed)[/size]
+[*]Repeated clicks on animated sprites cycle through different frames
+[/list]
+[*]Left click image to save to: [i][b][color=green]PLUGIN_PATH[/color][/b]/Textures/[b][color=green]DATE[/color][/b]_[b][color=green]TIME[/color][/b]·[b][color=green]NAME[/color][/b].png[/i]
+[*]Right click sheet to toggle highlight
+[/list]
+[img]https://www.castledragmire.com/silksong/SilksongSprites.webp[/img]
+
+
+
+[center][img]https://www.castledragmire.com/silksong/SilkDevLogoSmall.jpg[/img]
+[img]https://www.castledragmire.com/silksong/DecorBottom.png[/img][/center]

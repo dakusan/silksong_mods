@@ -1,0 +1,25 @@
+
+[center][img]https://www.castledragmire.com/silksong/DecorTop.png[/img][/center]
+
+[center][size=6][b]Hollow Knight Silksong: No Clip[/b][/size]
+[size=4]Freely fly through Pharloom – perfect for exploration, debugging, or just breaking the game in glorious god mode.[/size][/center]
+
+[center][size=5][u]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;📖️ [b]Overview[/b] 📖️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[/u][/size][/center]
+
+Press [b]F3[/b] (configurable) to toggle noclip + invincibility.
+Move with arrow keys or controller stick – full 360° freedom.
+Config menu available via [b]F1[/b].
+
+[center][size=5]️[u]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚙️ [b]Installation[/b] ⚙️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[/u][/size][/center][list=1]
+[*]Install [url=https://www.nexusmods.com/hollowknightsilksong/mods/26]BepInEx[/url]
+[*]Extract this mod’s zip into [b]Hollow Knight Silksong/BepInEx/plugins/dakusan/[/b]
+[*]You should now have (for example): [b]Hollow Knight Silksong/BepInEx/plugins/dakusan/SilkDev.dll[/b]
+[*]If you use my other mods — [url=https://www.nexusmods.com/hollowknightsilksong/mods/510]Plugin Developer Tools[/url] — move them into the same [b]dakusan[/b] folder.
+[*]Run the game – done!
+[/list]
+Includes my shared library: [url=https://www.nexusmods.com/hollowknightsilksong/mods/510]Plugin Developer Tools (SilkDev)[/url]
+
+
+
+[center][img]https://www.castledragmire.com/silksong/NoClipLogoSmall.jpg[/img]
+[img]https://www.castledragmire.com/silksong/DecorBottom.png[/img][/center]
