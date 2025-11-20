@@ -14,7 +14,7 @@
 [/list][/list]
 
 [center][size=5][u]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🛠️ [b]Modder-Facing Power Tools[/b] 🛠️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[/u][/size]
-Debugging ● Configurations ● Input ● Events ● Textures ● Windows[/center]
+Debugging &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Configurations &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Input &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Events &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Textures &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Windows[/center]
 
 [list]
 [*]Configurable log levels + full stack traces on errors

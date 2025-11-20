@@ -10,7 +10,7 @@
 [*]Everything is optional and configurable ([b]F1[/b]) — toggle features to suit your playstyle.
 Enabled by default: [i]Sidebar &amp; map icons[/i] + [i]Highlight Hornet marker[/i]
 [*]Full support for 🎮️ controllers, ⌨️ customizable keyboard keys, and 🖱️ mouse.[list]
-[*]Zoom &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png?v=22[/img]&nbsp;&nbsp; Pan &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png?v=22[/img]&nbsp;&nbsp; Place+Label Markers &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png?v=22[/img]&nbsp;&nbsp; Select Icons &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png?v=22[/img]&nbsp;&nbsp; Sidebar &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png?v=22[/img]&nbsp;&nbsp; Save Values
+[*]Zoom &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Pan &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Place+Label Markers &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Select Icons &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Sidebar &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Save Values
 [/list]
 [*][b]Icons, Markers &amp; Pins[/b][list]
 [*][b][img=middle]https://www.castledragmire.com/silksong/BenchSmall.png[/img] Icons[/b][list]
@@ -101,7 +101,7 @@ To contribute:[list]
 [*]Appreciated updates could include better images, per-NPC or per-map icons, and an expanded Circles set with more item-specific icons.
 [*]Expanding the icon set beyond the current image limit will require additional code (quick fix). I’ll also probably need to add bounding shapes for the icons.
 [/list]
-[size=5][u][img=middle]https://www.castledragmire.com/silksong/RunAnimation.webp?v=1[/img]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[b]Input &amp; Controls[/b]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/RunAnimationRev.webp?v=1[/img][/u][/size]
+[size=5][u][img=middle]https://www.castledragmire.com/silksong/RunAnimation.webp[/img]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[b]Input &amp; Controls[/b]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/RunAnimationRev.webp[/img][/u][/size]
 [img]https://www.castledragmire.com/silksong/KeyMappingsSmall.png[/img]
 All interfaces support 🎮️ controller, ⌨️ keyboard, and 🖱️ mouse for every feature.
 [size=1](Search window does not support controller input.)[/size]
