@@ -32,15 +32,19 @@ public static class FindPins
 			if(!StartFindConfig || DialogOpen)
 				return;
 
+			//If the JSON file does not already exist, start the process without prompting the user
+			if(!FileOps.FileExists(FileOps.PathCombine(Misc.GetPluginPath, Config.PinsJson))) {
+				_=Catcher.ExecCoroutine("Find Pins", StartProcess());
+				return;
+			}
+
 			//Ask the user if they want to start if the final file already exists
 			DialogOpen=true;
-			_=!FileOps.FileExists(FileOps.PathCombine(Misc.GetPluginPath, Config.PinsJson))
-				? Catcher.ExecCoroutine("Find Pins", StartProcess())
-				: (object)new DialogWindow
-					($"{Config.PinsJson} already exists. Are you sure you wish to overwrite it? (A backup will be made)") {
-						ConfirmationDialogCallback=Confirmed =>
-							(DialogOpen, _)=(false, Confirmed ? Catcher.ExecCoroutine("Find Pins", StartProcess()) : null)
-					};
+			_=new DialogWindow
+				($"{Config.PinsJson} already exists. Are you sure you wish to overwrite it? (A backup will be made)") {
+					ConfirmationDialogCallback=Confirmed =>
+						(DialogOpen, _)=(false, Confirmed ? Catcher.ExecCoroutine("Find Pins", StartProcess()) : null)
+				};
 		});
 	}
 
@@ -168,7 +172,7 @@ public static class FindPins
 
 		//Only run one at a time and not if on the menu
 		if(CurrentlyRunning) {
-			_=new DialogWindow("Process is already running");
+			_=new DialogWindow("Process is already running") { Priority=1500 };
 			yield break;
 		}
 		if(SceneManager.GetActiveScene().name=="Menu_Title") {
@@ -258,11 +262,11 @@ public static class FindPins
 					.Aggregate(static (Acc, List) => { Acc.AddRange(List); return Acc; })
 					?.ToArray() ?? throw new Exception("Data is null")
 			));
-			_=new DialogWindow($"{MustClose}</color>\n<size=35><color=green>Process complete</color></size>\n\n{SuccessMessage}", FontSize:20, Height:480);
+			_=new DialogWindow($"{MustClose}</color>\n<size=35><color=green>Process complete</color></size>\n\n{SuccessMessage}", FontSize:20, Height:480) { Priority=1500 };
 			try { Directory.Delete(SaveDir, true); } catch(Exception e) { LogError($"Error deleting temp files: {e.Message}"); }
 		} catch(Exception e) {
 			LogError($"Error combining files and writing final file: {e.Message}");
-			_=new DialogWindow($"{MustClose}\n<size=35>Process failed on the final step.</size>\n{e.Message}</color>", FontSize:20, Height:480);
+			_=new DialogWindow($"{MustClose}\n<size=35>Process failed on the final step.</size>\n{e.Message}</color>", FontSize:20, Height:480) { Priority=1500 };
 		}
 
 		CurrentlyRunning=false;
@@ -281,7 +285,7 @@ public static class FindPins
 				break;
 			if((DateTime.Now-LastUpdate.Value).TotalSeconds<15)
 				continue;
-			_=new DialogWindow($"{MustClose}\nThe processor has been on this scene for 15+ seconds. It will continue where it left off after you exit and restart the pin finding process.</color>\n\n<color=green><size=50%>This is normal. It generally happens to me around scene #400</size></color>", FontSize:30, Height:480);
+			_=new DialogWindow($"{MustClose}\nThe processor has been on this scene for 15+ seconds. It will continue where it left off after you exit and restart the pin finding process.</color>\n\n<color=green><size=50%>This is normal. It generally happens to me around scene #400</size></color>", FontSize:30, Height:480) { Priority=1500 };
 			break;
 		}
 	}
