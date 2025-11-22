@@ -1,4 +1,3 @@
-using InControl;
 using SilkDev;
 using SilkDev.DevInput.Mouse;
 using SilkDev.Textures;
@@ -162,32 +161,29 @@ public class SaveValuesWindow : SilkDev.Windows.Window
 			: ScrollPosition;
 
 	//Watch for key presses
-	private static InputDevice AD => InputManager.ActiveDevice;
-	private DateTime LastKeyPress=DateTime.MinValue;
-	private const float KeyPressInterval=.05f;
+	private readonly SilkDev.DevInput.InputRepeatDelay<int> WinScrollCheck=new(.05f,
+		(AD => AD	.LeftTrigger,			-1),
+		(AD => AD	.RightTrigger,			 1),
+		(Config.C	.Shortcut_Val_ScrollUp, -1),
+		(Config.C	.Shortcut_Val_ScrollDown,1)
+	);
 	protected override void OnUpdate()
 	{
 		//Window visibility (global key)
-		Config C=Config.C;
 		if(Config.C.Shortcut_SaveValueWindow.IsDown())
 			Visible=!Visible;
 
 		//Check to see if value window scroll actions are in play
 		if(!(
-			Visible &&														//Is open
-			(DateTime.Now-LastKeyPress).TotalSeconds>KeyPressInterval	&&	//KeyPressInterval seconds has passed since the last line selection change
-			(MapControl.Self?.IsMapOpened ?? false)						&& (//Map is also open
-				AD.LeftTrigger.IsPressed || AD.RightTrigger.IsPressed	||	//Is Pressed: Left trigger or right trigger...
-				C.Shortcut_Val_ScrollUp.IsPressed()						||	//or keyboard scroll up shortcut
-				C.Shortcut_Val_ScrollDown.IsPressed()						//or keyboard scroll down shortcut
-			)
+			   Visible												//Is open
+			&& (MapControl.Self?.IsMapOpened ?? false)				//Map is also open
+			&& (WinScrollCheck.IsReadyValueVType is int MoveValue)	//One of the scroll keys is pressed
 		))
 			return;
 
 		//Bumper actions move the selected item
-		SelectedLine=Mathf.Clamp(SelectedLine+(AD.LeftTrigger.IsPressed || C.Shortcut_Val_ScrollUp.IsPressed() ? -1 : 1), 0, Mathf.Max(SavedItems.Count-1, 0));
+		SelectedLine=Mathf.Clamp(SelectedLine+MoveValue, 0, Mathf.Max(SavedItems.Count-1, 0));
 		MoveSelectedLineIntoView();
-		LastKeyPress=DateTime.Now;
 	}
 
 	public void MoveToTopItem() => ScrollPosition=SelectedLine=0; //Move to the top of the list

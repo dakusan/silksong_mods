@@ -144,12 +144,18 @@ public class ExtractSpritesWindow : Window
 		RunUpdate();
 	}
 
+	//Watch for keypress to change selected item
+	private readonly DevInput.InputRepeatDelay<int> ScrollKeys=new(0.075f,
+		(KeyCode.UpArrow  , -1),
+		(KeyCode.DownArrow,  1)
+	);
 	protected override void OnUpdate()
 	{
 		if(CurFoundObj==null)
 			return;
-		if(Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow)) //Update the selected item
-			CurFoundObj=new CurrentObj(SOList[Mathf.Clamp(SOList.IndexOf(CurFoundObj.SO)+(Input.GetKeyDown(KeyCode.UpArrow) ? -1 : 1), 0, SOList.Count-1)]);
+
+		if(ScrollKeys.IsReadyValueVType is int SKDir) //Update the selected item
+			CurFoundObj=new CurrentObj(SOList[Mathf.Clamp(SOList.IndexOf(CurFoundObj.SO)+SKDir, 0, SOList.Count-1)]);
 		ShowSelection.Rect=CurFoundObj.ScreenPos; //Update the position of the selection window
 	}
 

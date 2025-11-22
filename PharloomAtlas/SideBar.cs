@@ -22,10 +22,6 @@ public partial class SideBar : SilkDev.Windows.Window
 	private Vector2 ScrollPosition=Vector2.zero;
 	private readonly GUISkin CustomSkin;
 
-	//Keypress delays
-	private DateTime LastKeyTime=DateTime.MinValue;
-	private string LastKeyOp=Misc.Empty;
-
 	//Create the sidebar
 	internal SideBar(DataStorage DS) : base(nameof(SideBar), false, -50)
 	{
@@ -173,56 +169,46 @@ public partial class SideBar : SilkDev.Windows.Window
 	}
 
 	//Handle key presses
+	private static InControl.InputDevice AD => ActiveDevice;
+	public  enum KRType { X=0, Y, Scroll, NUM_ENUMS }
+	private record struct KeyResults(KRType Type, int Value);
+	private readonly SilkDev.DevInput.InputRepeatDelay<KeyResults> KeysCheck=new(.075f,
+		(Conf	.Shortcut_SB_Down		, new(KRType.Y,		 1)),
+		(Conf	.Shortcut_SB_Up			, new(KRType.Y,		-1)),
+		(AD=> AD.DPadUp					, new(KRType.Y,		-1)),
+		(AD=> AD.DPadDown				, new(KRType.Y,		 1)),
+		(Conf	.Shortcut_SB_Right		, new(KRType.X,		 1)),
+		(Conf	.Shortcut_SB_Left		, new(KRType.X,		-1)),
+		(AD=> AD.DPadLeft				, new(KRType.X,		-1)),
+		(AD=> AD.DPadRight				, new(KRType.X,		 1)),
+		(Conf	.Shortcut_SB_ScrollUp	, new(KRType.Scroll,-1)),
+		(Conf	.Shortcut_SB_ScrollDown	, new(KRType.Scroll, 1)),
+		(false,	Direction.Left			, new(KRType.Scroll,-1)),
+		(false, Direction.Right			, new(KRType.Scroll, 1))
+	);
 	protected override void OnUpdate()
 	{
-		//Check y axis
-		InControl.InputDevice AD=ActiveDevice;
-		int y=Conf.Shortcut_SB_Down.IsPressed()	?  1
-			: Conf.Shortcut_SB_Up.IsPressed()	? -1
-			: AD.DPadUp.IsPressed				? -1
-			: AD.DPadDown.IsPressed				?  1
-			:									   0;
-
-		//Check x axis
-		int x=Conf.Shortcut_SB_Right.IsPressed()?  1
-			: Conf.Shortcut_SB_Left.IsPressed() ? -1
-			: AD.DPadLeft.IsPressed				? -1
-			: AD.DPadRight.IsPressed			?  1
-			:									   0;
-
 		//Check execute button
-		int Execute=(Conf.Shortcut_SB_ToggleItem.IsDown() || AD.RightCommand.WasPressed) ? 1 : 0;
+		if(Conf.Shortcut_SB_ToggleItem.IsDown() || AD.RightCommand.WasPressed)
+			CurrentSection.ExecSelected();
 
-		//Scroll up/down the sidebar categories
-		Direction JD;
-		float ScrollDir=
-			  HelpWindow.HasAnyOpen ? 0
-			: Conf.Shortcut_SB_ScrollUp.IsPressed() ? -1
-			: Conf.Shortcut_SB_ScrollDown.IsPressed() ? 1
-			: (JD=GetOrdinalDirectionAndMagnitude(false, 20, .4f, out float Magnitude)) is Direction.Left or Direction.Right
-				? Magnitude*(JD==Direction.Left ? -1 : 1)
-			: 0;
-
-		//If the keys have changed then we don’t need the KeyPressDelay
-		string CurKeyOp=$"{x},{y},{Execute},{ScrollDir}";
-		if(LastKeyOp!=CurKeyOp)
-			(LastKeyOp, LastKeyTime)=(CurKeyOp, DateTime.MinValue);
-
-		//Do not allow keypresses too quickly
-		const float KeyPressDelay=.075f;
-		if((DateTime.Now-LastKeyTime).TotalSeconds<KeyPressDelay)
+		//Get input presses
+		if(KeysCheck.IsReadyInputTypes is not { } Keys)
 			return;
-		LastKeyTime=DateTime.Now;
+
+		//Combine inputs into a result array (duplicates overwrite each other)
+		Span<int> KRTypes=stackalloc int[(int)KRType.NUM_ENUMS];
+		foreach(var KR in Keys)
+			KRTypes[(int)KR.ReturnValue.Type]=KR.ReturnValue.Value;
 
 		//Run the functions for the cooresponding keys
-		if(y!=0)
-			CurrentSection.MoveVer(y<0);
-		if(x!=0)
-			CurrentSection.MoveHor(x<0);
-		if(Execute!=0)
-			CurrentSection.ExecSelected();
-		if(ScrollDir!=0)
-			ScrollPosition.y=Mathf.Max(ScrollPosition.y+ScrollDir*30, 0);
+		int TempVal;
+		if((TempVal=KRTypes[(int)KRType.Y])!=0)
+			CurrentSection.MoveVer(TempVal<0);
+		if((TempVal=KRTypes[(int)KRType.X])!=0)
+			CurrentSection.MoveHor(TempVal<0);
+		if(!HelpWindow.HasAnyOpen && (TempVal=KRTypes[(int)KRType.Scroll])!=0)
+			ScrollPosition.y=Mathf.Max(ScrollPosition.y+TempVal*30, 0);
 	}
 
 	//Called when a new icon is selected

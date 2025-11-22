@@ -250,6 +250,12 @@ public class MapControl : SilkDev.Windows.Window
 	//return GameMap.transform.InverseTransformPoint(MMM.placementBox.transform.position);
 
 	//Handle key presses
+	private readonly SilkDev.DevInput.InputRepeatDelay<float> ZoomCheck=new(0,
+		(Conf				.Shortcut_ZoomOut	, -1),
+		(Conf				.Shortcut_ZoomIn	,  1),
+		(false, Direction	.Up					,  1),
+		(false, Direction	.Down				, -1)
+	);
 	protected override void OnUpdate()
 	{
 		//Toggling sidebar and centering
@@ -274,14 +280,7 @@ public class MapControl : SilkDev.Windows.Window
 			SelectItemI(HoverItem);
 
 		//Zooming
-		Direction JD;
-		float ZoomAmount=
-			  Conf.Shortcut_ZoomOut.IsPressed() ? -1
-			: Conf.Shortcut_ZoomIn.IsPressed() ? 1
-			: (JD=GetOrdinalDirectionAndMagnitude(false, 20, .2f, out float Magnitude)) is Direction.Up or Direction.Down
-				? Magnitude*(JD==Direction.Down ? -1 : 1)
-			: 0;
-		if(ZoomAmount!=0)
+		if(ZoomCheck.IsReadyValueVType is float ZoomAmount)
 			ZoomI(ZoomAmount);
 
 		HornetIconAnimators.Run();

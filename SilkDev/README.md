@@ -42,6 +42,7 @@ Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework
     - User input
         - Mouse visibility
         - Joystick direction and magnitude
+        - Input repeat delays
     - Events
         - Event registration priority based callbacks
         - Event callbacks for major game events
@@ -114,6 +115,16 @@ See [root project README](../#contributing) for details
         * 🔢️ `Direction`: Joystick directions enum.
         * ⚙️ `GetOrdinalDirectionAndMagnitude`: Get the direction a joystick is pointed in and the magnitude.
             * 💡️ Includes a minimum magnitude and an angle deviation that the joystick angle range must be within for triggering.
+    * 📦️ `InputRepeatDelay<EmbeddedType>`: Returns key presses after a repeat delay. Change in keys ignores delay.
+        * 🧾️🗒️ Types it can monitor:
+            * 📦️ `ConfigEntry<KeyboardShortcut>`
+            * 📦️ `KeyCode`
+            * 📦️ `IInputControl` (from `InControl`, e.x. `InputManager.ActiveDevice.LeftTrigger`)
+            * 📦️ `Joystick.Direction`+`IsLeftStick`
+                * 💡️ `AngleDeviation` and `MinMagnitude` sent to `GetOrdinalDirectionAndMagnitude` are set in the `InputRepeatDelay` parent.
+        * 💡️ Each `InputType` can have an embedded value of type `<EmbeddedType>` that is returned from `IsReadyValue`.
+        * 💡️ This class is also very useful as a generic IsPressed key watcher, even with `RepeatDelay` set to 0.
+        * 🗒️ All operations act on the assumption only 1 key can be pressed at once, except `IsReadyInputTypes` and `GetAllPressedInputs` which work on multiple.
     * 📦️ `Util`:
         * ⚙️ `AnyKeyOrButtonPressed`: Check if any key or button is currently pressed.
         * ⚙️ `MousePos`: Get the mouse position in normal screen coordinates (upper left=0,0).

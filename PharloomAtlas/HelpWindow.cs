@@ -15,7 +15,6 @@ public partial class SideBar
 		private static int NumOpen=0;
 		private static Texture2D? ControllerLayout;
 		private static string FullMessage=Misc.Empty;
-		private static DateTime LastScrollKeyTime=DateTime.MinValue;
 		private const string ControllerFileName="KeyMappings.png";
 		private const string HelpTextFile="Help.txt";
 		private Vector2 ScrollPosition=Vector2.zero;
@@ -94,29 +93,18 @@ public partial class SideBar
 			GUILayout.Space(2);
 		}
 
-		protected override void OnUpdate()
-		{
-			//Scroll up/down the help info
-			Direction JD;
-			float ScrollDir=
-			  Config.C.Shortcut_SB_ScrollUp.IsPressed() ? -1
-			: Config.C.Shortcut_SB_ScrollDown.IsPressed() ? 1
-			: (JD=GetOrdinalDirectionAndMagnitude(false, 20, .4f, out float Magnitude)) is Direction.Left or Direction.Right
-				? Magnitude*(JD==Direction.Left ? -1 : 1)
-			: 0;
-			if(ScrollDir==0)
-				return;
-
-			//Do not allow keypresses too quickly
-			const float MoreOftenMultiplier=4;
-			const float KeyPressDelay=.075f/MoreOftenMultiplier;
-			if((DateTime.Now-LastScrollKeyTime).TotalSeconds<KeyPressDelay)
-				return;
-			LastScrollKeyTime=DateTime.Now;
-
-			//Do the scrolling
-			ScrollPosition.y=Mathf.Max(ScrollPosition.y+ScrollDir*50/MoreOftenMultiplier, 0);
-		}
+		//Scroll up/down the help info
+		private const float MoreOftenMultiplier=4;
+		private readonly SilkDev.DevInput.InputRepeatDelay<int> WinScrollCheck=new(.075f/MoreOftenMultiplier,
+			(Config.C		.Shortcut_SB_ScrollUp	, -1),
+			(Config.C		.Shortcut_SB_ScrollDown	,  1),
+			(false,Direction.Left					, -1),
+			(false,Direction.Right					,  1)
+		);
+		protected override void OnUpdate() =>
+			ScrollPosition.y=WinScrollCheck.IsReadyValueVType is int ScrollAmount ? //If ready to scroll
+				  Mathf.Max(ScrollPosition.y+ScrollAmount*50/MoreOftenMultiplier, 0) //Do the scrolling
+				: ScrollPosition.y;
 
 		//Destroy the texture when there is only 1 copy of the window left
 		protected override void OnClosed()

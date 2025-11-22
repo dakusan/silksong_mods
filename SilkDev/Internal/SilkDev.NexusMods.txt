@@ -26,7 +26,7 @@ Debugging &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSu
 [*]Dynamic string→string entries
 [*]Per-user-saveslot configs with backups
 [/list]
-[*]Input helpers (mouse visibility, joystick vector, etc.)
+[*]Input helpers (mouse visibility, joystick vector, input repeat delays, etc.)
 [*]Priority-based event system with callbacks for major game events
 [*]Texture/sprite extraction and other texture extensions
 [*]Robust IMGUI window base class[list]
