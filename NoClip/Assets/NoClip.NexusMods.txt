@@ -1,4 +1,3 @@
-
 [center][img]https://www.castledragmire.com/silksong/DecorTop.png[/img][/center]
 
 [center][size=6][b]Hollow Knight Silksong: No Clip[/b][/size]
@@ -9,6 +8,7 @@
 Press [b]F3[/b] (configurable) to toggle noclip + invincibility.
 Move with arrow keys or controller stick – full 360° freedom.
 Config menu available via [b]F1[/b].
+💡️ [b]Important note[/b]: Having the configuration window focused can block keyboard input.
 
 [center][size=5]️[u]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚙️ [b]Installation[/b] ⚙️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[/u][/size][/center][list=1]
 [*]Install [url=https://www.nexusmods.com/hollowknightsilksong/mods/26]BepInEx[/url]

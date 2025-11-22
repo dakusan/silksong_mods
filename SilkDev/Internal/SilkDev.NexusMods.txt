@@ -40,7 +40,7 @@ Debugging &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSu
 [*]Simple dialog, popup & progress bar windows
 [*]Screen-space geometry drawing
 [/list]
-[*]Reflection shortcuts, safe coroutines, JSON utilities & more
+[*]Reflection shortcuts, safe callbacks and coroutines, JSON utilities & more
 [/list][/list]
 
 [size=3]Full source + detailed class docs in the GitHub repo (coming soon)[/size]
@@ -57,14 +57,13 @@ You may also want to check out my [url=https://www.nexusmods.com/hollowknightsil
 
 [center][size=5][u]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🧩️ [b]Extracting Sprites[/b] 🧩️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[/u][/size][/center][list]
 [*]Set a shortcut in config (default: none – I ship it disabled because it’s included in many of my mods)
-[*]Hover a sprite → press shortcut → ranked list ordered by distance to cursor
-[*]Once open you can left/right/middle-click anywhere in the game window to select
-[*][b]Show boxes around sprites …[/b] config: red outlines on hovered sprites, blue fill + name on closest
-[*]Click list items to display:[list]
+[*][b]L[/b]/[b]R[/b]/[b]M[/b]-click (when window open) [i]OR[/i] press shortcut key → Shows list ordered by cursor distance (closest auto-selected and on top)
+[*]Config [b]Show boxes around sprites …[/b]: red outlines on hovered sprites, blue fill + name on closest [size=1][required for in-game-sprite clicking][/size]
+[*]Click list item [i]OR[/i] in-game-sprite to display:[list]
 [*]Left → single sprite from sprite sheet [size=1](may include surrounding sheet parts)[/size]
 [*]Right → rendered sprite [size=1](can be twitchy)[/size]
 [*]Middle → full sprite sheet [size=1](lots of sprites)[/size]
-[*]Double-left → open sprite in Unity Explorer [size=1](if installed)[/size]
+[*]Double-left → open sprite in Unity Explorer [size=1](if installed; list item only)[/size]
 [*]Repeated clicks on animated sprites cycle through different frames
 [/list]
 [*]Left click image to save to: [i][b][color=green]PLUGIN_PATH[/color][/b]/Textures/[b][color=green]DATE[/color][/b]_[b][color=green]TIME[/color][/b]·[b][color=green]NAME[/color][/b].png[/i]

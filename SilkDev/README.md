@@ -74,9 +74,9 @@ You should end up with paths like: `Hollow Knight Silksong/BepInEx/plugins/dakus
 
 <a id="usage"></a>
 ## 🧭️ Usage
-- Open the config window in-game with **F1**.
+- Open the config window in-game with **F1** to toggle/set options.
 - Default mouse toggle hotkey: **F10**.
-- Default block game input hotkey: **F4**.
+- Default block game input hotkey: **None**.
 
 <a id="developer-notes"></a>
 ## 🧩️ Developer Notes

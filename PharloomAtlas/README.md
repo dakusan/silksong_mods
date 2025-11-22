@@ -47,8 +47,9 @@ You should end up with paths like: `Hollow Knight Silksong/BepInEx/plugins/dakus
 
 <a id="usage"></a>
 ## 🧭️ Usage
-- Open the config window in-game with **F1**.
-*(Tip: disable advanced and shortcut options to declutter the UI.)*
+- Open the config window in-game with **F1** to toggle/set options.
+- 💡️ *Tip: Hide **advanced** and **shortcut** options in configuration window to declutter the UI.*
+- Sidebar and map options visible when entering map.
 - All features support controller, keyboard, and mouse.
 
 <a id="web-integration"></a>
