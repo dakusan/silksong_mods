@@ -33,6 +33,7 @@ public class ProgressBarWithLogs() : Window(nameof(ProgressBarWithLogs), null, 1
 	}
 	public int HeightWithoutBar => Margin*4+(int)((NumLogLines+ErrorLines.Count+1)*LineHeight/1.2f);
 	public Action? OnClose=null;
+	public bool DoNotSanitizeMessage=false;
 
 	protected override void OnInit()
 	{
@@ -63,7 +64,7 @@ public class ProgressBarWithLogs() : Window(nameof(ProgressBarWithLogs), null, 1
 
 		//Draw the text
 		string NewMessageText=string.Join(Misc.Empty, [
-			$"<color=green>{Misc.SanitizeRichString(MessageText)}</color>{Misc.NewLine}",
+			$"<color=green>{(DoNotSanitizeMessage ? MessageText : Misc.SanitizeRichString(MessageText))}</color>{Misc.NewLine}",
 			ErrorLines.Count==0 ? Misc.Empty : "<color=red>"+Misc.SanitizeRichString(string.Join(Misc.NewLine, ErrorLines))+$"</color>{Misc.NewLine}",
 			Misc.SanitizeRichString(string.Join(Misc.NewLine, LogLines)),
 		]);

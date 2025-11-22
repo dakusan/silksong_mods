@@ -83,7 +83,7 @@ internal class ExtractAllTextures : ProgressBarWithLogs
 		if(IsClosed)
 			_=new PopupMessage($"<b>{SuccessMessage}</b>\n{NumbersOutput}");
 		else
-			MessageText=NumbersOutput;
+			(MessageText, DoNotSanitizeMessage)=($"<color=red>[Press any key to close]</color> {NumbersOutput}", true);
 		CurrentlyRunning=false;
 	}
 
