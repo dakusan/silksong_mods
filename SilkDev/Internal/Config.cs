@@ -46,7 +46,7 @@ public class Config
 		Title="Development";
 		DebugLogLevel			=Con.Bind(Title, "Debugging message log level", Log.DebugLogLevelEnum.Info, "What log level to show this plugin’s information messages at");
 		ForceStackTrace			=Con.Bind(Title, "Output stacktrace on exception", true, "Outputs a stacktrace on any exception caught through this plugins interfaces (Catcher or any of the Window events/callbacks)");
-		Rect_ExtractSprites		=Con.Bind(Title, "Window Position: Extract Sprites", new Vector2(600, 400).CenterIn(Misc.ScreenSize), null, new() { Browsable=false });
+		Rect_ExtractSprites		=Con.Bind(Title, "Window Position: Extract Sprites", Rect.zero, null, new() { Browsable=false });
 
 		//Fix problems with other plugins
 		Title="Fix other plugins";

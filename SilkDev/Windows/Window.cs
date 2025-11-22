@@ -135,6 +135,8 @@ public abstract class Window
 		_=Resizer?.SaveEntry=ConfigValue;
 		if((SavePosConfig=ConfigValue)?.Value!=null) {
 			WindowRect=ConfigValue!.Value;
+			if(WindowRect==Rect.zero)
+				WindowRect=new Vector2(DefaultWidth, DefaultHeight).CenterIn(Misc.ScreenSize);
 			Resizer?.CheckWindowRect(ref WindowRect);
 		}
 	}
