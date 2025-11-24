@@ -7,6 +7,7 @@
 
 Developer utility used to create accurate data files for mods like [url=https://www.nexusmods.com/hollowknightsilksong/mods/755]Pharloom Atlas[/url].
 Runs once (or on demand), writes a clean JSON to the plugin folder. Process can be paused and restarted without losing anything.
+You can find my latest copy of the processing, with synced changes from the last 3 months, [url=https://www.castledragmire.com/silksong/Pins.json]here[/url].
 
 [center][size=5]️[u]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚙️ [b]Installation[/b] ⚙️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[/u][/size][/center][list=1]
 [*]Install [url=https://www.nexusmods.com/hollowknightsilksong/mods/26]BepInEx[/url]

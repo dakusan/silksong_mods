@@ -195,7 +195,7 @@ public partial class SideBar
 		internal void ReleaseTextures()
 		{
 			LoadedImages.Values.ForEach(Tex =>
-				Misc.IFF(Tex!=FakeTex, () => Tex.NullSafe()?.TDestroy())
+				Misc.IFF(Tex!=FakeTex, () => Tex!.NullSafe?.TDestroy())
 			);
 			LoadedImages.Clear();
 		}

@@ -71,9 +71,12 @@ public static class Extensions
 
 	//Unity stuff
 	//If calling a unity-nulled UnityEngine.Object with a null conditional operator, it still throws a null exception. This fixes it.
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0029:Use coalesce expression", Justification="UnityEngine.Object.GetCachedPtr thing")]
-	public static T? NullSafe<T>(this T? UO) where T: UnityEngine.Object => UO==null ? null : UO;
+	extension<T>(T Source) where T: UnityEngine.Object
+	{
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0029:Use coalesce expression", Justification="UnityEngine.Object.GetCachedPtr thing")]
+		public T? NullSafe { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Source==null ? null : Source; }
+	}
+	extension(Screen) { public static Vector2 Size => new(Screen.width, Screen.height); }
 
 	//Turn a Task into a Coroutine IEnumerator
 	public static IEnumerator AsCoroutine(this Task Task, Misc.Ref<Exception?> Err)

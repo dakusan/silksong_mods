@@ -130,13 +130,13 @@ public abstract class Window
 	//Initialization
 	protected Window(string Title, ConfigEntry<Rect>? ConfigValue=null, int DefaultWidth=800, int DefaultHeight=400) : this(Title, -1)
 	{
-		WindowRect=new Vector2(DefaultWidth, DefaultHeight).CenterIn(Misc.ScreenSize); //Centers window if no config value given
+		WindowRect=new Vector2(DefaultWidth, DefaultHeight).CenterIn(Screen.Size); //Centers window if no config value given
 
 		_=Resizer?.SaveEntry=ConfigValue;
 		if((SavePosConfig=ConfigValue)?.Value!=null) {
 			WindowRect=ConfigValue!.Value;
 			if(WindowRect==Rect.zero)
-				WindowRect=new Vector2(DefaultWidth, DefaultHeight).CenterIn(Misc.ScreenSize);
+				WindowRect=new Vector2(DefaultWidth, DefaultHeight).CenterIn(Screen.Size);
 			Resizer?.CheckWindowRect(ref WindowRect);
 		}
 	}

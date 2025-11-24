@@ -78,7 +78,6 @@ public static class Misc
 		public T Value { get; set; } = Value;
 	}
 
-	public static Vector2 ScreenSize => new(Screen.width, Screen.height);
 	public const char NewLine='\n';
 	public const string Empty="";
 }

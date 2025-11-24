@@ -6,7 +6,7 @@ namespace PharloomAtlas;
 //The physical Unity GameObject map icons
 public class MapIcon
 {
-	public GameObject? IconGO => MyGO.NullSafe();
+	public GameObject? IconGO => MyGO!.NullSafe;
 	private readonly GameObject? MyGO;
 	public bool IsFound		{ get; private set; } = false;
 	public bool IsHovered	{ get; private set; } = false;

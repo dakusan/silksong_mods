@@ -60,7 +60,7 @@ internal class HornetIconAnimators
 		public abstract void Close();
 
 		protected GameObject? OSprite =>
-			field.NullSafe() ?? (field=MC.GameMap.transform.Find("Compass Icon").gameObject);
+			field!.NullSafe ?? (field=MC.GameMap.transform.Find("Compass Icon").gameObject);
 		protected DateTime StartAt=DateTime.Now;
 		protected float TimeSpan() => (DateTime.Now.Ticks-StartAt.Ticks)%10000000000L/10000000f;
 	}

@@ -121,7 +121,7 @@ public class PopupMessage
 		protected override void PreOnGUI(Event Ev) => Misc.IFF(
 			Ev.type==EventType.Layout,
 			() => WindowRect=new Rect(
-				(Misc.ScreenSize-WindowRect.size)/2,
+				(Screen.Size-WindowRect.size)/2,
 				(MinimizingPopup ?? Popups.Peek()).SizeAtPercent(1)
 			)
 		);

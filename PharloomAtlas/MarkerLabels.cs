@@ -140,7 +140,7 @@ public class MarkerLabels : Window
 	{
 		//If not within the screen bounds, nothing to do
 		Rect LabelBox=GetMarkerLabelRect(MP, LabelText);
-		if(!new Rect(Vector2.zero, Misc.ScreenSize).Overlaps(LabelBox)) {
+		if(!new Rect(Vector2.zero, Screen.Size).Overlaps(LabelBox)) {
 			if(IsSelected)
 				ClearFocus();
 			return;

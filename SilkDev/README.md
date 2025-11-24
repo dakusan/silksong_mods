@@ -199,8 +199,9 @@ See [root project README](../#contributing) for details
         * ⚙️ `IEnumerator<T>`.`AsEnumerable<T>()`: Make `IEnumerator` an `Enumerable`.
         * ⚙️ `TValue?` `Dictionary<TKey, TValue>`.`Get(TKey Key)`: Get key from a dictionary, returning null if not found. [Wraps `Dict.GetValueOrDefault`]
     * 🔌️ Unity stuff:
-        * ⚙️ `UnityObject<T>`.`NullSafe()`: Returns null if the object or unity object are null.
+        * ⚙️ `UnityObject<T>`.`NullSafe`: Returns null if the object or unity object are null.
             * 💡️ This allows null operator chaining with UnityObjects that may have been destroyed by Unity.
+        * ⚙️ `Vector2` `Screen.Size => new(Screen.width, Screen.height)`;
         * ⚙️ `Task`.`AsCoroutine(Misc.Ref<Exception?>)`: Turn a Task into a Coroutine IEnumerator
     * 📦️🔌️ Streams:
         * ⚙️ `Stream`.`ReadAllAndCloseS()`: Reads the entirety of a stream into a string.
@@ -233,7 +234,6 @@ See [root project README](../#contributing) for details
     * ⚙️ `UnityExplorer_Inspect`: Open Unity Explorer inspection on game object (if plugin is loaded)
     * ⚙️ `Ref<T>(T Value)`: Simple reference class
     * ⚙️ `IFF(bool Cond, Action CallOnTrue)`: If-statement used for bypassing curley-cue function blocks.
-    * ⚙️ `Vector2` `ScreenSize => new(Screen.width, Screen.height)`;
     * ⚙️ `const char NewLine='\n'`;
     * ⚙️ `const string Empty=""`;
 * 📦️ `Reflectors`

@@ -40,7 +40,7 @@ public class ProgressBarWithLogs() : Window(nameof(ProgressBarWithLogs), null, 1
 		(Visible, Priority, BarHeight, Resizer!.MinSize.x)=(true, 1000, DefaultBarHeight, 300);
 		RecalculateLineHeight();
 		WindowRect.height=DefaultBarHeight+HeightWithoutBar;
-		WindowRect=WindowRect.size.CenterIn(Misc.ScreenSize);
+		WindowRect=WindowRect.size.CenterIn(Screen.Size);
 		Resizer!.CheckWindowRect(ref WindowRect);
 	}
 

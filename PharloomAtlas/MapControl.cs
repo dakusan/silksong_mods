@@ -410,7 +410,7 @@ public class MapControl : SilkDev.Windows.Window
 
 		//Drag the window (only use MouseUp if dragging occurred)
 		bool HasMagnitude=(Drag.IsDragging && Drag.Delta.magnitude>2); //Allow up to 2 pixel moves
-		switch(Drag.UpdateState(new Rect(Vector2.zero, Misc.ScreenSize), false)) {
+		switch(Drag.UpdateState(new Rect(Vector2.zero, Screen.Size), false)) {
 			case Dragger.State.None:
 				break;
 			case Dragger.State.Start:
@@ -491,7 +491,7 @@ public class MapControl : SilkDev.Windows.Window
 	public void ExitMap(bool ExitMarkerMode, bool ExitMap, bool ExitOverviewMap)
 	{
 		if(ExitMarkerMode && MapState==MapStateEnum.Marker)
-			MMM.NullSafe()?.Close();
+			MMM.NullSafe?.Close();
 		if(ExitMap && MapState!=MapStateEnum.Closed && GameMap!=null)
 			QuickField<InventoryMapManager>("mapManager").ZoomOut();
 		if(ExitOverviewMap)
@@ -552,7 +552,7 @@ public class MapControl : SilkDev.Windows.Window
 	{
 		get => QuickField<bool>("displayingCompass");
 		set {
-			bool IsCompassEquipped=(GlobalSettings.Gameplay.CompassTool.NullSafe()?.IsEquipped ?? false);
+			bool IsCompassEquipped=(GlobalSettings.Gameplay.CompassTool.NullSafe?.IsEquipped ?? false);
 			bool NewVal=(value || IsCompassEquipped) && !GameMap.IsLostInAbyssPreMap();
 			QuickFieldT<bool>("displayingCompass").Set(NewVal);
 			QuickField<GameObject>("compassIcon").SetActive(NewVal);

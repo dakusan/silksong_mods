@@ -93,7 +93,7 @@ public abstract class SpriteObject(string Name, string ParentTree, GameObject GO
 public class SpriteObject_SpriteRenderer(string Name, string ParentTree, SpriteRenderer SR) : SpriteObject(Name, ParentTree, SR.gameObject)
 {
 	public SpriteRenderer SR			=  SR;
-	public override bool IsSafe			=> SR.NullSafe()?.sprite!=null;
+	public override bool IsSafe			=> SR.NullSafe?.sprite!=null;
 	public override Bounds Bounds		=> SR.bounds;
 	public override Texture2D Texture	=> SR.sprite.texture;
 	public override Rect TextureRect	=> SR.sprite.textureRect;
@@ -103,7 +103,7 @@ public class SpriteObject_SpriteRenderer(string Name, string ParentTree, SpriteR
 public class SpriteObject_tk2dBaseSprite(string Name, string ParentTree, tk2dBaseSprite TKS) : SpriteObject(Name, ParentTree, TKS.gameObject)
 {
 	public tk2dBaseSprite TKS			=  TKS;
-	public override bool IsSafe			=> TKS.NullSafe()?.CurrentSprite!=null && TKS.GetComponent<Renderer>()!=null && TKS.Collection!=null;
+	public override bool IsSafe			=> TKS.NullSafe?.CurrentSprite!=null && TKS.GetComponent<Renderer>()!=null && TKS.Collection!=null;
 	public override Bounds Bounds		=> TKS.GetComponent<Renderer>().bounds;
 	public override Texture2D Texture	=> (Texture2D)TKS.CurrentSprite.material.mainTexture;
 	public override Rect TextureRect	=> TextureRectFromUVs(TKS.CurrentSprite.uvs, Texture.Size());
@@ -114,7 +114,7 @@ public class SpriteObject_tk2dBaseSprite(string Name, string ParentTree, tk2dBas
 public class SpriteObject_MeshFilter(string Name, string ParentTree, MeshFilter MF) : SpriteObject(Name, ParentTree, MF.gameObject)
 {
 	public MeshFilter MF				=  MF;
-	public override bool IsSafe			=> MF.NullSafe()?.sharedMesh.NullSafe()!=null && MF.GetComponent<Renderer>()?.sharedMaterial!=null;
+	public override bool IsSafe			=> MF.NullSafe?.sharedMesh.NullSafe!=null && MF.GetComponent<Renderer>()?.sharedMaterial!=null;
 	public override Bounds Bounds		=> MF.sharedMesh.bounds;
 	public override Texture2D Texture	=> (Texture2D)MF.GetComponent<Renderer>().sharedMaterial.mainTexture;
 	public override Rect TextureRect	=> TextureRectFromUVs(MF.sharedMesh.uv, Texture.Size());
