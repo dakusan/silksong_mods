@@ -72,7 +72,7 @@ internal class ExtractAllTextures : ProgressBarWithLogs
 
 			PercentAmount=++Cur/(float)Total;
 			PercentText=$"{Cur}/{Total} [{PercentAmount*100:0}%]";
-			MessageText=$"Processing {CurTex?.name ?? "NULL TEXTURE"}";
+			MessageText=$"Processing {CurTex.NullSafe?.name ?? "NULL TEXTURE"}";
 			yield return ProcessTextureWrapper(CurTex!);
 		}
 
@@ -97,7 +97,7 @@ internal class ExtractAllTextures : ProgressBarWithLogs
 	private IEnumerator ProcessTextureWrapper(Texture2D CurTex)
 	{
 		yield return ProcessTexture(CurTex);
-		yield return new WaitForSeconds(0.01f); //Allow breathing
+		yield return new WaitForSecondsRealtime(0.01f); //Allow breathing
 		if(LastError==null)
 			yield break;
 		NumFailed++;
