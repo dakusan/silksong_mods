@@ -1,4 +1,5 @@
 using SilkDev;
+using SilkDev.DevInput;
 using SilkDev.DevInput.Mouse;
 using SilkDev.Textures;
 using System.Collections.Generic;
@@ -34,6 +35,10 @@ public class SearchWindow : SilkDev.Windows.Window
 	private string SearchText=Misc.Empty;
 	private bool HadOverflow=false;
 	private int ItemOverID=-1;
+	private bool SearchTextHasFocus { set => Misc.IFF(
+		field!=value,
+		() => BlockKeys.Check_Actions.Toggle(BlockActions, field=value)
+	); } = false;
 
 	//Initialization
 	internal static void Init() => _=new SearchWindow();
@@ -61,7 +66,9 @@ public class SearchWindow : SilkDev.Windows.Window
 		GUILayout.Label("This window only supports mouse (see config “Show mouse”) and keyboard. You can close me with escape.", MouseOnlyStyle);
 
 		//Search text
+		const string SearchFieldName="SearchWindowSearchField";
 		string OldSearchText=SearchText.Trim();
+		GUI.SetNextControlName(SearchFieldName);
 		SearchText=GUILayout.TextField(SearchText);
 		if(OldSearchText.Trim()!=SearchText.Trim())
 			RunSearch(SearchText.Trim());
@@ -73,6 +80,7 @@ public class SearchWindow : SilkDev.Windows.Window
 				: NumFoundItems+(HadOverflow ? "+" : Misc.Empty),
 			NoResults ? SearchHereStyle : NumResults
 		);
+		SearchTextHasFocus=GUI.GetNameOfFocusedControl()==SearchFieldName;
 
 		//Draw the found items
 		ScrollPosition=GUILayout.BeginScrollView(ScrollPosition, GUILayout.ExpandHeight(true));
@@ -171,5 +179,16 @@ public class SearchWindow : SilkDev.Windows.Window
 		);
 	}
 
+	//Setting as invisible
 	protected override void CloseButton() => Visible=false;
+	public override bool Visible {
+		get => base.Visible;
+		set => Misc.IFF(
+			!(base.Visible=value),
+			() => SearchTextHasFocus=false
+		);
+	}
+
+	//Allow only cancel action while search field is focused
+	private static BlockKeys.CAResults BlockActions(BlockKeys.CAParams P) => BlockKeys.AllowAction(P, "Cancel");
 }

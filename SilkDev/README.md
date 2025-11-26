@@ -108,7 +108,9 @@ See [root project README](../#contributing) for details
             * 💡️ Can save to a config variable when moving/resizing finishes.
         * 📦️ `Visibility`: Handle mouse cursor visibility.
             * 🗒️ Provides a delegate to force mouse visibility via functions subscriptions.
-    * 📦️ `BlockKeys`: Blocks the keyboard from getting to the game via a shortcut key.
+    * 📦️ `BlockKeys`: Blocks the keyboard and controller from getting to the game.
+        * 💡️ Can block all or specific `InControl` actions or joystick movements.
+        * 💡️ Can be set to fully block via shortcut key.
         * 💡️ Has an unobstructive translucent popup that shows when keys are blocked.
         * 💡️ Automatically initiated by the plugin.
     * 📦️ `Joystick`:

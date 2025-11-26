@@ -11,8 +11,11 @@ public class PrioritizedValues<TSelf, T>
 	where TSelf : PrioritizedValues<TSelf, T>
 	where T : class
 {
+	public bool AllowDuplicates=false;
+
 	protected readonly List<(int Priority, T Value)> Values=[];
 	public ReadOnlyCollection<(int Priority, T Value)> GetValues => new(Values);
+	public bool HasAny => Values.Count>0;
 
 	public static TSelf operator +(PrioritizedValues<TSelf, T> e, (T Val, int Pri) v) => e.Add(v.Val, v.Pri);
 	public static TSelf operator +(PrioritizedValues<TSelf, T> e, T Value			) => e.Add(Value, 0);
@@ -21,8 +24,14 @@ public class PrioritizedValues<TSelf, T>
 	public IEnumerable<T> SortedDescending()	 => Values.OrderByDescending(static v => v.Priority).Select(static v => v.Value);
 	protected virtual bool GetEquality(T a, T b) => a.Equals(b);
 
-	public TSelf Add(T Value, int Priority)
+	public TSelf Add(T Value, int Priority=0)
 	{
+		if(GetValueIndex(Value)!=-1) {
+			Log.Info($"Duplicate found and {(AllowDuplicates ? "Allowed" : "Denied")}: {Value}");
+			if(!AllowDuplicates)
+				return (TSelf)this;
+		}
+
 		Values.Add((Priority, Value));
 		return (TSelf)this;
 	}
@@ -30,13 +39,16 @@ public class PrioritizedValues<TSelf, T>
 	public TSelf Sub(T Value)
 	{
 		int FoundIndex;
-		if((FoundIndex=Values.FindLastIndex(V => GetEquality(V.Value, Value)))!=-1)
+		if((FoundIndex=GetValueIndex(Value))!=-1)
 			Values.RemoveAt(FoundIndex);
 		return (TSelf)this;
 	}
 
-	public TSelf Toggle(T Value, bool IsAdd, int Priority) =>
+	public TSelf Toggle(T Value, bool IsAdd, int Priority=0) =>
 		IsAdd ? Add(Value, Priority) : Sub(Value);
+
+	private int GetValueIndex(T Value) =>
+		Values.FindLastIndex(V => GetEquality(V.Value, Value));
 }
 
 //Prioritized event list (higher priority runs first)
@@ -44,10 +56,13 @@ public class PrioritizedEvents<A>(string Name) : PrioritizedValues<PrioritizedEv
 {
 	public void Run(					) => Catcher.RunList(Name, SortedDescending().Select(static D => D.Handler)				); //No parameters passed
 	public void Run(Action<A> RunEvents	) => Catcher.RunList(Name, SortedDescending().Select(static D => D.Handler), RunEvents	); //Parameters passed
+	public IEnumerable<SingleDelegate<A>> Handlers			=>	   SortedDescending();
+	public IEnumerable<SingleDelegate<A>> UnsortedHandlers	=>				   Values.Select(static V => V.Value  );
 
 	//Convenience overloads to accept raw A (wrap internally)
-	public PrioritizedEvents<A> Add(A handler, int priority=0	) => base.Add(new SingleDelegate<A>(handler), priority	);
-	public PrioritizedEvents<A> Sub(A handler					) => base.Sub(new SingleDelegate<A>(handler)			);
+	public PrioritizedEvents<A> Toggle	(A Handler, bool IsAdd, int Priority=0	) => base.Toggle(new SingleDelegate<A>(Handler), IsAdd, Priority);
+	public PrioritizedEvents<A> Add		(A Handler,				int Priority=0	) => base.Add	(new SingleDelegate<A>(Handler),		Priority);
+	public PrioritizedEvents<A> Sub		(A Handler								) => base.Sub	(new SingleDelegate<A>(Handler)					);
 
 	//Operator overloads for raw A
 	public static PrioritizedEvents<A> operator +(PrioritizedEvents<A> e, (A Val, int Pri) v) => e.Add(v.Val, v.Pri	);

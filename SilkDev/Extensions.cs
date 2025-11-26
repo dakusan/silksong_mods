@@ -33,7 +33,8 @@ public static class Extensions
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Add		(this Rect R1, Rect R2	) => new(R1.position+R2.position, R1.size+R2.size);
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Mul		(this Rect R1, float N	) => new(R1.position*N, R1.size*N);
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Mul		(this Rect R1, Vector2 V) => new(R1.position*V, R1.size*V);
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Grow		(this Rect R,fl X,fl Y	) => R.Add(new(-X, -Y, X*2, Y*2)); //Give negative numbers to shrink
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Grow		(this Rect R,  fl X,fl Y) => R.Add(new(-X, -Y, X*2, Y*2)); //Give negative numbers to shrink
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Grow		(this Rect R,  Vector2 V) => R.Grow(V.x, V.y);
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect Inverse	(this Rect R			) => new(1/R.x, 1/R.y, 1/R.width, 1/R.height);
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect CenterIn	(this Vector2 InnerSize, Vector2 OuterSize) => new((OuterSize-InnerSize)/2, InnerSize);
 

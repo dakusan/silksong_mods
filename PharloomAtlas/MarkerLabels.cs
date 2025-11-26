@@ -1,5 +1,6 @@
 using HarmonyLib;
 using SilkDev;
+using SilkDev.DevInput;
 using SilkDev.DevInput.Mouse;
 using SilkDev.Textures;
 using SilkDev.Windows;
@@ -7,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static SilkDev.DevInput.Joystick;
 
 namespace PharloomAtlas;
 
@@ -35,6 +35,8 @@ public class MarkerLabels : Window
 		set {
 			if(field==value)
 				return;
+			if((field is null)!=(value is null))
+				_=BlockKeys.Check_Actions.Toggle(BlockActions, value!=null);
 			if(field!=null) {
 				SaveConfig(true);
 				ClearFocus(true); //If this was called by ClearFocus, this will cause a double clear, but that’s ok
@@ -48,6 +50,10 @@ public class MarkerLabels : Window
 	public GUIStyle TextFieldStyle=new(GUI.skin.textField)
 		{ focused={textColor=Conf.Color_MarkerLabelText}, alignment=TextAnchor.MiddleLeft	};
 
+	//Only allow through cancel action when label field is focused
+	private BlockKeys.CAResults BlockActions(BlockKeys.CAParams P) => BlockKeys.AllowActions(P, "Cancel");
+
+	//Inititialize
 	public string DefaultLabel="New label";
 	internal MarkerLabels() : base("MarkerLabels", false, -250)
 	{
@@ -199,8 +205,8 @@ public class MarkerLabels : Window
 		}
 
 		//If the left stick is moved or clicked while in TextHasFocus mode then remove the focus
-		static bool LStickClick() => ActiveDevice.LeftStickButton.WasPressed;
-		if(TextHasFocus && (LStickClick() || ((Vector2)ActiveDevice.LeftStick).magnitude>.001f)) {
+		static bool LStickClick() => Joystick.ActiveDevice.LeftStickButton.WasPressed;
+		if(TextHasFocus && (LStickClick() || ((Vector2)Joystick.ActiveDevice.LeftStick).magnitude>.001f)) {
 			ClearFocus();
 			return;
 		}
