@@ -1,13 +1,14 @@
 using HarmonyLib;
 using SilkDev;
 using SilkDev.DevInput;
-using SilkDev.DevInput.Mouse;
 using SilkDev.Textures;
 using SilkDev.Windows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using MButton=SilkDev.DevInput.Mouse.Button;
+
 
 namespace PharloomAtlas;
 
@@ -36,7 +37,7 @@ public class MarkerLabels : Window
 			if(field==value)
 				return;
 			if((field is null)!=(value is null))
-				_=BlockKeys.Check_Actions.Toggle(BlockActions, value!=null);
+				_=BlockInput.Check_Actions.Toggle(BlockActions, value!=null);
 			if(field!=null) {
 				SaveConfig(true);
 				ClearFocus(true); //If this was called by ClearFocus, this will cause a double clear, but that’s ok
@@ -51,7 +52,7 @@ public class MarkerLabels : Window
 		{ focused={textColor=Conf.Color_MarkerLabelText}, alignment=TextAnchor.MiddleLeft	};
 
 	//Only allow through cancel action when label field is focused
-	private BlockKeys.CAResults BlockActions(BlockKeys.CAParams P) => BlockKeys.AllowActions(P, "Cancel");
+	private BlockInput.CAResults BlockActions(BlockInput.CAParams P) => BlockInput.AllowActions(P, "Cancel");
 
 	//Inititialize
 	public string DefaultLabel="New label";
@@ -254,7 +255,7 @@ public class MarkerLabels : Window
 			LastMarkerOver=Closest;
 
 		//Only left click supported for label selecting
-		if(Ev.type!=EventType.MouseUp || Button.CurrentButton!=Button.Enum.Left)
+		if(Ev.type!=EventType.MouseUp || MButton.CurrentButton!=MButton.Enum.Left)
 			return;
 
 		//If there is already a marker that is selected and we clicked on its label then keep it selected

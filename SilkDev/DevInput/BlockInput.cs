@@ -5,8 +5,9 @@ using UnityEngine;
 
 namespace SilkDev.DevInput;
 
-//Blocks the keyboard from getting to the game
-public class BlockKeys : Windows.Window
+//Blocks keyboard and controllers from getting to the game
+//Can block all or specific InControl actions or joystick movements
+public class BlockInput : Windows.Window
 {
 	private static Internal.Config Conf => Internal.Config.C;
 	private const int HeightOffset=40;
@@ -41,7 +42,7 @@ public class BlockKeys : Windows.Window
 	public static CheckActions Check_RStickMove	=new(nameof(Check_RStickMove));
 
 	//Handle block game input config option
-	static BlockKeys()
+	static BlockInput()
 	{
 		_=Check_All.Toggle(BlockAllConfig, Conf.BlockGameInput);
 		Conf.BlockGameInput.SettingChanged += static (_, _) =>
@@ -50,7 +51,7 @@ public class BlockKeys : Windows.Window
 	private static CAResults BlockAllConfig(CAParams _) => CAResults.Block;
 
 	//Init
-	internal BlockKeys() : base(nameof(BlockKeys), false, 2000, true) { }
+	internal BlockInput() : base(nameof(BlockInput), false, 2000, true) { }
 	protected override void OnInit() =>
 		(BGTex, UnboundDraw)=(new Color(0, 0, 0, .5f).MakeTexture(), true);
 
@@ -103,18 +104,18 @@ public class BlockKeys : Windows.Window
 [HarmonyLib.HarmonyPatch(typeof(OneAxisInputControl), nameof(OneAxisInputControl.UpdateWithValue))]
 internal static class Patch_OneAxisInputControl_UpdateWithValue {
 	private static bool Prefix(OneAxisInputControl __instance, float value) =>
-		value==0 || __instance is not PlayerAction PA || BlockKeys.Check_Actions.AllowResult(ActionName:PA.Name, Value:value);
+		value==0 || __instance is not PlayerAction PA || BlockInput.Check_Actions.AllowResult(ActionName:PA.Name, Value:value);
 }
 
 [HarmonyLib.HarmonyPatch(typeof(InputDevice))]
 internal static class Patch_InputDevice_Blockers
 {
 	[HarmonyLib.HarmonyPrefix][HarmonyLib.HarmonyPatch(nameof(InputDevice.UpdateLeftStickWithValue))]
-	private static bool UpdateLeftStickWithValue_Prefix	(Vector2 value) => BlockKeys.Check_LStickMove.AllowResult(StickValue:value);
+	private static bool UpdateLeftStickWithValue_Prefix	(Vector2 value) => BlockInput.Check_LStickMove.AllowResult(StickValue:value);
 	[HarmonyLib.HarmonyPrefix][HarmonyLib.HarmonyPatch(nameof(InputDevice.UpdateRightStickWithValue))]
-	private static bool UpdateRightStickWithValue_Prefix(Vector2 value) => BlockKeys.Check_RStickMove.AllowResult(StickValue:value);
+	private static bool UpdateRightStickWithValue_Prefix(Vector2 value) => BlockInput.Check_RStickMove.AllowResult(StickValue:value);
 }
 [HarmonyLib.HarmonyPatch(typeof(InputControlState), nameof(InputControlState.Set), [typeof(float), typeof(float)])]
 internal static class Patch_InputControlState_Set {
-	private static bool Prefix() => BlockKeys.Check_All.AllowResult();
+	private static bool Prefix() => BlockInput.Check_All.AllowResult();
 }

@@ -85,7 +85,7 @@ public class InputRepeatDelay<EmbeddedType>(float RepeatDelay=0.5f)
 	}
 
 	//Return the inputs that succeeded. Does not check the repeat delay.
-	public IEnumerable<InputType> GetAllPressedInputs => Inputs.Where(Input => Input.IsPressed);
+	public IEnumerable<InputType> GetAllPressedInputs => Inputs.Where(static Input => Input.IsPressed);
 
 	//Add and remove from the input list
 	public InputRepeatDelay(float RepeatDelay=0.5f, params InputType[] Inputs) : this(RepeatDelay) =>

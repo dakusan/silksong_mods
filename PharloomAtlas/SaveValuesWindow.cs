@@ -162,10 +162,10 @@ public class SaveValuesWindow : SilkDev.Windows.Window
 
 	//Watch for key presses
 	private readonly SilkDev.DevInput.InputRepeatDelay<int> WinScrollCheck=new(.05f,
-		(AD => AD	.LeftTrigger,			-1),
-		(AD => AD	.RightTrigger,			 1),
-		(Config.C	.Shortcut_Val_ScrollUp, -1),
-		(Config.C	.Shortcut_Val_ScrollDown,1)
+		(static AD => AD.LeftTrigger,			-1),
+		(static AD => AD.RightTrigger,			 1),
+		(Config.C		.Shortcut_Val_ScrollUp, -1),
+		(Config.C		.Shortcut_Val_ScrollDown,1)
 	);
 	protected override void OnUpdate()
 	{

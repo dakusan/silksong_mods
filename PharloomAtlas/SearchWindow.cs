@@ -1,11 +1,11 @@
 using SilkDev;
-using SilkDev.DevInput;
-using SilkDev.DevInput.Mouse;
 using SilkDev.Textures;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using static SilkDev.DevInput.BlockInput;
+using MButton=SilkDev.DevInput.Mouse.Button;
 
 namespace PharloomAtlas;
 
@@ -37,7 +37,7 @@ public class SearchWindow : SilkDev.Windows.Window
 	private int ItemOverID=-1;
 	private bool SearchTextHasFocus { set => Misc.IFF(
 		field!=value,
-		() => BlockKeys.Check_Actions.Toggle(BlockActions, field=value)
+		() => Check_Actions.Toggle(BlockActions, field=value)
 	); } = false;
 
 	//Initialization
@@ -63,7 +63,7 @@ public class SearchWindow : SilkDev.Windows.Window
 		GUILayout.BeginVertical();
 
 		//Draw a small label about the window
-		GUILayout.Label("This window only supports mouse (see config “Show mouse”) and keyboard. You can close me with escape.", MouseOnlyStyle);
+		GUILayout.Label("This window only supports mouse (see config “Show mouse”) and keyboard. You can close me with escape or cancel.", MouseOnlyStyle);
 
 		//Search text
 		const string SearchFieldName="SearchWindowSearchField";
@@ -168,7 +168,7 @@ public class SearchWindow : SilkDev.Windows.Window
 		//Highlight the label if hovered and check for click
 		if(MouseOver) {
 			GUI.DrawTexture(LabelRect, SelectTex);
-			if(Event.current.type==EventType.MouseUp && Button.CurrentButton==Button.Enum.Left)
+			if(Event.current.type==EventType.MouseUp && MButton.CurrentButton==MButton.Enum.Left)
 				MapControl.Self.SelectAndCenterItemI(SI.ID);
 		}
 
@@ -190,5 +190,5 @@ public class SearchWindow : SilkDev.Windows.Window
 	}
 
 	//Allow only cancel action while search field is focused
-	private static BlockKeys.CAResults BlockActions(BlockKeys.CAParams P) => BlockKeys.AllowAction(P, "Cancel");
+	private static CAResults BlockActions(CAParams P) => AllowAction(P, "Cancel");
 }

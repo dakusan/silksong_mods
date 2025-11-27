@@ -22,8 +22,8 @@ public class Config
 
 		//Block keyboard input
 		string Title="Block Game Input";
-		BlockGameInput			=Con.Bind(Title, "Block game Input", false, "Block keyboard from affecting the game. Useful when typing in Unity Explorer");
-		Key_BlockInput			=Con.Bind(Title, "Block game input shortcut key", new KeyboardShortcut(KeyCode.None));
+		BlockGameInput			=Con.Bind(Title, "Block all game input", false, "Block keyboard and controllers from affecting the game. Useful when typing in Unity Explorer");
+		Key_BlockInput			=Con.Bind(Title, "Block all game input shortcut key", new KeyboardShortcut(KeyCode.None));
 		MessageOnInputBlocked	=Con.Bind(Title, "Show message when input blocked", true);
 
 		//Show the mouse

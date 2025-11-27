@@ -35,7 +35,7 @@ internal class Plugin : BaseUnityPlugin
 		Catcher.Run("Dev Init", static () => {
 			DevInput.Mouse.Visibility.Init();
 			new HarmonyLib.Harmony(PluginInfo.PLUGIN_GUID).PatchAll();
-			Window.OnNextFrame(static () => new DevInput.BlockKeys());
+			Window.OnNextFrame(static () => new DevInput.BlockInput());
 			ExtractAllTextures.Init(Internal.Config.C.RunExtractAllTextures);
 			ExtractSpritesWindow.Init();
 			Log.Info($"Plugin {PluginInfo.PLUGIN_GUID} is loaded");
