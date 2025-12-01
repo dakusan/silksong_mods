@@ -1,12 +1,14 @@
 using SilkDev;
 using SilkDev.Textures;
+using SilkDev.Windows;
 using System;
+using System.Linq;
 using UnityEngine;
 using static SilkDev.DevInput.Joystick;
 
 namespace PharloomAtlas;
 
-public partial class SideBar : SilkDev.Windows.Window
+public partial class SideBar : Window
 {
 	private static bool HasInitialized=false;
 	private static Config Conf => Config.C;
@@ -64,8 +66,8 @@ public partial class SideBar : SilkDev.Windows.Window
 			new ButtonsRowSection.CreateButton("Goto Top",				  SaveValuesWindow.Self.MoveToTopItem),
 			new ButtonsRowSection.CreateButton("Save",		static	() => MonitorSaveValues.Self.SaveIconValue(false)),
 			new ButtonsRowSection.CreateButton("Save+Send",	static	() => MonitorSaveValues.Self.SaveIconValue(true)),
-			new ButtonsRowSection.CreateButton("Copy",		static	() => Misc.SaveToClipboard(SaveValuesWindow.Self.SelectedItem?.ToString() ?? "Nothing Selected")),
-			new ButtonsRowSection.CreateButton("Copy All",	static	() => Misc.SaveToClipboard(SaveValuesWindow.Self.AllAsString))
+			new ButtonsRowSection.CreateButton("Copy",		static	() => Copy(SaveValuesWindow.Self.SelectedItem?.ToString() ?? Misc.Empty)),
+			new ButtonsRowSection.CreateButton("Copy All",	static	() => Copy(SaveValuesWindow.Self.AllAsString))
 		]);
 		_=new ButtonsRowSection("Other", "Other", this, []);
 		FixUnlockedButtons();
@@ -91,7 +93,7 @@ public partial class SideBar : SilkDev.Windows.Window
 	{
 		ButtonsRowSection Sec=(ButtonsRowSection)Sections["Other"];
 		Sec.Buttons.Clear();
-		_=new ButtonsRowSection.Button("Help", static () => new HelpWindow(), Sec);
+		_=new ButtonsRowSection.Button("Help", static () => OnNextFrame(static () => new HelpWindow()), Sec);
 		_=new ButtonsRowSection.Button("Search", static () => SearchWindow.Self.Visible=!SearchWindow.Self.Visible, Sec);
 		if(!MapControl.Self.AreAllMapsUnlocked())
 			_=new ButtonsRowSection.Button("Unlock all maps", MapControl.Self.UnlockAllMaps, Sec);
@@ -277,4 +279,17 @@ public partial class SideBar : SilkDev.Windows.Window
 		LastMouseFocusCheckFrame=Time.frameCount;
 		return RemHasMouseFocus=HasMouseFocus;
 	} }
+
+	//Copy contents to the clipboard and let the user know how many lines were copied
+	private static void Copy(string Contents)
+	{
+		if(Contents==Misc.Empty) {
+			_=new PopupMessage($"No values exist to copy");
+			return;
+		}
+
+		Misc.SaveToClipboard(Contents);
+		int NumLines=Contents.Count(c => c==Misc.NewLine)+1;
+		_=new PopupMessage($"Copied {NumLines} line{(NumLines==1 ? "" : "s")}");
+	}
 }

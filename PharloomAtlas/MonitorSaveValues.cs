@@ -245,28 +245,50 @@ public class MonitorSaveValues
 		Task.Run(() => SaveIconValueThread(IsSendingToo));
 
 	//Thread for processing new saved value
+	private class SaveValuePopup() : PopupMessage("Initializing")
+	{
+		public bool IsProcessing=true;
+		protected override string PressAnyKeyString => IsProcessing ? "<color=red><size=20>Waiting for process to finish</size></color>" : base.PressAnyKeyString;
+		protected override bool BlockClose => IsProcessing;
+		public string PopupMessage
+		{
+			get; set => Message=(field=value)+(SendingToServer ? "\n<color=red>Sending to server now</color>" : Misc.Empty);
+		} = Misc.Empty;
+		public bool SendingToServer {
+			get; set { field=value; PopupMessage+=""; }
+		} = false;
+	}
 	private async Task SaveIconValueThread(bool IsSendingToo)
 	{
 		//Process the new value and get the log and popup window messages and update JSON file
-		string LogMessage, PopupMessage;
+		SaveValuePopup SVP=new();
+		string LogMessage;
+		bool NoValue=false;
 		try {
-			PopupMessage=LogMessage=SaveIconValueReal();
+			SVP.PopupMessage=LogMessage=SaveIconValueReal();
 			try {
 				FileOps.WriteFile(JsonFilename, FileOps.SerializeToJSONSorted(IF));
 			} catch {
-				PopupMessage+="\n\n<color=red>Could not save to JSON file!</color>";
+				SVP.PopupMessage+="\n\n<color=red>Could not save to JSON file!</color>";
 				LogMessage+="\nCould not save to JSON file!";
 			}
 		} catch(MSException e) {
-			PopupMessage=LogMessage=e.Message;
+			SVP.PopupMessage=LogMessage=e.Message;
+			NoValue=true;
+			if(IsSendingToo)
+				SVP.PopupMessage+="\n<color=red>Send to server canceled</color>";
 		} catch(Exception e) {
-			PopupMessage=LogMessage="An unknown error occurred: "+Misc.SanitizeRichString(e.Message);
+			SVP.PopupMessage=LogMessage="An unknown error occurred: "+Misc.SanitizeRichString(e.Message);
 		}
 
 		//Send web request
-		(string AddMessage, string AddPopupMessage)=await SendWebRequestAndFormatReturns(IsSendingToo);
-		LogMessage+=AddMessage;
-		PopupMessage+=AddPopupMessage;
+		if(!NoValue) {
+			SVP.SendingToServer=true;
+			(string AddMessage, string AddPopupMessage)=await SendWebRequestAndFormatReturns(IsSendingToo);
+			SVP.SendingToServer=false;
+			LogMessage+=AddMessage;
+			SVP.PopupMessage+=AddPopupMessage;
+		}
 
 		//Write message to the log
 		try {
@@ -277,11 +299,9 @@ public class MonitorSaveValues
 				Regex.Replace(LogMessage.Replace("\n\n", "\n"), @"</?(size|color|b)\b.*?>", Misc.Empty) //Remove double newlines and richText tags
 			);
 		} catch(Exception e) {
-			PopupMessage+=$"\n\n<color=red><size=15>Could not write to log file.</color>: {e.Message}</size>";
+			SVP.PopupMessage+=$"\n\n<color=red><size=15>Could not write to log file.</color>: {e.Message}</size>";
 		}
-
-		//Open the popup
-		_=new PopupMessage(PopupMessage);
+		SVP.IsProcessing=false;
 	}
 
 	//Update live states from new selected icon value and return result messages for logs/user message
@@ -341,12 +361,12 @@ public class MonitorSaveValues
 
 		//Send the web request and format returns
 		string WebSubmit;
-		if(!IsSendingToo)
-			return (Misc.Empty, "\n<color=green><size=15>Please consider contributing by sending your data</size></color>");
-		else if("SUCCESS"==(WebSubmit=await SendWebRequestReal($"{WebAddress}?{UrlQuery()}")))
-			return (Misc.Empty, "\n<color=green><size=15>Thank you for your submission!</size></color>");
-		else
-			return ($"{Misc.NewLine}Web submission failed: {WebSubmit}", $"{Misc.NewLine}<color=red>Web submission failed: <b>{Misc.SanitizeRichString(WebSubmit)}</b></color>");
+		return
+			!IsSendingToo
+				? (Misc.Empty, "\n<color=green><size=15>Please consider contributing by sending your data</size></color>")
+			: "SUCCESS"==(WebSubmit=await SendWebRequestReal($"{WebAddress}?{UrlQuery()}"))
+				? (Misc.Empty, "\n<color=green><size=15>Thank you for your submission!</size></color>")
+				: ($"{Misc.NewLine}Web submission failed: {WebSubmit}", $"{Misc.NewLine}<color=red>Web submission failed: <b>{Misc.SanitizeRichString(WebSubmit)}</b></color>");
 	}
 
 	//Send the web request
