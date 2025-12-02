@@ -49,12 +49,14 @@ public class SaveValuesWindow : SilkDev.Windows.Window
 	//Initialization
 	private static SaveValuesWindow _Self=null!; public static SaveValuesWindow Self => _Self; //Singleton
 	internal static void Init() => _=new SaveValuesWindow();
-	private SaveValuesWindow() : base("Saved values", Config.C.Rect_SaveValuesWindow)
+	private SaveValuesWindow() : base("Saved values", Config.C.Rect_SaveValuesWindow, 0, 0)
 	{
 		Misc.InitSingleton(this, ref _Self);
 		(LineHeight, AlwaysCallUpdate)=(TextStyle.lineHeight, true);
 		MonitorSaveValues.Self.OnValueChanged += AddItem;
 		TextStyle.normal.background=BGTex=new Color(0, 0, 0, .75f).MakeTexture();
+		if(WindowRect.width==0)
+			WindowRect=new Rect(Screen.width-491-45, 42, 491, 179);
 	}
 
 	//Add an item to the contents

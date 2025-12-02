@@ -135,7 +135,10 @@ public abstract class Window
 		_=Resizer?.SaveEntry=ConfigValue;
 		if((SavePosConfig=ConfigValue)?.Value!=null) {
 			WindowRect=ConfigValue!.Value;
-			if(WindowRect==Rect.zero)
+			if(
+				WindowRect==Rect.zero //When rect is zero, that means it has not been set yet, so for default, center on the screen using the given default width/height
+				&& DefaultWidth!=0 && DefaultHeight!=0 //If default width or height is 0, that signifies that the derived window wishes to set their own default dimensions. Width and height will stay at 0 for the derived window to check.
+			)
 				WindowRect=new Vector2(DefaultWidth, DefaultHeight).CenterIn(Screen.Size);
 			Resizer?.CheckWindowRect(ref WindowRect);
 		}

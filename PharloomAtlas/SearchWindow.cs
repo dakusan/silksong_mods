@@ -42,11 +42,13 @@ public class SearchWindow : SilkDev.Windows.Window
 
 	//Initialization
 	internal static void Init() => _=new SearchWindow();
-	private SearchWindow() : base("Search icons", Config.C.Rect_SearchWindow)
+	private SearchWindow() : base("Search icons", Config.C.Rect_SearchWindow, 0, 0)
 	{
 		Misc.InitSingleton(this, ref _Self);
 		TextStyle.normal.background=BGTex;
 		NumResults.padding.right+=8;
+		if(WindowRect.width==0)
+			WindowRect=new Rect(Screen.width-800-45, 42+179+10, 800, 600); //Set just below the default for SaveValuesWindow and aligned on the right side
 	}
 
 	//Watch for escape key

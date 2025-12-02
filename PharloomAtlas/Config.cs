@@ -95,8 +95,8 @@ public class Config
 		Title="Internal";
 		QueryTime_PersistentObj	=Con.Bind(Title, "Persistent Object Query Time",			.25f, AVR(.1f, 5f, "How often in seconds to query persistent data value changes (separate thread). There are never more than ~50 objects per scene (more usually like 10), and current value queries are usually really simple, so this doesn’t take a lot of processing. Honestly, these could probably run every frame just fine."));
 		QueryTime_PlayerData	=Con.Bind(Title, "Player Data Query Time",					1.0f, AVR(.1f, 5f, "How often in seconds to query player data value changes (separate thread). There are over 1200 reflection lookups for this so query time is less often. Honestly, these could probably run every frame just fine."));
-		Rect_SaveValuesWindow	=Con.Bind(Title, "Window Position: Save Values",			new Rect(Screen.width-491-45, 42, 491, 179), null, NonBrowsable);
-		Rect_SearchWindow		=Con.Bind(Title, "Window Position: Search",					new Rect(Screen.width-800-45, 42+179+10, 800, 600), null, NonBrowsable);
+		Rect_SaveValuesWindow	=Con.Bind(Title, "Window Position: Save Values",			Rect.zero, null, NonBrowsable);
+		Rect_SearchWindow		=Con.Bind(Title, "Window Position: Search",					Rect.zero, null, NonBrowsable);
 		CategoryToggleStates	=Con.Bind(Title, "Category States",							Misc.Empty, "DO NOT EDIT THIS. List of categories and their toggle states.", NonBrowsable);
 		MarkerLabels			=Con.Bind(Title, "Marker Labels",							"{}", "DO NOT EDIT THIS. List of marker labels", NonBrowsable);
 
@@ -118,7 +118,7 @@ public class Config
 		PSC=new PerSaveConfig(PConfig, Misc.GetPluginPath) {
 			NumBackupsToKeep=2,
 			ConfigChangedOnLoad=ConfigEntry => {
-					 if(ConfigEntry==CategoryToggleStates	)   MapControl.Self?.DS.LoadCategoryToggleStates(true);
+				 	 if(ConfigEntry==CategoryToggleStates	)   MapControl.Self?.DS.LoadCategoryToggleStates(true);
 				else if(ConfigEntry==Rect_SaveValuesWindow	) _=SaveValuesWindow.Self?.WindowRect=Rect_SaveValuesWindow;
 				else if(ConfigEntry==Rect_SearchWindow		) _=SearchWindow.Self?.WindowRect=Rect_SearchWindow;
 			}
