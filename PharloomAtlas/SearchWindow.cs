@@ -47,6 +47,7 @@ public class SearchWindow : SilkDev.Windows.Window
 		Misc.InitSingleton(this, ref _Self);
 		TextStyle.normal.background=BGTex;
 		NumResults.padding.right+=8;
+		MessageOverrides[BlockActions]="Only cancel allowed";
 		if(WindowRect.width==0)
 			WindowRect=new Rect(Screen.width-800-45, 42+179+10, 800, 600); //Set just below the default for SaveValuesWindow and aligned on the right side
 	}

@@ -9,7 +9,6 @@ using System.Linq;
 using UnityEngine;
 using MButton=SilkDev.DevInput.Mouse.Button;
 
-
 namespace PharloomAtlas;
 
 public class MarkerLabels : Window
@@ -52,7 +51,7 @@ public class MarkerLabels : Window
 		{ focused={textColor=Conf.Color_MarkerLabelText}, alignment=TextAnchor.MiddleLeft	};
 
 	//Only allow through cancel action when label field is focused
-	private BlockInput.CAResults BlockActions(BlockInput.CAParams P) => BlockInput.AllowActions(P, "Cancel");
+	private BlockInput.CAResults BlockActions(BlockInput.CAParams P) => BlockInput.AllowAction(P, "Cancel");
 
 	//Inititialize
 	public string DefaultLabel="New label";
@@ -66,6 +65,7 @@ public class MarkerLabels : Window
 			OnNextFrame(() => BGTex.ReColor(Conf.Color_MarkerLabelBG));
 		Conf.Color_MarkerLabelText.SettingChanged	+= (_, _) =>
 			LabelStyle.normal.textColor=TextFieldStyle.focused.textColor=Conf.Color_MarkerLabelText;
+		BlockInput.MessageOverrides[BlockActions]="Only cancel allowed";
 	}
 
 	//Remove focus when window is hidden

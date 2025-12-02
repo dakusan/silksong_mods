@@ -1,7 +1,9 @@
 using InControl;
 using SilkDev.Textures;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using CheckActionsEvent=System.Func<SilkDev.DevInput.BlockInput.CAParams, SilkDev.DevInput.BlockInput.CAResults>;
 
 namespace SilkDev.DevInput;
 
@@ -14,6 +16,9 @@ public class BlockInput : Windows.Window
 
 	private readonly GUIStyle TextStyle=new(GUI.skin.label) { fontSize=40, wordWrap=false, alignment=TextAnchor.MiddleCenter, normal={ textColor=Color.red } };
 
+	//Overrides messages for handlers. See CheckActions.GetMessages()
+	public static Dictionary<CheckActionsEvent, string> MessageOverrides=[];
+
 	//Check callers for action to take
 	public readonly struct CAParams(string ActionName=default!, float Value=default, Vector2 StickValue=default)
 	{
@@ -22,7 +27,7 @@ public class BlockInput : Windows.Window
 		public readonly Vector2	StickValue	=StickValue	; //Only set in Check_LStickMove, Check_RStickMove
 	}
 	public enum CAResults { Ignore, Allow, Block }
-	public class CheckActions(string Name) : Events.PrioritizedEvents<System.Func<CAParams, CAResults>>(Name)
+	public class CheckActions(string Name, string DefaultMessage) : Events.PrioritizedEvents<CheckActionsEvent>(Name)
 	{
 		public bool AllowResult(string ActionName=default!, float Value=default, Vector2 StickValue=default)
 		{
@@ -35,11 +40,35 @@ public class BlockInput : Windows.Window
 				}
 			return true;
 		}
+
+		//Determine the message to show the user.
+		//If no handler functions, return empty array.
+		//Each event that has a message in MessageOverrides will be added to the return array.
+		//If no matches are found in MessageOverrides then the DefaultMessage will be returned.
+		public string DefaultMessage=DefaultMessage;
+		public string[] GetMessages()
+		{
+			//If there are no functions, then no message
+			if(!HasAny)
+				return [];
+
+			//Look for message for any of the current handlers
+			List<string> CurrentMessages=[];
+			foreach(var H in Handlers)
+				if(MessageOverrides.TryGetValue(H, out string Message))
+					CurrentMessages.Add(Message);
+
+			//If no messages were found then output the default message
+			if(!CurrentMessages.Any())
+				CurrentMessages.Add(DefaultMessage);
+
+			return [.. CurrentMessages];
+		}
 	}
-	public static CheckActions Check_All		=new(nameof(Check_All		));
-	public static CheckActions Check_Actions	=new(nameof(Check_Actions	));
-	public static CheckActions Check_LStickMove	=new(nameof(Check_LStickMove));
-	public static CheckActions Check_RStickMove	=new(nameof(Check_RStickMove));
+	public static CheckActions Check_All		=new(nameof(Check_All		), "All"			);
+	public static CheckActions Check_Actions	=new(nameof(Check_Actions	), "Some actions"	);
+	public static CheckActions Check_LStickMove	=new(nameof(Check_LStickMove), "LStick Move"	);
+	public static CheckActions Check_RStickMove	=new(nameof(Check_RStickMove), "RStick Move"	);
 
 	//Handle block game input config option
 	static BlockInput()
@@ -75,14 +104,12 @@ public class BlockInput : Windows.Window
 	protected override void DoLayout(int ID, Event Ev)
 	{
 		//Create the message
-		GUIContent Message=new("Game action blocks: "+(
-			  Check_All.HasAny ? "All"
-			: string.Join(", ", [.. new string?[] {
-				Check_Actions	.HasAny ? "Some actions": null,
-				Check_LStickMove.HasAny ? "LStick Move"	: null,
-				Check_RStickMove.HasAny ? "RStick Move"	: null,
-			}.Where(static Str => Str!=null)])
-		));
+		GUIContent Message=new("Game action blocks: "+string.Join(", ", [
+			.. Check_All		.GetMessages(),
+			.. Check_Actions	.GetMessages(),
+			.. Check_LStickMove	.GetMessages(),
+			.. Check_RStickMove	.GetMessages(),
+		]));
 
 		//Draw the message
 		Vector2 StrSize=TextStyle.CalcSize(Message)+new Vector2(1, 1), GrowSize=new(10, 3);
@@ -106,7 +133,6 @@ internal static class Patch_OneAxisInputControl_UpdateWithValue {
 	private static bool Prefix(OneAxisInputControl __instance, float value) =>
 		value==0 || __instance is not PlayerAction PA || BlockInput.Check_Actions.AllowResult(ActionName:PA.Name, Value:value);
 }
-
 [HarmonyLib.HarmonyPatch(typeof(InputDevice))]
 internal static class Patch_InputDevice_Blockers
 {
