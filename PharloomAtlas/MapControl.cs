@@ -192,6 +192,10 @@ public class MapControl : SilkDev.Windows.Window
 		Visibility.ForceEvent -= ForceCursor_Check; //Turn off forced mouse for the sidebar
 		SetHoverItem(null); //Remove hover item status
 		HornetIconAnimators.Close();
+
+		//Fix the marker menu seeming to like to stay open sometimes
+		if(MMM.NullSafe?.placementCursor.NullSafe?.activeSelf ?? false)
+			MMM.NullSafe?.Close();
 	}
 
 	//When exiting marker mode
