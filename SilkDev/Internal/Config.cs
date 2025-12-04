@@ -10,7 +10,7 @@ public class Config
 	private static Config _C=null!; public static Config C => _C; //Singleton
 
 	public readonly ConfigEntryT<bool> BlockGameInput, ForceShowMouse, MessageOnInputBlocked, SkipIntro, ForceStackTrace, BlockMouse_UnityExplorer, BlockMouse_BepInExConfig, RunExtractAllTextures, ESWindow_ShowMouseOver;
-	public readonly ConfigEntryT<KeyboardShortcut> Key_BlockInput, Key_ToggleMouse, Key_ExtractSprites;
+	public readonly ConfigEntryTKeyboardShortcut Key_BlockInput, Key_ToggleMouse, Key_ExtractSprites;
 	public readonly ConfigEntryT<Log.DebugLogLevelEnum> DebugLogLevel;
 	public readonly ConfigEntryT<AutoLoadSaveSlotNumber> AutoLoadSaveSlot;
 	public readonly ConfigEntryT<Rect> Rect_ExtractSprites;

@@ -8,7 +8,7 @@ public class Config
 {
 	private static Config _C=null!; public static Config C => _C; //Singleton
 	public readonly ConfigEntryT<bool> ToggleNoClip;
-	public readonly ConfigEntryT<KeyboardShortcut> Key_ToggleNoClip;
+	public readonly ConfigEntryTKeyboardShortcut Key_ToggleNoClip;
 	public readonly ConfigEntryT<float> NoClipScale;
 
 	internal Config(ConfigFile ConfigFile)

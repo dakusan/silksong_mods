@@ -93,6 +93,8 @@ See [root project README](../#contributing) for details
 > These classes are designed to be useful across any Unity project. I plan to move them into a universal Unity plugin/mod in the near future.
 * 📂️ `Configs`:
     * 📦️ `ConfigEntryT`: A ConfigEntry wrapper class that allows getting/setting the value without using `.Value`.
+        * 📦️ Derived type `ConfigEntryTKeyboardShortcut : ConfigEntryT<KeyboardShortcut>` adds overrides for `KeyboardShortcut`’s `IsDown()`, `IsUp()`, and `IsPressed()`.
+            * 🗒️ When `IgnoreExtraKeysOnShortcut` is `false`, behaves normally. When `true` (settable default), ignores extra non-shortcut keys (no failure on detection).
     * 📦️ `DynamicEnumConfig`: Creates a ConfigEntry<Enum> with dynamic values.
         * 💡️ Dictionary values are only used as display text in the configuration interface. Everything else uses the dictionary keys.
     * 📦️ `OrderedConfig`: A drop in wrapper for the `ConfigFile` class with the `.Bind()` functions. It optionally orders the config file sections and items by adding numbers to their front.
@@ -119,7 +121,8 @@ See [root project README](../#contributing) for details
             * 💡️ Includes a minimum magnitude and an angle deviation that the joystick angle range must be within for triggering.
     * 📦️ `InputRepeatDelay<EmbeddedType>`: Returns key presses after a repeat delay. Change in keys ignores delay.
         * 🧾️🗒️ Types it can monitor:
-            * 📦️ `ConfigEntry<KeyboardShortcut>`
+            * 📦️ `ConfigEntryTKeyboardShortcut`
+                * 📦️ Implicit convert: `(ConfigEntry<KeyboardShortcut> CE, bool IgnoreExtra) => new ConfigEntryTKeyboardShortcut(CE) { IgnoreExtraKeysOnShortcut=IgnoreExtra }`
             * 📦️ `KeyCode`
             * 📦️ `IInputControl` (from `InControl`, e.x. `InputManager.ActiveDevice.LeftTrigger`)
             * 📦️ `Joystick.Direction`+`IsLeftStick`

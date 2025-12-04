@@ -15,8 +15,8 @@ public class Config
 	public readonly ConfigEntryT<bool> UnlockMap, UnlockMapBounds, ShowSidebarOnGameLoad, ShowSideBarPictures, ShowMouseWhenSBVisible, MarkerZoomDoesntMove, IconSizeScalesWithZoom, AutoMap, MoreMarkers, AlwaysShowMarkerLabels, ForceDisplayCompass, HornetSpinningClockwise, HornetRevolvingClockwise, MapInAbyss, MapInAbyssUnspoiled;
 	public readonly ConfigEntryT<float> ZoomSpeed, PanSpeed, MarkerPanSpeed, IconSize, QueryTime_PersistentObj, QueryTime_PlayerData, HornetHighlightSpeed, HornetRainbow2WaitTime, HornetRainbow2RunTime, HornetGrowingMax, HornetRevolvingDist, HornetRainbow1Scale;
 	public readonly ConfigEntryT<int> SideBarWidth;
-	public readonly ConfigEntryT<KeyboardShortcut> Shortcut_ZoomIn, Shortcut_ZoomOut, Shortcut_CenterOverChar, Shortcut_ToggleSideBar, Shortcut_EditMarkerLabel, Shortcut_SaveValueWindow, Shortcut_Val_ScrollUp, Shortcut_Val_ScrollDown;
-	public readonly ConfigEntryT<KeyboardShortcut> Shortcut_SB_Up, Shortcut_SB_Down, Shortcut_SB_Left, Shortcut_SB_Right, Shortcut_SB_ToggleItem, Shortcut_SB_ScrollUp, Shortcut_SB_ScrollDown, Shortcut_SB_SelectIcon;
+	public readonly ConfigEntryTKeyboardShortcut Shortcut_ZoomIn, Shortcut_ZoomOut, Shortcut_CenterOverChar, Shortcut_ToggleSideBar, Shortcut_EditMarkerLabel, Shortcut_SaveValueWindow, Shortcut_Val_ScrollUp, Shortcut_Val_ScrollDown;
+	public readonly ConfigEntryTKeyboardShortcut Shortcut_SB_Up, Shortcut_SB_Down, Shortcut_SB_Left, Shortcut_SB_Right, Shortcut_SB_ToggleItem, Shortcut_SB_ScrollUp, Shortcut_SB_ScrollDown, Shortcut_SB_SelectIcon;
 	public readonly ConfigEntryT<Color> Color_SideBar_Background, Color_SideBar_Interface, Color_SideBar_Highlight, Color_MarkerLabelText, Color_MarkerLabelBG;
 	public readonly ConfigEntryT<Rect> Rect_SaveValuesWindow, Rect_SearchWindow;
 	public readonly DynamicEnumConfig IconSet;

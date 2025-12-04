@@ -118,8 +118,8 @@ public partial class SideBar
 
 		//Do not close from scroll buttons
 		protected override bool BlockClose =>
-			   Input.GetKey(Config.C.Shortcut_SB_ScrollUp.Value.MainKey)
-			|| Input.GetKey(Config.C.Shortcut_SB_ScrollDown.Value.MainKey)
+			   Config.C.Shortcut_SB_ScrollUp.IsPressed()
+			|| Config.C.Shortcut_SB_ScrollDown.IsPressed()
 			|| ActiveDevice.RightStick.HasChanged;
 	}
 }

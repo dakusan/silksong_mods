@@ -11,7 +11,7 @@ public class Config
 	private static Config _C=null!; public static Config C => _C; //Singleton
 
 	public readonly ConfigEntryT<bool> StartPinFindingProcess;
-	public readonly ConfigEntryT<KeyboardShortcut> Key_StartPinProcess;
+	public readonly ConfigEntryTKeyboardShortcut Key_StartPinProcess;
 	public readonly ConfigEntryT<string> SkipScenes, SkipKeywords;
 
 	internal Config(ConfigFile ConfigFile)

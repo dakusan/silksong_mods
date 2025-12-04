@@ -1,4 +1,3 @@
-using BepInEx.Configuration;
 using InControl;
 using SilkDev.Configs;
 using System;
@@ -7,6 +6,7 @@ using System.Linq;
 using UnityEngine;
 using static SilkDev.DevInput.Joystick;
 using GetICFunc=System.Func<InControl.InputDevice, InControl.IInputControl>;
+using ConfigEntryKS=BepInEx.Configuration.ConfigEntry<BepInEx.Configuration.KeyboardShortcut>;
 
 namespace SilkDev.DevInput;
 
@@ -27,7 +27,7 @@ public class InputRepeatDelay<EmbeddedType>(float RepeatDelay=0.5f)
 	private record struct LastJoystickInfo(int WhichFrame, Direction Direction, float Magnitude);
 	private readonly LastJoystickInfo[] StickInfo=[new(-1, Direction.None, 0), new(-1, Direction.None, 0)]; //Cache the left[0]/right[1] stick info to only be calculated once per frame
 
-	//Base input type 
+	//Base input type
 	public abstract class InputType(EmbeddedType? ReturnValue=default)
 	{
 		public virtual EmbeddedType? ReturnValue { get; set; } = ReturnValue;
@@ -35,15 +35,16 @@ public class InputRepeatDelay<EmbeddedType>(float RepeatDelay=0.5f)
 		public static implicit operator bool(InputType IT) => IT.IsPressed;
 
 		//Tuple conversions for cleaner creation
-		public static implicit operator InputType( ConfigEntry <KeyboardShortcut> CE								) => new IRDShortcutKeyConfig	(  CE									);
-		public static implicit operator InputType( ConfigEntryT<KeyboardShortcut> CE								) => new IRDShortcutKeyConfig	(  CE									);
-		public static implicit operator InputType((ConfigEntry <KeyboardShortcut> CE, EmbeddedType? ReturnValue	) v ) => new IRDShortcutKeyConfig	(v.CE,					v.ReturnValue	);
+		public static implicit operator InputType((bool IgnoreExtra,ConfigEntryKS CE							) v ) => new IRDShortcutKeyConfig	(v.  CE, v.IgnoreExtra					);
+		public static implicit operator InputType((bool IgnoreExtra,ConfigEntryKS CE, EmbeddedType? ReturnValue	) v ) => new IRDShortcutKeyConfig	(v.  CE, v.IgnoreExtra,	v.ReturnValue	);
+		public static implicit operator InputType( ConfigEntryTKeyboardShortcut KSCE								) => new IRDShortcutKeyConfig	(  KSCE									);
+		public static implicit operator InputType((ConfigEntryTKeyboardShortcut KSCE, EmbeddedType? ReturnValue	) v ) => new IRDShortcutKeyConfig	(v.KSCE,				v.ReturnValue	);
 		public static implicit operator InputType( GetICFunc					GICF								) => new IRDInputControl		(  GICF									);
 		public static implicit operator InputType((GetICFunc					GICF, EmbeddedType? ReturnValue	) v ) => new IRDInputControl		(v.GICF,				v.ReturnValue	);
 		public static implicit operator InputType((bool IsLeftStick, Direction   Dir							) v ) => new IRDJoystickInput		(v.IsLeftStick, v.Dir					);
 		public static implicit operator InputType((bool IsLeftStick, Direction   Dir, EmbeddedType? ReturnValue	) v ) => new IRDJoystickInput		(v.IsLeftStick, v.Dir,	v.ReturnValue	);
-		public static implicit operator InputType( KeyCode						  KC								) => new IRDKeyCode				(  KC									);
-		public static implicit operator InputType((KeyCode						  KC, EmbeddedType? ReturnValue	) v ) => new IRDKeyCode				(v.KC,					v.ReturnValue	);
+		public static implicit operator InputType( KeyCode						  KC								) => new IRDKeyCode				(    KC									);
+		public static implicit operator InputType((KeyCode						  KC, EmbeddedType? ReturnValue	) v ) => new IRDKeyCode				(v.  KC,				v.ReturnValue	);
 	}
 
 	//Get the result of the delayed IsPressed checks on the first found key. Returns null on no input.
@@ -104,19 +105,22 @@ public class InputRepeatDelay<EmbeddedType>(float RepeatDelay=0.5f)
 			Inputs.RemoveAt(Index);
 		return Index>=0;
 	}
-	public bool RemoveItem(ConfigEntry<KeyboardShortcut> Input	) => IRDShortcutKeyConfig	.Remove(this, Input					);
+	public bool RemoveItem(ConfigEntryKS				Input	) => IRDShortcutKeyConfig	.Remove(this, Input					);
+	public bool RemoveItem(ConfigEntryTKeyboardShortcut	Input	) => IRDShortcutKeyConfig	.Remove(this, Input.CE				);
 	public bool RemoveItem(KeyCode KeyCode						) => IRDKeyCode				.Remove(this, KeyCode				);
 	public bool RemoveItem(GetICFunc GetICF						) => IRDInputControl		.Remove(this, GetICF				);
 	public bool RemoveItem(bool IsLeftStick, Direction Direction) => IRDJoystickInput		.Remove(this, IsLeftStick, Direction);
 
 	//-------------------------The different input types-------------------------
 	//Monitor a config shortcut key
-	public class IRDShortcutKeyConfig(ConfigEntry<KeyboardShortcut> Input, EmbeddedType? Value=default) : InputType(Value)
+	public class IRDShortcutKeyConfig(ConfigEntryTKeyboardShortcut Input, EmbeddedType? Value=default) : InputType(Value)
 	{
-		public ConfigEntry<KeyboardShortcut> Input=Input;
-		public override bool IsPressed => Input.Value.IsPressed();
-		internal static bool Remove(InputRepeatDelay<EmbeddedType> Parent, ConfigEntry<KeyboardShortcut> RemInput) =>
-			Parent.RemoveItem(I => I is IRDShortcutKeyConfig TestInput && TestInput.Input==RemInput);
+		public ConfigEntryTKeyboardShortcut Input=Input;
+		public override bool IsPressed => Input.IsPressed();
+		internal static bool Remove(InputRepeatDelay<EmbeddedType> Parent, ConfigEntryKS RemInput) =>
+			Parent.RemoveItem(I => I is IRDShortcutKeyConfig TestInput && TestInput.Input.CE==RemInput);
+		public IRDShortcutKeyConfig(ConfigEntryKS Input, bool IgnoreExtra, EmbeddedType? Value=default) :
+			this(new ConfigEntryTKeyboardShortcut(Input) { IgnoreExtraKeysOnShortcut=IgnoreExtra }, Value) { }
 	}
 
 	//Monitor a standard key
