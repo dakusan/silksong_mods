@@ -7,7 +7,7 @@
 [*]Skip intro & auto-load save slot
 [*]Block game input while typing (great with Unity Explorer)
 [*]Force-show mouse cursor ([b]F10[/b] by default)
-[*]Extract individual sprites — single frame, rendered sprite, or full sheet (see “Extracting Sprites” :section below)
+[*]Extract individual sprites — single frame, rendered sprite, or full sheet (see “Extracting Sprites” section below)
 [*]One-click texture extraction[list]
 [*]Press [b]F1[/b] → [b]Extract all textures[/b]
 [*]Dumps to [i][b][color=green]PLUGIN_PATH[/color][/b]/Textures/[b][color=green]NAME[/color][/b]-[b][color=green]MD5[/color][/b].png[/i] (no duplicates)

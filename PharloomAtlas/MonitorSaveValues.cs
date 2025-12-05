@@ -195,7 +195,7 @@ public class MonitorSaveValues
 		Item? I=MapControl.Self?.DS.Items.Get(ItemID);
 		_=I?.IsFound=IsValueCompleted(SI.NewValue);
 		Log.Info(
-			$"Item found: {FullName} :: "+(
+			$"Item found: [{ItemID}] {FullName} :: "+(
 				  MapControl.Self==null ? "MAP NOT YET LOADED"
 				: I?.Title ?? "INVALID ICON"
 			)+$" = {SI.OldValue} -> {SI.NewValue} ({(IsValueCompleted(SI.NewValue) ? "COMPLETE" : "NOT COMPLETE")})"

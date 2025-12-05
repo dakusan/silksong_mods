@@ -81,6 +81,7 @@ Every additional 50 unlocks a new [url=https://TEMPLINK.com]community-voted feat
 [*]Textured map (Google Maps terrain-style)
 [*]Teleport to benches
 [*]Parse MapGenie.io descriptions for clickable links
+[*]Precise bench visit tracking (currently just checks scene visits; planned: detect actual bench interactions)
 [*]Misc non-map features (suggestions welcome!) [I know this game’s codebase pretty intricately at this point.]
 [/list]
 [size=5][u][img=middle]https://www.castledragmire.com/silksong/SilkSpoolSmallRev.png[/img]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[b]Help Improve the Atlas[/b]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/SilkSpoolSmall.png[/img][/u][/size]
