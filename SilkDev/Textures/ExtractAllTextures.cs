@@ -87,11 +87,10 @@ internal class ExtractAllTextures : ProgressBarWithLogs
 		CurrentlyRunning=false;
 	}
 
-	protected override void OnUpdate()
-	{
-		if(!CurrentlyRunning && DevInput.Util.AnyKeyOrButtonPressed)
-			Close();
-	}
+	protected override void OnUpdate() => Misc.IFF(
+		!CurrentlyRunning && DevInput.Util.AnyKeyOrButtonPressed,
+		Close
+	);
 
 	//Watch for errors on a texture and add some delays for stability
 	private IEnumerator ProcessTextureWrapper(Texture2D CurTex)

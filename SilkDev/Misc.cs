@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace SilkDev;
@@ -33,11 +34,14 @@ public static class Misc
 		}
 	} }
 
-	//Short circuiting function for cleaner code
+	//Short circuiting and return type passthrough functions for cleaner code
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void IFF(bool Cond, Action CallOnTrue) {
 		if(Cond)
 			CallOnTrue();
 	}
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static RetType PassThru<Unused, RetType>(Unused _, RetType Return) => Return;
 
 	//Get plugin path
 	public static string GetPluginPath =>

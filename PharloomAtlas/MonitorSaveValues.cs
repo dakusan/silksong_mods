@@ -1,4 +1,5 @@
 using SilkDev;
+using SilkDev.JSON;
 using SilkDev.Windows;
 using System;
 using System.Collections;
@@ -74,7 +75,7 @@ public class MonitorSaveValues
 	{
 		Misc.InitSingleton(this, ref _Self);
 		try {
-			IF=FileOps.DeserializeJson<ItemFinder>(FileOps.ReadFile(JsonFilename));
+			IF=JsonUtils.Deserialize<ItemFinder>(FileOps.ReadFile(JsonFilename));
 			foreach((int MI_ID, string MI_Val) in IF.MatchedIcons)
 				IF.MatchedIconsReverse[MI_Val]=MI_ID;
 		} catch(Exception e) {
@@ -295,7 +296,7 @@ public class MonitorSaveValues
 		try {
 			SVP.PopupMessage=LogMessage=SaveIconValueReal();
 			try {
-				FileOps.WriteFile(JsonFilename, FileOps.SerializeToJSONSorted(IF));
+				FileOps.WriteFile(JsonFilename, JsonUtils.Serialize(IF, Sorted:true));
 			} catch {
 				SVP.PopupMessage+="\n\n<color=red>Could not save to JSON file!</color>";
 				LogMessage+="\nCould not save to JSON file!";

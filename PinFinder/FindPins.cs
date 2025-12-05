@@ -1,6 +1,7 @@
 using HutongGames.PlayMaker;
 using NoClip;
 using SilkDev;
+using SilkDev.JSON;
 using SilkDev.Windows;
 using System;
 using System.Collections;
@@ -229,7 +230,7 @@ public static class FindPins
 
 			//Save the scene item
 			try {
-				File.WriteAllText(SavePath, FileOps.SerializeToJSON(RetObjects.ToArray()), System.Text.Encoding.UTF8);
+				File.WriteAllText(SavePath, JsonUtils.Serialize(RetObjects.ToArray()), System.Text.Encoding.UTF8);
 			} catch(Exception e) {
 				LogError($"Error saving to file [{SavePath}]: {e.Message}");
 			}
@@ -256,9 +257,9 @@ public static class FindPins
 			}
 
 			//I didn’t make this part of the process handle errors or be very robust
-			File.WriteAllText(FinalFileName, FileOps.SerializeToJSON(
+			File.WriteAllText(FinalFileName, JsonUtils.Serialize(
 				Directory.EnumerateFiles(SaveDir, "*.bundle.obj")
-					.Select(static File => FileOps.DeserializeJson<List<FoundObj>>(FileOps.ReadFile(File)))
+					.Select(static File => JsonUtils.Deserialize<List<FoundObj>>(FileOps.ReadFile(File)))
 					.Aggregate(static (Acc, List) => { Acc.AddRange(List); return Acc; })
 					?.ToArray() ?? throw new Exception("Data is null")
 			));

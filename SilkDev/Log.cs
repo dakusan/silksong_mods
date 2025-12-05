@@ -18,7 +18,7 @@ public static class Log
 	private static LogLevel LLevel=LogLevel.Info;
 	public static void Debug	(string Message	) => Logger!.LogDebug	(		Message);
 	public static void Info		(string Message	) => Logger!.Log		(LLevel,Message);
-	public static void Info		(object Obj		) => Logger!.Log		(LLevel,FileOps.SerializeToJSON(Obj));
+	public static void Info		(object Obj		) => Logger!.Log		(LLevel,JSON.JsonUtils.Serialize(Obj));
 	public static void Message	(string Message	) => Logger!.LogMessage	(		Message);
 	public static void Warning	(string Message	) => Logger!.LogWarning	(		Message);
 	public static void Error	(string Message	) => Logger!.LogError	(		Message);

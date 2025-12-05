@@ -15,14 +15,14 @@ public class SortedConverter(bool AllowUse=false) : JsonConverter
 
 	private object? DefaultKeySelector(object? Key) => Key?.ToString() ?? Misc.Empty;
 	private object? NumericKeySelector(object? Key) =>
-		Key is int v ? v
+		  Key is int v ? v
 		: (Key != null && int.TryParse(Key.ToString(), out int parsed) ? parsed
 		: int.MaxValue
 	);
 
 	public override bool CanConvert(Type ObjectType) =>
 		AllowUse && (
-			typeof(IDictionary).IsAssignableFrom(ObjectType)
+			   typeof(IDictionary).IsAssignableFrom(ObjectType)
 			|| (ObjectType.IsGenericType && ObjectType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
 			|| typeof(IList).IsAssignableFrom(ObjectType)
 			|| (ObjectType.IsGenericType && ObjectType.GetGenericTypeDefinition() == typeof(List<>))
@@ -32,7 +32,7 @@ public class SortedConverter(bool AllowUse=false) : JsonConverter
 		(ConvertJson(Value, Serializer) ?? JValue.CreateNull()).WriteTo(Writer);
 
 	private JToken? ConvertJson(object? Value, JsonSerializer Serializer) =>
-		Value==null ? null
+		  Value==null ? null
 		: Value is IDictionary Dict ? (JToken?)SortAsDict(Dict, Serializer)
 		: Value is IList Arr ? SortAsList(Arr, Serializer)
 		: null;

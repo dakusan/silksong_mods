@@ -238,7 +238,9 @@ See [root project README](../#contributing) for details
     * ⚙️ `GetPluginPath`: Gets the path of the calling plugin.
     * ⚙️ `UnityExplorer_Inspect`: Open Unity Explorer inspection on game object (if plugin is loaded)
     * ⚙️ `Ref<T>(T Value)`: Simple reference class
-    * ⚙️ `IFF(bool Cond, Action CallOnTrue)`: If-statement used for bypassing curley-cue function blocks.
+    * 🧾️ Common patterns used for bypassing curley-cue function blocks:
+        * ⚙️ `IFF(bool Cond, Action CallOnTrue)`: If-statement
+        * ⚙️ `T PassThru<T>(_, T Return)`: Pass through return type after a statement
     * ⚙️ `const char NewLine='\n'`;
     * ⚙️ `const string Empty=""`;
 * 📦️ `Reflectors`

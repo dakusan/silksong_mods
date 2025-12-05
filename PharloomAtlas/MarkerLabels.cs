@@ -1,6 +1,7 @@
 using HarmonyLib;
 using SilkDev;
 using SilkDev.DevInput;
+using SilkDev.JSON;
 using SilkDev.Textures;
 using SilkDev.Windows;
 using System;
@@ -298,7 +299,7 @@ public class MarkerLabels : Window
 		}
 
 		//Save to the config
-		string NewConfigValue=FileOps.SerializeToJSON(Labels, true);
+		string NewConfigValue=JsonUtils.Serialize(Labels, Compact:true);
 		if(NewConfigValue!=Conf.MarkerLabels)
 			Conf.MarkerLabels.V=NewConfigValue;
 	}
@@ -321,7 +322,7 @@ public class MarkerLabels : Window
 		try {
 			//Create list of current markers. For any that do not exist, move the label to the deleted list
 			List<string> CurMarkers=[.. MarkerPositions.Select(static V => new MarkerPos(V).ToString())];
-			foreach((string Key, string Val) in FileOps.DeserializeJson<Dictionary<string, string>>(Conf.MarkerLabels))
+			foreach((string Key, string Val) in JsonUtils.Deserialize<Dictionary<string, string>>(Conf.MarkerLabels))
 				if(CurMarkers.Contains(Key))
 					Labels[Key]=Val;
 				else

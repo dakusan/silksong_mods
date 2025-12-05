@@ -1,4 +1,5 @@
 using SilkDev;
+using SilkDev.JSON;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,7 +62,7 @@ public class DataStorage
 		//Utility functions
 		static string GetPluginFile(string FileName) => FileOps.PathCombine(Misc.GetPluginPath, FileName);
 		static T LoadJSON<T, T2>(string FileName) where T2: class =>
-			FileOps.DeserializeJson<T, T2>(FileOps.ReadFile(GetPluginFile(FileName)))!;
+			JsonUtils.Deserialize_FPC<T, T2>(FileOps.ReadFile(GetPluginFile(FileName)))!;
 
 		//Load the categories
 		Dictionary<string, CategoryGroup> CategoryGroupsDict;
@@ -126,7 +127,7 @@ public class DataStorage
 	{
 		try {
 			//After deserialization works on the lists, set all categories to Incomplete by default
-			int[][] CatIDsLists=FileOps.DeserializeJson<int[][]>(Config.C.CategoryToggleStates) ?? throw new Exception("Conversion failed");
+			int[][] CatIDsLists=JsonUtils.Deserialize<int[][]>(Config.C.CategoryToggleStates) ?? throw new Exception("Conversion failed");
 			foreach(Category Cat in Categories.Values)
 				Cat.ToggleState=CategoryToggleState.Incomplete;
 
@@ -212,7 +213,7 @@ public class DataStorage
 		List<int>[] SaveLists=[[], [], []];
 		foreach(Category Cat in Categories.Values)
 			SaveLists[(int)Cat.ToggleState].Add(Cat.ID);
-		Config.C.CategoryToggleStates.V=FileOps.SerializeToJSON(SaveLists, true);
+		Config.C.CategoryToggleStates.V=JsonUtils.Serialize(SaveLists, Compact:true);
 
 		//I originally had this optimized to only run the update on changed items, but I decided it wasn’t worth debugging. It’s not that much compute.
 		foreach(Item Item in Items.Values)

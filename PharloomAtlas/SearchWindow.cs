@@ -53,12 +53,10 @@ public class SearchWindow : SilkDev.Windows.Window
 	}
 
 	//Watch for escape key
-	protected override void OnUpdate()
-	{
-		//Handle global key check
-		if(Input.GetKey(KeyCode.Escape))
-			Visible=false;
-	}
+	protected override void OnUpdate() => Misc.IFF(
+		Input.GetKey(KeyCode.Escape), //Handle global key check
+		() => Visible=false
+	);
 
 	//Draw the window contents
 	protected override void DoLayout(int ID, Event CurEv)

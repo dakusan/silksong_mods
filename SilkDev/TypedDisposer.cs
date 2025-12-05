@@ -15,9 +15,8 @@ public sealed class TypedDisposer<T>(T Target, Action<T> Disposal) : IDisposable
 			finally { Disposed=true; }
 	}
 
-	public T Detach() //Will not dispose
-	{
-		Disposed=true;
-		return Target;
-	}
+	public T Detach() => Misc.PassThru( //Will not dispose
+		Disposed=true,
+		Target
+	);
 }
