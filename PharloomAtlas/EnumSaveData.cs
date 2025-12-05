@@ -1,6 +1,7 @@
 using SilkDev;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -75,7 +76,7 @@ public static class EnumSaveData
 	//Get all internal player data values
 	public class PlayerDataValue(string Name, PlayerDataValue.PDType Type, FieldInfo FI)
 	{
-		public enum PDType { PDBool, PDInt, PDString }
+		public enum PDType { PDBool, PDInt, PDString, PDHashSet }
 		public readonly string Name=Name;
 		public readonly PDType Type=Type;
 		private readonly FieldInfo FI=FI;
@@ -85,15 +86,23 @@ public static class EnumSaveData
 	public static PlayerDataValue[] PlayerDataValues { get
 	{
 		Dictionary<Type, PlayerDataValue.PDType> TypeMap=new() {
-			{ typeof(bool)	, PlayerDataValue.PDType.PDBool		},
-			{ typeof(int)	, PlayerDataValue.PDType.PDInt		},
-			{ typeof(string), PlayerDataValue.PDType.PDString	}
+			{ typeof(bool			), PlayerDataValue.PDType.PDBool	},
+			{ typeof(int			), PlayerDataValue.PDType.PDInt		},
+			{ typeof(string			), PlayerDataValue.PDType.PDString	},
+			{ typeof(HashSet<string>), PlayerDataValue.PDType.PDHashSet },
 		};
 		List<PlayerDataValue> RetData=[];
 
 		foreach(FieldInfo FI in typeof(PlayerData).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
 			if(TypeMap.TryGetValue(FI.FieldType, out PlayerDataValue.PDType ThePDType) && !FI.IsNotSerialized)
 				RetData.Add(new PlayerDataValue(FI.Name, ThePDType, FI));
+
+		//Move ProfileID to the beginning of the list
+		PlayerDataValue Item=RetData.FirstOrDefault(static V => V.Name==MonitorSaveValues.ProfileIDStr);
+		if(Item is not null) {
+			_=RetData.Remove(Item);
+			RetData.Insert(0, Item);
+		}
 
 		return [.. RetData];
 	} }

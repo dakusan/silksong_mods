@@ -66,7 +66,7 @@ public class MonitorSaveValues
 	private static readonly string?[] IgnoreScenes=[null, "Pre_Menu_Loader", "Pre_Menu_Intro", "Menu_Title", "Quit_To_Menu"];
 	private bool IsIgnoredScene => IgnoreScenes.Contains(CurrentSceneName);
 	private const float LastProfileIDSetGracePeriod=0.2f; //We don’t report anything within the grace period of when "profileID" is set
-	private const string ProfileIDStr="profileID";
+	internal const string ProfileIDStr="profileID";
 	private DateTime LastProfileIDSet=DateTime.MinValue;
 
 	//Initialize the monitoring
@@ -165,19 +165,46 @@ public class MonitorSaveValues
 		if(PD==null)
 			return;
 
-		foreach(var PDV in PlayerDataValues) {
+		foreach(EnumSaveData.PlayerDataValue PDV in PlayerDataValues) {
+			//Check if value has changed
 			object LastValue=PDV.LastValue, NewValue=PDV.CurrentValue(PD);
 			if(AreObjectsTheSame(LastValue, NewValue))
 				continue;
-			PDV.LastValue=NewValue;
-			if(PDV.Name==ProfileIDStr)
+
+			//On profile load null out all old values and do not report on them for a bit
+			if(PDV.Name==ProfileIDStr) {
 				LastProfileIDSet=DateTime.Now;
-			if( //Do not report if...
+				foreach(EnumSaveData.PlayerDataValue PDV2 in PlayerDataValues)
+					PDV2.LastValue=null!;
+			}
+
+			//Store updated values
+			PDV.LastValue=NewValue;
+
+			//If value is a HashSet then get the differences and add to our current HashSet
+			bool IsHashSet=PDV.Type==EnumSaveData.PlayerDataValue.PDType.PDHashSet;
+			string[] HashSetDiff=null!;
+			if(IsHashSet) {
+				HashSet<string> CurHS=LastValue as HashSet<string> ?? [];
+				PDV.LastValue=CurHS;
+				HashSetDiff=[.. (NewValue as HashSet<string>).Except(CurHS)];
+				CurHS.UnionWith(HashSetDiff);
+			}
+
+			//Do not report if...
+			if(!(
 				!IsIgnoredScene && //On ignored scenes
 				(DateTime.Now-LastProfileIDSet).TotalSeconds>LastProfileIDSetGracePeriod && //ProfileID has been set within LastProfileIDSetGracePeriod
 				!IF.IgnorePlayerNamedValues.Contains(PDV.Name) //Is in the ignored value name list
-			)
+			))
+				continue;
+
+			//Pass through the values
+			if(!IsHashSet)
 				ValueChanged(new SaveItem("PlayerData", PDV.Name, LastValue, NewValue));
+			else
+				foreach(string Str in HashSetDiff)
+					ValueChanged(new SaveItem("PlayerData", $"{PDV.Name}__{Str}", false, true));
 		}
 	}
 
@@ -225,15 +252,16 @@ public class MonitorSaveValues
 
 	//Simple value comparitor
 	private static bool AreObjectsTheSame(object? a, object? b) =>
-		a==null || b==null ? a==b
-		: a is bool v ? v==(bool)b
-		: a is int v1 ? v1==(int)b
-		: a is string v2 && v2==(string)b;
+		  a==null || b==null	? a ==			b
+		: a is bool		v		? v ==(bool)	b
+		: a is int		v1		? v1==(int)		b
+		: a is string	v2		? v2==(string)	b
+		: a is HashSet<string> v3 && v3.Count()==(b as HashSet<string>).Count(); //Since the hash sets are only ever added to, we can just check the count
 		//: false;
 
 	private static bool IsValueCompleted(object? a) =>
 		//a==null ? false
-		a is bool v ? v
+		  a is bool v ? v
 		: a is int v1 ? v1==0
 		: a is string v2 && v2!=Misc.Empty;
 		//: false;
@@ -343,7 +371,9 @@ public class MonitorSaveValues
 		? GetLiveCompletedValue_PlayerData(FN.Name, PlayerData.instance)
 		: GetLiveCompletedValue_SceneData(FN.From, FN.Name, SceneData.instance);
 	private static bool GetLiveCompletedValue_PlayerData(string Name, PlayerData PD) =>
-		IsValueCompleted(typeof(PlayerData).GetField(Name)?.GetValue(PD) ?? null);
+		(Name.Split("__", 2) is string[] P) && P.Length>1 ? //HashSet contains a __ between the variable name and the string lookup
+			(typeof(PlayerData).GetField(P[0])?.GetValue(PD) as HashSet<string>)?.Contains(P[1]) ?? false : //HashSet<string>
+			IsValueCompleted(typeof(PlayerData).GetField(Name)?.GetValue(PD) ?? null); //Scalars
 	private static bool GetLiveCompletedValue_SceneData(string From, string Name, SceneData SD) =>
 		SD.PersistentBools.TryGetValue(From, Name, out PersistentItemData<bool> BoolVal) ? BoolVal.Value :
 		SD.PersistentInts.TryGetValue(From, Name, out PersistentItemData<int> IntVal) && IntVal.Value==0;
