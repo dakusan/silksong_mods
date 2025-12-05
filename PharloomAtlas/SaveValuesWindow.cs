@@ -1,6 +1,7 @@
 using SilkDev;
 using SilkDev.DevInput.Mouse;
 using SilkDev.Textures;
+using SilkDev.Windows;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -8,7 +9,7 @@ using SaveItem=PharloomAtlas.MonitorSaveValues.SaveItem;
 
 namespace PharloomAtlas;
 
-public class SaveValuesWindow : SilkDev.Windows.Window
+public class SaveValuesWindow : Window
 {
 	//Toggle visibility
 	public override bool Visible
@@ -114,8 +115,15 @@ public class SaveValuesWindow : SilkDev.Windows.Window
 		//Check for item selection
 		const int ScrollWheelInterval=3;
 		int NumItems=Mathf.Max(SavedItems.Count, 1);
-		if(Event.current.type==EventType.MouseDown && Button.CurrentButton==Button.Enum.Left && MainLabelRect.Contains(Event.current.mousePosition))
-			SelectedLine=Mathf.Min((int)(ScrollPosition+(Event.current.mousePosition.y-MainLabelRect.y)/LineHeight), NumItems-1);
+		if(Event.current.type==EventType.MouseDown && MainLabelRect.Contains(Event.current.mousePosition)) {
+			int LineNum=Mathf.Min((int)(ScrollPosition+(Event.current.mousePosition.y-MainLabelRect.y)/LineHeight), NumItems-1);
+			if(Button.CurrentButton==Button.Enum.Left)
+				SelectedLine=LineNum;
+			else if(Button.CurrentButton==Button.Enum.Middle) {
+				Misc.SaveToClipboard(SavedItems[^(LineNum+1)].ToString());
+				_=new PopupMessage("Copied 1 line");
+			}
+		}
 
 		//Check for item scrolling
 		if(Event.current.type==EventType.ScrollWheel && Event.current.delta.y!=0 && MainLabelRect.Contains(Event.current.mousePosition)) {
