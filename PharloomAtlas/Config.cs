@@ -17,7 +17,7 @@ public class Config
 	public readonly ConfigEntryT<int> SideBarWidth;
 	public readonly ConfigEntryTKeyboardShortcut Shortcut_ZoomIn, Shortcut_ZoomOut, Shortcut_CenterOverChar, Shortcut_ToggleSideBar, Shortcut_EditMarkerLabel, Shortcut_SaveValueWindow, Shortcut_Val_ScrollUp, Shortcut_Val_ScrollDown;
 	public readonly ConfigEntryTKeyboardShortcut Shortcut_SB_Up, Shortcut_SB_Down, Shortcut_SB_Left, Shortcut_SB_Right, Shortcut_SB_ToggleItem, Shortcut_SB_ScrollUp, Shortcut_SB_ScrollDown, Shortcut_SB_SelectIcon;
-	public readonly ConfigEntryT<Color> Color_SideBar_Background, Color_SideBar_Interface, Color_SideBar_Highlight, Color_MarkerLabelText, Color_MarkerLabelBG;
+	public readonly ConfigEntryT<Color> Color_SideBar_Background, Color_SideBar_Interface, Color_SideBar_Highlight, Color_MarkerLabelText, Color_MarkerLabelBG, Color_FoundIcon;
 	public readonly ConfigEntryT<Rect> Rect_SaveValuesWindow, Rect_SearchWindow;
 	public readonly DynamicEnumConfig IconSet;
 	internal readonly ConfigEntryT<HornetIconAnimators.HornetHighlightTypes> HornetHighlights;
@@ -46,6 +46,7 @@ public class Config
 		AlwaysShowMarkerLabels	=Con.Bind(Title, "Always show marker labels",				true, "Normally marker labels only show when you are over the marker. This will make all labels show all the time.");
 		IconSize				=Con.Bind(Title, "Icon/Marker size",						0.75f, AVR(0.3f, 2.5f, "The size of the icons on the map"));
 		IconSizeScalesWithZoom	=Con.Bind(Title, "Icon/Marker size scales with zoom",		true, "If true icons will always stay the same size at any zoom.", IsAdvanced);
+		Color_FoundIcon			=Con.Bind(Title, "Found icon color",						new Color(.5f, .5f, .5f, .85f), "When in “All” mode for a category, found icons are tinted this color", IsAdvanced);
 		Shortcut_EditMarkerLabel=Con.Bind(Title, "Shortcut: Edit Marker Label",				new KeyboardShortcut(KeyCode.KeypadPeriod));
 		HornetRevolvingDist		=Con.Bind(Title, "Hornet marker: Revolving: Distance",		.1f, AVR(.02f, 1f, "The distance of the revolutions", IsAdvanced));
 		HornetRevolvingClockwise=Con.Bind(Title, "Hornet marker: Revolving: Is Clockwise",	true, "The direction of the revolving", IsAdvanced);

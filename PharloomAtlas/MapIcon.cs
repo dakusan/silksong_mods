@@ -57,7 +57,7 @@ public class MapIcon
 			  IsSelected ? Color.green
 			: IsHovered  ? Color.blue
 			: MapControl.Self.ShowLinkedStatus && !IsLinked ? Color.red
-			: CTS==CategoryToggleState.All && IsFound ? new Color(.5f, .5f, .5f, .85f)
+			: CTS==CategoryToggleState.All && IsFound ? Config.C.Color_FoundIcon
 			: Color.white;
 
 	public void UpdateSize(float IconSize) =>
