@@ -3,7 +3,8 @@
 [center][size=6][b]Hollow Knight Silksong: Plugin Developer Tools (SilkDev)[/b][/size]
 [size=4]The backbone of all my Silksong mods — with handy player utilities and a massive quality-of-life toolkit for modders.[/size][/center]
 
-[center][size=5][u]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✨️ [b]Player-Facing Goodies[/b] ✨️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[/u][/size][/center][list]
+[center][size=5]✨️ [b]Player-Facing Goodies[/b] ✨️[/size]
+[img=top]https://www.castledragmire.com/silksong/Line425.png[/img][/center][list]
 [*]Skip intro & auto-load save slot
 [*]Block game input while typing (great with Unity Explorer)
 [*]Force-show mouse cursor ([b]F10[/b] by default)
@@ -13,7 +14,8 @@
 [*]Dumps to [i][b][color=green]PLUGIN_PATH[/color][/b]/Textures/[b][color=green]NAME[/color][/b]-[b][color=green]MD5[/color][/b].png[/i] (no duplicates)
 [/list][/list]
 
-[center][size=5][u]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🛠️ [b]Modder-Facing Power Tools[/b] 🛠️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[/u][/size]
+[center][size=5]🛠️[size=1] [/size][b]Modder-Facing Power Tools[/b][size=1] [/size]🛠️[/size]
+[img=bottom]https://www.castledragmire.com/silksong/Line425.png[/img]
 Debugging &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Configurations &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Input &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Events &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Textures &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Windows[/center]
 
 [list]
@@ -45,7 +47,8 @@ Debugging &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSu
 
 [size=3]Full source + detailed class docs in the GitHub repo (coming soon)[/size]
 
-[center][size=5][u]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚙️ [b]Installation[/b] ⚙️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[/u][/size][/center][list=1]
+[center][size=5]⚙️ [b]Installation[/b] ⚙️[/size]
+[img=top]https://www.castledragmire.com/silksong/Line425.png[/img][/center][list=1]
 [*]Install [url=https://www.nexusmods.com/hollowknightsilksong/mods/26]BepInEx[/url]
 [*]Extract this mod’s zip into [b]Hollow Knight Silksong/BepInEx/plugins/dakusan/[/b]
 [*]You should now have (for example): [b]Hollow Knight Silksong/BepInEx/plugins/dakusan/SilkDev.dll[/b]
@@ -55,7 +58,8 @@ Debugging &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSu
 You may also want to check out my [url=https://www.nexusmods.com/hollowknightsilksong/mods/478]NoClip mod[/url] for development help.
 &nbsp;
 
-[center][size=5][u]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🧩️ [b]Extracting Sprites[/b] 🧩️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[/u][/size][/center][list]
+[center][size=5]🧩️ [b]Extracting Sprites[/b] 🧩️[/size]
+[img=top]https://www.castledragmire.com/silksong/Line425.png[/img][/center][list]
 [*]Set a shortcut in config (default: none – I ship it disabled because it’s included in many of my mods)
 [*][b]L[/b]/[b]R[/b]/[b]M[/b]-click (when window open) [i]OR[/i] press shortcut key → Shows list ordered by cursor distance (closest auto-selected and on top)
 [*]Config [b]Show boxes around sprites …[/b]: red outlines on hovered sprites, blue fill + name on closest [size=1][required for in-game-sprite clicking][/size]

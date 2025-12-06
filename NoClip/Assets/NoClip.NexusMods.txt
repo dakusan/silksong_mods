@@ -3,14 +3,16 @@
 [center][size=6][b]Hollow Knight Silksong: No Clip[/b][/size]
 [size=4]Freely fly through Pharloom – perfect for exploration, debugging, or just breaking the game in glorious god mode.[/size][/center]
 
-[center][size=5][u]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;📖️ [b]Overview[/b] 📖️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[/u][/size][/center]
-
-Press [b]F3[/b] (configurable) to toggle noclip + invincibility.
+[center][size=5]📖️ [b]Overview[/b] 📖️[/size]
+[img=top]https://www.castledragmire.com/silksong/Line425.png[/img]
+[/center]Press [b]F3[/b] (configurable) to toggle noclip + invincibility.
 Move with arrow keys or controller stick – full 360° freedom.
 Config menu available via [b]F1[/b].
 💡️ [b]Important note[/b]: Having the configuration window focused can block keyboard input.
 
-[center][size=5]️[u]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚙️ [b]Installation[/b] ⚙️&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[/u][/size][/center][list=1]
+
+[center][size=5]⚙️ [b]Installation[/b] ⚙️[/size]
+[img=top]https://www.castledragmire.com/silksong/Line425.png[/img][/center][list=1]
 [*]Install [url=https://www.nexusmods.com/hollowknightsilksong/mods/26]BepInEx[/url]
 [*]Extract this mod’s zip into [b]Hollow Knight Silksong/BepInEx/plugins/dakusan/[/b]
 [*]You should now have (for example): [b]Hollow Knight Silksong/BepInEx/plugins/dakusan/SilkDev.dll[/b]
