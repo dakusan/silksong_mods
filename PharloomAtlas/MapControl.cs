@@ -69,10 +69,11 @@ public class MapControl : SilkDev.Windows.Window
 		Conf.IconSize				.SettingChanged +=			(_, _) => SetIconSize(Conf.IconSize);
 		Conf.ForceDisplayCompass	.SettingChanged += static	(_, _) => DisplayingCompass=Conf.ForceDisplayCompass;
 		Conf.MapInAbyss				.SettingChanged +=			(_, _) => ExitMap(true, true, true);
-		Conf.Color_FoundIcon.SettingChanged			+=			(_, _) =>
-			(DS==null || GameMap==null ? Enumerable.Empty<Item>() : DS.Items.Values)
-				.Where  (static I => I.IsFound && I.CurrentToggleState==CategoryToggleState.All)
-				.ForEach(static I => I.MapIcon!.SetIconColor());
+		if(!MapIcon.HasMaterial)
+			Conf.Color_FoundIcon	.SettingChanged	+=			(_, _) =>
+				(DS==null || GameMap==null ? Enumerable.Empty<Item>() : DS.Items.Values)
+					.Where  (static I => I.IsFound && I.CurrentToggleState==CategoryToggleState.All)
+					.ForEach(static I => I.MapIcon!.SetIconColor());
 		Conf.IconSizeScalesWithZoom	.SettingChanged +=			(_, _) => {
 			SetIconSize(Conf.IconSize);
 			IconSizeScalesWithZoom=Conf.IconSizeScalesWithZoom;

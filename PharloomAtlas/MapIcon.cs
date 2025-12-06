@@ -6,6 +6,7 @@ namespace PharloomAtlas;
 //The physical Unity GameObject map icons
 public class MapIcon
 {
+	//Basic instance members
 	public GameObject? IconGO => MyGO!.NullSafe;
 	private readonly GameObject? MyGO;
 	public bool IsFound		{ get; private set; } = false;
@@ -25,6 +26,7 @@ public class MapIcon
 		SpriteRenderer IconSprite=MyGO.AddComponent<SpriteRenderer>();
 		IconSprite.sprite=MySprite;
 		IconSprite.sortingLayerName="HUD";
+		OriginalMaterial=IconSprite.material;
 
 		//Add it to the heiarchy
 		MyGO.transform.SetParent(MapControl.Self.AllIcons, false);
@@ -52,14 +54,57 @@ public class MapIcon
 	public   void SetIsLinked (bool State) => SetIconColor(IsLinked=State);
 	private  void SetIconColor(bool _	 ) => SetIconColor();
 
-	internal void SetIconColor() =>
-		IconGO?.GetComponent<SpriteRenderer>().color=
+	internal void SetIconColor()
+	{
+		SpriteRenderer? SR=IconGO?.GetComponent<SpriteRenderer>();
+		if(SR==null)
+			return;
+
+		Color NewColor=SR.color=
 			  IsSelected ? Color.green
 			: IsHovered  ? Color.blue
 			: MapControl.Self.ShowLinkedStatus && !IsLinked ? Color.red
-			: CTS==CategoryToggleState.All && IsFound ? Config.C.Color_FoundIcon
+			: CTS==CategoryToggleState.All && IsFound && !HasMaterial ? Config.C.Color_FoundIcon
 			: Color.white;
+
+		//Update the IsFound shader
+		bool UseFoundShader=IsFound && HasMaterial && NewColor==Color.white;
+		if(UseFoundShader!=IsUsingNewMaterial)
+			SR.material=(IsUsingNewMaterial=UseFoundShader) ? NewMaterial : OriginalMaterial;
+	}
 
 	public void UpdateSize(float IconSize) =>
 		IconGO?.transform.localScale=new Vector3(IconSize, IconSize, 1f);
+
+	//Material shader for HSV conversion
+	private const string BundleFile="PharloomAtlas.bundle", ShaderFile="SpriteHSVA.shader";
+	private static readonly Material? NewMaterial;
+	public static bool HasMaterial => NewMaterial!=null;
+	private readonly Material OriginalMaterial;
+	private bool IsUsingNewMaterial=false;
+	static MapIcon()
+	{
+		try {
+			using TypedDisposer<AssetBundle> Bundle=new(
+				AssetBundle.LoadFromStream(FileOps.LoadEmbeddedResource(BundleFile)),
+				static Target => Target.Unload(false)
+			);
+			NewMaterial=new Material(Bundle.Target.LoadAsset<Shader>(ShaderFile));
+		} catch(System.Exception e) {
+			Log.Info($"Could not load icon shader: {e.Message}");
+		}
+
+		if(!HasMaterial)
+			return;
+		UpdateShaderColor();
+		Config.C.Color_FoundIcon.SettingChanged += static (Obj, _) => UpdateShaderColor();
+	}
+	private static void UpdateShaderColor()
+	{
+		Color C=Config.C.Color_FoundIcon;
+		NewMaterial!.SetFloat("_Hue"  , C.r-0.5f);
+		NewMaterial .SetFloat("_Sat"  , C.g*2	);
+		NewMaterial .SetFloat("_Val"  , C.b*2	);
+		NewMaterial .SetFloat("_Alpha", C.a		);
+	}
 }

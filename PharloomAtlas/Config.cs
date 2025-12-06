@@ -46,7 +46,7 @@ public class Config
 		AlwaysShowMarkerLabels	=Con.Bind(Title, "Always show marker labels",				true, "Normally marker labels only show when you are over the marker. This will make all labels show all the time.");
 		IconSize				=Con.Bind(Title, "Icon/Marker size",						0.75f, AVR(0.3f, 2.5f, "The size of the icons on the map"));
 		IconSizeScalesWithZoom	=Con.Bind(Title, "Icon/Marker size scales with zoom",		true, "If true icons will always stay the same size at any zoom.", IsAdvanced);
-		Color_FoundIcon			=Con.Bind(Title, "Found icon color",						new Color(.5f, .5f, .5f, .85f), "When in “All” mode for a category, found icons are tinted this color", IsAdvanced);
+		Color_FoundIcon			=Con.Bind(Title, "Found icon color*",						new Color(.5f, 0, .5f, .75f), "When in “All” mode for a category, found icons are tinted this color.\nRGB is actually HSV [Hue Saturation Lightness], unless the shader fails to load, in which case, it really is RGB.", IsAdvanced);
 		Shortcut_EditMarkerLabel=Con.Bind(Title, "Shortcut: Edit Marker Label",				new KeyboardShortcut(KeyCode.KeypadPeriod));
 		HornetRevolvingDist		=Con.Bind(Title, "Hornet marker: Revolving: Distance",		.1f, AVR(.02f, 1f, "The distance of the revolutions", IsAdvanced));
 		HornetRevolvingClockwise=Con.Bind(Title, "Hornet marker: Revolving: Is Clockwise",	true, "The direction of the revolving", IsAdvanced);
