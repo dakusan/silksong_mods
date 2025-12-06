@@ -6,7 +6,7 @@ my @Warnings;
 foreach my $File (@FileList)
 {
 	#Skip binary files
-	if($File =~ /\.(?:png|gif|jpe?g|bmp|ico|dll|cab|ttf|doc|wav|so(?:\..+)?|exe|svg|otf|lst|eot|woff|xlsx?|webm|docx|jar|phar)$/) {
+	if($File =~ /\.(?:png|gif|jpe?g|bmp|ico|dll|cab|ttf|doc|wav|so(?:\..+)?|exe|svg|otf|lst|eot|woff|xlsx?|webm|docx|jar|phar|bundle)$/) {
 		next; }
 
 	#Get the file contents

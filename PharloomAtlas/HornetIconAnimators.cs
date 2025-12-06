@@ -86,7 +86,7 @@ internal class HornetIconAnimators
 			try {
 				using TypedDisposer<AssetBundle> Bundle=new(
 					AssetBundle.LoadFromStream(FileOps.LoadEmbeddedResource(BundleFile)),
-					Target => Target.Unload(false)
+					static Target => Target.Unload(false)
 				);
 				MyMaterial=new Material(Bundle.Target.LoadAsset<Shader>(ShaderFile));
 			} catch(Exception e) {

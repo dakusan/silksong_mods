@@ -8,7 +8,7 @@
 [size=5]&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [b]Features at a Glance[/b][/size]
 [img=top]https://www.castledragmire.com/silksong/Line425.png[/img][list]
 [*]Everything is optional and configurable ([b]F1[/b]) — toggle features to suit your playstyle.
-Enabled by default: [i]Sidebar &amp; map icons[/i] + [i]Highlight Hornet marker[/i]
+Enabled by default: [i]Sidebar &amp; map icons[/i] + [i]Highlight Hornet pin[/i]
 [*]Full support for 🎮️ controllers, ⌨️ customizable keyboard keys, and 🖱️ mouse.[list]
 [*]Zoom &nbsp; [img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img] &nbsp; Pan &nbsp; [img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img] &nbsp; Place+Label Markers &nbsp; [img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img] &nbsp; Select Icons &nbsp; [img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img] &nbsp; Sidebar &nbsp; [img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img] &nbsp; Save Values
 [/list]
@@ -17,7 +17,7 @@ Enabled by default: [i]Sidebar &amp; map icons[/i] + [i]Highlight Hornet marker[
 [*]All notable location data imported from [url=https://mapgenie.io/hollow-knight-silksong/maps/pharloom]MapGenie.io[/url] and displayed on the in-game map.
 [*]Progress tracking — found icons automatically become invisible.
 [*]Icon categories and category groups can be toggled through 3 states:
-    Show all (found markers appear translucent/greyed) • Show incomplete • Hide all
+    Show all (found icons appear translucent/greyed) • Show incomplete • Hide all
 [*]Detailed info with images for each icon on sidebar.
 [*]Multiple icon sets supported — add your own by placing “[b]Icons-*.png[/b]” files in the plugin directory.
 [*][img=middle]https://www.castledragmire.com/silksong/RingSmall.png[/img] [b]Search window[/b]: Find icons by name or description. Mouse+Keyboard only.
@@ -89,8 +89,8 @@ Every additional 50 unlocks a new [url=https://TEMPLINK.com]community-voted feat
 [/list]
 [center][size=5][img=middle]https://www.castledragmire.com/silksong/SilkSpoolSmallRev.png[/img] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[b]Help&nbsp;Improve&nbsp;the&nbsp;Atlas[/b]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [img=middle]https://www.castledragmire.com/silksong/SilkSpoolSmall.png[/img][/size]
 [img=top]https://www.castledragmire.com/silksong/Line425.png[/img]
-[/center]Many markers remain unlinked — and you can help! See the [b]Saved Values Window[/b] section below for details.
-[img]https://www.castledragmire.com/silksong/MissingMarkers.jpg[/img] [Image coming soon]
+[/center]Many icons remain unlinked (and unchecked!) — and you can help! See the [b]Saved Values Window[/b] section below for details.
+[img]https://www.castledragmire.com/silksong/MissingIcons.jpg[/img] [Image coming soon]
 
 Icon categorization also needs refinement. A first pass is complete, but more cleanup is welcome.
 
@@ -120,7 +120,7 @@ All keyboard bindings are customizable in the config.
 [*]Hover over icon — Show title on sidebar
 [*]Left-click marker or its label — Add/edit label (deleted markers retain labels until save reload). [size=1]The marker has to be in the exact correct position to restore the label.[/size]
 [*]Right-click — Add/delete marker
-[i]Note:[/i] Marker placement can be finicky near clustered icons — Team Cherry’s original marker auto-selection logic wasn’t built for mouse use.
+[i]Note:[/i] Marker placement can be finicky near clustered markers — Team Cherry’s original marker auto-selection logic wasn’t built for mouse use.
 [/list]
 Via config you can:[list]
 [*]Auto-enable mouse when sidebar or Saved Values windows are open
@@ -128,12 +128,16 @@ Via config you can:[list]
 [/list]
 [center][size=5][img=middle]https://www.castledragmire.com/silksong/MusicBoxSmallRev.png[/img] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[b]Saved&nbsp;Values&nbsp;Window[/b]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [img=middle]https://www.castledragmire.com/silksong/MusicBoxSmall.png[/img][/size]
 [img=top]https://www.castledragmire.com/silksong/Line425.png[/img]
-[/center][img]https://www.castledragmire.com/silksong/SavedValuesWindow.png[/img]
-Use “Show Linked” on the sidebar to view markers not yet associated with save data.
+[/center]Community help is crucial to nail every icon—I’ve matched 550 out of 1,908 using my [url=https://www.nexusmods.com/hollowknightsilksong/mods/772]Pin Finder mod[/url], but that was error-prone.
+
+Linking values in the Saved Values window is super simple, so anyone can pitch in! With endorsements and submissions, we could fully map all of Pharloom’s monsters, secrets, and more. Let’s do this together. 🤝🏻"
+
+[img]https://www.castledragmire.com/silksong/SavedValuesWindow.png[/img]
+Use “Show Linked” on the sidebar to view icons not yet associated with save data.
 [img]https://www.castledragmire.com/silksong/ValuesWindowOptions.png[/img]
 
-To link markers and values:[list]
-[*] Select a marker (green highlight) and a value in the Saved Values window.
+To link icons and values:[list]
+[*] Select an icon on the map (green highlight) and a value in the Saved Values window.
 [*]Click [b]Save[/b] or [b]Save+Send[/b]:[list]
 [*][b]Save[/b] → Local JSON
 [*][b]Send[/b] → Uploads data to me for crowdsourcing
@@ -143,7 +147,7 @@ If this goes well, I’ll automate for in-game JSON downloads — but there will
 
 This is the only window that persists without the map open.
 🎮️ Controller fully supported here too.
-Some values are hard to identify — e.g., some benches are hidden behind “*Remasker*” flags.
+Some values are hard to identify — e.g., some secrets are hidden behind “*Remasker*” flags.
 
 [center][size=5][img=middle]https://www.castledragmire.com/silksong/FireSmall.png[/img] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[b]Bonus&nbsp;Rant[/b]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [img=middle]https://www.castledragmire.com/silksong/FireSmallRev.png[/img][/size]
 [img=top]https://www.castledragmire.com/silksong/Line425.png[/img]
