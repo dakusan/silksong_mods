@@ -15,8 +15,8 @@
 1. [Web Integration](#web-integration)
 1. [Developer Notes](#developer-notes)
 1. [Contributing, Credits, and License](#contributing-credits-license)
-   - [Additional Contributions](#additional-contributions)
-   - [Additional Credits](#additional-credits)
+	- [Additional Contributions](#additional-contributions)
+	- [Additional Credits](#additional-credits)
 ---
 <a id="overview"></a>
 ## 📖️ Overview
@@ -54,7 +54,7 @@ You should end up with paths like: `Hollow Knight Silksong/BepInEx/plugins/dakus
 
 <a id="web-integration"></a>
 ## 🌐️ Web Integration
-Pharloom Atlas can connect to an optional hosted **[Web Server](../WebServer#readme)** to receive player-submitted data —  helping crowdsource map accuracy, item markers, and hidden area information.
+Pharloom Atlas can connect to an optional hosted **[Web Server](../WebServer#readme)** to receive player-submitted data — helping crowdsource map accuracy, item markers, and hidden area information.
 
 <a id="developer-notes"></a>
 ## 🧩️ Developer Notes
@@ -65,11 +65,11 @@ Pharloom Atlas can connect to an optional hosted **[Web Server](../WebServer#rea
 ## 🤝🏻 Contributing, Credits, and License
 * See [root project README](../#contributing) for details
 * <a id="additional-contributions"></a> 🛠️ Additional Contributions
-   * You can help refine icon categorization, improve data mapping, or submit patches.
-   * To contribute data, use the **Saved Values Window** in-game and select **Save+Send**.
+	* You can help refine icon categorization, improve data mapping, or submit patches.
+	* To contribute data, use the **Saved Values Window** in-game and select **Save+Send**.
 * <a id="additional-credits"></a> 📜️ Additional-Credits
-   * Initial icons, structure, and inspiration drawn from community mapping projects like [MapGenie.io](https://mapgenie.io/hollow-knight-silksong/maps/pharloom).
-   * All assets © their respective creators (mostly Team Cherry).
+	* Initial icons, structure, and inspiration drawn from community mapping projects like [MapGenie.io](https://mapgenie.io/hollow-knight-silksong/maps/pharloom).
+	* All assets © their respective creators (mostly Team Cherry).
 
 <div align="center">
 
