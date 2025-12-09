@@ -35,7 +35,7 @@ Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework
 - Debugging message log level and stack traces
 - Tons of classes and functions to make development easier [See Documentation](#source-code-class-documentation). Most useful include:
     - Configs
-        - Configurations properly sorted by order
+        - Configuration translations and properly sorted by order
             - Configurations can have a timeout inbetween saving to file (immediate on game exit)
         - Dynamic String->String config entries
         - Per-user-saveslot configurations
@@ -62,6 +62,7 @@ Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework
             - Fake windows can be created just for [mouse handling] events
         - Simple dialog, popup, and progress bar windows
         - Draw geometry based objects on screen
+    - Translations
 
 *(See the [Nexus Mods page](https://www.nexusmods.com/hollowknightsilksong/mods/510) for further details.)*
 
@@ -97,13 +98,14 @@ See [root project README](../#contributing) for details
             * 🗒️ When `IgnoreExtraKeysOnShortcut` is `false`, behaves normally. When `true` (settable default), ignores extra non-shortcut keys (no failure on detection).
     * 📦️ `DynamicEnumConfig`: Creates a ConfigEntry<Enum> with dynamic values.
         * 💡️ Dictionary values are only used as display text in the configuration interface. Everything else uses the dictionary keys.
-    * 📦️ `OrderedConfig`: A drop in wrapper for the `ConfigFile` class with the `.Bind()` functions. It optionally orders the config file sections and items by adding numbers to their front.
+    * 📦️ `OrderedConfig`: A drop in wrapper for the `ConfigFile` class with the `.Bind()` functions.
+        * 💡️ It preserves original ordering for sections and configs. Also supports translations.
+        * 💡️ Automatically reloads configuration window translations.
     * 📦️ `PerSaveConfig`: Enabled configurations **per-user-saveslot** with **backups**.
     * 📦️ `SpoilerPair`: Toggles the visibility of a pair of settings based upon if the spoiler has been reached yet.
 * 📂️ `DevInput`:
     * 📂️ `Mouse`:
         * 📦️ `BlockWindows`: Blocks mouse events from passing through UniverseLib (Unity Explorer) windows
-          * 💡️ Automatically initiated by the plugin.
         * 📦️🔢️ `Button`: Mouse button enums.
         * 📦️ `Dragger`: Keeps track of mouse dragging states and distances.
         * 📦️ `ResizeDragControl`: Adds controls on window’s for drag resizing, and can also handle window moving just like `GUI.DragWindow()`.
@@ -184,6 +186,18 @@ See [root project README](../#contributing) for details
         * 🗒️ Allows harmony hooks without including assemblies in compiles.
     * 📦️ `LiveHook`: Safe enable toggling of harmony method hooks.
 * 📂️ `JSON`:
+    * 📦️ `JsonUtils`:
+        * ⚙️ `Serialize_Conv(...)`
+            * ➤️ `object Obj`: The object to serialize
+            * ➤️ `bool Compact=false`: If false, add `Formatting.Indented`
+            * ➤️ `bool TabIndent=true`: If true, use tab indentions instead of spaces
+            * ➤️ `bool UnixNewLine=true`: If true, use `\n` instead of `\r\n`
+            * ➤️ `bool Sorted=false`: If true, add `JSON.SortedConverter`
+            * ➤️ `params JsonConverter[] Converters`: Extra converters to use
+        * ⚙️ `Serialize(...)`: Same as `Serialize_Conv(...)` but without `Converters` parameter
+        * ⚙️ `Serialize_FPC<T>(object, bool OutputNulls=true, ...)`: Runs specified class through `FieldPropConverter<T>`.
+        * ⚙️ `Deserialize<OutputTypeT>(string Data)`: Deserializes data through `JsonConvert.DeserializeObject<OutputTypeT>`.
+        * ⚙️ `Deserialize_FPC<OutputTypeT, FieldPropConverterT>(string Data)`: Deserializes data through `JsonConvert.DeserializeObject<OutputTypeT>`, but runs through `JSON.FieldPropConverter<FieldPropConverterT>` (see above).
     * 📦️ `FieldPropConverter`: Convert a class by setting its fields and properties, no matter their accessibility status.
     * 📦️ `SortedConverter`: Sorts lists and dictionary by numeric or alphabetical order (Good for diffing).
 * 📦️ `Catcher`: Used to call delegates wrapped within a try/catch that will output a stack trace when caught (if config is on).
@@ -212,15 +226,10 @@ See [root project README](../#contributing) for details
         * ⚙️ `Stream`.`ReadAllAndCloseS()`: Reads the entirety of a stream into a string.
         * ⚙️ `Stream`.`ReadAllAndCloseB()`: Reads the entirety of a stream into a byte array.
 * 📦️ `FileOps`:
-    * ⚙️ *Generic file operations* so as to not have to include `System.IO`: `WriteFile(byte[] or string)`, `WriteFileAsync(byte[] or string)`, `AppendFile`, `ReadFile`, `ReadFileBytes`, `PathCombine(string...)`, `InvalidNameChars`, `FixFileName`, `GetFileName`, `GetDirectoryName`, `GetDirFiles`, `FileExists`, `DirectoryExists`, `CreateDirectory`, `FileCopy`, `FileMove`, `FileDelete`, `JSON.DeserializeJson`
-    * 🧾️ JSON Functions:
-        * ⚙️ `SerializeToJSONSorted(object)`: See `JSON.SortedConverter` above
-        * ⚙️ `SerializeToJSON(object, bool Compact=false)`: Calls `JsonConvert.SerializeObject`. Changes to unix line encoding.
-        * ⚙️ `DeserializeJson<OutputTypeT, FieldPropConverterT>(string Data)`: Deserializes data through `JsonConvert.DeserializeObject<OutputTypeT>`, but runs through `JSON.FieldPropConverter<FieldPropConverterT>` (see above).
-        * ⚙️ `SerializeToJSON<T>(object, bool Compact=false, bool OutputNulls=true)`: Runs specified class through `FieldPropConverter<T>`. Changes to unix line encoding.
-        * 🧾️ Shorthands:
-            * ⚙️ `Ser(object Obj)` => `SerializeToJSON(Obj)`
-            * ⚙️ `LogSer(object Obj)` => `Log.Info(SerializeToJSON(Obj))`
+    * ⚙️ *Generic file operations* so as to not have to include `System.IO`: `WriteFile(byte[] or string)`, `WriteFileAsync(byte[] or string)`, `AppendFile`, `ReadFile`, `ReadFileBytes`, `PathCombine(string...)`, `InvalidNameChars`, `FixFileName`, `GetFileName`, `GetDirectoryName`, `GetDirFiles`, `FileExists`, `DirectoryExists`, `CreateDirectory`, `FileCopy`, `FileMove`, `FileDelete`
+    * 🧾️ Shorthands:
+        * ⚙️ `Ser(object Obj)` => `JSON.JsonUtils.Serialize(Obj)`
+        * ⚙️ `LogSer(object Obj)` => `Log.Info(JSON.JsonUtils.Serialize(Obj))`
     * 🧾️ Loading resources:
         * ⚙️ `LoadEmbeddedResource(string Name)`: Loads an embedded resource by name from the calling assembly.
         * ⚙️ `LoadEmbeddedResource(string Name, Assembly Assembly)`: Loads an embedded resource by name from the given assembly.
@@ -246,6 +255,11 @@ See [root project README](../#contributing) for details
 * 📦️ `Reflectors`
     * 📦️ `RField<ObjType, FieldType>`, `RProp<ObjType, PropType>`, `RMethod<ObjType, RetType>`: Get via reflection fields, properties, or methods, with attached object for convenient `Get`/`Set`/`Invoke`/`(typecast)`.
         * 💡️ Attached object can be changed via `public ObjType Obj`.
+* 📦️ `Translations`
+    * 🗒️ Loads translations from `TranslationsPath`/`LangIsoName` `TranslationFileExtension`.
+    * 🗒️ Constructor receives a list of languages. See file `SilkDev/Internal/Embed/Languages.json`.
+    * 💡️ Only the currently selected language is stored in memory.
+    * 💡️ Translations can use C# string formatting with the parameters stored in `FormatParameters`.
 * 📦️ `TypedDisposer<T>(T Target, Action<T> Disposal) : IDisposable`
     * 🗒️ Create disposable objects for RAII use. [Set with `using` for destruction at end of scope].
     * ⚙️ `Detach()`: Detach object so it won’t be disposed.

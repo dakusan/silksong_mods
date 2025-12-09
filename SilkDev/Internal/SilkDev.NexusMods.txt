@@ -22,7 +22,7 @@ Debugging &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSu
 [*]Configurable log levels + full stack traces on errors
 [*]Tons of classes and functions to make development easier. Most useful include:[list]
 [*]Configs[list]
-[*]Configurations properly sorted by order[list]
+[*]Configuration translations and properly sorted by order[list]
 [*]Configurable delayed saving (instant on exit)
 [/list]
 [*]Dynamic string→string entries
@@ -42,7 +42,7 @@ Debugging &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSu
 [*]Simple dialog, popup & progress bar windows
 [*]Screen-space geometry drawing
 [/list]
-[*]Reflection shortcuts, safe callbacks and coroutines, JSON utilities & more
+[*]Reflection shortcuts, safe callbacks and coroutines, JSON utilities, translations & more
 [/list][/list]
 
 [size=3]Full source + detailed class docs in the GitHub repo (coming soon)[/size]

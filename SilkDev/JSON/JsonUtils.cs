@@ -34,6 +34,8 @@ public static class JsonUtils
 
 	public static T Deserialize<T>(string Data) =>
 		JsonConvert.DeserializeObject<T>(Data)!;
+	public static void Deserialize<T>(string Data, out T RetVar) =>
+		RetVar=JsonConvert.DeserializeObject<T>(Data)!;
 
 	//Runs specified classes through FieldPropConverter
 	public static string Serialize_FPC<T>(object Obj, bool OutputNulls=true, bool Compact=false, bool TabIndent=true, bool UnixNewLine=true, bool Sorted=false) where T: class =>

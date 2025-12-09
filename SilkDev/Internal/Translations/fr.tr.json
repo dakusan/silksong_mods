@@ -1,0 +1,43 @@
+{
+	"SettingNames": {
+		"Block all game input": "Bloquer toutes les entrées du jeu",
+		"Block all game input shortcut key": "Bloquer le raccourci clavier pour toutes les entrées du jeu",
+		"Show message when input blocked": "Afficher un message lorsque l’entrée est bloquée",
+		"Enable": "Activer",
+		"Shortcut": "Raccourci",
+		"Skip intro": "Ignorer l’intro",
+		"Auto load save slot": "Charger automatiquement l’emplacement de sauvegarde",
+		"Extract all textures": "Extraire toutes les textures",
+		"Opens the “Extract Sprites” window": "Ouvre la fenêtre « Extraire les sprites »",
+		"Show boxes around sprites when “Extract Sprites” is open": "Afficher des boîtes autour des sprites lorsque « Extraire les sprites » est ouvert",
+		"Debugging message log level": "Niveau de journalisation des messages de débogage",
+		"Output stacktrace on exception": "Afficher la trace de la pile en cas d’exception",
+		"Window Position: Extract Sprites": "Position de la fenêtre : Extraire les sprites",
+		"No mouse passthrough on Unity Explorer": "Pas de passage de la souris sur Unity Explorer",
+		"No mouse passthrough on BepInEx Config Manager": "Pas de passage de la souris sur BepInEx Gestionnaire de configuration"
+	},
+	"SettingSections": {
+		"Block Game Input": "Bloquer l’entrée du jeu",
+		"General": "Général",
+		"Force Show Mouse": "Forcer l’affichage de la souris",
+		"Quickness": "Rapidité",
+		"Textures/Sprites": "Textures/Sprites",
+		"Development": "Développement",
+		"Fix other plugins": "Corriger d’autres plugins"
+	},
+	"SettingDescriptions":{
+		"Block all game input": "Bloquer le clavier et les contrôleurs pour qu’ils n’affectent pas le jeu. Utile lors de la saisie dans Unity Explorer",
+		"Enable": "Afficher/Masquer la souris (voir aussi DevInput.Mouse.Force)",
+		"Skip intro": "Si vous souhaitez passer l’introduction du jeu",
+		"Auto load save slot": "Lorsque le menu principal s’affiche, cette sauvegarde se chargera automatiquement (même en cas de sauvegarde + quitter).",
+		"Extract all textures": "Extrait toutes les textures EN MÉMOIRE dans PLUGIN_PATH/{0}/. Les textures ont md5 ajouté à leur nom car il y a des collisions de noms.",
+		"Opens the “Extract Sprites” window": "Obtenir les textures à partir des sprites sous votre curseur",
+		"Debugging message log level": "Niveau de journalisation à afficher pour les messages d’information de ce plugin",
+		"Output stacktrace on exception": "Affiche une trace de pile en cas d’exception capturée via les interfaces de ce plugin (Catcher ou l’un des événements/callbacks de la fenêtre)",
+		"No mouse passthrough on Unity Explorer": "Unity Explorer ne bloque pas les événements de la souris pour qu’ils n’atteignent pas le reste de Unity lorsque la souris est dessus. Cela corrige cela. Cela s’exécutera pendant Window.OnDraw avec priorité = -100.",
+		"No mouse passthrough on BepInEx Config Manager": "Voir la description ci-dessus."
+	},
+	"ROOT":{
+
+	}
+}

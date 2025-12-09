@@ -14,17 +14,32 @@ public class Config
 	public readonly ConfigEntryT<Log.DebugLogLevelEnum> DebugLogLevel;
 	public readonly ConfigEntryT<AutoLoadSaveSlotNumber> AutoLoadSaveSlot;
 	public readonly ConfigEntryT<Rect> Rect_ExtractSprites;
+	public readonly DynamicEnumConfig Language;
+	public readonly Translations Tr;
 
 	internal Config(ConfigFile PConfig)
 	{
 		Misc.InitSingleton(this, ref _C);
-		OrderedConfig Con=new(PConfig);
+		try {
+			Tr=new Translations(
+				FileOps.PathCombine(Misc.GetPluginPath, "Translations", "SilkDev"),
+				FileOps.LoadEmbeddedResource("Languages.json")
+			);
+		} catch(System.Exception e) {
+			Log.Info($"Error loading languages: {e}");
+			Tr=new Translations();
+		}
+		OrderedConfig Con=new(PConfig, Tr);
 
 		//Block keyboard input
 		string Title="Block Game Input";
 		BlockGameInput			=Con.Bind(Title, "Block all game input", false, "Block keyboard and controllers from affecting the game. Useful when typing in Unity Explorer");
 		Key_BlockInput			=Con.Bind(Title, "Block all game input shortcut key", new KeyboardShortcut(KeyCode.None));
 		MessageOnInputBlocked	=Con.Bind(Title, "Show message when input blocked", true);
+
+		//General
+		Title="General";
+		Language=Con.BindLanguage(Title, "en");
 
 		//Show the mouse
 		Title="Force Show Mouse";
@@ -38,9 +53,10 @@ public class Config
 
 		//Textures
 		Title="Textures/Sprites";
-		RunExtractAllTextures	=Con.Bind(Title, "Extract all textures", false, $"Extracts all textures IN MEMORY to PLUGIN_PATH/{Textures.ExtractAllTextures.TextureDirectory}/. Textures have md5 appended to name since there are name collisions.");
+		RunExtractAllTextures	=Con.Bind(Title, "Extract all textures", false, "Extracts all textures IN MEMORY to PLUGIN_PATH/{0}/. Textures have md5 appended to name since there are name collisions.");
 		Key_ExtractSprites		=Con.Bind(Title, "Opens the “Extract Sprites” window", new KeyboardShortcut(KeyCode.None), "Get textures from sprites under your cursor");
 		ESWindow_ShowMouseOver	=Con.Bind(Title, "Show boxes around sprites when “Extract Sprites” is open", true);
+		Con.AddTranslationParameters(OrderedConfig.SettingTranslationSections.Descriptions, RunExtractAllTextures, Textures.ExtractAllTextures.TextureDirectory);
 
 		//Development settings
 		Title="Development";
@@ -52,5 +68,7 @@ public class Config
 		Title="Fix other plugins";
 		BlockMouse_UnityExplorer=Con.Bind(Title, "No mouse passthrough on Unity Explorer", true, "Unity explorer does not block mouse events from reaching the rest of unity when the mouse is over it. This fixes that. This will run during Window.OnDraw Priority=-100.");
 		BlockMouse_BepInExConfig=Con.Bind(Title, "No mouse passthrough on BepInEx Config Manager", true, "See above description.");
+
+		Con.Complete();
 	}
 }

@@ -22,9 +22,21 @@ public class LiveHook
 		}
 	} = false;
 
+	//Handle failed hook
+	public bool FailedHook { get; } = false;
+	private class FakeHook() { internal void DoNothing() { } }
+
 	//Init the class
 	protected LiveHook(Harmony Harmony, MethodInfo PatchedMethod, MethodInfo? PrefixMethod=null, MethodInfo? PostfixMethod=null)
 	{
+		//Log if patch failed
+		if(PatchedMethod==null)
+		{
+			Log.Error($"Could not find requested patch method for {GetType().Name}");
+			PatchedMethod=typeof(FakeHook).GetMethod(nameof(FakeHook.DoNothing), BindingFlags.Instance | BindingFlags.NonPublic);
+			FailedHook=true;
+		}
+
 		(this.Harmony, this.PatchedMethod)=(Harmony, PatchedMethod);
 		this.PrefixMethod =PrefixMethod ==null ? null : new HarmonyMethod(PrefixMethod);
 		this.PostfixMethod=PostfixMethod==null ? null : new HarmonyMethod(PostfixMethod);
