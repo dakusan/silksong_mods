@@ -204,7 +204,7 @@ public partial class SideBar
 		private static readonly string? CachePath=null;
 		static ItemInfoSection()
 		{
-			string MyPath=FileOps.PathCombine(Misc.GetPluginPath, CachedImagesDir);
+			string MyPath=FileOps.PathCombine(FileOps.GetPluginPath, CachedImagesDir);
 			try {
 				if(!FileOps.DirectoryExists(MyPath))
 					_=FileOps.CreateDirectory(MyPath);

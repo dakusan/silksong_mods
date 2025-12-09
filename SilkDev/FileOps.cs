@@ -28,6 +28,7 @@ public static class FileOps
 	public static void		FileCopy		(string Source, string Destination	) => File.Copy					(Source, Destination);
 	public static void		FileMove		(string Source, string Destination	) => File.Move					(Source, Destination);
 	public static void		FileDelete		(string Source						) => File.Delete				(Source);
+	public static string	GetPluginPath										  => GetDirectoryName			(Assembly.GetCallingAssembly().Location);
 
 	//Shorthands to use during debugging
 	public static string	Ser				(object Obj							) =>		  JSON.JsonUtils.Serialize(Obj);

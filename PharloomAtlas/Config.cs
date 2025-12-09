@@ -116,7 +116,7 @@ public class Config
 		};
 
 		//When settings are reloaded we have to fix a few configs that aren’t normally watched
-		PSC=new PerSaveConfig(PConfig, Misc.GetPluginPath) {
+		PSC=new PerSaveConfig(PConfig, FileOps.GetPluginPath) {
 			NumBackupsToKeep=2,
 			ConfigChangedOnLoad=ConfigEntry => {
 				 	 if(ConfigEntry==CategoryToggleStates	)   MapControl.Self?.DS.LoadCategoryToggleStates(true);
@@ -141,7 +141,7 @@ public class Config
 	private const string IconStrStart="Icons-", IconStrEnd=".png";
 	private Dictionary<string, string> GetIconFiles() =>
 		((HashSet<string>)[
-			.. FileOps.GetDirFiles(Misc.GetPluginPath, $"{IconStrStart}*{IconStrEnd}").Select(FileOps.GetFileName),
+			.. FileOps.GetDirFiles(FileOps.GetPluginPath, $"{IconStrStart}*{IconStrEnd}").Select(FileOps.GetFileName),
 			.. FileOps.GetResources().Where(static FileName => FileName.StartsWith(IconStrStart) && FileName.EndsWith(IconStrEnd))
 		]).ToDictionary(
 			Str => Str,

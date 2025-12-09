@@ -43,10 +43,6 @@ public static class Misc
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static RetType PassThru<Unused, RetType>(Unused _, RetType Return) => Return;
 
-	//Get plugin path
-	public static string GetPluginPath =>
-		FileOps.GetDirectoryName(Assembly.GetCallingAssembly().Location);
-
 	//Open Unity Explorer inspection on game object (if plugin is loaded)
 	private static Action<GameObject>? Call_UnityExplorer_Inspect=null;
 	public static void UnityExplorer_Inspect(GameObject GO)

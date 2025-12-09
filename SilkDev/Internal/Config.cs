@@ -22,7 +22,7 @@ public class Config
 		Misc.InitSingleton(this, ref _C);
 		try {
 			Tr=new Translations(
-				FileOps.PathCombine(Misc.GetPluginPath, "Translations", "SilkDev"),
+				FileOps.PathCombine(FileOps.GetPluginPath, "Translations", "SilkDev"),
 				FileOps.LoadEmbeddedResource("Languages.json")
 			);
 		} catch(System.Exception e) {

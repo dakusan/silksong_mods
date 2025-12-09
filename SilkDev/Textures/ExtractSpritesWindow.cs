@@ -341,7 +341,7 @@ public class ExtractSpritesWindow : Window
 			bool IsMouseInteract=(Event.current.type==EventType.MouseDown && TextureRect.Contains(Event.current.mousePosition));
 			if(IsMouseInteract && Button.CurrentButton==Button.Enum.Left) //Save the texture
 				try {
-					string DirName=FileOps.PathCombine(Misc.GetPluginPath, ExtractAllTextures.TextureDirectory);
+					string DirName=FileOps.PathCombine(FileOps.GetPluginPath, ExtractAllTextures.TextureDirectory);
 					if(!FileOps.DirectoryExists(DirName))
 						_=FileOps.CreateDirectory(DirName);
 					string FileName=$"{DateTime.Now:yyyy-MM-dd_HH_mm_ss} {FileOps.FixFileName(CurFoundObj.Name ?? "NO NAME")}.png";
@@ -399,7 +399,7 @@ public class ExtractSpritesWindow : Window
 		PopupMessage PM=new(HelpText
 			.Replace("\n*", Bullet)
 			.Replace("\n-", SubBullet)
-			.Replace("#", Misc.SanitizeRichString(FileOps.PathCombine(Misc.GetPluginPath, ExtractAllTextures.TextureDirectory, "\u00A0"))+"\n<b><color=green>[YYYY-MM-DD_HH_mm_SS SPRITE_NAME].png</color></b>")
+			.Replace("#", Misc.SanitizeRichString(FileOps.PathCombine(FileOps.GetPluginPath, ExtractAllTextures.TextureDirectory, "\u00A0"))+"\n<b><color=green>[YYYY-MM-DD_HH_mm_SS SPRITE_NAME].png</color></b>")
 		);
 		OnNextFrame(() => PM.OverrideTextStyle=new GUIStyle(PopupMessage.DefaultTextStyle) { alignment=TextAnchor.MiddleLeft });
 	}

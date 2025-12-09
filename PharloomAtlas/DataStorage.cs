@@ -60,7 +60,7 @@ public class DataStorage
 	internal DataStorage()
 	{
 		//Utility functions
-		static string GetPluginFile(string FileName) => FileOps.PathCombine(Misc.GetPluginPath, FileName);
+		static string GetPluginFile(string FileName) => FileOps.PathCombine(FileOps.GetPluginPath, FileName);
 		static T LoadJSON<T, T2>(string FileName) where T2: class =>
 			JsonUtils.Deserialize_FPC<T, T2>(FileOps.ReadFile(GetPluginFile(FileName)))!;
 

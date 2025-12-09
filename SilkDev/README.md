@@ -227,6 +227,7 @@ See [root project README](../#contributing) for details
         * ⚙️ `Stream`.`ReadAllAndCloseB()`: Reads the entirety of a stream into a byte array.
 * 📦️ `FileOps`:
     * ⚙️ *Generic file operations* so as to not have to include `System.IO`: `WriteFile(byte[] or string)`, `WriteFileAsync(byte[] or string)`, `AppendFile`, `ReadFile`, `ReadFileBytes`, `PathCombine(string...)`, `InvalidNameChars`, `FixFileName`, `GetFileName`, `GetDirectoryName`, `GetDirFiles`, `FileExists`, `DirectoryExists`, `CreateDirectory`, `FileCopy`, `FileMove`, `FileDelete`
+    * ⚙️ `GetPluginPath`: Gets the path of the calling plugin.
     * 🧾️ Shorthands:
         * ⚙️ `Ser(object Obj)` => `JSON.JsonUtils.Serialize(Obj)`
         * ⚙️ `LogSer(object Obj)` => `Log.Info(JSON.JsonUtils.Serialize(Obj))`
@@ -244,7 +245,6 @@ See [root project README](../#contributing) for details
     * ⚙️ `SaveToClipboard`: Save to clipboard.
     * ⚙️ `SteamUsername`: Get steam username.
         * 💡️ Note: May not be available until a few seconds after the game loads.
-    * ⚙️ `GetPluginPath`: Gets the path of the calling plugin.
     * ⚙️ `UnityExplorer_Inspect`: Open Unity Explorer inspection on game object (if plugin is loaded)
     * ⚙️ `Ref<T>(T Value)`: Simple reference class
     * 🧾️ Common patterns used for bypassing curley-cue function blocks:

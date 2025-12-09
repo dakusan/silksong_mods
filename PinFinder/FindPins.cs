@@ -34,7 +34,7 @@ public static class FindPins
 				return;
 
 			//If the JSON file does not already exist, start the process without prompting the user
-			if(!FileOps.FileExists(FileOps.PathCombine(Misc.GetPluginPath, Config.PinsJson))) {
+			if(!FileOps.FileExists(FileOps.PathCombine(FileOps.GetPluginPath, Config.PinsJson))) {
 				_=Catcher.ExecCoroutine("Find Pins", StartProcess());
 				return;
 			}
@@ -158,7 +158,7 @@ public static class FindPins
 	public static IEnumerator StartProcess()
 	{
 		//Make sure the save directory exists
-		string SaveDir=Path.Combine([Misc.GetPluginPath, .. Config.PinTempDir]);
+		string SaveDir=Path.Combine([FileOps.GetPluginPath, .. Config.PinTempDir]);
 		if(!Directory.Exists(SaveDir)) {
 			Log.Info($"Creating save directory: {SaveDir}");
 			try {
@@ -250,7 +250,7 @@ public static class FindPins
 		PB_Update();
 		try {
 			//If the file already exists, move it to a backup file
-			string FinalFileName=Path.Combine(Misc.GetPluginPath, Config.PinsJson);
+			string FinalFileName=Path.Combine(FileOps.GetPluginPath, Config.PinsJson);
 			if(File.Exists(FinalFileName)) {
 				try { File.Delete(FinalFileName+".backup"); } catch { }
 				File.Move(FinalFileName, FinalFileName+".backup");

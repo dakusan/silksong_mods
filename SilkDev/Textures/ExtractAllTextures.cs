@@ -15,7 +15,7 @@ internal class ExtractAllTextures : ProgressBarWithLogs
 
 	//Instance members
 	private readonly MD5 PngMd5=MD5.Create();
-	private readonly string DirName=FileOps.PathCombine(Misc.GetPluginPath, TextureDirectory);
+	private readonly string DirName=FileOps.PathCombine(FileOps.GetPluginPath, TextureDirectory);
 	private int NumWritten=0, NumFailed=0, NumAlreadyExisted=0;
 	private string CurName="?";
 	private Exception? LastError;
