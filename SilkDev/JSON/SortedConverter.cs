@@ -47,10 +47,9 @@ public class SortedConverter(bool AllowUse=false) : JsonConverter
 		);
 
 	private IOrderedEnumerable<KeyValuePair<object, object>> GetDictKeyValuePairs(IDictionary Dict, Func<object?, object?> KeySelector) =>
-		Dict.Cast<object>().Select(static o => new KeyValuePair<object, object>(
-			o.GetType().GetProperty("Key")!.GetValue(o),
-			o.GetType().GetProperty("Value")!.GetValue(o)
-		)).OrderBy(KV => KeySelector(KV.Key));
+		Dict.GetEnumerator().AsEnumerable<DictionaryEntry>()
+			.Select(static o => new KeyValuePair<object, object>(o.Key, o.Value))
+			.OrderBy(KV => KeySelector(KV.Key));
 
 	private JArray? SortAsList(IList Arr, JsonSerializer Serializer) =>
 		new(

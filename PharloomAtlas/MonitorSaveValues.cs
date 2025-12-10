@@ -284,7 +284,7 @@ public class MonitorSaveValues
 			get; set => Message=(field=value)+(SendingToServer ? "\n<color=red>Sending to server now</color>" : Misc.Empty);
 		} = Misc.Empty;
 		public bool SendingToServer {
-			get; set { field=value; PopupMessage+=""; }
+			get; set { field=value; PopupMessage+=Misc.Empty; }
 		} = false;
 	}
 	private async Task SaveIconValueThread(bool IsSendingToo)

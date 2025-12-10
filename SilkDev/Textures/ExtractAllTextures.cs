@@ -10,6 +10,7 @@ namespace SilkDev.Textures;
 internal class ExtractAllTextures : ProgressBarWithLogs
 {
 	//Static members
+	private static readonly Translations Tr=Internal.Config.C.Tr;
 	internal const string TextureDirectory="Textures";
 	private static bool CurrentlyRunning;
 
@@ -34,7 +35,7 @@ internal class ExtractAllTextures : ProgressBarWithLogs
 	{
 		//Only allow 1 instance to run at once
 		if(CurrentlyRunning) {
-			Log.Error("Already running");
+			Log.Error(Tr.T("Already running", "Errors"));
 			return null;
 		}
 		CurrentlyRunning=true;
@@ -72,18 +73,21 @@ internal class ExtractAllTextures : ProgressBarWithLogs
 
 			PercentAmount=++Cur/(float)Total;
 			PercentText=$"{Cur}/{Total} [{PercentAmount*100:0}%]";
-			MessageText=$"Processing {CurTex.NullSafe?.name ?? "NULL TEXTURE"}";
+			MessageText=$"{Tr.T("Processing")} {CurTex.NullSafe?.name ?? "NULL TEXTURE"}";
 			yield return ProcessTextureWrapper(CurTex!);
 		}
 
 		//Mark as complete and inform the user of the success
-		string SuccessMessage=(IsClosed ? $"Processing cancelled {Cur}/{Total}" : $"Finished processing {Total}")+" textures";
-		string NumbersOutput=$"Written: {NumWritten}, Existed: {NumAlreadyExisted}, Failed: {NumFailed}";
-		Log.Info($"{SuccessMessage}: {NumbersOutput}");
+		string SuccessMessage=IsClosed ? "Processing cancelled {0}/{1}" : "Finished processing {0} textures";
+		string NumbersOutput="Written: {0}, Existed: {1}, Failed: {2}";
+		Tr.AddFormatParameters(SuccessMessage, null, IsClosed ? [Cur, Total] : [Total]);
+		Tr.AddFormatParameters(NumbersOutput, null, NumWritten, NumAlreadyExisted, NumFailed);
+		Log.Info($"{Tr.TDefault(SuccessMessage)}: {Tr.TDefault(NumbersOutput)}");
+		static string TSan(string Message) => Tr.T(Message, RichSanitize:true);
 		if(IsClosed)
-			_=new PopupMessage($"<b>{SuccessMessage}</b>\n{NumbersOutput}");
+			_=new PopupMessage($"<b>{TSan(SuccessMessage)}</b>\n{TSan(NumbersOutput)}");
 		else
-			(MessageText, DoNotSanitizeMessage)=($"<color=red>[Press any key to close]</color> {NumbersOutput}", true);
+			(MessageText, DoNotSanitizeMessage)=($"<color=red>[{TSan("Press any key to close")}]</color> {TSan(NumbersOutput)}", true);
 		CurrentlyRunning=false;
 	}
 
@@ -100,7 +104,7 @@ internal class ExtractAllTextures : ProgressBarWithLogs
 		if(LastError==null)
 			yield break;
 		NumFailed++;
-		string ErrorStr=$"Failed to write {CurName}";
+		string ErrorStr=Tr.T("Failed to write {0}", "Errors", FormatList:CurName);
 		Catcher.OutputException(ErrorStr, LastError);
 		AddErrorLine(ErrorStr);
 		LastError=null;
@@ -131,7 +135,7 @@ internal class ExtractAllTextures : ProgressBarWithLogs
 			PNGBytes=TempTex.Target.EncodeToPNG();
 
 			//Get the filename
-			string FileMD5=BitConverter.ToString(PngMd5.ComputeHash(PNGBytes)).Replace("-", "").ToLowerInvariant();
+			string FileMD5=BitConverter.ToString(PngMd5.ComputeHash(PNGBytes)).Replace("-", Misc.Empty).ToLowerInvariant();
 			NewFileName=FileOps.PathCombine(DirName, CurName=$"{TexName}-{FileMD5}.png");
 		} catch(Exception e) {
 			LastError=e;
@@ -149,7 +153,7 @@ internal class ExtractAllTextures : ProgressBarWithLogs
 		bool AlreadyExists=FileOps.FileExists(NewFileName);
 		if(AlreadyExists) {
 			NumAlreadyExisted++;
-			AddLogLine($"Already exists: {CurName}");
+			AddLogLine(Tr.T("Already exists: {0}", FormatList:CurName));
 			yield break;
 		}
 
@@ -160,7 +164,7 @@ internal class ExtractAllTextures : ProgressBarWithLogs
 			LastError=RE.Value;
 			yield break;
 		}
-		AddLogLine($"Wrote: {CurName}");
+		AddLogLine(Tr.T("Wrote: {0}", FormatList:CurName));
 		NumWritten++;
 	}
 

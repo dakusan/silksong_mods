@@ -38,7 +38,7 @@ public abstract class SpriteObject(string Name, string ParentTree, GameObject GO
 	{
 		//Init
 		if(!IsSafe)
-			throw new System.ArgumentException("Could not get sprite from Renderer");
+			throw new System.ArgumentException(Internal.Config.C.Tr.T("Could not get sprite from Renderer", "Errors"));
 		float MyPPU=PixelsPerUnit ?? PPU ?? 100f;
 
 		//Set a unique temporary layer

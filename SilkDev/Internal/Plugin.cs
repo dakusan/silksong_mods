@@ -20,8 +20,8 @@ internal class Plugin : BaseUnityPlugin
 
 	//Unity passthrough functions
 	private void Awake() => Init();
-	private void OnGUI() => Catcher.Run($"{nameof(Window.Handle_OnGUI)}", Window.Handle_OnGUI);
-	private void Update() => Catcher.Run($"{nameof(GameEvents.Handle_Update)}", GameEvents.Handle_Update);
+	private void OnGUI() => Catcher.Run(nameof(Window.Handle_OnGUI), Window.Handle_OnGUI);
+	private void Update() => Catcher.Run(nameof(GameEvents.Handle_Update), GameEvents.Handle_Update);
 
 	//Initialize the plugin
 	private void Init()

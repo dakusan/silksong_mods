@@ -62,8 +62,8 @@ public abstract class DynamicHook
 	{
 		_=Harmony.Patch(
 			SearchedClass.GetMethod(FuncName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic),
-			postfix: FindFuncInSelf("Postfix"),
-			prefix: FindFuncInSelf("Prefix")
+			postfix: FindFuncInSelf(nameof(Postfix)),
+			prefix : FindFuncInSelf(nameof(Prefix ))
 		);
 	}
 

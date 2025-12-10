@@ -15,7 +15,7 @@ public class PopupMessage
 	private readonly DateTime InitTime=DateTime.Now;
 	private DateTime CloseTime=DateTime.MinValue;
 
-	protected virtual string PressAnyKeyString => "<color=red><size=20>Press any key or click to close this message.</size></color>";
+	protected virtual string PressAnyKeyString => $"<color=red><size=20>{Internal.Config.C.Tr.T("Press any key or click to close this message.", RichSanitize:true)}</size></color>";
 	protected static readonly DrawPopups DW=new();
 
 	public static GUIStyle DefaultTextStyle=null!;
@@ -40,10 +40,10 @@ public class PopupMessage
 		});
 
 	//Default contents drawer that shows the message. This can be overwritten in a derived class
-	protected virtual void DrawContents()
+	protected virtual void DrawContents(Vector2 AreaSize)
 	{
 		GUILayout.Label(PressAnyKeyString, DefaultTextStyle, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
-		GUILayout.Label($"{Message}", OverrideTextStyle ?? DefaultTextStyle, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+		GUILayout.Label(Message, OverrideTextStyle ?? DefaultTextStyle, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
 	}
 
 	//Other virtual functions
@@ -77,9 +77,10 @@ public class PopupMessage
 		}
 
 		//Draw the full size window contents (which will be clipped if PercentPassed<1)
-		GUILayout.BeginArea(new Rect(Vector2.zero, FullSize).Grow(-BorderAndPadding, -BorderAndPadding));
+		Rect AreaSize=new Rect(Vector2.zero, FullSize).Grow(-BorderAndPadding, -BorderAndPadding);
+		GUILayout.BeginArea(AreaSize);
 		GUILayout.BeginVertical();
-		DrawContents();
+		DrawContents(AreaSize.size);
 		GUILayout.EndVertical();
 		GUILayout.EndArea();
 
@@ -92,6 +93,85 @@ public class PopupMessage
 
 	//Called on the currently visible PopupMessage
 	protected virtual void OnUpdate() { }
+
+	//Draw lines individually with formatting
+	//Formatting at beginning of lines follows the regex forumla: ^[-+<|>]*(#-?\d{0,3})?
+	//Toggles [carried across lines]: -=word wrap off, +=word wrap on, <=left align, |=center align, >=right align
+	//Number following pound sign is the new font height (negative ignored). If line is blank, it is the spacing height
+	public static void DrawByLine(string MessageText, GUIStyle MyTextStyle, Vector2 AreaSize, Func<string, string>? LineMutator=null)
+	{
+		//Character operations on the current line
+		string Line;
+		int CharIndex;
+		char PeekChar() => Line.Length>CharIndex ? Line[CharIndex] : '\0';
+		char PopChar() => Line[CharIndex++];
+		bool PopIfChar(char TestChar) => PeekChar()==TestChar && ++CharIndex!=0;
+
+		//Draw each line
+		foreach(string TLine in MessageText.Split(Misc.NewLine)) {
+			//Handle toggles
+			Line=TLine;
+			CharIndex=0;
+			while(true) {
+				Action? RunOp=PeekChar() switch {
+					'-' => () => MyTextStyle.wordWrap=false,
+					'+' => () => MyTextStyle.wordWrap=true,
+					'<' => () => MyTextStyle.alignment=TextAnchor.MiddleLeft,
+					'|' => () => MyTextStyle.alignment=TextAnchor.MiddleCenter,
+					'>' => () => MyTextStyle.alignment=TextAnchor.MiddleRight,
+					_   => null
+				};
+				if(RunOp==null)
+					break;
+				RunOp();
+				_=PopChar();
+			}
+
+			//Get the font size and line height
+			bool HasNegative=false;
+			int NewSize=0;
+			if(PopIfChar('#')) {
+				HasNegative=PopIfChar('-');
+				for(int i=0; i<3; i++)
+					if(PeekChar() is >= '0' and <='9')
+						NewSize=NewSize*10+PopChar()-'0';
+					else
+						break;
+			}
+
+			//Remove format symbols from line and run mutator
+			Line=Line[CharIndex..];
+			if(LineMutator!=null)
+				Line=LineMutator(Line);
+
+			//If line is blank then just add a spacer
+			if(Line.Length==0) {
+				GUILayout.Space(NewSize*(HasNegative ? -1 : 1));
+				continue;
+			}
+
+			//Update the size and write the label
+			if(NewSize!=0)
+				MyTextStyle.fontSize=NewSize;
+
+			//Word wrapped lines don’t need to worry about width overflow
+			GUIContent GLine=new(Line);
+			if(MyTextStyle.wordWrap) {
+				GUILayout.Label(GLine, MyTextStyle, GUILayout.Height(MyTextStyle.CalcHeight(GLine, AreaSize.x)));
+				continue;
+			}
+
+			//If the line overflows then scale down to fit
+			int CurrentFontSize=MyTextStyle.fontSize;
+			float RenderedLineWidth=MyTextStyle.CalcSize(GLine).x;
+			if(RenderedLineWidth>AreaSize.x)
+				MyTextStyle.fontSize=(int)(CurrentFontSize*AreaSize.x/RenderedLineWidth);
+
+			//Draw the line and reset the font size
+			GUILayout.Label(GLine, MyTextStyle, GUILayout.Width(AreaSize.x));
+			MyTextStyle.fontSize=CurrentFontSize;
+		}
+	}
 
 	//Draw last window. If a window exists behind the initializing one, and we are in the WindowGrowTime phase, then draw it also
 	protected class DrawPopups() : Window("PopupMessage", false, 1500)

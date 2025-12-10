@@ -22,14 +22,15 @@ public class Config
 	public readonly DynamicEnumConfig IconSet;
 	internal readonly ConfigEntryT<HornetIconAnimators.HornetHighlightTypes> HornetHighlights;
 
-	private static ConfigDescription AVR<T>(T min, T max, string Description="", ConfigurationManagerAttributes? CMA=null) where T : System.IComparable => new(Description, new AcceptableValueRange<T>(min, max), CMA);
+	private static ConfigDescription AVR<T>(T min, T max, string Description=Misc.Empty, ConfigurationManagerAttributes? CMA=null) where T : System.IComparable => new(Description, new AcceptableValueRange<T>(min, max), CMA);
 	private static ConfigurationManagerAttributes NonBrowsable => new() { Browsable=false };
 	private static ConfigurationManagerAttributes IsAdvanced => new() { IsAdvanced=true };
 
 	internal Config(ConfigFile PConfig)
 	{
 		Misc.InitSingleton(this, ref _C);
-		OrderedConfig Con=new(PConfig);
+		using TypedDisposer<OrderedConfig> TCon=new(new(PConfig), static LCon => LCon.Complete());
+		OrderedConfig Con=TCon.Target;
 
 		string Title="Map Features";
 		AutoMap					=Con.Bind(Title, "Auto map",								false, "Areas that you have the map for will automatically fill in without needing to rest at a bench or have the quill");
@@ -70,7 +71,7 @@ public class Config
 		Color_SideBar_Background=Con.Bind(Title, "Sidebar background color",				new Color(0, 0, 0, .9f));
 		Color_SideBar_Interface	=Con.Bind(Title, "Sidebar interface items color",			new Color(0, 0, 1, 1));
 		Color_SideBar_Highlight	=Con.Bind(Title, "Sidebar highlight color",					new Color(1, 1, 0, 0.5f));
-		SideBarWidth			=Con.Bind(Title, "Sidebar width",							480, AVR(300, 800, "", IsAdvanced));
+		SideBarWidth			=Con.Bind(Title, "Sidebar width",							480, AVR(300, 800, CMA:IsAdvanced));
 		Color_MarkerLabelText	=Con.Bind(Title, "Marker label text color",					Color.white);
 		Color_MarkerLabelBG		=Con.Bind(Title, "Marker label background color",			new Color(0, 0, 0, .26f));
 

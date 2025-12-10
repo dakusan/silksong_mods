@@ -48,6 +48,7 @@ public class ExtractSpritesWindow : Window
 	}
 
 	//Helper classes
+	private static readonly Translations Tr=Internal.Config.C.Tr;
 	private record class LabelInfo(string Label, GUIStyle Style, float Width);
 	private static Internal.Config Conf => Internal.Config.C;
 
@@ -92,7 +93,7 @@ public class ExtractSpritesWindow : Window
 				if(Tex!=null && IsDisposable) //This should not be possible
 					Tex.TDestroy();
 				(this.TexType, Tex)=(Type.Failed, Color.red.MakeTexture()); //Add a red color texture, just in case
-				_=new PopupMessage($"Sprite load failed:\n<size=25>{Misc.SanitizeRichString(e.Message)}</size>");
+				_=new PopupMessage($"{Tr.T("Sprite load failed", "Errors", true)}:\n<size=25>{Misc.SanitizeRichString(e.Message)}</size>");
 			}
 		}
 
@@ -182,7 +183,7 @@ public class ExtractSpritesWindow : Window
 		List<SpriteObject> ObjList=[];
 		FindData FD=new(ObjList, Camera.allCameras[0], DevInput.Util.MousePos);
 		foreach(GameObject GO in SceneManager.GetActiveScene().GetRootGameObjects())
-			FindSpritesRecurse(FD, GO.transform, "");
+			FindSpritesRecurse(FD, GO.transform, Misc.Empty);
 
 		//Don’t forget our hero!
 		GameObject? HeroGO=HeroController.instance?.gameObject;
@@ -251,8 +252,8 @@ public class ExtractSpritesWindow : Window
 		float LabelMaxWidth=LeftWidth-GUI.skin.verticalScrollbar.fixedWidth-1;
 
 		//Title the window with our sprite and display sizes
-		Title=WindowTitle+(
-			  !HasImage ? "No sprite selected"
+		Title=Tr.T(WindowTitle)+(
+			  !HasImage ? Tr.T("No sprite selected")
 			: $"{TexImage.width}*{TexImage.height} -> {ImageDisplayWidth}*{ImageDisplayHeight}"
 		);
 
@@ -346,9 +347,9 @@ public class ExtractSpritesWindow : Window
 						_=FileOps.CreateDirectory(DirName);
 					string FileName=$"{DateTime.Now:yyyy-MM-dd_HH_mm_ss} {FileOps.FixFileName(CurFoundObj.Name ?? "NO NAME")}.png";
 					FileOps.WriteFile(FileOps.PathCombine(DirName, FileName), CurFoundObj.EncodeToPNG());
-					_=new PopupMessage($"File saved to:\n<size=25>{Misc.SanitizeRichString(FileOps.PathCombine(DirName, " "))}\n<b>{Misc.SanitizeRichString(FileName)}</b></size>");
+					_=new PopupMessage($"{Tr.T("File saved to", RichSanitize:true)}:\n<size=25>{Misc.SanitizeRichString(FileOps.PathCombine(DirName, " "))}\n<b>{Misc.SanitizeRichString(FileName)}</b></size>");
 				} catch(Exception e) {
-					_=new PopupMessage($"Error saving file:\n<size=25>{Misc.SanitizeRichString(e.Message)}</size>");
+					_=new PopupMessage($"{Tr.T("Error saving file", "Errors", true)}:\n<size=25>{Misc.SanitizeRichString(e.Message)}</size>");
 				}
 			else if(IsMouseInteract && Button.CurrentButton==Button.Enum.Right) //Highlight the sprite on the sprite sheet
 				CurFoundObj.HighlightSpriteOnSheet=!CurFoundObj.HighlightSpriteOnSheet;
@@ -374,34 +375,8 @@ public class ExtractSpritesWindow : Window
 		}
 
 		//Add the help button
-		if(!GUI.Button(new Rect(WindowRect.width-(CloseButtonSize-CloseButtonPadding)*3, CloseButtonPadding, CloseButtonSize, CloseButtonSize), "?"))
-			return;
-
-		const string HelpText= //Last <size> block purposefully not closed
-@"<size=+0>Clicking a line item:
-*Left click=Display single sprite from sprite sheet
--Will probably contain a few other sprite textures parts that you’d need to clip
-*Right click=Display the rendered sprite
--Feature can be twitchy
-*Middle click=Display the full sprite sheet
--You’ll see lots of sprites
-*Double left click=Open sprite in unity explorer
--If installed
-*<size=35>Clicking an animated sprite line multiple times can show new frames<size=25>
-
-</size> * <u>Left click an image to save it to:</u>
-#<size=15>
-
-</size> * Right click sprite sheet to toggle highlight. Try with animated sprites!<size=20>
- * Once the “Extract Sprites” window is open you can also left/right/middle click on sprites in the game window<size=11> (Config required: Boxes around sprites)</size>";
-
-		const string Bullet="\n</size>    * ", SubBullet="<size=25>\n             ";
-		PopupMessage PM=new(HelpText
-			.Replace("\n*", Bullet)
-			.Replace("\n-", SubBullet)
-			.Replace("#", Misc.SanitizeRichString(FileOps.PathCombine(FileOps.GetPluginPath, ExtractAllTextures.TextureDirectory, "\u00A0"))+"\n<b><color=green>[YYYY-MM-DD_HH_mm_SS SPRITE_NAME].png</color></b>")
-		);
-		OnNextFrame(() => PM.OverrideTextStyle=new GUIStyle(PopupMessage.DefaultTextStyle) { alignment=TextAnchor.MiddleLeft });
+		if(GUI.Button(new Rect(WindowRect.width-(CloseButtonSize-CloseButtonPadding)*3, CloseButtonPadding, CloseButtonSize, CloseButtonSize), "?"))
+			HelpWindow.Init();
 	}
 
 	//Destroy the window
@@ -525,5 +500,64 @@ public class ExtractSpritesWindow : Window
 			SelectedTex.TDestroy();
 			base.Close();
 		});
+	}
+
+	private class HelpWindow() : PopupMessage(Misc.Empty)
+	{
+		private static HelpWindow? Self;
+		internal static void Init() =>
+			OnNextFrame(static () => Misc.IFF(
+				Self==null,
+				static () => Self=new HelpWindow()
+			));
+
+		private readonly GUIStyle MyTextStyle=new(GUI.skin.label) { richText=true, margin=new RectOffset(0,0,1,1), padding=new RectOffset(0,0,0,0) };
+
+		private const string EnglishHelpText=
+@"#4
+#50Clicking a line item:
+* Left click=Display single sprite from sprite sheet
+#25-Will probably contain a few other sprite textures parts that you’d need to clip
+#1
+#50* Right click=Display the rendered sprite
+#25-Feature can be twitchy
+#1
+#50* Middle click=Display the full sprite sheet
+#25-You’ll see lots of sprites
+#2
+#50* Double left click=Open sprite in unity explorer
+#25-If installed
+#1
+#35* Clicking an animated sprite line multiple times can show new frames
+#30
+#35 * <u>Left click an image to save it to:</u>
++<DIR>
+|-#37<PATH>
+#16
+<#35 * Right click sprite sheet to toggle highlight. Try with animated sprites!
+#20 * Once the “Extract Sprites” window is open you can also left/right/middle click on sprites in the game window<size=11> (Config required: Boxes around sprites)</size>";
+
+		protected override void DrawContents(Vector2 AreaSize)
+		{
+			//Draw the PressAnyKeyString text and reset styles (font size not reset)
+			GUILayout.Label(PressAnyKeyString, DefaultTextStyle, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
+			MyTextStyle.wordWrap=false;
+			MyTextStyle.alignment=TextAnchor.MiddleLeft;
+
+			//Substitute in the directory and path and get the window width
+			string LocalText=Tr.TranslateDef("ExtractSpritesWindow.HelpWindow", Default:EnglishHelpText)
+				.Replace("<DIR>", Misc.SanitizeRichString(FileOps.PathCombine(FileOps.GetPluginPath, ExtractAllTextures.TextureDirectory, "\u00A0")))
+				.Replace("<PATH>", "<b><color=green>[YYYY-MM-DD_HH_mm_SS SPRITE_NAME].png</color></b>");
+
+			//Auto tab asterisks and dashes
+			static string AutoIndent(string Str) =>
+				  Str.StartsWith("*") ? "<size=50>    *</size>"			+Str[1..]+" " //Add a space at the end to account for width mismatches
+				: Str.StartsWith("-") ? "<size=25>             </size>"	+Str[1..]+" " //Add a space at the end to account for width mismatches
+				:														 Str;
+
+			DrawByLine(LocalText, MyTextStyle, AreaSize, AutoIndent);
+		}
+
+		protected override void OnClosed() => Self=null;
 	}
 }

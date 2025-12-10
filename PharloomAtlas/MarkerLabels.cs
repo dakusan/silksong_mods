@@ -115,7 +115,7 @@ public class MarkerLabels : Window
 		}
 		public override string ToString() => $"{Vec.x:F2},{Vec.y:F2}";
 		public static implicit operator string(MarkerPos MP) => MP.ToString();
-		public static bool operator ==(MarkerPos? MP1, MarkerPos? MP2) => (MP1?.ToString() ?? "")==(MP2?.ToString() ?? "");
+		public static bool operator ==(MarkerPos? MP1, MarkerPos? MP2) => (MP1?.ToString() ?? Misc.Empty)==(MP2?.ToString() ?? Misc.Empty);
 		public static bool operator !=(MarkerPos? MP1, MarkerPos? MP2) => !(MP1==MP2);
 		public override bool Equals(object? Obj2) => Obj2 is MarkerPos MP2 && this==MP2;
 		public override int GetHashCode() => ToString()?.GetHashCode() ?? 0;
@@ -260,7 +260,7 @@ public class MarkerLabels : Window
 			return;
 
 		//If there is already a marker that is selected and we clicked on its label then keep it selected
-		if(TextHasFocus && GetMarkerLabelRect(SelectedMarker!, Labels.Get(SelectedMarker!) ?? "").Contains(Ev.mousePosition))
+		if(TextHasFocus && GetMarkerLabelRect(SelectedMarker!, Labels.Get(SelectedMarker!) ?? Misc.Empty).Contains(Ev.mousePosition))
 			return;
 
 		//See if we’ve clicked on a label

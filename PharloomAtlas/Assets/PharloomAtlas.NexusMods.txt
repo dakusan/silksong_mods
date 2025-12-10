@@ -89,7 +89,7 @@ Every additional 50 unlocks a new [url=https://TEMPLINK.com]community-voted feat
 [/list]
 [center][size=5][img=middle]https://www.castledragmire.com/silksong/SilkSpoolSmallRev.png[/img] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[b]Help&nbsp;Improve&nbsp;the&nbsp;Atlas[/b]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [img=middle]https://www.castledragmire.com/silksong/SilkSpoolSmall.png[/img][/size]
 [img=top]https://www.castledragmire.com/silksong/Line425.png[/img]
-[/center]Many icons remain unlinked (and unchecked!) — and you can help! See the [b]Saved Values Window[/b] section below for details.
+[/center]Many icons remain unlinked (and unchecked) — and you can help! See the [b]Saved Values Window[/b] section below for details.
 [img]https://www.castledragmire.com/silksong/MissingIcons.jpg[/img] [Image coming soon]
 
 Icon categorization also needs refinement. A first pass is complete, but more cleanup is welcome.

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Misc=SilkDev.Misc;
 
 namespace PharloomAtlas;
 
@@ -11,7 +12,7 @@ public enum CategoryToggleState
 //Category groups (title and list of categories)
 public class CategoryGroup : Dictionary<int, Category>
 {
-	public string Title="";
+	public string Title=Misc.Empty;
 	public int Order { get; internal set; }
 	public Category[] AsOrdered { get
 	{
@@ -32,7 +33,7 @@ public class Category
 	public int ID			{ get; internal set; }
 	public int TotalCount	{ get; internal set; }
 	public int CurrentCount { get; internal set; } = 0;
-	public string Title="";
+	public string Title=Misc.Empty;
 	public string? Info;
 	public Sprite Sprite	{ get; internal set; } = null!;
 	public CategoryToggleState ToggleState=CategoryToggleState.Unknown;
@@ -46,7 +47,7 @@ public class Item
 	public int CategoryID	{ get; internal set; } //Locking down CategoryID to make sure only registered categories are used
 	public Sprite Sprite	{ get; internal set; } = null!;
 	public int IconID=-1;
-	public string Title="";
+	public string Title=Misc.Empty;
 	public string? Description;
 	public float x, y;
 	public string[]? ImageURLs;

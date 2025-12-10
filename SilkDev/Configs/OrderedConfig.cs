@@ -104,7 +104,7 @@ public class OrderedConfig(ConfigFile CF, Translations? Tr=null)
 			string SectionNameStr=SN(SectionName);
 			if(!Tr.Sections.TryGetValue(SectionNameStr, out Dictionary<string, string> LSec))
 				LSec=Tr.Sections[SectionNameStr]=[];
-			LSec[Translations.LanguageAsStr]=GetVal(Tr.Languages!.GetValueOrDefault(NewLanguage)) ?? Default;
+			LSec[Translations.LanguageAsStr]=GetVal(Tr.Languages!.GetValueOrDefault(Tr.Language)) ?? Default;
 		}
 		UpdateLangStr(SettingTranslationSections.Names, Translations.LanguageAsStr, static LN => LN?.LanguageAsString);
 		UpdateLangStr(SettingTranslationSections.Descriptions, Translations.PickLanguageAsStr, static LN => LN?.PickLanguageAsString);
@@ -131,12 +131,12 @@ public class OrderedConfig(ConfigFile CF, Translations? Tr=null)
 	public enum SettingTranslationSections { Names, Sections, Descriptions };
 	private static string SN(SettingTranslationSections Section) => $"Setting{Section}";
 	public void AddTranslationParameters(SettingTranslationSections Section, ConfigEntryBase CE, params object[] Params) =>
-		Tr.FormatParameters[$"{SN(Section)}/"+Section switch {
+		Tr.AddFormatParameters(Section switch {
 			SettingTranslationSections.Names		=> CE.Definition.Key,
 			SettingTranslationSections.Sections		=> CE.Definition.Section,
 			SettingTranslationSections.Descriptions => CE.Definition.Key,
 			_ => "!INVALID!"
-		}]=Params;
+		}, SN(Section), Params);
 
 	//If ConfigurationManager is open then close and reopen it to refresh language
 	private static readonly HookCMWindow CM=CreateHook();
@@ -153,7 +153,7 @@ public class OrderedConfig(ConfigFile CF, Translations? Tr=null)
 	private void RefreshConfigManager(bool IsFromSettingChanged)
 	{
 		if(IsFromSettingChanged && CM.FailedHook)
-			_=new Windows.PopupMessage("Refreshing config manager failed. Close and reopen it for translation changes");
+			_=new Windows.PopupMessage(Tr.T("Refreshing config manager failed. Close and reopen it for translation changes", "Errors", true));
 
 		if(!CM.DisplayingWindow)
 			return;

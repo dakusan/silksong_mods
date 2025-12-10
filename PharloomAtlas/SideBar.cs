@@ -290,6 +290,6 @@ public partial class SideBar : Window
 
 		Misc.SaveToClipboard(Contents);
 		int NumLines=Contents.Count(static c => c==Misc.NewLine)+1;
-		_=new PopupMessage($"Copied {NumLines} line{(NumLines==1 ? "" : "s")}");
+		_=new PopupMessage($"Copied {NumLines} line{(NumLines==1 ? Misc.Empty : "s")}");
 	}
 }

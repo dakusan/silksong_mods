@@ -68,7 +68,7 @@ public partial class SideBar
 			FullMessage=Message;
 		}
 
-		protected override void DrawContents()
+		protected override void DrawContents(Vector2 AreaSize)
 		{
 			//Draw the controller (if we have it)
 			if(ControllerLayout!=null) {

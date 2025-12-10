@@ -104,7 +104,7 @@ public class BlockInput : Windows.Window
 	protected override void DoLayout(int ID, Event Ev)
 	{
 		//Create the message
-		GUIContent Message=new("Game action blocks: "+string.Join(", ", [
+		GUIContent Message=new(Conf.Tr.T("Game action blocks: ", RichSanitize:true)+string.Join(", ", [
 			.. Check_All		.GetMessages(),
 			.. Check_Actions	.GetMessages(),
 			.. Check_LStickMove	.GetMessages(),

@@ -20,16 +20,11 @@ public class Config
 	internal Config(ConfigFile PConfig)
 	{
 		Misc.InitSingleton(this, ref _C);
-		try {
-			Tr=new Translations(
-				FileOps.PathCombine(FileOps.GetPluginPath, "Translations", "SilkDev"),
-				FileOps.LoadEmbeddedResource("Languages.json")
-			);
-		} catch(System.Exception e) {
-			Log.Info($"Error loading languages: {e}");
-			Tr=new Translations();
-		}
-		OrderedConfig Con=new(PConfig, Tr);
+		using TypedDisposer<OrderedConfig> TCon=new(
+			new(PConfig, Tr=Translations.StandardCreate("SilkDev")),
+			static LCon => LCon.Complete()
+		);
+		OrderedConfig Con=TCon.Target;
 
 		//Block keyboard input
 		string Title="Block Game Input";
@@ -39,7 +34,13 @@ public class Config
 
 		//General
 		Title="General";
+
+		//Language
 		Language=Con.BindLanguage(Title, "en");
+		#if DEBUG
+			ConfigEntryTKeyboardShortcut SwitchLang=Con.Bind(Title, "Switch between French and English for testing", new KeyboardShortcut(KeyCode.F9), null, new() { IsAdvanced=true });
+			Events.GameEvents.OnUpdate += () => Misc.IFF(SwitchLang.IsDown(), () => Language.Value=Language.Value=="en" ? "fr" : "en");
+		#endif
 
 		//Show the mouse
 		Title="Force Show Mouse";
@@ -68,7 +69,5 @@ public class Config
 		Title="Fix other plugins";
 		BlockMouse_UnityExplorer=Con.Bind(Title, "No mouse passthrough on Unity Explorer", true, "Unity explorer does not block mouse events from reaching the rest of unity when the mouse is over it. This fixes that. This will run during Window.OnDraw Priority=-100.");
 		BlockMouse_BepInExConfig=Con.Bind(Title, "No mouse passthrough on BepInEx Config Manager", true, "See above description.");
-
-		Con.Complete();
 	}
 }
