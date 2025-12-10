@@ -532,9 +532,11 @@ public class ExtractSpritesWindow : Window
 #30
 #35 * <u>Left click an image to save it to:</u>
 +<DIR>
+#8
 |-#37<PATH>
-#16
+#6
 <#35 * Right click sprite sheet to toggle highlight. Try with animated sprites!
+#4
 #20 * Once the “Extract Sprites” window is open you can also left/right/middle click on sprites in the game window<size=11> (Config required: Boxes around sprites)</size>";
 
 		protected override void DrawContents(Vector2 AreaSize)

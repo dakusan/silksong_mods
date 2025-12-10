@@ -33,6 +33,7 @@ Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework
 - Extract all textures **in memory** to `PLUGIN_PATH/Textures`
 - Extract sprite textures — from original sprite sheet, by sprite render, or entire sprite sheet
 - Debugging message log level and stack traces
+- User interfaces translated into 20 languages
 - Tons of classes and functions to make development easier [See Documentation](#source-code-class-documentation). Most useful include:
 	- Configs
 		- Configuration translations and properly sorted by order
@@ -98,9 +99,10 @@ See [root project README](../#contributing) for details
 			* 🗒️ When `IgnoreExtraKeysOnShortcut` is `false`, behaves normally. When `true` (settable default), ignores extra non-shortcut keys (no failure on detection).
 	* 📦️ `DynamicEnumConfig`: Creates a ConfigEntry<Enum> with dynamic values.
 		* 💡️ Dictionary values are only used as display text in the configuration interface. Everything else uses the dictionary keys.
-	* 📦️ `OrderedConfig`: A drop in wrapper for the `ConfigFile` class with the `.Bind()` functions.
+	* 📦️ `TranslatedConfig`: A drop in wrapper for the `ConfigFile` class with the `.Bind()` functions.
 		* 💡️ It preserves original ordering for sections and configs. Also supports translations.
 		* 💡️ Automatically reloads configuration window translations.
+		* 💡️ Option to add a space to blank descriptions to mitigate a ConfigurationManager bug
 	* 📦️ `PerSaveConfig`: Enabled configurations **per-user-saveslot** with **backups**.
 	* 📦️ `SpoilerPair`: Toggles the visibility of a pair of settings based upon if the spoiler has been reached yet.
 * 📂️ `DevInput`:

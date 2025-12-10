@@ -29,8 +29,8 @@ public class Config
 	internal Config(ConfigFile PConfig)
 	{
 		Misc.InitSingleton(this, ref _C);
-		using TypedDisposer<OrderedConfig> TCon=new(new(PConfig), static LCon => LCon.Complete());
-		OrderedConfig Con=TCon.Target;
+		using TypedDisposer<TranslatedConfig> TCon=new(new(PConfig), static LCon => LCon.Complete());
+		TranslatedConfig Con=TCon.Target;
 
 		string Title="Map Features";
 		AutoMap					=Con.Bind(Title, "Auto map",								false, "Areas that you have the map for will automatically fill in without needing to rest at a bench or have the quill");

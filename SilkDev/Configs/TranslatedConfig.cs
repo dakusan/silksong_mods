@@ -13,8 +13,10 @@ namespace SilkDev.Configs;
 //The 3 translation sections for config names, sections, and descriptions are: SettingNames, SettingSections, SettingDescriptions.
 //Sections are ordered by adding sorting numbers to their front. Warning: “Zero Width Space” unicode characters can be prepended on section names to force proper numeric sorting.
 //Translations and ordering are only supported by the official BepInEx ConfigurationManager (Not BepInExConfigManager.Mono.dll).
-public class OrderedConfig(ConfigFile CF, Translations? Tr=null)
+public class TranslatedConfig(ConfigFile CF, Translations? Tr=null)
 {
+	public static bool FixBlankDescriptions=true; //If true, when ConfigEntries are created, blank descriptions will contain a space (to mitigate a ConfigurationManager bug)
+
 	public readonly ConfigFile CF=CF;
 	private readonly Translations Tr=Tr ?? new Translations();
 	public IReadOnlyList<ConfigEntryBase> Configs => _Configs.AsReadOnly();
@@ -43,10 +45,11 @@ public class OrderedConfig(ConfigFile CF, Translations? Tr=null)
 		ConfigSections[SectionName]=(SectionID, ++CurrentItemID);
 
 		//Make sure ConfigDescription exists and has a ConfigurationManagerAttributes
+		static string FixEmpty(string Str) => FixBlankDescriptions && Str==Misc.Empty ? "\u00A0" : Str;
 		ConfigurationManagerAttributes CMA=ConfigDescription?.Tags?.OfType<ConfigurationManagerAttributes>().FirstOrDefault()!;
 		if(CMA==null)
 			ConfigDescription=new ConfigDescription(
-				ConfigDescription?.Description ?? Misc.Empty,
+				FixEmpty(ConfigDescription?.Description ?? Misc.Empty),
 				ConfigDescription?.AcceptableValues,
 				[.. ConfigDescription?.Tags ?? [], CMA=new ConfigurationManagerAttributes()]
 			);
@@ -157,8 +160,13 @@ public class OrderedConfig(ConfigFile CF, Translations? Tr=null)
 
 		if(!CM.DisplayingWindow)
 			return;
+
+		//For the config Window: Close it, open it, restore its position
+		PropertyInfo SettingWindowRect=CM.CM.GetType()?.GetProperty("SettingWindowRect", BindingFlags.Instance|BindingFlags.NonPublic)!;
+		var CurRect=(UnityEngine.Rect)SettingWindowRect.GetValue(CM.CM);
 		CM.DisplayingWindow=false;
 		CM.DisplayingWindow=true;
+		SettingWindowRect.SetValue(CM.CM, CurRect);
 	}
 	private class HookCMWindow() : LiveHook(
 		new("temp.patcher.dakusan.ConfigManager"),

@@ -78,7 +78,7 @@ public class PerSaveConfig
 			PrevValues[$"{Name.Section}.{Name.Key}"]=ConfigEntry.BoxedValue;
 		CF.Reload();
 
-		//TODO: Need to handle OrderedConfig (Not much incentive now that I only need to add numbers to sections and not their settings)
+		//TODO: Need to handle TranslatedConfig (Not much incentive now that I only need to add numbers to sections and not their settings)
 		//If it already exists then we need to Determine which configs have changed and call their events
 		string ConfigName;
 		foreach((ConfigDefinition Name, ConfigEntryBase ConfigEntry) in CF) {

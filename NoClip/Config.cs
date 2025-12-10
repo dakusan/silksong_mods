@@ -15,8 +15,8 @@ public class Config
 	internal Config(ConfigFile PConfig)
 	{
 		Misc.InitSingleton(this, ref _C);
-		using TypedDisposer<OrderedConfig> TCon=new(new(PConfig), static LCon => LCon.Complete());
-		OrderedConfig Con=TCon.Target;
+		using TypedDisposer<TranslatedConfig> TCon=new(new(PConfig), static LCon => LCon.Complete());
+		TranslatedConfig Con=TCon.Target;
 
 		//Shortcuts
 		Key_ToggleNoClip=Con.Bind("No Clip", "No clip shortcut key", new KeyboardShortcut(KeyCode.F3), "Key to press to turn on and off noclip");

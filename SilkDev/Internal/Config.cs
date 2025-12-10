@@ -16,15 +16,16 @@ public class Config
 	public readonly ConfigEntryT<Rect> Rect_ExtractSprites;
 	public readonly DynamicEnumConfig Language;
 	public readonly Translations Tr;
+	private string LastLanguage="fr";
 
 	internal Config(ConfigFile PConfig)
 	{
 		Misc.InitSingleton(this, ref _C);
-		using TypedDisposer<OrderedConfig> TCon=new(
+		using TypedDisposer<TranslatedConfig> TCon=new(
 			new(PConfig, Tr=Translations.StandardCreate("SilkDev")),
 			static LCon => LCon.Complete()
 		);
-		OrderedConfig Con=TCon.Target;
+		TranslatedConfig Con=TCon.Target;
 
 		//Block keyboard input
 		string Title="Block Game Input";
@@ -38,8 +39,9 @@ public class Config
 		//Language
 		Language=Con.BindLanguage(Title, "en");
 		#if DEBUG
-			ConfigEntryTKeyboardShortcut SwitchLang=Con.Bind(Title, "Switch between French and English for testing", new KeyboardShortcut(KeyCode.F9), null, new() { IsAdvanced=true });
-			Events.GameEvents.OnUpdate += () => Misc.IFF(SwitchLang.IsDown(), () => Language.Value=Language.Value=="en" ? "fr" : "en");
+			ConfigEntryTKeyboardShortcut SwitchLang=Con.Bind(Title, "Switch between Last Language and English for testing", new KeyboardShortcut(KeyCode.F9), null, new() { IsAdvanced=true });
+			Events.GameEvents.OnUpdate += () => Misc.IFF(SwitchLang.IsDown(), () => Language.Value=Language.Value=="en" ? LastLanguage : "en");
+			Language.SettingChanged += (_, _) => LastLanguage=(Language.Value=="en" ? LastLanguage : Language.Value);
 		#endif
 
 		//Show the mouse
@@ -57,7 +59,7 @@ public class Config
 		RunExtractAllTextures	=Con.Bind(Title, "Extract all textures", false, "Extracts all textures IN MEMORY to PLUGIN_PATH/{0}/. Textures have md5 appended to name since there are name collisions.");
 		Key_ExtractSprites		=Con.Bind(Title, "Opens the “Extract Sprites” window", new KeyboardShortcut(KeyCode.None), "Get textures from sprites under your cursor");
 		ESWindow_ShowMouseOver	=Con.Bind(Title, "Show boxes around sprites when “Extract Sprites” is open", true);
-		Con.AddTranslationParameters(OrderedConfig.SettingTranslationSections.Descriptions, RunExtractAllTextures, Textures.ExtractAllTextures.TextureDirectory);
+		Con.AddTranslationParameters(TranslatedConfig.SettingTranslationSections.Descriptions, RunExtractAllTextures, Textures.ExtractAllTextures.TextureDirectory);
 
 		//Development settings
 		Title="Development";

@@ -1,6 +1,14 @@
 # Remove the line below if you want to inherit .editorconfig settings from higher directories
 root = true
 
+# JSON files
+[*.json]
+end_of_line = lf
+charset = utf-8
+indent_style = tab
+tab_width = 4
+insert_final_newline = false
+
 # C# files
 [*.cs]
 charset = utf-8

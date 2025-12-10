@@ -16,9 +16,9 @@ public class DynamicEnumConfig
 	private readonly List<string> Keys;
 
 	//Initialize from different config file types
-	public DynamicEnumConfig(ConfigFile		CF, string SectionName, string KeyName, Dictionary<string, string> Options, string Description=Misc.Empty, string? Default=null) =>
+	public DynamicEnumConfig(ConfigFile			CF, string SectionName, string KeyName, Dictionary<string, string> Options, string Description=Misc.Empty, string? Default=null) =>
 		(MyDynamicEntry, Keys)=CreateConfig(CF, SectionName, KeyName, Description, Default, Options);
-	public DynamicEnumConfig(OrderedConfig	CF, string SectionName, string KeyName, Dictionary<string, string> Options, string Description=Misc.Empty, string? Default=null) =>
+	public DynamicEnumConfig(TranslatedConfig	CF, string SectionName, string KeyName, Dictionary<string, string> Options, string Description=Misc.Empty, string? Default=null) =>
 		(MyDynamicEntry, Keys)=CreateConfig(CF, SectionName, KeyName, Description, Default, Options);
 
 	//The real initialization

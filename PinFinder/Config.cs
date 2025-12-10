@@ -17,8 +17,8 @@ public class Config
 	internal Config(ConfigFile PConfig)
 	{
 		Misc.InitSingleton(this, ref _C);
-		using TypedDisposer<OrderedConfig> TCon=new(new(PConfig), static LCon => LCon.Complete());
-		OrderedConfig Con=TCon.Target;
+		using TypedDisposer<TranslatedConfig> TCon=new(new(PConfig), static LCon => LCon.Complete());
+		TranslatedConfig Con=TCon.Target;
 
 		//Pin Finding
 		StartPinFindingProcess=Con.Bind(
