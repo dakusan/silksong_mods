@@ -4,7 +4,7 @@ using UnityEngine;
 namespace SilkDev.Windows;
 
 //A window that contains a message and optionally ok/cancel buttons
-public class DialogWindow(string Message, int Width=800, int Height=400, int FontSize=60) : Window(Tr.TranslateDef("DialogWindow.DefaultTitle", Default:"Alert"), null, Width, Height)
+public class DialogWindow(string Message, int Width=800, int Height=400, int FontSize=60) : Window(Tr.TDef("DialogWindow.DefaultTitle", Default:"Alert"), null, Width, Height)
 {
 	public string Message=Message;
 	public GUIStyle LabelStyle=null!;
@@ -25,9 +25,9 @@ public class DialogWindow(string Message, int Width=800, int Height=400, int Fon
 		if(ConfirmationDialogCallback!=null) {
 			GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
-			if(GUILayout.Button(Tr.TranslateDef("DialogWindow.Button.OK", Default:"OK"), GUILayout.Width(100)))
+			if(GUILayout.Button(Tr.TDef("DialogWindow.Button.OK", Default:"OK"), GUILayout.Width(100)))
 				DialogResult(true);
-			if(GUILayout.Button(Tr.TranslateDef("DialogWindow.Button.Cancel", Default:"Cancel"), GUILayout.Width(100)))
+			if(GUILayout.Button(Tr.TDef("DialogWindow.Button.Cancel", Default:"Cancel"), GUILayout.Width(100)))
 				DialogResult(false);
 			GUILayout.FlexibleSpace();
 			GUILayout.EndHorizontal();

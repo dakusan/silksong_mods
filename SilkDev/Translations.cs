@@ -75,13 +75,15 @@ public class Translations
 	}
 
 	//Translation functions
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public string  T				(string Key, string? Section=null, bool RichSanitize=false, params object[] FormatList) => TranslateDef(Key, Section, Key  , RichSanitize, FormatList); //Fallback to Key if not found
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public string  Translate		(string Key, string? Section=null, bool RichSanitize=false, params object[] FormatList) => TranslateDef(Key, Section, Key  , RichSanitize, FormatList); //Fallback to Key if not found
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public string? TranslateNull	(string Key, string? Section=null, bool RichSanitize=false, params object[] FormatList) => TranslateDef(Key, Section, null!, RichSanitize, FormatList); //Fallback to null if not found
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public string  T				(string Key, string? Section=null, bool RichSanitize=false, params object[] FormatList) => TranslateDef(Key, Section, Key  , RichSanitize, FormatList); //If not found, return Key
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public string  Translate		(string Key, string? Section=null, bool RichSanitize=false, params object[] FormatList) => TranslateDef(Key, Section, Key  , RichSanitize, FormatList); //If not found, return Key
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public string? TranslateNull	(string Key, string? Section=null, bool RichSanitize=false, params object[] FormatList) => TranslateDef(Key, Section, null!, RichSanitize, FormatList); //If not found, return null
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public string  TDef			(string Key, string? Section=null, string Default=Misc.Empty, //Same as TranslateDef
+																													   bool RichSanitize=false, params object[] FormatList) => TranslateDef(Key, Section,Default,RichSanitize, FormatList); //If not found, return Default
 
 	//Replacement arguments for parameterized translation strings (e.g., {0} placeholders).
 	public Dictionary<string, object[]> FormatParameters=[]; //If SectionName is not ROOT or null, Expects "SectionName/" before the Key
-	public string TranslateDef(string Key, string? Section=null, string Default=Misc.Empty, bool RichSanitize=false, params object[] FormatList) //Fallback to Default if not found. Section is ROOT if null.
+	public string TranslateDef(string Key, string? Section=null, string Default=Misc.Empty, bool RichSanitize=false, params object[] FormatList) //Return Default if not found. Section is ROOT if null.
 	{
 		Section ??= ROOT;
 		string? Text=Sections?.GetValueOrDefault(Section)?.GetValueOrDefault(Key) ?? Default;
@@ -97,7 +99,7 @@ public class Translations
 		FormatParameters[Section is null or ROOT ? Key : $"{Section}/{Key}"]=List;
 
 	//Translate the string with the default values
-	public string TDefault(string Key, string? Section=null) =>
+	public string GetDefault(string Key, string? Section=null) =>
 		FormatParameters.TryGetValue(Section is null or ROOT ? Key : $"{Section}/{Key}", out object[] FPs)
 			? string.Format(Key, FPs) : Key;
 }

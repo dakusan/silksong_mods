@@ -547,7 +547,7 @@ public class ExtractSpritesWindow : Window
 			MyTextStyle.alignment=TextAnchor.MiddleLeft;
 
 			//Substitute in the directory and path and get the window width
-			string LocalText=Tr.TranslateDef("ExtractSpritesWindow.HelpWindow", Default:EnglishHelpText)
+			string LocalText=Tr.TDef("ExtractSpritesWindow.HelpWindow", Default:EnglishHelpText)
 				.Replace("<DIR>", Misc.SanitizeRichString(FileOps.PathCombine(FileOps.GetPluginPath, ExtractAllTextures.TextureDirectory, "\u00A0")))
 				.Replace("<PATH>", "<b><color=green>[YYYY-MM-DD_HH_mm_SS SPRITE_NAME].png</color></b>");
 

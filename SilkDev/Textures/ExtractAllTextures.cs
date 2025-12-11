@@ -82,7 +82,7 @@ internal class ExtractAllTextures : ProgressBarWithLogs
 		string NumbersOutput="Written: {0}, Existed: {1}, Failed: {2}";
 		Tr.AddFormatParameters(SuccessMessage, null, IsClosed ? [Cur, Total] : [Total]);
 		Tr.AddFormatParameters(NumbersOutput, null, NumWritten, NumAlreadyExisted, NumFailed);
-		Log.Info($"{Tr.TDefault(SuccessMessage)}: {Tr.TDefault(NumbersOutput)}");
+		Log.Info($"{Tr.GetDefault(SuccessMessage)}: {Tr.GetDefault(NumbersOutput)}");
 		static string TSan(string Message) => Tr.T(Message, RichSanitize:true);
 		if(IsClosed)
 			_=new PopupMessage($"<b>{TSan(SuccessMessage)}</b>\n{TSan(NumbersOutput)}");

@@ -157,7 +157,7 @@ public class TranslatedConfig(ConfigFile CF, Translations? Tr=null)
 			//Update the strings
 			CMA.Category=SectionTitles[CE.Definition.Section];
 			CMA.DispName=Tr.T(CE.Definition.Key, SettingTranslationSections.Names.TranslationName());
-			CMA.Description=Tr.TranslateDef(CE.Definition.Key, SettingTranslationSections.Descriptions.TranslationName(), CE.Description.Description);
+			CMA.Description=Tr.TDef(CE.Definition.Key, SettingTranslationSections.Descriptions.TranslationName(), CE.Description.Description);
 		});
 	}
 
