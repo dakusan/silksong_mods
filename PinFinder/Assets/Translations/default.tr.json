@@ -1,0 +1,24 @@
+//NOTE: Do not include this in the release. It is only here to help generate other translation files ✓
+{
+	"SettingSections":{
+		"Pin Finding": "Pin Finding",
+		"Shortcut Keys": "Shortcut Keys",
+		"General": "General",
+	},
+	"SettingNames":{
+		"Start Process": "Start Process",
+		"Skipped scene bundles": "Skipped scene bundles",
+		"Skipped keywords": "Skipped keywords",
+		"Start Pin Finding Process": "Start Pin Finding Process",
+	},
+	"SettingDescriptions":{
+		"Start Process": "Check this and the plugin will start cycling through maps to find all the pins. It does this by identifying UnityEngine.GameObject’s that have saveable values. Once it’s done it will write a new {0} for you.\n\nWARNING: YOU CANNOT CONTINUE YOUR GAME AFTER INITIATING THIS PROCESS. SAVE BEFORE STARTING IT.\nYou can pause it once it starts, but you’ll need to alt+f4 before continuing the game. This should take 13-15 minutes.\n\nThe processing seems to usually freeze around 400 scenes, so when this happens it will prompt you to exit your game.\n\nScene-by-scene files are temporarily written during the process so it can pick back up where you left off. Once the full process is done the temporary files will be deleted and a final {0} will be written.",
+		"Skipped scene bundles": "Scene bundles that need to be skipped since they cause the process to freeze",
+		"Skipped keywords": "Keywords to skip when finding persistent objects",
+		"Start Pin Finding Process": "See “Pin Finding” section",
+	},
+	"":{
+	},
+	"Errors":{
+	},
+}

@@ -195,6 +195,7 @@ See [root project README](../#contributing) for details
 			* ➤️ `bool TabIndent=true`: If true, use tab indentions instead of spaces
 			* ➤️ `bool UnixNewLine=true`: If true, use `\n` instead of `\r\n`
 			* ➤️ `bool Sorted=false`: If true, add `JSON.SortedConverter`
+			* ➤️ `bool TrailingCommas=false`: If true, commas are added to the last item of lists/objects. `Compact=false` required.
 			* ➤️ `params JsonConverter[] Converters`: Extra converters to use
 		* ⚙️ `Serialize(...)`: Same as `Serialize_Conv(...)` but without `Converters` parameter
 		* ⚙️ `Serialize_FPC<T>(object, bool OutputNulls=true, ...)`: Runs specified class through `FieldPropConverter<T>`.

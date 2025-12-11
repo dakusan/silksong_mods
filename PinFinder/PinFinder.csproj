@@ -43,4 +43,10 @@
     <ProjectReference Include="..\NoClip\NoClip.csproj" />
     <ProjectReference Include="..\SilkDev\SilkDev.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\Embed\*.*">
+      <LogicalName>%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>

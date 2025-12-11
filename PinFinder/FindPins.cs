@@ -230,7 +230,7 @@ public static class FindPins
 
 			//Save the scene item
 			try {
-				File.WriteAllText(SavePath, JsonUtils.Serialize(RetObjects.ToArray()), System.Text.Encoding.UTF8);
+				File.WriteAllText(SavePath, JsonUtils.Serialize(RetObjects.ToArray(), TrailingCommas:true), System.Text.Encoding.UTF8);
 			} catch(Exception e) {
 				LogError($"Error saving to file [{SavePath}]: {e.Message}");
 			}
@@ -261,7 +261,8 @@ public static class FindPins
 				Directory.EnumerateFiles(SaveDir, "*.bundle.obj")
 					.Select(static File => JsonUtils.Deserialize<List<FoundObj>>(FileOps.ReadFile(File)))
 					.Aggregate(static (Acc, List) => { Acc.AddRange(List); return Acc; })
-					?.ToArray() ?? throw new Exception("Data is null")
+					?.ToArray() ?? throw new Exception("Data is null"),
+				TrailingCommas:true
 			));
 			_=new DialogWindow($"{MustClose}</color>\n<size=35><color=green>Process complete</color></size>\n\n{SuccessMessage}", FontSize:20, Height:480) { Priority=1500 };
 			try { Directory.Delete(SaveDir, true); } catch(Exception e) { LogError($"Error deleting temp files: {e.Message}"); }

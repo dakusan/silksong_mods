@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using static SilkDev.Configs.TranslatedConfig;
 
 namespace SilkDev.Configs;
 
@@ -65,29 +66,51 @@ public class TranslatedConfig(ConfigFile CF, Translations? Tr=null)
 	}
 
 	//Add a language field to the config
-	public DynamicEnumConfig BindLanguage(string Title, string Default="en")
+	public DynamicEnumConfig BindLanguage(string Title, string? Default=null) //If Default is not set, uses Translations.DefaultLang
 	{
+		//Set the default if not given
+		Default ??= Tr.DefaultLang;
+
 		if(LanguageField!=null)
 			throw new InvalidOperationException($"{nameof(LanguageField)} already set");
 
 		//Fill in the enum values
 		Dictionary<string, string> LList=Tr.GetEnum ?? [];
 		if(!LList.ContainsKey(Default))
-			LList[Default]=Default=="en" ? "English" : $"Unknown {Default}";
+			LList[Default]=Default==Tr.DefaultLang ? Tr.DefaultLangName : $"Unknown {Default}";
 
 		//Create the field and handle changing the language
 		LanguageField=new DynamicEnumConfig(this, Title, Translations.LanguageAsStr, LList, Translations.PickLanguageAsStr, Default);
-		LanguageField.SettingChanged += (_, _) => LanguageChanged(LanguageField.Value, true);
+		LanguageField.SettingChanged += (_, _) => LanguageChanged(LanguageField.Value);
 
+		AddLangFieldToSync(LanguageField);
 		return LanguageField;
+	}
+
+	//Keep language fields in-sync
+	private static bool SyncRunning=false; //Make sure there is no SettingChanged recursion
+	private static readonly List<DynamicEnumConfig> AllLanguageFields=[];
+	private void RunLanguageSync(string NewLang)
+	{
+		if(SyncRunning)
+			return;
+		SyncRunning=true;
+		AllLanguageFields.ForEach(LF => Misc.IFF(LF.Value!=NewLang && LF.HasKey(NewLang), () => LF.Value=NewLang));
+		SyncRunning=false;
+		RefreshConfigManager();
+	}
+	private void AddLangFieldToSync(DynamicEnumConfig LanguageField)
+	{
+		LanguageField.SettingChanged += (_, _) => RunLanguageSync(LanguageField.Value);
+		AllLanguageFields.Add(LanguageField);
 	}
 
 	//Call this after all binding has been done
 	public void Complete() =>
-		LanguageChanged(LanguageField?.Value, false);
+		LanguageChanged(LanguageField?.Value);
 
 	//Update the displayed language
-	private void LanguageChanged(string? NewLanguage, bool IsFromSettingChanged)
+	private void LanguageChanged(string? NewLanguage)
 	{
 		Tr.Language=NewLanguage ?? Misc.Empty;
 
@@ -97,19 +120,29 @@ public class TranslatedConfig(ConfigFile CF, Translations? Tr=null)
 		foreach(var (SectionName, SectionInfo) in ConfigSections)
 			SectionTitles[SectionName]=string.Join(Misc.Empty, [
 				SectionInfo.SectionID.ToString().PadLeft(SectionsStrLen, ZeroWidthSpace), ". ",
-				Tr.T(SectionName, SN(SettingTranslationSections.Sections)),
+				Tr.T(SectionName, SettingTranslationSections.Sections.TranslationName()),
 			]);
 
 		//Set the translations for the language field
 		void UpdateLangStr(SettingTranslationSections SectionName, string Default, Func<Translations.LangNames, string?> GetVal)
 		{
+			//Make sure the setting section exists in the translation dictionaries
 			Tr.Sections ??= [];
-			string SectionNameStr=SN(SectionName);
+			string SectionNameStr=SectionName.TranslationName();
 			if(!Tr.Sections.TryGetValue(SectionNameStr, out Dictionary<string, string> LSec))
 				LSec=Tr.Sections[SectionNameStr]=[];
-			LSec[Translations.LanguageAsStr]=GetVal(Tr.Languages!.GetValueOrDefault(Tr.Language)) ?? Default;
+
+			//Get the translation (Looked up in Tr.Languages [from Languages.json])
+			string NewVal=GetVal(Tr.Languages!.GetValueOrDefault(Tr.Language)) ?? Default;
+
+			//If is the name field and not set to the default, append the default in square brackets to help clarify where the language field is
+			if(SectionName==SettingTranslationSections.Names && NewVal!=Default)
+				NewVal+=$" [{Default}]";
+
+			//Save the value
+			LSec[Translations.LanguageAsStr]=NewVal;
 		}
-		UpdateLangStr(SettingTranslationSections.Names, Translations.LanguageAsStr, static LN => LN?.LanguageAsString);
+		UpdateLangStr(SettingTranslationSections.Names		 , Translations.LanguageAsStr	 , static LN => LN?.LanguageAsString	);
 		UpdateLangStr(SettingTranslationSections.Descriptions, Translations.PickLanguageAsStr, static LN => LN?.PickLanguageAsString);
 
 		//Update the config names
@@ -123,23 +156,20 @@ public class TranslatedConfig(ConfigFile CF, Translations? Tr=null)
 
 			//Update the strings
 			CMA.Category=SectionTitles[CE.Definition.Section];
-			CMA.DispName=Tr.T(CE.Definition.Key, SN(SettingTranslationSections.Names));
-			CMA.Description=Tr.TranslateDef(CE.Definition.Key, SN(SettingTranslationSections.Descriptions), CE.Description.Description);
+			CMA.DispName=Tr.T(CE.Definition.Key, SettingTranslationSections.Names.TranslationName());
+			CMA.Description=Tr.TranslateDef(CE.Definition.Key, SettingTranslationSections.Descriptions.TranslationName(), CE.Description.Description);
 		});
-
-		RefreshConfigManager(IsFromSettingChanged);
 	}
 
 	//Add translation format parameters
 	public enum SettingTranslationSections { Names, Sections, Descriptions };
-	private static string SN(SettingTranslationSections Section) => $"Setting{Section}";
 	public void AddTranslationParameters(SettingTranslationSections Section, ConfigEntryBase CE, params object[] Params) =>
 		Tr.AddFormatParameters(Section switch {
 			SettingTranslationSections.Names		=> CE.Definition.Key,
 			SettingTranslationSections.Sections		=> CE.Definition.Section,
 			SettingTranslationSections.Descriptions => CE.Definition.Key,
 			_ => "!INVALID!"
-		}, SN(Section), Params);
+		}, Section.TranslationName(), Params);
 
 	//If ConfigurationManager is open then close and reopen it to refresh language
 	private static readonly HookCMWindow CM=CreateHook();
@@ -153,9 +183,9 @@ public class TranslatedConfig(ConfigFile CF, Translations? Tr=null)
 		GameEvents.OnUpdate += PatchOnce;
 		return HookCMWindow.Self=new HookCMWindow();
 	}
-	private void RefreshConfigManager(bool IsFromSettingChanged)
+	private void RefreshConfigManager()
 	{
-		if(IsFromSettingChanged && CM.FailedHook)
+		if(CM.FailedHook)
 			_=new Windows.PopupMessage(Tr.T("Refreshing config manager failed. Close and reopen it for translation changes", "Errors", true));
 
 		if(!CM.DisplayingWindow)
@@ -188,6 +218,11 @@ public class TranslatedConfig(ConfigFile CF, Translations? Tr=null)
 			set => Misc.IFF(CM!=null, () => PI?.SetValue(CM, value));
 		}
 	}
+}
+
+//Get the translation section name for a SettingTranslationSections
+public static class Extension {
+	public static string TranslationName(this SettingTranslationSections Section) => $"Setting{Section}";
 }
 
 //From ConfigurationManager.dll/ConfigurationManager.SettingEntryBase

@@ -296,7 +296,7 @@ public class MonitorSaveValues
 		try {
 			SVP.PopupMessage=LogMessage=SaveIconValueReal();
 			try {
-				FileOps.WriteFile(JsonFilename, JsonUtils.Serialize(IF, Sorted:true));
+				FileOps.WriteFile(JsonFilename, JsonUtils.Serialize(IF, Sorted:true, TrailingCommas:true));
 			} catch {
 				SVP.PopupMessage+="\n\n<color=red>Could not save to JSON file!</color>";
 				LogMessage+="\nCould not save to JSON file!";

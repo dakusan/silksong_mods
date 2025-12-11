@@ -52,6 +52,12 @@ foreach my $File (@FileList)
 		system('git', 'add', $File)==0 or warn "Failed to add $File to git index: $?";
 	}
 
+	#Check for missing trailing commas in json
+	if($File =~ /(?:\.json)$/ && $FileContents =~ s/([^,{\[])(\r?\n[ \t]*)(?=[}\]])/$1,$2/g) {
+		$FileContentsChanged=1;
+		push(@Warnings, "$File trailing commas added");
+	}
+
 	#If file has changed, write the changes
 	if($FileContentsChanged) {
 		seek($FileHandle, 0, 0);

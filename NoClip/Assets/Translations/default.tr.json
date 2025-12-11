@@ -1,0 +1,21 @@
+//NOTE: Do not include this in the release. It is only here to help generate other translation files ✓
+{
+	"SettingSections":{
+		"No Clip": "No Clip",
+		"General": "General",
+	},
+	"SettingNames":{
+		"No clip shortcut key": "No clip shortcut key",
+		"Turn on no clip": "Turn on no clip",
+		"No clip movement speed": "No clip movement speed",
+	},
+	"SettingDescriptions":{
+		"No clip shortcut key": "Key to press to turn on and off noclip",
+		"Turn on no clip": "Turns off collision detection and velocity, turns on invincibility and infinite jump",
+		"No clip movement speed": "How fast you want your character to move while no clipping",
+	},
+	"":{
+	},
+	"Errors":{
+	},
+}

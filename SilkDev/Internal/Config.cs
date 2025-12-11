@@ -16,7 +16,6 @@ public class Config
 	public readonly ConfigEntryT<Rect> Rect_ExtractSprites;
 	public readonly DynamicEnumConfig Language;
 	public readonly Translations Tr;
-	private string LastLanguage="fr";
 
 	internal Config(ConfigFile PConfig)
 	{
@@ -35,14 +34,8 @@ public class Config
 
 		//General
 		Title="General";
-
-		//Language
-		Language=Con.BindLanguage(Title, "en");
-		#if DEBUG
-			ConfigEntryTKeyboardShortcut SwitchLang=Con.Bind(Title, "Switch between Last Language and English for testing", new KeyboardShortcut(KeyCode.F9), null, new() { IsAdvanced=true });
-			Events.GameEvents.OnUpdate += () => Misc.IFF(SwitchLang.IsDown(), () => Language.Value=Language.Value=="en" ? LastLanguage : "en");
-			Language.SettingChanged += (_, _) => LastLanguage=(Language.Value=="en" ? LastLanguage : Language.Value);
-		#endif
+		Language=Con.BindLanguage(Title);
+		AddLastLang(Con, Title);
 
 		//Show the mouse
 		Title="Force Show Mouse";
@@ -72,4 +65,17 @@ public class Config
 		BlockMouse_UnityExplorer=Con.Bind(Title, "No mouse passthrough on Unity Explorer", true, "Unity explorer does not block mouse events from reaching the rest of unity when the mouse is over it. This fixes that. This will run during Window.OnDraw Priority=-100.");
 		BlockMouse_BepInExConfig=Con.Bind(Title, "No mouse passthrough on BepInEx Config Manager", true, "See above description.");
 	}
+
+//LastLanguage only available during debug
+#if DEBUG
+	private string LastLanguage="fr";
+	private void AddLastLang(TranslatedConfig Con, string Title)
+	{
+		ConfigEntryTKeyboardShortcut SwitchLang=Con.Bind(Title, "Switch between Last Language and English for testing", new KeyboardShortcut(KeyCode.F9), null, new() { IsAdvanced=true });
+		Events.GameEvents.OnUpdate += () => Misc.IFF(SwitchLang.IsDown(), () => Language.Value=(Language.Value==Tr.DefaultLang ? LastLanguage : Tr.DefaultLang));
+		Language.SettingChanged += (_, _) => LastLanguage=(Language.Value==Tr.DefaultLang ? LastLanguage : Language.Value);
+	}
+#else
+	private void AddLastLang(TranslatedConfig Con, string Title) { }
+#endif
 }

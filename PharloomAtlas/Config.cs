@@ -21,6 +21,8 @@ public class Config
 	public readonly ConfigEntryT<Rect> Rect_SaveValuesWindow, Rect_SearchWindow;
 	public readonly DynamicEnumConfig IconSet;
 	internal readonly ConfigEntryT<HornetIconAnimators.HornetHighlightTypes> HornetHighlights;
+	public readonly DynamicEnumConfig Language;
+	public readonly Translations Tr;
 
 	private static ConfigDescription AVR<T>(T min, T max, string Description=Misc.Empty, ConfigurationManagerAttributes? CMA=null) where T : System.IComparable => new(Description, new AcceptableValueRange<T>(min, max), CMA);
 	private static ConfigurationManagerAttributes NonBrowsable => new() { Browsable=false };
@@ -29,7 +31,10 @@ public class Config
 	internal Config(ConfigFile PConfig)
 	{
 		Misc.InitSingleton(this, ref _C);
-		using TypedDisposer<TranslatedConfig> TCon=new(new(PConfig), static LCon => LCon.Complete());
+		using TypedDisposer<TranslatedConfig> TCon=new(
+			new(PConfig, Tr=Translations.StandardCreate("PharloomAtlas")),
+			static LCon => LCon.Complete()
+		);
 		TranslatedConfig Con=TCon.Target;
 
 		string Title="Map Features";
@@ -68,6 +73,7 @@ public class Config
 		Shortcut_CenterOverChar	=Con.Bind(Title, "Shortcut Key: Center map over character",	new KeyboardShortcut(KeyCode.Keypad0));
 
 		Title="Interface customization";
+		Language				=Con.BindLanguage(Title);
 		Color_SideBar_Background=Con.Bind(Title, "Sidebar background color",				new Color(0, 0, 0, .9f));
 		Color_SideBar_Interface	=Con.Bind(Title, "Sidebar interface items color",			new Color(0, 0, 1, 1));
 		Color_SideBar_Highlight	=Con.Bind(Title, "Sidebar highlight color",					new Color(1, 1, 0, 0.5f));

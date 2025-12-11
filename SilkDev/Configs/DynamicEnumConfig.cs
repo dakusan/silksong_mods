@@ -14,6 +14,8 @@ public class DynamicEnumConfig
 	//Members
 	private readonly ConfigEntryBase MyDynamicEntry;
 	private readonly List<string> Keys;
+	public string[] GetKeys => [.. Keys];
+	public bool HasKey(string Key) => Keys.Contains(Key);
 
 	//Initialize from different config file types
 	public DynamicEnumConfig(ConfigFile			CF, string SectionName, string KeyName, Dictionary<string, string> Options, string Description=Misc.Empty, string? Default=null) =>

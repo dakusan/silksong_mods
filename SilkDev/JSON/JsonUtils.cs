@@ -6,17 +6,18 @@ namespace SilkDev.JSON;
 public static class JsonUtils
 {
 	public static string Serialize(
-		object Obj,				//The object to serialize
-		bool Compact	=false,	//If false, add Formatting.Indented
-		bool TabIndent	=true ,	//If true, use tab indentions instead of spaces
-		bool UnixNewLine=true ,	//If true, use \n instead of \r\n
-		bool Sorted		=false	//If true, add SortedConverter
+		object Obj,					//The object to serialize
+		bool Compact		=false,	//If false, add Formatting.Indented
+		bool TabIndent		=true ,	//If true, use tab indentions instead of spaces
+		bool UnixNewLine	=true ,	//If true, use \n instead of \r\n
+		bool Sorted			=false,	//If true, add SortedConverter
+		bool TrailingCommas	=false  //If true, commas are added to the last item of lists/objects. Compact=false required.
 	) =>
-		Serialize_Conv(Obj, Compact:Compact, TabIndent:TabIndent, UnixNewLine:UnixNewLine, Sorted:Sorted);
+		Serialize_Conv(Obj, Compact:Compact, TabIndent:TabIndent, UnixNewLine:UnixNewLine, Sorted:Sorted, TrailingCommas:TrailingCommas);
 
 	public static string Serialize_Conv(
-		object Obj, bool Compact=false, bool TabIndent=true, bool UnixNewLine=true, bool Sorted=false,	//See Serialize()
-		params System.Collections.Generic.List<JsonConverter> Converters								//Extra converters to use
+		object Obj, bool Compact=false, bool TabIndent=true, bool UnixNewLine=true, bool Sorted=false, bool TrailingCommas=false,	//See Serialize()
+		params System.Collections.Generic.List<JsonConverter> Converters															//Extra converters to use
 	) {
 		using StringWriter	 SW								=new();
 		using JsonTextWriter JTW							=new(SW);
@@ -29,7 +30,9 @@ public static class JsonUtils
 			new JsonSerializerSettings { Converters=Converters }
 		).Serialize(JTW, Obj);
 
-		return SW.ToString();
+		return !Compact && TrailingCommas
+			? System.Text.RegularExpressions.Regex.Replace(SW.ToString(), @"([^,{\[])(\r?\n[ \t]*)(?=[}\]])", "$1,$2")
+			: SW.ToString();
 	}
 
 	public static T Deserialize<T>(string Data) =>
@@ -38,8 +41,8 @@ public static class JsonUtils
 		RetVar=JsonConvert.DeserializeObject<T>(Data)!;
 
 	//Runs specified classes through FieldPropConverter
-	public static string Serialize_FPC<T>(object Obj, bool OutputNulls=true, bool Compact=false, bool TabIndent=true, bool UnixNewLine=true, bool Sorted=false) where T: class =>
-		Serialize_Conv(Obj, Compact:Compact, TabIndent:TabIndent, UnixNewLine:UnixNewLine, Sorted:Sorted, Converters:new FieldPropConverter<T>(OutputNulls));
+	public static string Serialize_FPC<T>(object Obj, bool OutputNulls=true, bool Compact=false, bool TabIndent=true, bool UnixNewLine=true, bool Sorted=false, bool TrailingCommas=false) where T: class =>
+		Serialize_Conv(Obj, Compact:Compact, TabIndent:TabIndent, UnixNewLine:UnixNewLine, Sorted:Sorted, TrailingCommas:TrailingCommas, Converters:new FieldPropConverter<T>(OutputNulls));
 
 	public static T Deserialize_FPC<T, T2>(string Data) where T2: class =>
 		JsonConvert.DeserializeObject<T>(Data, new FieldPropConverter<T2>())!;
