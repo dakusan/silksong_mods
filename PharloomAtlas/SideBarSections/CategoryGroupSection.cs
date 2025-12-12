@@ -77,13 +77,13 @@ public partial class SideBar
 				NextSection.MoveTo(MoveToType.FirstRow|MoveToType.LeftCol);
 		}
 
-		public override void MoveTo(MoveToType M) => MovedTo(
+		public override void MoveTo(MoveToType M) { LastCheckedItem=-2; MovedTo(
 			  M.HasFlag(MoveToType.FirstRow) //Checking for first row
 			? (M.HasFlag(MoveToType.RightCol) ? ItemsInLeftCol : -1) //First row
 			: M.HasFlag(MoveToType.LeftCol) || (M.HasFlag(MoveToType.NoCol) && HasOddCols) //Second row (checking for left column)
 				? ItemsInLeftCol-1 //Left column
 				: CG.Count-1 //right column
-		);
+		); }
 
 		protected override void ExecDraw(int ClientWidth)
 		{
@@ -98,7 +98,7 @@ public partial class SideBar
 			TitleTextStyle.normal.textColor=(IsMouseOver ? Color.blue : NormalTitleTextColor);
 			GUILayout.Label(TranslatedCategoryTitle, TitleTextStyle, GUILayout.Width(ClientWidth));
 			if(IsSectionSelected && SelectedItem==-1)
-				HighlightLastItem();
+				HandleSelected();
 			GUILayout.EndHorizontal();
 			if(IsMouseOver && Event.current.type==EventType.MouseDown && Button.CurrentButton==Button.Enum.Left)
 				SB.DS.CycleGroupCategoryState(CG);
@@ -159,7 +159,7 @@ public partial class SideBar
 			LabelTextStyle.alignment=TextAnchor.MiddleLeft;
 			GUILayout.EndHorizontal();
 			if(IsSelected)
-				HighlightLastItem();
+				HandleSelected();
 
 			//Draw the strikethrough line depending on its toggle state
 			if(CategoryInfo.ToggleState==CategoryToggleState.None) {
@@ -180,6 +180,22 @@ public partial class SideBar
 					CurCat=CG.AsOrdered[SelectedItem],
 					DataStorage.GetNextToggleState(CurCat.ToggleState)
 				);
+		}
+
+		//Check if the parent scroll view area needs to move
+		public static Rect ScrollAreaRect;
+		private int LastCheckedItem=-2;
+		private void HandleSelected()
+		{
+			//Highlight the item and check if it is newly selected
+			HighlightLastItem();
+			if(Event.current.type!=EventType.Repaint || LastCheckedItem==SelectedItem)
+				return;
+			LastCheckedItem=SelectedItem;
+
+			//If not within the viewable rect then move it up or down to accomidate
+			Rect MyRect=GUILayoutUtility.GetLastRect();
+			SB.ScrollPosition.y=Mathf.Clamp(SB.ScrollPosition.y, MyRect.yMax-ScrollAreaRect.yMax, MyRect.yMin-ScrollAreaRect.yMin);
 		}
 	}
 }

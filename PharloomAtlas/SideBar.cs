@@ -202,7 +202,7 @@ public partial class SideBar : Window
 	{
 		int TopAreaHeight=(int)GUILayoutUtility.GetLastRect().height;
 		ScrollPosition=GUI.BeginScrollView(
-			new Rect(0, TopAreaHeight, AreaRect.width, AreaRect.height-TopAreaHeight),
+			CategoryGroupSection.ScrollAreaRect=new Rect(0, TopAreaHeight, AreaRect.width, AreaRect.height-TopAreaHeight),
 			ScrollPosition,
 			new Rect(0, TopAreaHeight, ClientWidth, PickerContentHeight)
 		);
