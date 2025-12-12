@@ -249,6 +249,7 @@ See [root project README](../#contributing) for details
 	* ⚙️ `SteamUsername`: Get steam username.
 		* 💡️ Note: May not be available until a few seconds after the game loads.
 	* ⚙️ `UnityExplorer_Inspect`: Open Unity Explorer inspection on game object (if plugin is loaded)
+	* ⚙️ `RenderFixedWidthLine`: Fit GUI text onto a fixed width line
 	* ⚙️ `Ref<T>(T Value)`: Simple reference class
 	* 🧾️ Common patterns used for bypassing curley-cue function blocks:
 		* ⚙️ `IFF(bool Cond, Action CallOnTrue)`: If-statement

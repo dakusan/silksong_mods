@@ -73,6 +73,31 @@ public static class Misc
 		Call_UnityExplorer_Inspect(GO);
 	}
 
+	//Fit GUI text onto a fixed width line
+	public static void RenderFixedWidthLine(string Text, GUIStyle TextStyle, Action<GUIContent> Render, float KnownWidth=-1)
+	{
+		//Get the width
+		float Width=KnownWidth;
+		if(Width<=0) {
+			Vector2 GetSize=GUILayoutUtility.GetRect(GUIContent.none, GUIStyle.none, GUILayout.Height(0), GUILayout.ExpandWidth(true)).size;
+			GUILayout.Space(GetSize.y*-1);
+			Width=GetSize.x;
+		}
+
+		//Calculate the new font size so it will fit
+		GUIContent GText=new(Text);
+		int StartFontSize=TextStyle.fontSize;
+		float RenderedLineWidth=TextStyle.CalcSize(GText).x;
+		bool ResizeNeeded=RenderedLineWidth>Width && Width>5;
+		if(ResizeNeeded)
+			TextStyle.fontSize=(int)(StartFontSize*Width/RenderedLineWidth);
+
+		//Render and restore the font size
+		Render(GText);
+		if(ResizeNeeded)
+			TextStyle.fontSize=StartFontSize;
+	}
+
 	//Simple reference class
 	public class Ref<T>(T Value) {
 		public T Value { get; set; } = Value;

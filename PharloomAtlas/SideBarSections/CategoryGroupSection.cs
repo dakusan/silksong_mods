@@ -12,10 +12,11 @@ public partial class SideBar
 		//Styling stuff
 		private const int IconSize=16, ItemLabelPadding=4, ColumnPadding=10;
 		private static readonly Texture2D CTexIconHover=new Color(0, 0, 0, .5f).MakeTexture(), CTexStrike=Color.white.MakeTexture();
-		private static readonly GUIStyle TitleTextStyle=new(GUI.skin.label) { fontSize=18, wordWrap=false };
-		private static readonly GUIStyle LabelTextStyle=new(GUI.skin.label) { fontSize=14, wordWrap=false };
+		private static readonly GUIStyle TitleTextStyle=new(GUI.skin.label) { fontSize=18, wordWrap=false, richText=false };
+		private static readonly GUIStyle LabelTextStyle=new(GUI.skin.label) { fontSize=14, wordWrap=false, richText=false };
 		private static readonly Color NormalTitleTextColor=GUI.skin.label.normal.textColor;
 		private static readonly Color NormalLabelTextColor=new(0.5f, 0.5f, 0.5f, 1);
+		private static string TrT(string Name) => Config.C.Tr.T(Name, "Categories");
 
 		//Constructors
 		public readonly CategoryGroup CG=CG;
@@ -91,10 +92,11 @@ public partial class SideBar
 			GUILayout.BeginHorizontal();
 			GUILayout.Space(AreaMargin);
 			Rect LabelRect=GUILayoutUtility.GetRect(0, 0);
-			LabelRect.size=TitleTextStyle.CalcSize(new GUIContent(CG.Title));
+			string TranslatedCategoryTitle=TrT(CG.Title);
+			LabelRect.size=TitleTextStyle.CalcSize(new GUIContent(TranslatedCategoryTitle));
 			bool IsMouseOver=SB.CheckHasMouse && LabelRect.Contains(Event.current.mousePosition);
 			TitleTextStyle.normal.textColor=(IsMouseOver ? Color.blue : NormalTitleTextColor);
-			GUILayout.Label(CG.Title, TitleTextStyle, GUILayout.Width(ClientWidth));
+			GUILayout.Label(TranslatedCategoryTitle, TitleTextStyle, GUILayout.Width(ClientWidth));
 			if(IsSectionSelected && SelectedItem==-1)
 				HighlightLastItem();
 			GUILayout.EndHorizontal();
@@ -150,7 +152,7 @@ public partial class SideBar
 			if(IsMouseOver)
 				GUI.DrawTexture(GUILayoutUtility.GetLastRect(), CTexIconHover);
 			GUILayout.Space(ItemLabelPadding);
-			GUILayout.Label(CategoryInfo.Title, LabelTextStyle, GUILayout.Width(ColumnWidth-IconSize-CountStrWidth-ItemLabelPadding*2));
+			GUILayout.Label(TrT(CategoryInfo.Title), LabelTextStyle, GUILayout.Width(ColumnWidth-IconSize-CountStrWidth-ItemLabelPadding*2));
 			GUILayout.Space(ItemLabelPadding);
 			LabelTextStyle.alignment=TextAnchor.MiddleRight;
 			GUILayout.Label(CountStr, LabelTextStyle, GUILayout.Width(CountStrWidth));

@@ -8,7 +8,8 @@ public partial class SideBar
 {
 	public class ButtonsRowSection : SideBarSection
 	{
-		private static readonly GUIStyle TitleStyle=new(GUI.skin.label) { wordWrap=false };
+		private static readonly GUIStyle TitleStyle=new(GUI.skin.label) { wordWrap=false, richText=false };
+		private static readonly SilkDev.Translations Tr=Config.C.Tr;
 		public readonly List<Button> Buttons=[];
 		private readonly string Title;
 		public class Button
@@ -17,6 +18,7 @@ public partial class SideBar
 			public Action Exec;
 			public readonly int Index;
 			public readonly ButtonsRowSection Parent;
+			public string TransTitle => Tr.T(Title, "SideBarButtons", true);
 			public Button(string Title, Action Exec, ButtonsRowSection Parent)
 			{
 				(this.Title, this.Exec, this.Parent, Index)=(Title, Exec, Parent, Parent.Buttons.Count);
@@ -25,7 +27,7 @@ public partial class SideBar
 			public void Execute() => Exec();
 			internal void Draw()
 			{
-				if(GUILayout.Button(Title))
+				if(GUILayout.Button(TransTitle))
 					Exec.Invoke();
 				if(Parent.IsSectionSelected && Parent.SelectedItem==Index)
 					HighlightLastItem();
@@ -74,12 +76,26 @@ public partial class SideBar
 			if(Buttons.Count==0)
 				return;
 
+			GUIContent RowTitle=new($"{Tr.T(Title, "SideBarButtons")}:");
 			GUILayout.BeginHorizontal(GUILayout.Width(ClientWidth));
-			GUILayout.Label($"{Title}:", TitleStyle, GUILayout.ExpandWidth(false));
+			GUILayout.Label(RowTitle, TitleStyle, GUILayout.ExpandWidth(false));
+			float LineUsedWidth=TitleStyle.CalcSize(RowTitle).x;
 			foreach(Button B in (Button[])[.. Buttons]) {
 				GUILayout.FlexibleSpace();
+
+				//Move to a new row on overflow
+				float NewButtonWidth=GUI.skin.button.CalcSize(new GUIContent(B.TransTitle)).x;
+				if(LineUsedWidth+NewButtonWidth>ClientWidth) {
+					GUILayout.EndHorizontal();
+					GUILayout.BeginHorizontal(GUILayout.Width(ClientWidth));
+					GUILayout.FlexibleSpace();
+					LineUsedWidth=0;
+				}
+
 				B.Draw();
+				LineUsedWidth+=NewButtonWidth;
 			}
+			GUILayout.FlexibleSpace();
 			GUILayout.EndHorizontal();
 		}
 

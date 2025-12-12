@@ -14,9 +14,10 @@ public class SearchWindow : SilkDev.Windows.Window
 	private static SearchWindow _Self=null!; public static SearchWindow Self => _Self; //Singleton
 
 	//Constants
+	private static readonly Translations Tr=Config.C.Tr;
 	private readonly GUIStyle TextStyle=new(GUI.skin.label) { fontSize=14, wordWrap=true };
-	private readonly GUIStyle MouseOnlyStyle=new(GUI.skin.label) { fontSize=14, alignment=TextAnchor.UpperCenter, normal={textColor=Color.red} };
-	private readonly GUIStyle SearchHereStyle=new(GUI.skin.label) { fontSize=13, alignment=TextAnchor.MiddleCenter, fontStyle=FontStyle.Bold, normal={textColor=Color.grey} };
+	private readonly GUIStyle MouseOnlyStyle=new(GUI.skin.label) { fontSize=14, wordWrap=false, richText=false, alignment=TextAnchor.UpperCenter, normal={textColor=Color.red} };
+	private readonly GUIStyle SearchHereStyle=new(GUI.skin.label) { fontSize=13, richText=false, alignment=TextAnchor.MiddleCenter, fontStyle=FontStyle.Bold, normal={textColor=Color.grey} };
 	private readonly GUIStyle NumResults=new(GUI.skin.label) { fontSize=13, alignment=TextAnchor.MiddleRight, normal={textColor=Color.magenta} };
 	private readonly Texture2D SelectTex=new Color(1, 1, 0, 0.5f).MakeTexture();
 	private const int MaxSearchResults=50, MaxLinesPerItem=7;
@@ -42,14 +43,20 @@ public class SearchWindow : SilkDev.Windows.Window
 
 	//Initialization
 	internal static void Init() => _=new SearchWindow();
-	private SearchWindow() : base("Search icons", Config.C.Rect_SearchWindow, 0, 0)
+	private SearchWindow() : base(Misc.Empty, Config.C.Rect_SearchWindow, 0, 0)
 	{
 		Misc.InitSingleton(this, ref _Self);
 		TextStyle.normal.background=BGTex;
 		NumResults.padding.right+=8;
-		MessageOverrides[BlockActions]="Only cancel allowed";
 		if(WindowRect.width==0)
 			WindowRect=new Rect(Screen.width-800-45, 42+179+10, 800, 600); //Set just below the default for SaveValuesWindow and aligned on the right side
+		UpdateLangs();
+		Tr.LanguageChanged += UpdateLangs;
+	}
+	private void UpdateLangs()
+	{
+		Title=Tr.TDef("SearchWindow.Title", Default:"Search icons");
+		MessageOverrides[BlockActions]=Tr.TDef("BlockActions.OnlyCancel", null, "Only cancel allowed", true);
 	}
 
 	//Watch for escape key
@@ -64,7 +71,11 @@ public class SearchWindow : SilkDev.Windows.Window
 		GUILayout.BeginVertical();
 
 		//Draw a small label about the window
-		GUILayout.Label("This window only supports mouse (see config “Show mouse”) and keyboard. You can close me with escape or cancel.", MouseOnlyStyle);
+		Misc.RenderFixedWidthLine(
+			Tr.TDef("SearchWindow.NoController", Default:"This window only supports mouse (see config “Show mouse”) and keyboard. You can close me with escape or cancel."),
+			MouseOnlyStyle,
+			Text => GUILayout.Label(Text, MouseOnlyStyle)
+		);
 
 		//Search text
 		const string SearchFieldName="SearchWindowSearchField";
@@ -77,7 +88,7 @@ public class SearchWindow : SilkDev.Windows.Window
 		int NumFoundItems=SearchedItems.Length;
 		GUI.Label(
 			GUILayoutUtility.GetLastRect(),
-				  NoResults ? "Type in here to search"
+				  NoResults ? Tr.T("Type in here to search")
 				: NumFoundItems+(HadOverflow ? "+" : Misc.Empty),
 			NoResults ? SearchHereStyle : NumResults
 		);
@@ -135,7 +146,7 @@ public class SearchWindow : SilkDev.Windows.Window
 		foreach(string Term in EscapedTerms)
 			Info=Regex.Replace(Info, Term, (char)1+"$1"+(char)2, RegexOptions.IgnoreCase);
 		Info=Info.Replace((char)1+Misc.Empty, $"<color={TextHighlightColor}>").Replace((char)2+Misc.Empty, "</color>");
-		return $"<size=-2>{Title}</size>: <b>{Info}</b>";
+		return $"<size=-2>{Tr.T(Title, "ItemFields", true)}</size>: <b>{Info}</b>";
 	}
 
 	//Compile a SearchedItem

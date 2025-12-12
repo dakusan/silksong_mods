@@ -55,7 +55,7 @@ public class MarkerLabels : Window
 	private BlockInput.CAResults BlockActions(BlockInput.CAParams P) => BlockInput.AllowAction(P, "Cancel");
 
 	//Inititialize
-	public string DefaultLabel="New label";
+	public string DefaultLabel=Misc.Empty;
 	internal MarkerLabels() : base("MarkerLabels", false, -250)
 	{
 		UnboundDraw=true;
@@ -66,7 +66,13 @@ public class MarkerLabels : Window
 			OnNextFrame(() => BGTex.ReColor(Conf.Color_MarkerLabelBG));
 		Conf.Color_MarkerLabelText.SettingChanged	+= (_, _) =>
 			LabelStyle.normal.textColor=TextFieldStyle.focused.textColor=Conf.Color_MarkerLabelText;
-		BlockInput.MessageOverrides[BlockActions]="Only cancel allowed";
+		UpdateLangs();
+		Conf.Tr.LanguageChanged += UpdateLangs;
+	}
+	private void UpdateLangs()
+	{
+		DefaultLabel=Conf.Tr.TDef("MarkerLabels.NewLabel", Default:"New label");
+		BlockInput.MessageOverrides[BlockActions]=Conf.Tr.TDef("BlockActions.OnlyCancel", null, "Only cancel allowed", true);
 	}
 
 	//Remove focus when window is hidden
@@ -97,7 +103,13 @@ public class MarkerLabels : Window
 		if(Index1==-1)
 			return null;
 		FSpawnedMapMarkers.Obj=MC.GameMap;
-		return FSpawnedMapMarkers.Get()[Index1, Index2];
+		//TODO: I’ve seen exceptions come from here that I haven’t tracked down yet. So I added some code to help when I see it happen again
+		try {
+			return FSpawnedMapMarkers.Get()[Index1, Index2];
+		} catch(Exception e) {
+			Log.Error($"Error getting spawned map markers: {Index1}, {Index2} :: {FSpawnedMapMarkers.Get().GetLength(0)}, {FSpawnedMapMarkers.Get().GetLength(1)} :: {e.Message}");
+			return null;
+		}
 	}
 
 	//Converts back and forth between vector and custom string
@@ -161,11 +173,12 @@ public class MarkerLabels : Window
 		}
 
 		//Handle the selected marker
+		const string MarkerLabelControlName="MarkerLabel";
 		WindowRect=new Rect(LabelBox.position, TextFieldStyle.CalcSize(new GUIContent(LabelText))).AddWidth(10);
-		GUI.SetNextControlName("MarkerLabel");
+		GUI.SetNextControlName(MarkerLabelControlName);
 		string NewLabel=GUI.TextField(WindowRect, LabelText, TextFieldStyle);
-		if(GUI.GetNameOfFocusedControl()!="MarkerLabel") {
-			GUI.FocusControl("MarkerLabel");
+		if(GUI.GetNameOfFocusedControl()!=MarkerLabelControlName) {
+			GUI.FocusControl(MarkerLabelControlName);
 			TextEditor TE=(TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
 			OnNextFrame(
 				  NewLabel==DefaultLabel ? TE.SelectAll //It is already selected by default, but just in case
@@ -329,8 +342,12 @@ public class MarkerLabels : Window
 					DeletedLabels[Key]=Val;
 		} catch(Exception e) {
 			_=new PopupMessage(
-				"<color=red>Your marker labels failed to load.</color> There are backups at <color=green>"
-				+$"{Conf.PSC.ConfigFileName}{SilkDev.Configs.PerSaveConfig.BackupExtension}*</color>: {e.Message}"
+				Conf.Tr.TDef(
+					"MarkerLabels.LoadFailed", null, "<color=red>Your marker labels failed to load.</color> There are backups at <color=green>{0}</color>: {1}",
+					false,
+					Misc.SanitizeRichString($"{Conf.PSC.ConfigFileName}{SilkDev.Configs.PerSaveConfig.BackupExtension}*"),
+					Misc.SanitizeRichString(e.Message)
+				)
 			);
 		}
 	}

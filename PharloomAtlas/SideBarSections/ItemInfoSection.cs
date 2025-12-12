@@ -34,7 +34,7 @@ public partial class SideBar
 
 			//Basic title
 			ItemInfoBoxStyle.alignment=TextAnchor.MiddleCenter;
-			GUILayout.Label("<b><size=17>Select an icon on the map to see its data here</size></b>", ItemInfoBoxStyle);
+			GUILayout.Label($"<b><size=17>{TSan("Select an icon on the map to see its data here")}</size></b>", ItemInfoBoxStyle);
 			ItemInfoBoxStyle.alignment=TextAnchor.UpperLeft;
 
 			//Add hover item information
@@ -64,7 +64,7 @@ public partial class SideBar
 			//Draw the header and horizontal border line
 			GUILayout.Space(5);
 			ItemInfoBoxStyle.alignment=TextAnchor.MiddleCenter;
-			GUILayout.Label("<b><size=+2>Selected Item Info</size></b>", ItemInfoBoxStyle);
+			GUILayout.Label($"<b><size=+2>{TSan("Selected Item Info")}</size></b>", ItemInfoBoxStyle);
 			ItemInfoBoxStyle.alignment=TextAnchor.UpperLeft;
 			DrawInfoSectionLine(GUILayoutUtility.GetLastRect());
 
@@ -80,7 +80,7 @@ public partial class SideBar
 				SelectedItem.ImageURLs?.ForEach(ImageURL => {
 					(string? FailureString, Texture2D? Image)=RenderImage(ImageURL);
 					if(FailureString!=null)
-						Lines.Add(FailureString);
+						Lines.Add(TSan(FailureString));
 					else if(Image!=null)
 						Images.Add(Image!);
 				});
@@ -215,7 +215,10 @@ public partial class SideBar
 			CachePath=MyPath;
 		}
 
+		//Translations
 		private static string MakeItemInfoLine(string Title, string Info) =>
-			$"<size=-1>{Title}</size>: <b>{Misc.SanitizeRichString(Info)}</b>";
+			$"<size=-1>{Tr.T(Title, "ItemFields", true)}</size>: <b>{Misc.SanitizeRichString(Info)}</b>";
+		private static string TSan(string Message) => Tr.T(Message, nameof(ItemInfoSection), true);
+		private static readonly Translations Tr=Config.C.Tr;
 	}
 }

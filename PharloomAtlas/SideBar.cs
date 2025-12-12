@@ -284,12 +284,12 @@ public partial class SideBar : Window
 	private static void Copy(string Contents)
 	{
 		if(Contents==Misc.Empty) {
-			_=new PopupMessage($"No values exist to copy");
+			_=new PopupMessage(Conf.Tr.T("No values exist to copy", RichSanitize:true));
 			return;
 		}
 
 		Misc.SaveToClipboard(Contents);
 		int NumLines=Contents.Count(static c => c==Misc.NewLine)+1;
-		_=new PopupMessage($"Copied {NumLines} line{(NumLines==1 ? Misc.Empty : "s")}");
+		_=new PopupMessage(Conf.Tr.T(NumLines==1 ? "Copied 1 line" : "Copied {0} lines", null, true, NumLines));
 	}
 }

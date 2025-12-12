@@ -21,7 +21,7 @@
 * Marker labels
 	* <configs><conf>Always show marker labels</conf>, <conf>Shortcut: Edit Marker Label</conf></configs>
 * Force display Hornet pin <config>Force display Hornet pin (compass)</config>
-* Show map in @#$%@ <config>Show map in *****</config>
+* Show map in <ABYSS> <config>Show map in *****</config>
 * Make Hornet marker more visible
 	* <configs><conf>Highlight Hornet marker</conf>, <conf>Hornet marker highlight speed</conf>, <conf><b>Lots more under advanced settings</b></conf></configs>
 * Visual marker label<configs><conf>Marker label text color</conf>, <conf>Marker label background color</conf></configs>

@@ -13,7 +13,6 @@ public class Translations
 	public const string PickLanguageAsStr="Pick your language";
 	public const string TranslationFileExtension=".tr.json";
 	public string DefaultLang="en", DefaultLangName="English";
-	public bool DoNotLoadDefaultLanguage=true; //If true, skips loading translations for default language, using hardcoded defaults instead. This reduces non-negligable load time when no default language files exist.
 
 	//The list of languages
 	public record class LangNames(string ISO, string Eng, string Native, string LanguageAsString, string PickLanguageAsString);
@@ -63,10 +62,7 @@ public class Translations
 	private void LoadLanguage(string ISO)
 	{
 		try {
-			if(ISO==DefaultLang && DoNotLoadDefaultLanguage)
-				Sections=null;
-			else
-				JSON.JsonUtils.Deserialize(FileOps.ReadFile(FileOps.PathCombine(TranslationsPath, ISO+TranslationFileExtension)), out Sections);
+			JSON.JsonUtils.Deserialize(FileOps.ReadFile(FileOps.PathCombine(TranslationsPath, ISO+TranslationFileExtension)), out Sections);
 		} catch(Exception e) {
 			Sections=null;
 			Log.Error($"Could not load language file: {e.Message}");

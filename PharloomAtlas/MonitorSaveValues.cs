@@ -47,6 +47,7 @@ public class MonitorSaveValues
 	private static readonly string LogFile=FileOps.PathCombine(FileOps.GetPluginPath, "ItemFinder.log");
 	private readonly ItemFinder IF=null!;
 	private const string WebAddress="https://www.castledragmire.com/silksong/Submit.php";
+	private const string PlayerDataStr=nameof(PlayerData);
 
 	//Members
 	private string CurrentSceneName=null!;
@@ -70,6 +71,12 @@ public class MonitorSaveValues
 	internal const string ProfileIDStr="profileID";
 	private DateTime LastProfileIDSet=DateTime.MinValue;
 
+	//Translations
+	private static readonly Translations Tr=Config.C.Tr;
+	private static string TSan(string Str, params object[] FormatList)	=> Tr.T(Str, nameof(MonitorSaveValues), true , FormatList);
+	private static string TrT (string Str, params object[] FormatList)	=> Tr.T(Str, nameof(MonitorSaveValues), false, FormatList);
+	private static string San (string Str)								=> Misc.SanitizeRichString(Str);
+
 	//Initialize the monitoring
 	internal MonitorSaveValues()
 	{
@@ -79,9 +86,9 @@ public class MonitorSaveValues
 			foreach((int MI_ID, string MI_Val) in IF.MatchedIcons)
 				IF.MatchedIconsReverse[MI_Val]=MI_ID;
 		} catch(Exception e) {
-			string Message=$"Loading item finder json failed! Everything will be marked as not found and you’ll be getting excessive save value finds.{Misc.NewLine}{e.Message}";
-			Log.Error(Message);
-			_=new PopupMessage(Message);
+			string DefaultMessage=$"Loading item finder json failed! Everything will be marked as not found and you’ll be getting excessive save value finds.{Misc.NewLine}{{0}}";
+			Log.Error(string.Format(DefaultMessage, e.Message));
+			_=new PopupMessage(Tr.TDef("ItemFinderLoadFailed", nameof(MonitorSaveValues), DefaultMessage, true, e.Message));
 			IF=new ItemFinder();
 		}
 
@@ -202,10 +209,10 @@ public class MonitorSaveValues
 
 			//Pass through the values
 			if(!IsHashSet)
-				ValueChanged(new SaveItem("PlayerData", PDV.Name, LastValue, NewValue));
+				ValueChanged(new SaveItem(PlayerDataStr, PDV.Name, LastValue, NewValue));
 			else
 				foreach(string Str in HashSetDiff)
-					ValueChanged(new SaveItem("PlayerData", $"{PDV.Name}__{Str}", false, true));
+					ValueChanged(new SaveItem(PlayerDataStr, $"{PDV.Name}__{Str}", false, true));
 		}
 	}
 
@@ -244,7 +251,7 @@ public class MonitorSaveValues
 			if(Parts.Length!=2)
 				Log.Error($"Invalid name found: {GameName}");
 			else
-				_=DS.Items.Get(LocalID)?.IsFound=IsValueCompleted(Parts[0]=="PlayerData"
+				_=DS.Items.Get(LocalID)?.IsFound=IsValueCompleted(Parts[0]==PlayerDataStr
 					? GetLiveCompletedValue_PlayerData(Parts[1], PD)
 					: GetLiveCompletedValue_SceneData(Parts[0], Parts[1], SD)
 				);
@@ -277,11 +284,11 @@ public class MonitorSaveValues
 	private class SaveValuePopup() : PopupMessage("Initializing")
 	{
 		public bool IsProcessing=true;
-		protected override string PressAnyKeyString => IsProcessing ? "<color=red><size=20>Waiting for process to finish</size></color>" : base.PressAnyKeyString;
+		protected override string PressAnyKeyString => IsProcessing ? $"<color=red><size=20>{TSan("Waiting for process to finish")}</size></color>" : base.PressAnyKeyString;
 		protected override bool BlockClose => IsProcessing;
 		public string PopupMessage
 		{
-			get; set => Message=(field=value)+(SendingToServer ? "\n<color=red>Sending to server now</color>" : Misc.Empty);
+			get; set => Message=(field=value)+(SendingToServer ? $"{Misc.NewLine}<color=red>{TSan("Sending to server now")}</color>" : Misc.Empty);
 		} = Misc.Empty;
 		public bool SendingToServer {
 			get; set { field=value; PopupMessage+=Misc.Empty; }
@@ -298,16 +305,20 @@ public class MonitorSaveValues
 			try {
 				FileOps.WriteFile(JsonFilename, JsonUtils.Serialize(IF, Sorted:true, TrailingCommas:true));
 			} catch {
-				SVP.PopupMessage+="\n\n<color=red>Could not save to JSON file!</color>";
-				LogMessage+="\nCould not save to JSON file!";
+				const string ErrMsg="Could not save to JSON file!";
+				SVP.PopupMessage+=$"{Misc.NewLine}{Misc.NewLine}<color=red>{TSan(ErrMsg)}</color>";
+				LogMessage+=Misc.NewLine+ErrMsg;
 			}
 		} catch(MSException e) {
-			SVP.PopupMessage=LogMessage=e.Message;
+			SVP.PopupMessage=TSan(e.Message);
+			LogMessage=e.Message;
 			NoValue=true;
 			if(IsSendingToo)
-				SVP.PopupMessage+="\n<color=red>Send to server canceled</color>";
+				SVP.PopupMessage+=$"{Misc.NewLine}<color=red>{TSan("Send to server canceled")}</color>";
 		} catch(Exception e) {
-			SVP.PopupMessage=LogMessage="An unknown error occurred: "+Misc.SanitizeRichString(e.Message);
+			const string ErrMsg="An unknown error occurred: {0}";
+			SVP.PopupMessage=TSan(ErrMsg, e.Message);
+			LogMessage=string.Format(ErrMsg, e.Message);
 		}
 
 		//Send web request
@@ -321,14 +332,16 @@ public class MonitorSaveValues
 
 		//Write message to the log
 		try {
+			LogMessage=Regex.Replace(LogMessage.Replace("\n\n", "\n"), @"</?(size|color|b)\b.*?>", Misc.Empty); //Remove double newlines and richText tags
+			Log.Info(LogMessage);
 			if(!FileOps.FileExists(LogFile))
 				FileOps.WriteFile(LogFile, "Initializing log file");
 			FileOps.AppendFile(LogFile,
 				DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss: ")+ //Adds the timestamp to the beginning of the log line
-				Regex.Replace(LogMessage.Replace("\n\n", "\n"), @"</?(size|color|b)\b.*?>", Misc.Empty) //Remove double newlines and richText tags
+				LogMessage
 			);
 		} catch(Exception e) {
-			SVP.PopupMessage+=$"\n\n<color=red><size=15>Could not write to log file.</color>: {e.Message}</size>";
+			SVP.PopupMessage+=$"{Misc.NewLine}{Misc.NewLine}<color=red><size=15>{TSan("Could not write to log file.")}</color>: {San(e.Message)}</size>";
 		}
 		SVP.IsProcessing=false;
 	}
@@ -336,7 +349,7 @@ public class MonitorSaveValues
 	//Update live states from new selected icon value and return result messages for logs/user message
 	private string SaveIconValueReal()
 	{
-		Item SelectedItem=MapControl.Self.SelectedItem ?? throw new MSException ("You must select a map item to match it to your selected value");
+		Item SelectedItem=MapControl.Self.SelectedItem ?? throw new MSException("You must select a map item to match it to your selected value");
 		if(!(SaveValuesWindow.Self?.Visible ?? false))
 			throw new MSException("The value window must be open for you to choose the item to match to the icon.");
 		SaveItem SelectedValue=SaveValuesWindow.Self.SelectedItem ?? throw new MSException("There are no save values in your window");
@@ -345,9 +358,9 @@ public class MonitorSaveValues
 		string AddStringStatement=Misc.Empty;
 		DataStorage DS=MapControl.Self.DS;
 		if(IF.MatchedIcons.TryGetValue(SelectedItem.ID, out string PreviousMatch))
-			AddStringStatement+=$"\n\n<size=-15>Warning: Icon previously matched to “<b>{PreviousMatch}</b>”</size>";
+			AddStringStatement+=$"{Misc.NewLine}{Misc.NewLine}<size=-15>{TrT("Warning: Icon previously matched to “<b>{0}</b>”", San(PreviousMatch))}</size>";
 		if(IF.MatchedIconsReverse.TryGetValue(SelectedValue.FullName, out int PreviousMatch2))
-			AddStringStatement+=$"\n\n<size=-15>Warning: SaveValue was previously matched to “#{PreviousMatch2} <b>{DS.Items.Get(PreviousMatch2)?.Title ?? "INVALID ITEM"}</b>”</size>";
+			AddStringStatement+=$"{Misc.NewLine}{Misc.NewLine}<size=-15>{TrT("Warning: SaveValue was previously matched to #{0} “<b>{1}</b>”", PreviousMatch2, San(DS.Items.Get(PreviousMatch2)?.Title ?? TrT("INVALID ITEM")))}</size>";
 
 		//Save the values and run icon updates
 		if(PreviousMatch2!=0) {
@@ -363,12 +376,12 @@ public class MonitorSaveValues
 		IF.MatchedIconsReverse[SelectedValue.FullName]=SelectedItem.ID;
 
 		//Return the message
-		return $"{SelectedItem.Title} set to {SelectedValue.FullName}{AddStringStatement}";
+		return TrT("{0} set to {1}{2}", San(SelectedItem.Title), San(SelectedValue.FullName), AddStringStatement);
 	}
 
 	//Get if a named value is completed
 	public static bool GetLiveCompletedValue(FromNamePair FN) =>
-		  FN.From=="PlayerData"
+		  FN.From==PlayerDataStr
 		? GetLiveCompletedValue_PlayerData(FN.Name, PlayerData.instance)
 		: GetLiveCompletedValue_SceneData(FN.From, FN.Name, SceneData.instance);
 	private static bool GetLiveCompletedValue_PlayerData(string Name, PlayerData PD) =>
@@ -394,10 +407,10 @@ public class MonitorSaveValues
 		string WebSubmit;
 		return
 			!IsSendingToo
-				? (Misc.Empty, "\n<color=green><size=15>Please consider contributing by sending your data</size></color>")
+				? (Misc.Empty, $"{Misc.NewLine}<color=green><size=15>{TSan("Please consider contributing by sending your data")}</size></color>")
 			: "SUCCESS"==(WebSubmit=await SendWebRequestReal($"{WebAddress}?{UrlQuery()}"))
-				? (Misc.Empty, "\n<color=green><size=15>Thank you for your submission!</size></color>")
-				: ($"{Misc.NewLine}Web submission failed: {WebSubmit}", $"{Misc.NewLine}<color=red>Web submission failed: <b>{Misc.SanitizeRichString(WebSubmit)}</b></color>");
+				? (Misc.Empty, $"{Misc.NewLine}<color=green><size=15>{TSan("Thank you for your submission!")}</size></color>")
+				: ($"{Misc.NewLine}Web submission failed: {WebSubmit}", $"{Misc.NewLine}<color=red>{TrT("Web submission failed: <b>{0}</b>", San(WebSubmit))}</color>");
 	}
 
 	//Send the web request

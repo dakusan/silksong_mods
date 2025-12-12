@@ -155,21 +155,13 @@ public class PopupMessage
 				MyTextStyle.fontSize=NewSize;
 
 			//Word wrapped lines don’t need to worry about width overflow
-			GUIContent GLine=new(Line);
 			if(MyTextStyle.wordWrap) {
+				GUIContent GLine=new(Line);
 				GUILayout.Label(GLine, MyTextStyle, GUILayout.Height(MyTextStyle.CalcHeight(GLine, AreaSize.x)));
 				continue;
 			}
 
-			//If the line overflows then scale down to fit
-			int CurrentFontSize=MyTextStyle.fontSize;
-			float RenderedLineWidth=MyTextStyle.CalcSize(GLine).x;
-			if(RenderedLineWidth>AreaSize.x)
-				MyTextStyle.fontSize=(int)(CurrentFontSize*AreaSize.x/RenderedLineWidth);
-
-			//Draw the line and reset the font size
-			GUILayout.Label(GLine, MyTextStyle, GUILayout.Width(AreaSize.x));
-			MyTextStyle.fontSize=CurrentFontSize;
+			Misc.RenderFixedWidthLine(Line, MyTextStyle, Text => GUILayout.Label(Text, MyTextStyle), AreaSize.x);
 		}
 	}
 

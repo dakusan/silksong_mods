@@ -50,7 +50,7 @@ public class SaveValuesWindow : Window
 	//Initialization
 	private static SaveValuesWindow _Self=null!; public static SaveValuesWindow Self => _Self; //Singleton
 	internal static void Init() => _=new SaveValuesWindow();
-	private SaveValuesWindow() : base("Saved values", Config.C.Rect_SaveValuesWindow, 0, 0)
+	private SaveValuesWindow() : base(GetWindowTitle, Config.C.Rect_SaveValuesWindow, 0, 0)
 	{
 		Misc.InitSingleton(this, ref _Self);
 		(LineHeight, AlwaysCallUpdate)=(TextStyle.lineHeight, true);
@@ -58,7 +58,9 @@ public class SaveValuesWindow : Window
 		TextStyle.normal.background=BGTex=new Color(0, 0, 0, .75f).MakeTexture();
 		if(WindowRect.width==0)
 			WindowRect=new Rect(Screen.width-491-45, 42, 491, 179);
+		Config.C.Tr.LanguageChanged += () => Title=GetWindowTitle;
 	}
+	private static string GetWindowTitle => Config.C.Tr.TDef("SaveValuesWindow.Title", Default:"Saved values");
 
 	//Add an item to the contents
 	private void AddItem(SaveItem Item)
@@ -121,7 +123,7 @@ public class SaveValuesWindow : Window
 				SelectedLine=LineNum;
 			else if(Button.CurrentButton==Button.Enum.Middle) {
 				Misc.SaveToClipboard(SavedItems[^(LineNum+1)].ToString());
-				_=new PopupMessage("Copied 1 line");
+				_=new PopupMessage(Config.C.Tr.T("Copied 1 line"));
 			}
 		}
 
