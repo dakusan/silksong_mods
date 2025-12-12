@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 using static SilkDev.DevInput.Joystick;
+using Dragger=SilkDev.DevInput.Mouse.Dragger;
 
 namespace PharloomAtlas;
 
@@ -12,6 +13,10 @@ public partial class SideBar : Window
 {
 	private static bool HasInitialized=false;
 	private static Config Conf => Config.C;
+
+	//Resize the sidebar
+	private Dragger ResizeDrag=new();
+	private int StartDragWidth;
 
 	//Styling stuff
 	private const int AreaMargin=2;
@@ -138,9 +143,29 @@ public partial class SideBar : Window
 		if(PickerContentHeight!=NewPickerHeight && NewPickerHeight>10)
 			PickerContentHeight=NewPickerHeight;
 
-		//End the scroll area and add a right border for the area
+		//End the scroll area
 		GUI.EndScrollView();
-		GUI.DrawTexture(new Rect(WindowRect.width-1, 0, 1, WindowRect.height), CTexRightBorder);
+
+		//Check to see if the right border is being hovered and if so make it green
+		Rect RightBorderRect=new(WindowRect.width-1, 0, 1, WindowRect.height);
+		Rect HoverBorderRect=RightBorderRect.AddWidth(10).AddX(-10);
+		bool MouseOverResize=HoverBorderRect.Contains(Event.current.mousePosition) || ResizeDrag.IsDragging;
+		if(MouseOverResize)
+			GUI.color=Color.green;
+
+		//Draw the right border for the area that can drag resize
+		GUI.DrawTexture(RightBorderRect, CTexRightBorder);
+		if(MouseOverResize) {
+			switch(ResizeDrag.UpdateState(HoverBorderRect, false)) {
+				case Dragger.State.None		:																		break;
+				case Dragger.State.Start	: Ev.Use(); StartDragWidth=Conf.SideBarWidth;							break;
+				case Dragger.State.Dragging	: Ev.Use(); Conf.SideBarWidth.V=StartDragWidth+(int)ResizeDrag.Delta.x;	break;
+				case Dragger.State.Done		: Ev.Use();																break;
+			}
+			GUI.color=Color.white;
+		}
+
+		//Reset state
 		GUILayout.EndArea();
 		GUI.skin=OriginalSkin;
 	}
@@ -152,10 +177,24 @@ public partial class SideBar : Window
 		Rect ArrowTexRect=Arrow.textureRect;
 		if(Visible)
 			ArrowTexRect=ArrowTexRect.AddX(Arrow.rect.width).SetWidth(static W => W*-1);
+
+		//Make the arrow green when mouse is over
+		Rect ArrowRect=new Rect(ArrowPos, Arrow.rect.size).AddX(Visible ? Width : 0);
+		bool OverArrow=ArrowRect.Contains(Event.current.mousePosition);
+		if(OverArrow)
+			GUI.color=Color.green;
+
 		GUI.DrawTextureWithTexCoords(
-			new Rect(ArrowPos, Arrow.rect.size).AddX(Visible ? Width : 0),
-			Arrow.texture, ArrowTexRect.ConvertTexCoords(Arrow.texture)
+			ArrowRect, Arrow.texture, ArrowTexRect.ConvertTexCoords(Arrow.texture)
 		);
+
+		//If mouse is over and clicked then toggle the sidebar visibility
+		if(OverArrow && Event.current.type==EventType.MouseDown)
+			Visible=!Visible;
+
+		//Restore the color
+		if(OverArrow)
+			GUI.color=Color.white;
 	}
 
 	//Initiates a vertical scroll area in case the sidebar is too short (Fills remaining space to bottom)
