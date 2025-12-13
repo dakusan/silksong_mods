@@ -1,0 +1,19 @@
+{
+	"SettingSections":{
+		"Pin Finding": "别针查找",
+		"Shortcut Keys": "快捷键",
+		"General": "通用",
+	},
+	"SettingNames":{
+		"Start Process": "启动进程",
+		"Skipped scene bundles": "跳过的场景捆绑包",
+		"Skipped keywords": "跳过的关键字",
+		"Start Pin Finding Process": "启动别针查找进程",
+	},
+	"SettingDescriptions":{
+		"Start Process": "选中此项，插件将开始循环遍历地图以查找所有别针。它通过识别具有可保存值的 UnityEngine.GameObject 来实现此功能。完成后，它将为您写入一个新的 {0}。\n\n警告：启动此进程后，您无法继续游戏。请在启动前保存。\n启动后可以暂停，但继续游戏前需要按 alt+f4。这应该需要 13-15 分钟。\n\n处理过程通常在 400 个场景附近冻结，因此发生时它会提示您退出游戏。\n\n进程期间会临时写入逐场景文件，以便从您停止的地方恢复。一旦完整进程完成，临时文件将被删除，并写入最终 {0}。",
+		"Skipped scene bundles": "需要跳过的场景捆绑包，因为它们会导致进程冻结",
+		"Skipped keywords": "查找持久对象时要跳过的关键字",
+		"Start Pin Finding Process": "请参阅“别针查找”部分",
+	},
+}

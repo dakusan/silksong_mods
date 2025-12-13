@@ -1,0 +1,19 @@
+{
+	"SettingSections":{
+		"Pin Finding": "Pin-Suche",
+		"Shortcut Keys": "Tastenkürzel",
+		"General": "Allgemein",
+	},
+	"SettingNames":{
+		"Start Process": "Prozess starten",
+		"Skipped scene bundles": "Übersprungene Szenen-Bundles",
+		"Skipped keywords": "Übersprungene Schlüsselwörter",
+		"Start Pin Finding Process": "Pin-Suchprozess starten",
+	},
+	"SettingDescriptions":{
+		"Start Process": "Aktivieren Sie dies und das Plugin beginnt, durch Karten zu zyklisieren, um alle Pins zu finden. Es tut dies, indem es UnityEngine.GameObjects identifiziert, die speicherbare Werte haben. Sobald es fertig ist, schreibt es eine neue {0} für Sie.\n\nWARNUNG: SIE KÖNNEN IHR SPIEL NACH DEM STARTEN DIESER VERARBEITUNG NICHT FORTSETZEN. SPEICHERN SIE VOR DEM START.\nSie können es pausieren, sobald es gestartet ist, aber Sie müssen alt+f4 drücken, bevor Sie das Spiel fortsetzen. Dies sollte 13-15 Minuten dauern.\n\nDie Verarbeitung scheint sich normalerweise um die 400 Szenen herum einzufrieren, daher wird es Sie auffordern, Ihr Spiel zu beenden, wenn das passiert.\n\nSzenen-für-Szene-Dateien werden temporär während des Prozesses geschrieben, damit es dort fortfahren kann, wo Sie aufgehört haben. Sobald der vollständige Prozess abgeschlossen ist, werden die temporären Dateien gelöscht und eine endgültige {0} geschrieben.",
+		"Skipped scene bundles": "Szenen-Bundles, die übersprungen werden müssen, da sie den Prozess einfrieren lassen",
+		"Skipped keywords": "Schlüsselwörter zum Überspringen beim Finden persistenter Objekte",
+		"Start Pin Finding Process": "Siehe Abschnitt „Pin-Suche“",
+	},
+}

@@ -1,0 +1,16 @@
+{
+	"SettingSections":{
+		"No Clip": "Sin Colisión",
+		"General": "General",
+	},
+	"SettingNames":{
+		"No clip shortcut key": "Tecla de acceso directo sin colisión",
+		"Turn on no clip": "Activar sin colisión",
+		"No clip movement speed": "Velocidad de movimiento sin colisión",
+	},
+	"SettingDescriptions":{
+		"No clip shortcut key": "Tecla para presionar para activar y desactivar noclip",
+		"Turn on no clip": "Desactiva la detección de colisiones y la velocidad, activa la invencibilidad y el salto infinito",
+		"No clip movement speed": "Qué tan rápido quieres que se mueva tu personaje mientras no hay colisiones",
+	},
+}

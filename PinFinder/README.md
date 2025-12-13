@@ -19,6 +19,8 @@ Serially loads every scene in the game and records the exact world position + pe
 
 [See Nexus Mods page for further details.](https://www.nexusmods.com/hollowknightsilksong/mods/772)
 
+Settings dialog translated into 20 languages.
+
 Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework.
 
 <a id="installation"></a>

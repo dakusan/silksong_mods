@@ -14,8 +14,4 @@
 		"Turn on no clip": "Turns off collision detection and velocity, turns on invincibility and infinite jump",
 		"No clip movement speed": "How fast you want your character to move while no clipping",
 	},
-	"":{
-	},
-	"Errors":{
-	},
 }

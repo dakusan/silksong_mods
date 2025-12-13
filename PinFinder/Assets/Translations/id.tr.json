@@ -1,0 +1,19 @@
+{
+	"SettingSections":{
+		"Pin Finding": "Pencarian Pin",
+		"Shortcut Keys": "Tombol Pintas",
+		"General": "Umum",
+	},
+	"SettingNames":{
+		"Start Process": "Mulai Proses",
+		"Skipped scene bundles": "Paket adegan yang dilewati",
+		"Skipped keywords": "Kata kunci yang dilewati",
+		"Start Pin Finding Process": "Mulai Proses Pencarian Pin",
+	},
+	"SettingDescriptions":{
+		"Start Process": "Centang ini dan plugin akan mulai berputar melalui peta untuk menemukan semua pin. Ia melakukan ini dengan mengidentifikasi UnityEngine.GameObject yang memiliki nilai yang dapat disimpan. Setelah selesai, ia akan menulis {0} baru untuk Anda.\n\nPERINGATAN: ANDA TIDAK BISA MELANJUTKAN PERMAINAN SETELAH MEMULAI PROSES INI. SIMPAN SEBELUM MEMULAINYA.\nAnda bisa menjeda setelah dimulai, tapi Anda perlu alt+f4 sebelum melanjutkan permainan. Ini seharusnya memakan waktu 13-15 menit.\n\nPemrosesan tampaknya biasanya membeku sekitar 400 adegan, jadi ketika itu terjadi, ia akan meminta Anda keluar dari permainan.\n\nFile adegan demi adegan ditulis sementara selama proses agar bisa melanjutkan dari tempat Anda berhenti. Setelah proses penuh selesai, file sementara akan dihapus dan {0} akhir akan ditulis.",
+		"Skipped scene bundles": "Paket adegan yang perlu dilewati karena menyebabkan proses membeku",
+		"Skipped keywords": "Kata kunci untuk dilewati saat mencari objek persisten",
+		"Start Pin Finding Process": "Lihat bagian « Pencarian Pin »",
+	},
+}

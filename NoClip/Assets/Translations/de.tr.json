@@ -1,0 +1,16 @@
+{
+	"SettingSections":{
+		"No Clip": "Kein Clip",
+		"General": "Allgemein",
+	},
+	"SettingNames":{
+		"No clip shortcut key": "Kein-Clip-Tastenkürzel",
+		"Turn on no clip": "Kein Clip aktivieren",
+		"No clip movement speed": "Bewegungsgeschwindigkeit ohne Clip",
+	},
+	"SettingDescriptions":{
+		"No clip shortcut key": "Taste zum Drücken, um Noclip ein- und auszuschalten",
+		"Turn on no clip": "Deaktiviert Kollisionserkennung und Geschwindigkeit, aktiviert Unverwundbarkeit und unendlichen Sprung",
+		"No clip movement speed": "Wie schnell dein Charakter sich während des No-Clipping bewegen soll",
+	},
+}

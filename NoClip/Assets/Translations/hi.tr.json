@@ -1,0 +1,16 @@
+{
+	"SettingSections":{
+		"No Clip": "नो क्लिप",
+		"General": "सामान्य",
+	},
+	"SettingNames":{
+		"No clip shortcut key": "नो क्लिप शॉर्टकट कुंजी",
+		"Turn on no clip": "नो क्लिप चालू करें",
+		"No clip movement speed": "नो क्लिप गति",
+	},
+	"SettingDescriptions":{
+		"No clip shortcut key": "नोक्लिप चालू और बंद करने के लिए दबाने वाली कुंजी",
+		"Turn on no clip": "टकराव का पता लगाना और वेग बंद करता है, अमरता और अनंत कूद चालू करता है",
+		"No clip movement speed": "आप चाहते हैं कि आपका चरित्र नोक्लिपिंग के दौरान कितनी तेजी से चले",
+	},
+}

@@ -1,0 +1,16 @@
+{
+	"SettingSections":{
+		"No Clip": "ノークリップ",
+		"General": "一般",
+	},
+	"SettingNames":{
+		"No clip shortcut key": "ノークリップ ショートカットキー",
+		"Turn on no clip": "ノークリップをオンにする",
+		"No clip movement speed": "ノークリップ移動速度",
+	},
+	"SettingDescriptions":{
+		"No clip shortcut key": "ノークリップのオン/オフに押すキー",
+		"Turn on no clip": "衝突検出と速度をオフにし、無敵と無限ジャンプをオンにする",
+		"No clip movement speed": "ノークリップ中にキャラクターを移動させる速度",
+	},
+}

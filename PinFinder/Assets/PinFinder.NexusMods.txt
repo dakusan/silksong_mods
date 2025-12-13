@@ -8,6 +8,7 @@
 [/center]Developer utility used to create accurate data files for mods like [url=https://www.nexusmods.com/hollowknightsilksong/mods/755]Pharloom Atlas[/url].
 Runs once (or on demand), writes a clean JSON to the plugin folder. Process can be paused and restarted without losing anything.
 You can find my latest copy of the processing, with synced changes from the last 3 months, [url=https://www.castledragmire.com/silksong/Pins.json]here[/url].
+Settings dialog translated into 20 languages.
 
 
 [center][size=5]⚙️ [b]Installation[/b] ⚙️[/size]

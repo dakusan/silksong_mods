@@ -13,8 +13,4 @@
 		"Turn on no clip": "Désactive la détection de collision et la vélocité, active l’invincibilité et le saut infini",
 		"No clip movement speed": "À quelle vitesse vous voulez que votre personnage se déplace pendant le no clip",
 	},
-	"":{
-	},
-	"Errors":{
-	},
 }

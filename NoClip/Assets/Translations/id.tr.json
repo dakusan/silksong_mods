@@ -1,0 +1,16 @@
+{
+	"SettingSections":{
+		"No Clip": "Tanpa Tabrakan",
+		"General": "Umum",
+	},
+	"SettingNames":{
+		"No clip shortcut key": "Tombol pintas tanpa tabrakan",
+		"Turn on no clip": "Nyalakan tanpa tabrakan",
+		"No clip movement speed": "Kecepatan gerak tanpa tabrakan",
+	},
+	"SettingDescriptions":{
+		"No clip shortcut key": "Tombol untuk ditekan untuk menyalakan dan mematikan noclip",
+		"Turn on no clip": "Mematikan deteksi tabrakan dan kecepatan, menyalakan kebal dan lompatan tak terbatas",
+		"No clip movement speed": "Seberapa cepat Anda ingin karakter Anda bergerak saat no clipping",
+	},
+}

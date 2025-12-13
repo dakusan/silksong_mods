@@ -1,0 +1,16 @@
+{
+	"SettingSections":{
+		"No Clip": "بدون تصادم",
+		"General": "عام",
+	},
+	"SettingNames":{
+		"No clip shortcut key": "مفتاح اختصار بدون تصادم",
+		"Turn on no clip": "تشغيل بدون تصادم",
+		"No clip movement speed": "سرعة الحركة بدون تصادم",
+	},
+	"SettingDescriptions":{
+		"No clip shortcut key": "المفتاح الذي تضغط عليه لتشغيل وإيقاف noclip",
+		"Turn on no clip": "يُطفئ كشف التصادم والسرعة، ويُشغل اللا هزيمة والقفز اللانهائي",
+		"No clip movement speed": "كم تريد أن يتحرك شخصيتك بسرعة أثناء عدم التصادم",
+	},
+}

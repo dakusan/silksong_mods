@@ -8,6 +8,7 @@
 [/center]Press [b]F3[/b] (configurable) to toggle noclip + invincibility.
 Move with arrow keys or controller stick – full 360° freedom.
 Config menu available via [b]F1[/b].
+User interfaces translated into 20 languages.
 💡️ [b]Important note[/b]: Having the configuration window focused can block keyboard input.
 
 

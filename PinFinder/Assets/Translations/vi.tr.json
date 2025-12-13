@@ -1,0 +1,19 @@
+{
+	"SettingSections":{
+		"Pin Finding": "Tìm Ghim",
+		"Shortcut Keys": "Phím Tắt",
+		"General": "Chung",
+	},
+	"SettingNames":{
+		"Start Process": "Bắt Đầu Quy Trình",
+		"Skipped scene bundles": "Bỏ Qua Các Gói Cảnh",
+		"Skipped keywords": "Bỏ Qua Từ Khóa",
+		"Start Pin Finding Process": "Bắt Đầu Quy Trình Tìm Ghim",
+	},
+	"SettingDescriptions":{
+		"Start Process": "Chọn cái này và plugin sẽ bắt đầu chu kỳ qua các bản đồ để tìm tất cả các ghim. Nó làm điều này bằng cách xác định UnityEngine.GameObject có giá trị có thể lưu. Một khi hoàn thành, nó sẽ viết một {0} mới cho bạn.\n\nCẢNH BÁO: BẠN KHÔNG THỂ TIẾP TỤC TRÒ CHƠI SAU KHI BẮT ĐẦU QUY TRÌNH NÀY. LUU TRƯỚC KHI BẮT ĐẦU.\nBạn có thể tạm dừng nó một khi bắt đầu, nhưng bạn cần alt+f4 trước khi tiếp tục trò chơi. Điều này nên mất 13-15 phút.\n\nQuá trình xử lý dường như thường bị đông cứng quanh 400 cảnh, vì vậy khi điều này xảy ra, nó sẽ nhắc bạn thoát khỏi trò chơi.\n\nCác file cảnh theo cảnh được viết tạm thời trong quá trình để nó có thể tiếp tục từ nơi bạn dừng lại. Một khi toàn bộ quá trình hoàn thành, các file tạm thời sẽ bị xóa và một {0} cuối cùng sẽ được viết.",
+		"Skipped scene bundles": "Các gói cảnh cần bỏ qua vì chúng gây đông cứng quá trình",
+		"Skipped keywords": "Từ khóa để bỏ qua khi tìm các đối tượng liên tục",
+		"Start Pin Finding Process": "Xem phần « Tìm Ghim »",
+	},
+}

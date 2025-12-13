@@ -1,0 +1,19 @@
+{
+	"SettingSections":{
+		"Pin Finding": "Pin Bulma",
+		"Shortcut Keys": "Kısayol Tuşları",
+		"General": "Genel",
+	},
+	"SettingNames":{
+		"Start Process": "Süreci Başlat",
+		"Skipped scene bundles": "Atlanan sahne paketleri",
+		"Skipped keywords": "Atlanan anahtar kelimeler",
+		"Start Pin Finding Process": "Pin Bulma Sürecini Başlat",
+	},
+	"SettingDescriptions":{
+		"Start Process": "Bunu işaretleyin ve eklenti tüm pinleri bulmak için haritalar arasında döngü yapmaya başlayacak. Bunu UnityEngine.GameObject’leri tanımlayarak yapar ki bunlar kaydedilebilir değerlere sahip. Tamamlandığında, sizin için yeni bir {0} yazacak.\n\nUYARI: BU SÜRECİ BAŞLATTıKTAN SONRA OYUNUNUZA DEVAM EDEMEZSİNİZ. BAŞLATMADAN ÖNCE KAYDEDİN.\nBaşladıktan sonra duraklatabilirsiniz, ama oyuna devam etmeden önce alt+f4’e basmanız gerekecek. Bu 13-15 dakika sürmeli.\n\nİşlem genellikle 400 sahne civarında donuyor gibi görünüyor, bu yüzden olduğunda oyundan çıkmanızı isteyecek.\n\nSüreç sırasında sahne bazında dosyalar geçici olarak yazılır ki kaldığınız yerden devam edebilsin. Tam süreç tamamlandığında, geçici dosyalar silinecek ve son bir {0} yazılacak.",
+		"Skipped scene bundles": "Sürecin donmasına neden oldukları için atlanması gereken sahne paketleri",
+		"Skipped keywords": "Kalıcı nesneleri bulurken atlanması gereken anahtar kelimeler",
+		"Start Pin Finding Process": "“Pin Bulma” bölümüne bakın",
+	},
+}

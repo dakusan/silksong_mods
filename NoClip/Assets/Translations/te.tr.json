@@ -1,0 +1,16 @@
+{
+	"SettingSections":{
+		"No Clip": "నో క్లిప్",
+		"General": "జనరల్",
+	},
+	"SettingNames":{
+		"No clip shortcut key": "నో క్లిప్ షార్ట్‌కట్ కీ",
+		"Turn on no clip": "నో క్లిప్ ఆన్ చేయండి",
+		"No clip movement speed": "నో క్లిప్ కదలిక వేగం",
+	},
+	"SettingDescriptions":{
+		"No clip shortcut key": "నోక్లిప్ ఆన్ మరియు ఆఫ్ చేయడానికి నొక్కే కీ",
+		"Turn on no clip": "కలిసిన గుర్తింపు మరియు వేగం ఆఫ్ చేస్తుంది, అజేయత్వం మరియు అనంత జంప్ ఆన్ చేస్తుంది",
+		"No clip movement speed": "మీ పాత్ర నో క్లిపింగ్ సమయంలో ఎంత వేగంగా కదలాలని మీరు కోరుకుంటున్నారు",
+	},
+}

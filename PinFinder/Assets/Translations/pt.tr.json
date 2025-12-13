@@ -1,0 +1,19 @@
+{
+	"SettingSections":{
+		"Pin Finding": "Busca de Pins",
+		"Shortcut Keys": "Teclas de Atalho",
+		"General": "Geral",
+	},
+	"SettingNames":{
+		"Start Process": "Iniciar Processo",
+		"Skipped scene bundles": "Pacotes de cenas pulados",
+		"Skipped keywords": "Palavras-chave puladas",
+		"Start Pin Finding Process": "Iniciar Processo de Busca de Pins",
+	},
+	"SettingDescriptions":{
+		"Start Process": "Marque isso e o plugin começará a ciclar pelas mapas para encontrar todos os pins. Ele faz isso identificando UnityEngine.GameObject que têm valores salváveis. Uma vez concluído, ele escreverá um novo {0} para você.\n\nAVISO: VOCÊ NÃO PODE CONTINUAR SEU JOGO APÓS INICIAR ESTE PROCESSO. SALVE ANTES DE COMEÇAR.\nVocê pode pausá-lo uma vez iniciado, mas precisará de alt+f4 antes de continuar o jogo. Isso deve levar 13-15 minutos.\n\nO processamento parece congelar geralmente em torno de 400 cenas, então quando isso acontecer, ele pedirá para você sair do jogo.\n\nArquivos cena por cena são escritos temporariamente durante o processo para que ele possa retomar de onde você parou. Uma vez que o processo completo termine, os arquivos temporários serão excluídos e um {0} final será escrito.",
+		"Skipped scene bundles": "Pacotes de cenas que precisam ser pulados pois causam congelamento do processo",
+		"Skipped keywords": "Palavras-chave a pular ao encontrar objetos persistentes",
+		"Start Pin Finding Process": "Veja a seção « Busca de Pins »",
+	},
+}

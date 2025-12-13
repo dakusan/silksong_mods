@@ -11,13 +11,9 @@
 		"Start Pin Finding Process": "Démarrer le processus de recherche d’épingles",
 	},
 	"SettingDescriptions":{
-		"Start Process": "Cochez ceci et le plugin commencera à cycler à travers les cartes pour trouver toutes les épingles. Il fait cela en identifiant les UnityEngine.GameObject qui ont des valeurs sauvegardables. Une fois terminé, il écrira un nouveau {0} pour vous.\n\nAVERTISSEMENT : VOUS NE POUVEZ PAS CONTINUER VOTRE PARTIE APRÈS AVOIR INITIÉ CE PROCESSUS. SAUVEGARDEZ AVANT DE LE DÉMARRER.\nVous pouvez le mettre en pause une fois qu’il a commencé, mais vous devrez appuyer sur alt+f4 avant de continuer le jeu. Cela devrait prendre 13-15 minutes.\n\nLe traitement semble généralement geler autour de 400 scènes, donc quand cela arrive, il vous demandera de quitter votre jeu.\n\nDes fichiers scène par scène sont temporairement écrits pendant le processus pour qu’il puisse reprendre là où vous vous êtes arrêté. Une fois le processus complet terminé, les fichiers temporaires seront supprimés et un {0} final sera écrit.",
+		"Start Process": "Cochez ceci et le plugin commencera à cycler à travers les cartes pour trouver toutes les épingles. Il fait cela en identifiant les UnityEngine.GameObject qui ont des valeurs sauvegardables. Une fois terminé, il écrira un nouveau {0} pour vous.\n\nAVERTISSEMENT : VOUS NE POUVEZ PAS CONTINUER VOTRE PARTIE APRÈS AVOIR INITIÉ CE PROCESSUS. SAUVEGARDEZ AVANT DE LE DÉMARRER.\nVous pouvez le mettre en pause une fois qu’il a commencé, mais vous devrez appuyer sur alt+f4 avant de continuer le jeu. Cela devrait prendre 13-15 minutes.\n\nLe traitement semble généralement geler autour de 400 scènes, donc quand cela arrive, il vous demandera de quitter votre jeu.\n\nDes fichiers scène par scène sont temporairement écrits pendant le processus pour qu’il puisse reprendre là où vous vous êtes arrêté. Une fois le processus complet terminé, les fichiers temporaires seront supprimés et un {0} final sera écrit.",
 		"Skipped scene bundles": "Faisceaux de scènes qui doivent être ignorés car ils font geler le processus",
 		"Skipped keywords": "Mots-clés à ignorer lors de la recherche d’objets persistants",
-		"Start Pin Finding Process": "Voir la section « Recherche d’épingles »",
-	},
-	"":{
-	},
-	"Errors":{
+		"Start Pin Finding Process": "Voir la section « Recherche d’épingles »",
 	},
 }

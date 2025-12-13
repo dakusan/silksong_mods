@@ -63,8 +63,8 @@
 		"Player Data Query Time": "Temps de requête des données du joueur",
 		"Window Position: Save Values": "Position de la fenêtre : Sauvegarder les valeurs",
 		"Window Position: Search": "Position de la fenêtre : Recherche",
-		"Category States": "Category States",
-		"Marker Labels": "Marker Labels",
+		"Category States": "États des catégories",
+		"Marker Labels": "Étiquettes des marqueurs",
 	},
 	"SettingDescriptions":{
 		"Auto map": "Remplit automatiquement la carte sans avoir besoin de s’asseoir sur un banc ou d’avoir la plume",
@@ -97,8 +97,8 @@
 		"Shortcut Key: Show/hide the window": "Bascule la fenêtre des valeurs. Voir l’aide ou la page du mod pour plus d’informations.",
 		"Persistent Object Query Time": "À quelle fréquence en secondes interroger les changements de valeurs de données persistantes (thread séparé). Il n’y a jamais plus de ~50 objets par scène (généralement comme 10), et les requêtes de valeurs actuelles sont généralement très simples, donc cela ne prend pas beaucoup de traitement. Honnêtement, celles-ci pourraient probablement s’exécuter tous les frames sans problème.",
 		"Player Data Query Time": "À quelle fréquence en secondes interroger les changements de valeurs de données du joueur (thread séparé). Il y a plus de 1200 recherches de réflexion pour cela donc le temps de requête est moins fréquent. Honnêtement, celles-ci pourraient probablement s’exécuter tous les frames sans problème.",
-		"Category States": "NE PAS MODIFIER CELA. Liste des catégories et de leurs états de bascule.",
-		"Marker Labels": "NE PAS MODIFIER CELA. Liste des étiquettes de marqueurs",
+		"Category States": "NE PAS MODIFIER. Liste des catégories et de leurs états.",
+		"Marker Labels": "NE PAS MODIFIER. Liste des étiquettes de marqueurs.",
 	},
 	"":{
 		"BlockActions.OnlyCancel": "Seul l’annulation est autorisée",

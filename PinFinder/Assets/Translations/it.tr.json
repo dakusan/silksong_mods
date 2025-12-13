@@ -1,0 +1,19 @@
+{
+	"SettingSections":{
+		"Pin Finding": "Ricerca pin",
+		"Shortcut Keys": "Tasti di scelta rapida",
+		"General": "Generale",
+	},
+	"SettingNames":{
+		"Start Process": "Avvia processo",
+		"Skipped scene bundles": "Bundle di scene saltati",
+		"Skipped keywords": "Parole chiave saltate",
+		"Start Pin Finding Process": "Avvia processo di ricerca pin",
+	},
+	"SettingDescriptions":{
+		"Start Process": "Seleziona questo e il plugin inizierà a ciclare attraverso le mappe per trovare tutti i pin. Lo fa identificando gli UnityEngine.GameObject che hanno valori salvabili. Una volta finito, scriverà un nuovo {0} per te.\n\nAVVERTENZA: NON PUOI CONTINUARE IL TUO GIOCO DOPO AVER INIZIATO QUESTO PROCESSO. SALVA PRIMA DI INIZIARLO.\nPuoi metterlo in pausa una volta iniziato, ma dovrai premere alt+f4 prima di continuare il gioco. Dovrebbe richiedere 13-15 minuti.\n\nL’elaborazione sembra congelarsi di solito intorno alle 400 scene, quindi quando succede ti chiederà di uscire dal gioco.\n\nI file scena per scena vengono scritti temporaneamente durante il processo in modo che possa riprendere da dove eri rimasto. Una volta completato l’intero processo, i file temporanei verranno eliminati e verrà scritto un {0} finale.",
+		"Skipped scene bundles": "Bundle di scene che devono essere saltati poiché causano il congelamento del processo",
+		"Skipped keywords": "Parole chiave da saltare durante la ricerca di oggetti persistenti",
+		"Start Pin Finding Process": "Vedi sezione « Ricerca pin »",
+	},
+}
