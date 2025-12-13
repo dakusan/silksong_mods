@@ -240,8 +240,15 @@ See [root project README](../#contributing) for details
 		* ⚙️ `LoadLocalFileOrResource(string Name)`: If local file is available, use that. Otherwise, loads an embedded resource by name from the calling assembly.
 		* ⚙️ `GetResources()`: Returns the list of resources in the calling assembly.
 * 📦️ `Log`:
-	* ⚙️ `Log`.`Info(string Message)`, `Log`.`Info(object ObjToSerialize)`: Sends out log lines with log level set by BepInEx configuration.
-	* ⚙️ `Log`.`Error(string Message)`: Sends log message as error.
+	* 🧾️ Log functions:
+		* 🧾️⚙️ Standard: `Info`, `Debug`, `Message`, `Warning`, `Error`, `Fatal`
+		* 🧾️⚙️ Timestamped: `InfoT`, `DebugT`, `MessageT`, `WarningT`, `ErrorT`, `FatalT`
+			* 🗒️ Each object line has time format “HH:mm:ss.fff: ” prepended before the optional index
+	* 🗒️ All log functions take `params object[]`:
+		* 🗒️ If more than 1 object: Objects are separated by newlines and have “$Index. ” prepended
+		* 🗒️ If individual object is a string, output as is. Otherwise, run through `JSON.JsonUtils.Serialize()` with default parameters
+	* `Info` functions use the log level from the plugin config “Debugging message log level”
+	* All other log functions use their natural log level (`LogLevel.Debug`, `LogLevel.Warning`, etc)
 * 📦️ `Misc`:
 	* ⚙️ `InitSingleton`: Implement singletons.
 	* ⚙️ `SanitizeRichString`: Sanitize a richText string.

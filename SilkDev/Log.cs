@@ -1,4 +1,5 @@
 using BepInEx.Logging;
+using System.Linq;
 
 namespace SilkDev;
 
@@ -16,13 +17,18 @@ public static class Log
 	}
 
 	private static LogLevel LLevel=LogLevel.Info;
-	public static void Debug	(string Message	) => Logger!.LogDebug	(		Message);
-	public static void Info		(string Message	) => Logger!.Log		(LLevel,Message);
-	public static void Info		(object Obj		) => Logger!.Log		(LLevel,JSON.JsonUtils.Serialize(Obj));
-	public static void Message	(string Message	) => Logger!.LogMessage	(		Message);
-	public static void Warning	(string Message	) => Logger!.LogWarning	(		Message);
-	public static void Error	(string Message	) => Logger!.LogError	(		Message);
-	public static void Fatal	(string Message	) => Logger!.LogFatal	(		Message);
+	public static void Info		(params object[] Obj) => ILog(Obj, false, LLevel			);
+	public static void InfoT	(params object[] Obj) => ILog(Obj, true , LLevel			);
+	public static void Debug	(params object[] Obj) => ILog(Obj, false, LogLevel.Debug	);
+	public static void DebugT	(params object[] Obj) => ILog(Obj, true , LogLevel.Debug	);
+	public static void Message	(params object[] Obj) => ILog(Obj, false, LogLevel.Message	);
+	public static void MessageT	(params object[] Obj) => ILog(Obj, true , LogLevel.Message	);
+	public static void Warning	(params object[] Obj) => ILog(Obj, false, LogLevel.Warning	);
+	public static void WarningT	(params object[] Obj) => ILog(Obj, true , LogLevel.Warning	);
+	public static void Error	(params object[] Obj) => ILog(Obj, false, LogLevel.Error	);
+	public static void ErrorT	(params object[] Obj) => ILog(Obj, true , LogLevel.Error	);
+	public static void Fatal	(params object[] Obj) => ILog(Obj, false, LogLevel.Fatal	);
+	public static void FatalT	(params object[] Obj) => ILog(Obj, true , LogLevel.Fatal	);
 	private static LogLevel GetNewLogLevel =>
 		Internal.Config.C.DebugLogLevel.V switch {
 			DebugLogLevelEnum.None		=> LogLevel.None,
@@ -31,4 +37,17 @@ public static class Log
 			DebugLogLevelEnum.Error		=> LogLevel.Error,
 			_							=> LogLevel.Info,
 		};
+
+	//If more than 1 object: Objects are separated by newlines and have “$Index. ” prepended
+	//If TimeStamp is true, each object line has time format “HH:mm:ss.fff: ” prepended before the optional index
+	//If individual object is a string, output as is. Otherwise, run through JSON.JsonUtils.Serialize()
+	private static void ILog(object[] Objs, bool TimeStamp, LogLevel LLevel) =>
+		Logger!.Log(
+			LLevel,
+			string.Join(Misc.NewLine, Objs.Select((Obj, Index) =>
+				(!TimeStamp			? Misc.Empty : System.DateTime.Now.ToString("HH:mm:ss.fff: ")	)+
+				(Objs.Length<=1		? Misc.Empty : $"{Index+1}. "									)+
+				(Obj is string Str	? Str		 : JSON.JsonUtils.Serialize(Obj)					)
+			))
+		);
 }

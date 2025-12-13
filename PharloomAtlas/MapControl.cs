@@ -393,6 +393,10 @@ public class MapControl : SilkDev.Windows.Window
 		if(SelectedItem==NewSelectItem)
 			return;
 
+		//Force the icon to be invisible if it’s not supposed to be visible (if previously selected through the search window)
+		if(!(SelectedItem?.Visible ?? false) && (SelectedItem?.MapIcon?.IconGO?.activeSelf ?? false))
+			SelectedItem.MapIcon.IconGO.SetActive(false);
+
 		SelectedItem?.MapIcon!.SetSelected(false);
 		NewSelectItem?.MapIcon!.SetSelected(true);
 		SelectedItem=NewSelectItem;
@@ -407,6 +411,7 @@ public class MapControl : SilkDev.Windows.Window
 		Item I=DS.Items.Get(ItemID) ?? throw new System.ArgumentOutOfRangeException("ItemID");
 		MapPos=I.Pos;
 		SelectItemI(I);
+		I.MapIcon?.IconGO?.SetActive(true); //Force the icon to be visible
 	}
 
 	//Handle mouse events

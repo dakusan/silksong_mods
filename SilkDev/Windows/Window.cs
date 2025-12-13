@@ -353,8 +353,8 @@ public abstract class Window
 	private static void HandleMouseMove(Event CurEv)
 	{
 		//If mouse has not moved, or no mouse, nothing to do
-		Vector2 MouseMoveVec=CurEv.mousePosition-LastFrameMouseCoord;
-		LastFrameMouseCoord=CurEv.mousePosition;
+		Vector2 MouseMoveVec=DevInput.Util.MousePos-LastFrameMouseCoord;
+		LastFrameMouseCoord=DevInput.Util.MousePos;
 		if(!Visibility.IsVisible || (MouseMoveVec.magnitude<.001f && !ForceMouseMove))
 			return;
 		ForceMouseMove=false;
@@ -395,10 +395,11 @@ public abstract class Window
 	//Send mouse events. If BeforeEventSent is true the function stops (as if the event had been used).
 	private static void SendMouseEvents(Event CurEv, Func<Window, bool>? BeforeEventSent=null)
 	{
+		Vector2 MPos=DevInput.Util.MousePos;
 		foreach(Window Win in WinOrderList.AsEnumerable().Reverse()) {
 			//Only process if actually over the window
 			try {
-				if(!Win.Visible || !Win.IsMouseOverWindow(CurEv.mousePosition))
+				if(!Win.Visible || !Win.IsMouseOverWindow(MPos))
 					continue;
 			} catch(Exception e) {
 				Catcher.OutputException($"“{Win.Title}”.{nameof(IsMouseOverWindow)}.{CurEv.type}", e);
