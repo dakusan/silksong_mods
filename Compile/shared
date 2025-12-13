@@ -1,0 +1,90 @@
+#!/bin/bash
+#This file does nothing by itself. Run the .sh files in this directory.
+
+#Directories
+links_dir="links"
+trans_dir="Translations"
+plugin_dir="dakusan"
+zip_dir="zip"
+
+#Ensure links directory is set up correctly
+ERRORS=0
+report_error() {
+	echo "Error: $1" >&2
+	ERRORS=1
+	return 0
+}
+exit_error() {
+	echo "Error: $1" >&2
+	exit 1
+}
+ensure_link() {
+	local target="$1"
+	local source="$2"
+	#Conditional substitution for SilkDev Assets -> Internal in source
+	if [[ "$source" == *"SilkDev/Assets"* ]]; then
+		source="${source/SilkDev\/Assets/SilkDev\/Internal}"
+	fi
+
+	[ -e "$target" ] && [ ! -L "$target" ] && { report_error "$target exists but is not a symlink"; return 1; }
+	[ -L "$target" ] || ln -s "$source" "$target" || report_error "$target failed creation"
+	readlink -e "$target" >/dev/null 2>&1 || report_error "Symlink $target points to missing $(pwd)/$(dirname "$target")/$source"
+}
+ensure_dir() {
+	local dir="$1"
+	[ -e "$dir" ] && [ ! -d "$dir" ] && { report_error "$dir exists but is not a directory"; return 1; }
+	mkdir -p "$dir" || report_error "$dir failed creation"
+}
+
+#Make all symlinks in the links directory
+ensure_dir "$links_dir" || exit 1
+cd "$links_dir"
+ESCAPE_LINKS="../.."
+
+#Ensure file symlinks
+ensure_link "categories.json" "$ESCAPE_LINKS/PharloomAtlas/Assets/categories.json"
+ensure_link "ItemFinder.json" "$ESCAPE_LINKS/PharloomAtlas/Assets/ItemFinder.json"
+ensure_link "items.json" "$ESCAPE_LINKS/PharloomAtlas/Assets/items.json"
+for project in NoClip PharloomAtlas PinFinder SilkDev; do
+	ensure_link "$project.dll" "$ESCAPE_LINKS/$project/bin/Release/netstandard2.1/$project.dll"
+	ensure_link "$project.NexusMods.txt" "$ESCAPE_LINKS/$project/Assets/$project.NexusMods.txt"
+	ensure_link "$project.README.md" "$ESCAPE_LINKS/$project/README.md"
+done
+ensure_link "Root.README.md" "$ESCAPE_LINKS/README.md"
+ensure_link "WebServer.README.md" "$ESCAPE_LINKS/WebServer/README.md"
+
+#Ensure translation symlinks
+ensure_dir "$trans_dir" || exit 1
+for project in NoClip PharloomAtlas PinFinder SilkDev; do
+	ensure_link "$trans_dir/$project" "../$ESCAPE_LINKS/$project/Assets/Translations"
+done
+
+#Stop here if there were any errors
+(( ERRORS == 1 )) && exit 1
+
+#Create the zip and project directories
+cd ..
+ensure_dir "$zip_dir" || exit 1
+ensure_dir "$plugin_dir" || exit 1
+
+#Functions used by callers to finish up the job
+MakeZip() {
+	#Compile the zip
+	zip_path="$zip_dir/$1"
+	rm -f "$zip_path"
+	cp -Lpr "$links_dir/"* "$plugin_dir/"				|| exit_error "Failed to copy $links_dir to $plugin_dir"
+	rm -f "$plugin_dir/$trans_dir/"*"/default.tr.json"
+	zip -r -9 "$zip_path" "${@:2}"						|| exit_error "Zipping failed"
+	7z a -t7z -mx=9 "$zip_dir/${1%.zip}.7z" "${@:2}"
+	#rm -rf "$plugin_dir"
+
+	#Let the user know the results
+	unzip -l "$zip_path"
+	echo "Created: $zip_path"
+
+	#Return success
+	exit 0
+}
+AddProject() {
+	echo "$plugin_dir/$1.dll" "$plugin_dir/$1.README.md" "$plugin_dir/$trans_dir/$1"
+}
