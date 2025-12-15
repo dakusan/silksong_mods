@@ -3,6 +3,7 @@ use strict; use warnings;
 use Encode qw(decode FB_CROAK);
 
 my @FileList=map({$_ =~ s/^\w\s+//; $_} grep({substr($_, 0, 1) ne 'D'} split(/\n/, `git diff --cached --name-status`)));
+@FileList=@ARGV if @ARGV;
 my @Warnings;
 foreach my $File (@FileList)
 {
@@ -38,7 +39,7 @@ foreach my $File (@FileList)
 		push(@Warnings, "$File has UTF8 BOM"); }
 
 	#Check for invalid utf8 characters
-	if(! eval { decode('UTF-8', $FileContents, 1); 1 }) {
+	if(! eval { decode('UTF-8', $FileContents.'', 1); 1 }) {
 		push @Warnings, "$File invalid UTF-8 sequence detected"; }
 
 	#Warn on double tabs (a following line has tabbed over more than twice the previous line)
