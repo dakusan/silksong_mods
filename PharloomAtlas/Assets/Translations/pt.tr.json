@@ -101,6 +101,8 @@
 		"Marker Labels": "NÃO EDITAR. Lista de rótulos de marcadores",
 	},
 	"":{
+		"“": "« ",
+		"”": " »",
 		"BlockActions.OnlyCancel": "Apenas cancelar permitido",
 		"MarkerLabels.NewLabel": "Novo rótulo",
 		"MarkerLabels.LoadFailed": "<color=red>Seus rótulos de marcadores falharam ao carregar.</color> Há backups em <color=green>{0}</color>: {1}",

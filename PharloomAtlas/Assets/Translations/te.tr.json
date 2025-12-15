@@ -101,6 +101,8 @@
 		"Marker Labels": "ఇది సవరించవద్దు। మార్కర్ లేబుల్స్ యొక్క జాబితా",
 	},
 	"":{
+		"“": "“",
+		"”": "”",
 		"BlockActions.OnlyCancel": "క్యాన్సిల్ మాత్రమే అనుమతించబడింది",
 		"MarkerLabels.NewLabel": "కొత్త లేబుల్",
 		"MarkerLabels.LoadFailed": "<color=red>మీ మార్కర్ లేబుల్స్ లోడ్ కాలేదు。</color> <color=green>{0}</color> లో బ్యాకప్‌లు ఉన్నాయి: {1}",

@@ -1,5 +1,6 @@
 #!/usr/bin/env perl
 use strict; use warnings;
+use Encode qw(decode FB_CROAK);
 
 my @FileList=map({$_ =~ s/^\w\s+//; $_} grep({substr($_, 0, 1) ne 'D'} split(/\n/, `git diff --cached --name-status`)));
 my @Warnings;
@@ -36,14 +37,17 @@ foreach my $File (@FileList)
 	if(($FileContents =~ /^\xEF\xBB\xBF/)) {
 		push(@Warnings, "$File has UTF8 BOM"); }
 
+	#Check for invalid utf8 characters
+	if(! eval { decode('UTF-8', $FileContents, 1); 1 }) {
+		push @Warnings, "$File invalid UTF-8 sequence detected"; }
+
 	#Warn on double tabs (a following line has tabbed over more than twice the previous line)
 	if(($FileContents =~ /^(\t+)([^\t]+)\n\1\t\t/m)) {
 		push(@Warnings, "$File has double tabs"); }
 
 	#Go files shouldn’t have semicolons
 	if($File =~ /\.go$/ && ($FileContents =~ /;[ \t]*(?:$|\/\/)/m)) {
-		push(@Warnings, "$File has EOL semicolons");
-	}
+		push(@Warnings, "$File has EOL semicolons"); }
 
 	#Files should not have execute permission set unless they are this file or end in .sh
 	if($File !~ /(?:pre-commit|\.sh)$/ && (((stat "$File")[2] or die "Could not stat $File") & 07777 != 0664)) {

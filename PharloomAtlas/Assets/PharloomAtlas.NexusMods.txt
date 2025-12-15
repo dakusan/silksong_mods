@@ -50,7 +50,7 @@ Enabled by default: [i]Sidebar &amp; map icons[/i] + [i]Highlight Hornet pin[/i]
 [*][b]Other Features[/b][list]
 [*][img=middle]https://www.castledragmire.com/silksong/PaintSmall.png[/img] Interface color customization.
 [*][img=middle]https://www.castledragmire.com/silksong/DeathCacoonSmall.png[/img] Per-user-saveslot configs with automatic backups (required for marker labels).
-[*][img=middle]https://www.castledragmire.com/silksong/Phonograph.png[/img] User interfaces translated into 20 languages.
+[*][img=middle]https://www.castledragmire.com/silksong/Phonograph.png[/img] User interfaces translated [via LLM] into 20 languages.
 [/list]
 [/list]
 [center][size=5][img=middle]https://www.castledragmire.com/silksong/KeysSmall.png[/img] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[b]Installation[/b]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [img=middle]https://www.castledragmire.com/silksong/KeysSmallRev.png[/img][/size]

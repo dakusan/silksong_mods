@@ -101,6 +101,8 @@
 		"Marker Labels": "اسے ایڈٹ نہ کریں۔ مارکر لیبلس کی فہرست",
 	},
 	"":{
+		"“": "“",
+		"”": "”",
 		"BlockActions.OnlyCancel": "صرف منسوخ کرنے کی اجازت",
 		"MarkerLabels.NewLabel": "نیا لیبل",
 		"MarkerLabels.LoadFailed": "<color=red>تمہارے مارکر لیبلز لوڈ ہونے میں ناکام رہے۔</color> <color=green>{0}</color> پر بیک اپس ہیں: {1}",

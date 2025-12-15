@@ -33,7 +33,7 @@ Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework
 - Extract all textures **in memory** to `PLUGIN_PATH/Textures`
 - Extract sprite textures — from original sprite sheet, by sprite render, or entire sprite sheet
 - Debugging message log level and stack traces
-- User interfaces translated into 20 languages
+- User interfaces translated [via LLM] into 20 languages
 - Tons of classes and functions to make development easier [See Documentation](#source-code-class-documentation). Most useful include:
 	- Configs
 		- Configuration translations and properly sorted by order

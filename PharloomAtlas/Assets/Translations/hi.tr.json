@@ -101,6 +101,8 @@
 		"Marker Labels": "इसे संपादित न करें। मार्कर लेबल की सूची।",
 	},
 	"":{
+		"“": "“",
+		"”": "”",
 		"BlockActions.OnlyCancel": "केवल रद्द करने की अनुमति",
 		"MarkerLabels.NewLabel": "नई लेबल",
 		"MarkerLabels.LoadFailed": "<color=red>आपके मार्कर लेबल लोड विफल रहे।</color> <color=green>{0}</color> पर बैकअप हैं: {1}",

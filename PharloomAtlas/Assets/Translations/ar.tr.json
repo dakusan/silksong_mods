@@ -101,6 +101,8 @@
 		"Marker Labels": "لا تعدل هذا. قائمة تسميات العلامات.",
 	},
 	"":{
+		"“": "«",
+		"”": "»",
 		"BlockActions.OnlyCancel": "الإلغاء فقط مسموح",
 		"MarkerLabels.NewLabel": "تسمية جديدة",
 		"MarkerLabels.LoadFailed": "<color=red>فشل تحميل تسميات العلامات الخاصة بك.</color> هناك نسخ احتياطية في <color=green>{0}</color>: {1}",

@@ -102,6 +102,8 @@
 		"Marker Labels": "DO NOT EDIT THIS. List of marker labels",
 	},
 	"":{
+		"“": "“",
+		"”": "”",
 		"BlockActions.OnlyCancel": "Only cancel allowed",
 		"MarkerLabels.NewLabel": "New label",
 		"MarkerLabels.LoadFailed": "<color=red>Your marker labels failed to load.</color> There are backups at <color=green>{0}</color>: {1}",

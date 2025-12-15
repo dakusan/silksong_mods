@@ -1,4 +1,5 @@
 using SilkDev;
+using SilkDev.Configs;
 using SilkDev.Textures;
 using System;
 using System.Text.RegularExpressions;
@@ -18,6 +19,7 @@ public partial class SideBar
 		private const string ControllerFileName="KeyMappings.png";
 		private const string HelpTextFile="Help.txt";
 		private const string HelpTextTranslateKey="HelpText";
+		private static readonly string SettingTranslationSection=TranslatedConfig.SettingTranslationSections.Names.TranslationName();
 		private Vector2 ScrollPosition=Vector2.zero;
 		public static bool HasAnyOpen => NumOpen>0;
 		public GUIStyle ScrollStyle=new(GUI.skin.scrollView) { normal={background=Texture2D.grayTexture}, margin=new RectOffset(2, 2, 0, 0) };
@@ -26,21 +28,16 @@ public partial class SideBar
 
 		private const int TitleFontSize=45, SubTitleFontSize=30;
 
-		private static readonly System.Collections.Generic.List<(Regex, string)> Tags=[];
-		private static void UpdateTags() { Tags.Clear(); Tags.AddRange([
-			(new Regex(@"<title>(.*)</title>"				), $"<size=@{TitleFontSize}><u>$1</u></size>"),
-			(new Regex(@"<subtitle>(.*)</subtitle>"			), $"<color=#999999><size={SubTitleFontSize}><u>$1</u></size></color>"),
-			(new Regex(@"^([*\t])", RegexOptions.Multiline	), "  $1"),
-			(new Regex(@"\t"								), "    "),
-			(new Regex(@"(\*.*?)<configs>(.*?)</configs>"	), $"<size=15><color=grey>$1 {TSan("Config options")}: $2</color></size>"),
-			(new Regex(@"<config>(.*?)</config>"			), $"<size=15><color=grey>({TSan("Config option")}: “<i>$1</i>”)</color></size>"),
-			(new Regex(@"<conf>(.*?)</conf>"				), "“<i>$1</i>”"),
-		]); }
-		static HelpWindow()
-		{
-			UpdateTags();
-			Config.C.Tr.LanguageChanged += UpdateTags;
-		}
+		private static string GetQuotedConf => $"{Tr!.T("“", RichSanitize:true)}<i>$1</i>{Tr.T("”", RichSanitize:true)}";
+		private static readonly (Regex, Func<(bool, string)>)[] Tags=[
+			(new Regex(@"<title>(.*)</title>"				), () => (false, $"<size=@{TitleFontSize}><u>$1</u></size>")),
+			(new Regex(@"<subtitle>(.*)</subtitle>"			), () => (false, $"<color=#999999><size={SubTitleFontSize}><u>$1</u></size></color>")),
+			(new Regex(@"^([*\t])", RegexOptions.Multiline	), () => (false, "  $1")),
+			(new Regex(@"\t"								), () => (false, "    ")),
+			(new Regex(@"(\*.*?)<configs>(.*?)</configs>"	), () => (false, $"<size=15><color=grey>$1 {TSan("Config options")}: $2</color></size>")),
+			(new Regex(@"<config>(.*?)</config>"			), () => (true , $"<size=15><color=grey>({TSan("Config option")}: {GetQuotedConf})</color></size>")),
+			(new Regex(@"<conf>(.*?)</conf>"				), () => (true , GetQuotedConf)),
+		];
 
 		public HelpWindow() : base(FullMessage)
 		{
@@ -49,7 +46,7 @@ public partial class SideBar
 			if(NumOpen!=1)
 				return;
 
-			//Build the message
+			//Load the help text
 			try {
 				Message=TrT(HelpTextTranslateKey);
 				if(Message==HelpTextTranslateKey)
@@ -57,8 +54,18 @@ public partial class SideBar
 			} catch(Exception e) {
 				Message=$"<color=red><size=30>{TSan("Could not load help file: {0}", e.Message)}</size></color>";
 			}
-			foreach((Regex Replacer, string ReplaceWith) in Tags)
-				Message=Replacer.Replace(Message, ReplaceWith);
+
+			//Transform html tags
+			bool IsDefaultLang=(Tr.Language==Tr.DefaultLang);
+			static string GetSettingNameTranslation(string SettingName) =>
+				  (Tr.T(SettingName, SettingTranslationSection) is string TransStr) && TransStr!=SettingName ? TransStr //Normal translation worked
+				: Tr.TDef("Sidebar "+char.ToLower(SettingName[0])+SettingName[1..], SettingTranslationSection, SettingName); //See if it’s a sidebar translation (which were named slightly differently)
+			static string GetUpdatedMessage((bool NeedsTranslate, string ReplaceWith) v, string Message, Regex Replacer, bool IsDefaultLang) =>
+				  !v.NeedsTranslate || IsDefaultLang ? Replacer.Replace(Message, v.ReplaceWith) //Handle normal replaces
+				  //These replacements need translation per replacement. Fortunately, the translation generator left all the config names unchanged, except in Tamil, which, oh well.
+				: Replacer.Replace(Message, Match => v.ReplaceWith.Replace("$1", GetSettingNameTranslation(Match.Groups[1].Value)));
+			foreach((Regex Replacer, Func<(bool, string)> RepFunc) in Tags)
+				Message=GetUpdatedMessage(RepFunc(), Message, Replacer, IsDefaultLang);
 			Message=Message.Replace("<ABYSS>", !PlayerData.instance.visitedAbyss ? "@#$%@" : TSan("Abyss"));
 
 			//Load the texture
@@ -133,7 +140,8 @@ public partial class SideBar
 			|| ActiveDevice.RightStick.HasChanged;
 
 		//Translation
-		private static string TSan(string Message, params object[] FormatList) => Config.C.Tr.TDef(Message, nameof(HelpWindow), Message, true , FormatList);
-		private static string TrT (string Message, params object[] FormatList) => Config.C.Tr.TDef(Message, nameof(HelpWindow), Message, false, FormatList);
+		private static string TSan(string Message, params object[] FormatList) => Tr.TDef(Message, nameof(HelpWindow), Message, true , FormatList);
+		private static string TrT (string Message, params object[] FormatList) => Tr.TDef(Message, nameof(HelpWindow), Message, false, FormatList);
+		private static readonly Translations Tr=Config.C.Tr;
 	}
 }

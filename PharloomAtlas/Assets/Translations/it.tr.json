@@ -101,6 +101,8 @@
 		"Marker Labels": "NON MODIFICARE. Lista etichette marcatori",
 	},
 	"":{
+		"“": "« ",
+		"”": " »",
 		"BlockActions.OnlyCancel": "Solo annullamento permesso",
 		"MarkerLabels.NewLabel": "Nuova etichetta",
 		"MarkerLabels.LoadFailed": "<color=red>Caricamento etichette marcatori fallito.</color> Backup in <color=green>{0}</color>: {1}",

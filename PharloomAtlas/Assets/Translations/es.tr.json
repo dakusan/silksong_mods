@@ -101,6 +101,8 @@
 		"Marker Labels": "NO EDITAR. Lista de etiquetas de marcadores.",
 	},
 	"":{
+		"“": "« ",
+		"”": " »",
 		"BlockActions.OnlyCancel": "Solo cancelar permitido",
 		"MarkerLabels.NewLabel": "Nueva etiqueta",
 		"MarkerLabels.LoadFailed": "<color=red>Tu carga etiquetas marcadores falló.</color> Hay backups en <color=green>{0}</color>: {1}",

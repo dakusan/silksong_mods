@@ -101,6 +101,8 @@
 		"Marker Labels": "এটি সম্পাদনা করবেন না। মার্কার লেবেলের তালিকা।",
 	},
 	"":{
+		"“": "“",
+		"”": "”",
 		"BlockActions.OnlyCancel": "শুধুমাত্র বাতিল অনুমোদিত",
 		"MarkerLabels.NewLabel": "নতুন লেবেল",
 		"MarkerLabels.LoadFailed": "<color=red>তোমার মার্কার লেবেল লোড ফেল হয়েছে।</color> <color=green>{0}</color> এ ব্যাকআপ আছে: {1}",

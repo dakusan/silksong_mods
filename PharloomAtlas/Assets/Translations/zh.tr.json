@@ -101,6 +101,8 @@
 		"Marker Labels": "勿编辑。标记标签列表",
 	},
 	"":{
+		"“": "“",
+		"”": "”",
 		"BlockActions.OnlyCancel": "仅允许取消",
 		"MarkerLabels.NewLabel": "新标签",
 		"MarkerLabels.LoadFailed": "<color=red>标记标签加载失败。</color> 备份在 <color=green>{0}</color>: {1}",

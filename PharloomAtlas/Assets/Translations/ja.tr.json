@@ -101,6 +101,8 @@
 		"Marker Labels": "編集禁止。マーカーラベルリスト",
 	},
 	"":{
+		"“": "「",
+		"”": "」",
 		"BlockActions.OnlyCancel": "キャンセルのみ許可",
 		"MarkerLabels.NewLabel": "新しいラベル",
 		"MarkerLabels.LoadFailed": "<color=red>マーカーラベルロード失敗。</color> バックアップ <color=green>{0}</color> に {1}",

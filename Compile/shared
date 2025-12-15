@@ -70,13 +70,25 @@ ensure_dir "$plugin_dir" || exit 1
 #Functions used by callers to finish up the job
 MakeZip() {
 	#Compile the zip
-	zip_path="$zip_dir/$1"
+	local zip_path="$zip_dir/$1"
 	rm -f "$zip_path"
 	cp -Lpr "$links_dir/"* "$plugin_dir/"				|| exit_error "Failed to copy $links_dir to $plugin_dir"
 	rm -f "$plugin_dir/$trans_dir/"*"/default.tr.json"
 	zip -r -9 "$zip_path" "${@:2}"						|| exit_error "Zipping failed"
-	7z a -t7z -mx=9 "$zip_dir/${1%.zip}.7z" "${@:2}"
-	#rm -rf "$plugin_dir"
+	#7z a -t7z -mx=9 "$zip_dir/${1%.zip}.7z" "${@:2}"
+
+	#.en zip (exclude Translations params)
+	local en_zip="${zip_path%.zip}.en.zip"
+	local en_args=()
+	shift #Skip $1
+	for arg in "$@"; do
+		[[ ! "$arg" == "$plugin_dir/$trans_dir/"* ]] && en_args+=("$arg")
+	done
+	zip -r -9 "$en_zip" "${en_args[@]}" || exit_error "Zipping .en failed"
+	#7z a -t7z -mx=9 "${en_zip%.zip}.7z" "${en_args[@]}"
+
+	#Cleanup
+	rm -rf "$plugin_dir"
 
 	#Let the user know the results
 	unzip -l "$zip_path"

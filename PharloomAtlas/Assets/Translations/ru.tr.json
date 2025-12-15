@@ -101,6 +101,8 @@
 		"Marker Labels": "НЕ РЕДАКТИРОВАТЬ. Список меток маркеров",
 	},
 	"":{
+		"“": "«",
+		"”": "»",
 		"BlockActions.OnlyCancel": "Разрешено только отменить",
 		"MarkerLabels.NewLabel": "Новая метка",
 		"MarkerLabels.LoadFailed": "<color=red>Загрузка меток маркеров не удалась.</color> Резервные копии в <color=green>{0}</color>: {1}",

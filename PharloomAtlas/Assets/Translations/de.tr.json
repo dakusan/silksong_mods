@@ -101,6 +101,8 @@
 		"Marker Labels": "NICHT BEARBEITEN. Liste der Marker-Beschriftungen.",
 	},
 	"":{
+		"“": "„",
+		"”": "”",
 		"BlockActions.OnlyCancel": "Nur Abbrechen erlaubt",
 		"MarkerLabels.NewLabel": "Neue Beschriftung",
 		"MarkerLabels.LoadFailed": "<color=red>Deine Marker-Beschriftungen konnten nicht geladen werden.</color> Backups in <color=green>{0}</color>: {1}",

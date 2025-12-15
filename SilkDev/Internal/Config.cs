@@ -1,5 +1,6 @@
 using BepInEx.Configuration;
 using SilkDev.Configs;
+using System.Linq;
 using UnityEngine;
 
 namespace SilkDev.Internal;
@@ -35,7 +36,7 @@ public class Config
 		//General
 		Title="General";
 		Language=Con.BindLanguage(Title);
-		AddLastLang(Con, Title);
+		AddLangSwitchers(Con, Title);
 
 		//Show the mouse
 		Title="Force Show Mouse";
@@ -69,13 +70,19 @@ public class Config
 //LastLanguage only available during debug
 #if DEBUG
 	private string LastLanguage="fr";
-	private void AddLastLang(TranslatedConfig Con, string Title)
+	private void AddLangSwitchers(TranslatedConfig Con, string Title)
 	{
-		ConfigEntryTKeyboardShortcut SwitchLang=Con.Bind(Title, "Switch between Last Language and English for testing", new KeyboardShortcut(KeyCode.F9), null, new() { IsAdvanced=true });
-		Events.GameEvents.OnUpdate += () => Misc.IFF(SwitchLang.IsDown(), () => Language.Value=(Language.Value==Tr.DefaultLang ? LastLanguage : Tr.DefaultLang));
+		ConfigEntryTKeyboardShortcut SwitchLang=Con.Bind(Title, "Switch between Last Language and English for testing", new KeyboardShortcut(KeyCode.None), null, new() { IsAdvanced=true });
+		ConfigEntryTKeyboardShortcut CycleLang=Con.Bind(Title, "Cycle between languages in order", new KeyboardShortcut(KeyCode.None), null, new() { IsAdvanced=true });
+		Events.GameEvents.OnUpdate += () => {
+			if(SwitchLang.IsDown())
+				Language.Value=(Language.Value==Tr.DefaultLang ? LastLanguage : Tr.DefaultLang);
+			else if(CycleLang.IsDown())
+				Language.Value=Tr.Languages.Keys.ElementAt((Tr.Languages.Keys.ToList().IndexOf(Language.Value)+1)%Tr.Languages.Count);
+		};
 		Language.SettingChanged += (_, _) => LastLanguage=(Language.Value==Tr.DefaultLang ? LastLanguage : Language.Value);
 	}
 #else
-	private void AddLastLang(TranslatedConfig Con, string Title) { }
+	private void AddLangSwitchers(TranslatedConfig _, string __) { }
 #endif
 }

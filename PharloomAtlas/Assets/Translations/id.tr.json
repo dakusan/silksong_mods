@@ -101,6 +101,8 @@
 		"Marker Labels": "JANGAN DIUBAH. Daftar label penanda.",
 	},
 	"":{
+		"“": "“",
+		"”": "”",
 		"BlockActions.OnlyCancel": "Hanya batalkan diizinkan",
 		"MarkerLabels.NewLabel": "Label baru",
 		"MarkerLabels.LoadFailed": "<color=red>Label penanda Anda gagal dimuat.</color> Ada cadangan di <color=green>{0}</color>: {1}",

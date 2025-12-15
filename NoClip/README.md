@@ -34,7 +34,7 @@ You should end up with paths like: `Hollow Knight Silksong/BepInEx/plugins/dakus
 - Open the config window in-game with **F1**.
 - Default noclip shortcut key: **F3**.
 - Movement via arrow keys or controller stick.
-- User interfaces translated into 20 languages.
+- User interfaces translated [via LLM] into 20 languages.
 
 <a id="developer-notes"></a>
 ## ️🧩️ Developer Notes

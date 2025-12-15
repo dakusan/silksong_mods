@@ -101,6 +101,8 @@
 		"Marker Labels": "NE PAS MODIFIER. Liste des étiquettes de marqueurs.",
 	},
 	"":{
+		"“": "« ",
+		"”": " »",
 		"BlockActions.OnlyCancel": "Seul l’annulation est autorisée",
 		"MarkerLabels.NewLabel": "Nouvelle étiquette",
 		"MarkerLabels.LoadFailed": "<color=red>Vos étiquettes de marqueurs ont échoué à se charger.</color> Des sauvegardes sont disponibles à <color=green>{0}</color> : {1}",

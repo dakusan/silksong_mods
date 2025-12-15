@@ -1,16 +1,16 @@
 {
 	"SettingSections":{
-		"Map Features": "படம் அம்சங்கள்",
+		"Map Features": "வரைபட அம்சங்கள்",
 		"Markers": "மார்க்கர்கள்",
-		"Map Controls": "படம் கட்டுப்பாடுகள்",
+		"Map Controls": "வரைபட கட்டுப்பாடுகள்",
 		"Interface customization": "இடைமுகம் தனிப்பயனாக்குதல்",
-		"Map Sidebar": "படம் பக்க பட்டி",
+		"Map Sidebar": "வரைபட பக்க பட்டி",
 		"Saved Value Window": "சேமிக்கப்பட்ட மதிப்பு சன்னல்",
 		"Internal": "உள்ளே",
 	},
 	"SettingNames":{
-		"Auto map": "தானியங்கி படம்",
-		"Unlock map": "படத்தை திறக்க",
+		"Auto map": "தானியங்கி வரைபடம்",
+		"Unlock map": "வரைபடத்தை திறக்க",
 		"Show map in abyss": "அபிஸில் படத்தை காட்டு",
 		"Show map in *****": "***** இல் படத்தை காட்டு",
 		"More markers": "இன்னும் மார்க்கர்கள்",
@@ -46,7 +46,7 @@
 		"Marker label background color": "மார்க்கர் லேபிள் பின்னணி நிறம்",
 		"Starts open on game load": "விளையாட்டு ஏற்றத்தில் திறந்து தொடங்கும்",
 		"Show downloaded icon pictures": "பதிவிறக்கம் செய்யப்பட்ட ஐகான் படங்களை காட்டு",
-		"Show mouse with sidebar/search": "பக்க பட்டி/தேடல் உடன் சுணியை காட்டு",
+		"Show mouse with sidebar/search": "பக்க பட்டி/தேடலுடன் மவுஸை காட்டு"
 		"Shortcut key: Show/hide the sidebar": "குறுக்கு விசை: பக்க பட்டியை காட்டு/மறை",
 		"Sidebar navigation: Up": "பக்க பட்டி நேவிகேஷன்: மேலே",
 		"Sidebar navigation: Down": "பக்க பட்டி நேவிகேஷன்: கீழே",
@@ -101,6 +101,8 @@
 		"Marker Labels": "இதை திருத்த வேண்டாம். மார்க்கர் லேபிள்களின் பட்டியல்",
 	},
 	"":{
+		"“": "“",
+		"”": "”",
 		"BlockActions.OnlyCancel": "ரத்து மட்டும் அனுமதிக்கப்படும்",
 		"MarkerLabels.NewLabel": "புதிய லேபிள்",
 		"MarkerLabels.LoadFailed": "<color=red>உங்கள் மார்க்கர் லேபிள்கள் ஏற்றம் தோல்வி.</color> <color=green>{0}</color> இல் பேக்அப்கள் உள்ளன: {1}",
