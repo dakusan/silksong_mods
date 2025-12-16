@@ -241,7 +241,7 @@ public class ExtractSpritesWindow : Window
 		(int width, int height) TexImage=(HasImage ? (CurFoundObj!.width, CurFoundObj!.height) : (0, 0));
 		float AvailableHeight=WindowRect.height-WinPad.vertical-LabelStyle.lineHeight;
 		float Aspect=(!HasImage ? 0 : TexImage.width/(float)TexImage.height);
-		float ImageDisplayHeight=!HasImage ? 0 : Math.Min(AvailableHeight, TexImage.height);
+		float ImageDisplayHeight=!HasImage ? 0 : Mathf.Min(AvailableHeight, TexImage.height);
 		float ImageDisplayWidth=ImageDisplayHeight*Aspect;
 		float LeftWidth=WindowRect.width-ImageDisplayWidth-WinPad.horizontal;
 		if(LeftWidth<MinListWidth) {
@@ -323,7 +323,7 @@ public class ExtractSpritesWindow : Window
 		if(HasImage) {
 			//Center the texture vertically
 			GUILayout.BeginVertical(GUILayout.Width(ImageDisplayWidth), GUILayout.Height(AvailableHeight));
-			GUILayout.Space(Math.Max((AvailableHeight-ImageDisplayHeight)/2, 0));
+			GUILayout.Space(Mathf.Max((AvailableHeight-ImageDisplayHeight)/2, 0));
 			Rect TextureRect=GUILayoutUtility.GetRect(ImageDisplayWidth, ImageDisplayHeight);
 			GUI.DrawTexture(TextureRect, CurFoundObj!.Tex);
 			GUILayout.EndVertical();

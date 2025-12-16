@@ -15,8 +15,9 @@ public partial class SideBar : Window
 	private static Config Conf => Config.C;
 
 	//Resize the sidebar
-	private Dragger ResizeDrag=new();
+	private readonly Dragger ResizeDrag=new();
 	private int StartDragWidth;
+	private float StartDragScrollPositionY;
 
 	//Styling stuff
 	private const int AreaMargin=2;
@@ -130,6 +131,22 @@ public partial class SideBar : Window
 		GUI.Box(WindowRect, GUIContent.none);
 		GUILayout.BeginArea(WindowRect);
 
+		//Handle drag resizing from the right border
+		Rect RightBorderRect=new(WindowRect.width-1, 0, 1, WindowRect.height);
+		Rect HoverBorderRect=RightBorderRect.AddWidth(10).AddX(-10);
+		bool MouseOverResize=HoverBorderRect.Contains(Event.current.mousePosition) || ResizeDrag.IsDragging;
+		if(MouseOverResize)
+			switch(ResizeDrag.UpdateState(HoverBorderRect, true)) {
+				case Dragger.State.Start:
+					StartDragWidth=Conf.SideBarWidth;
+					StartDragScrollPositionY=ScrollPosition.y;
+					break;
+				case Dragger.State.Dragging:
+					Conf.SideBarWidth.V=StartDragWidth+(int)ResizeDrag.Delta.x;
+					ScrollPosition.y=Mathf.Max(StartDragScrollPositionY+ResizeDrag.Delta.y, 0);
+					break;
+			}
+
 		//Start the top area above the scroll window
 		int ClientWidth=(int)(WindowRect.width-GUI.skin.verticalScrollbar.fixedWidth-AreaMargin*2);
 		GUILayout.BeginVertical(GUILayout.Width(Width));
@@ -146,24 +163,11 @@ public partial class SideBar : Window
 		//End the scroll area
 		GUI.EndScrollView();
 
-		//Check to see if the right border is being hovered and if so make it green
-		Rect RightBorderRect=new(WindowRect.width-1, 0, 1, WindowRect.height);
-		Rect HoverBorderRect=RightBorderRect.AddWidth(10).AddX(-10);
-		bool MouseOverResize=HoverBorderRect.Contains(Event.current.mousePosition) || ResizeDrag.IsDragging;
+		//Draw the right border
 		if(MouseOverResize)
 			GUI.color=Color.green;
-
-		//Draw the right border for the area that can drag resize
 		GUI.DrawTexture(RightBorderRect, CTexRightBorder);
-		if(MouseOverResize) {
-			switch(ResizeDrag.UpdateState(HoverBorderRect, false)) {
-				case Dragger.State.None		:																		break;
-				case Dragger.State.Start	: Ev.Use(); StartDragWidth=Conf.SideBarWidth;							break;
-				case Dragger.State.Dragging	: Ev.Use(); Conf.SideBarWidth.V=StartDragWidth+(int)ResizeDrag.Delta.x;	break;
-				case Dragger.State.Done		: Ev.Use();																break;
-			}
-			GUI.color=Color.white;
-		}
+		GUI.color=Color.white;
 
 		//Reset state
 		GUILayout.EndArea();

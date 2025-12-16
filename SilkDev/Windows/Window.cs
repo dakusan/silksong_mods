@@ -292,7 +292,7 @@ public abstract class Window
 
 		//On Layout, reorder windows with Priority!=0
 		if(CurEv.type==EventType.Layout)
-			foreach(Window Win in WinList.AsEnumerable().Where(static W => W.Priority!=0).OrderBy(static W => Math.Abs(W.Priority)).ToList()) {
+			foreach(Window Win in WinList.AsEnumerable().Where(static W => W.Priority!=0).OrderBy(static W => Mathf.Abs(W.Priority)).ToList()) {
 				_=WinOrderList.Remove(Win);
 				WinOrderList.Insert(Win.Priority<0 ? 0 : WinOrderList.Count, Win);
 				if(Win.Priority<0)
