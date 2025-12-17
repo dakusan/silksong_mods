@@ -67,6 +67,6 @@
 * Link the selected (green) icon: “Save” → local JSON; “Save+Send” → Also crowdsources to author.
 
 <title>Search Window:</title>
-* Searches titles, categories, and descriptions (space-separated AND).
+* Searches titles, categories, and descriptions/meta-data (space-separated AND).
 * Results: 7-line preview + ellipsis if longer; full on hover.
 * Click on result: Selects and centers map over icon.
