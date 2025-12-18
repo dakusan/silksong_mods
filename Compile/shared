@@ -45,6 +45,7 @@ ESCAPE_LINKS="../.."
 ensure_link "categories.json" "$ESCAPE_LINKS/PharloomAtlas/Assets/categories.json"
 ensure_link "ItemFinder.json" "$ESCAPE_LINKS/PharloomAtlas/Assets/ItemFinder.json"
 ensure_link "items.json" "$ESCAPE_LINKS/PharloomAtlas/Assets/items.json"
+ensure_link "Misc.json" "$ESCAPE_LINKS/PharloomAtlas/Assets/Misc.json"
 for project in NoClip PharloomAtlas PinFinder SilkDev; do
 	ensure_link "$project.dll" "$ESCAPE_LINKS/$project/bin/Release/netstandard2.1/$project.dll"
 	ensure_link "$project.NexusMods.txt" "$ESCAPE_LINKS/$project/Assets/$project.NexusMods.txt"

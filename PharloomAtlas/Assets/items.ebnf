@@ -1,0 +1,145 @@
+;; ----------------------------The “Chain System”----------------------------
+;;	Items:
+;;		- Items represent an icon on the map.
+;;		- Items have 3 states:
+;;			- *False: *Reqs-not-met; icon is invisible
+;;			- *Available: *Reqs met but *Needs not yet finished; icon is visible
+;;			- *True: *Needs have been met; icon is set to IsFound/invisible
+;;				- For most items, this state is met by the appropriate save-file value being set, which is most often just collecting the in-game item.
+;;					- These links are set up in ItemFinder.json.
+;;		- The only required item fields are: [int]ID, [int]CategoryID, [string]Title, [double]x, [double]y
+;;		- Self explanatory fields: [string]*Notes, [string]Tips, [string]Effect, [int]IconID, [string]IgnPageName, [string array]ImageURLs
+;;	Requirements (*Reqs) field:
+;;		- Things required for the item to become available/visible.
+;;		- *Reqs are made up of items. Items are separated by pluses “+” and pipes “|”. a+b+c|b+d means (a AND b AND c) OR (b OR d).
+;;		- Items can be the following things:
+;;			- Direction: North/South/East/West
+;;			- *StaticName: Keys found in Misc.json
+;;			- *LinkID: A link to another item in the form “[ItemName|ItemID]”
+;;				- ItemName for this and *StaticName may only contain: Letters | Digits | "_" | " " | "’" | "(" | ")"
+;;			- “Rosary” or “Shard”: Self explanatory
+;;		- Items can be preceeded by one or more flags in any order
+;;			- Amount: An asterisk “*” followed by a number. This specifies how many of an item is needed.
+;;			- Optional: A question mark “?” specifying the item is only recommended, not required
+;;			- Not: An exclamation mark “!” specifyiung the requirement fails if the item is true.
+;;			- Started: A tilde “~” specifying the item only needs to be started, not completed.
+;;		- After the list of required items may be a carrot “^” followed by a string [cannot contain at sign “@”] that specifies additional [requirement] information that is *Unlinkable (cannot be linked to other items). Often items not yet added to the database.
+;;		- After the list of required items (and after the optional *Unlinkable requirements section) may be an at sign “@” followed by a string that specifies where to find the item. This symbol is not supported in Needs and Rewards.
+;;		- When viewing an item’s information, *Reqs are listed under “Requirements”, and the required items list it under “Unlocks”.
+;;	*Needs field:
+;;		- Things needed to complete the item. When these things have been completed, the save-file value should generally be set (item becomes true).
+;;		- Same format as *Reqs but without the pipe “|” clause and where “@” section.
+;;		- Direction is not supported
+;;		- Optional flag “?” is used to name currently untracked items
+;;	*Rewards:
+;;		- *Rewards are what the player receives for finishing an item, generally a quest or an objective.
+;;		- This field follows the same rules as the *Needs field, except:
+;;			- The Not “!” and Started “~” flags are not supported
+;;	*******IMPORTANT*******: It is important to note the difference between *rewards and *Reqs.
+;;		- They can often serve the same purpose (an item can be gained either as a reward, or if its requirements are met). The major difference being when the item becomes visible on the map.
+;;			- *Reqs
+;;				- For example, an objective that follows another objective should be a *Req, as we don’t want it to show until the first objective is complete.
+;;				- When viewing an item’s information, other items that require it are listed under “Unlocks”.
+;;			-*Rewards
+;;				- However, an item that a player might want to know about, for example, the “Drifter’s Cloak” for the “Flexile Spines” quest should be a *Reward, so the player can know it’s there.
+;;				- *Rewards do not show up for the player until their quest/objective has its *Reqs met (configurable).
+;;				- When viewing an item’s information, *Rewards are listed under “Rewards”, and the rewarded items list it under “Requirements”.
+;;	“Arena Battle” Notes:
+;;		- Each section of an arena battle is on its own line and lists the spawned monsters in the format “- 5 MonsterA + 3 MonsterB + 1 MonsterC”
+;;	“Vendors” Notes:
+;;		- Not yet written (I had a spec but it’s changing right after I push the commit)
+
+;; ----------------------------items.ebnf JSON format---------------------------
+<FullList>		::=	"{" <Item>* "}"
+<Item>			::=	<QuoteChar> <Number> <QuoteChar> ":" "{" <ICategoryID> <ITitle> <Ix> <Iy> <IIconID>? <IReqs>? <INeeds>? <IRewards>? <IEffect>? <ITip>? <INotes>? <IIgnPageName>? <IStore>? <IImageURLs>? "}" <Comma>
+<ICategoryID>	::=	<QuoteChar> "CategoryID" <QuoteChar> ":" <Number>		<Comma>
+<ITitle>		::=	<QuoteChar> "Title"		 <QuoteChar> ":" <JSString>		<Comma>
+<Ix>			::=	<QuoteChar> "x"			 <QuoteChar> ":" <Float>		<Comma>
+<Iy>			::=	<QuoteChar> "y"			 <QuoteChar> ":" <Float>		<Comma>
+<IIconID>		::=	<QuoteChar> "IconID"	 <QuoteChar> ":" {<Digit>}{1,3}	<Comma>
+<IReqs>			::=	<QuoteChar> "Reqs"		 <QuoteChar> ":" <ReqStr>		<Comma>
+<INeeds>		::=	<QuoteChar> "Needs"		 <QuoteChar> ":" <NeedStr>		<Comma>
+<IRewards>		::=	<QuoteChar> "Rewards"	 <QuoteChar> ":" <NeedStr>		<Comma>
+<IEffect>		::=	<QuoteChar> "Effect"	 <QuoteChar> ":" <JSString>		<Comma>
+<ITip>			::=	<QuoteChar> "Tip"		 <QuoteChar> ":" <JSString>		<Comma>
+<INotes>		::=	<QuoteChar> "Notes"		 <QuoteChar> ":" <JSString>		<Comma>
+#<IDescription>	::=	<QuoteChar> "Description"<QuoteChar> ":" <JSString>		<Comma>
+<IIgnPageName>	::=	<QuoteChar> "IgnPageName"<QuoteChar> ":" <JSString>		<Comma>
+<IStore>		::=	<QuoteChar> "Store"		"[" <StoreItem>+ "]"			<Comma>
+<IImageURLs>	::=	<QuoteChar> "ImageURLs"	"[" <ImageURLItem>+ "]"			<Comma>
+
+<StoreItem>		::=	"[" <QuoteChar> <StoreItemTotal> <QuoteChar> ":" <QuoteChar> <StoreItemBuy> <QuoteChar> "]" <Comma>
+<StoreItemBuy>	::=	<StoreItemTotal> { "+" <StoreItemTotal> }*
+<StoreItemTotal>::=	<StoreItemName> { "*" <Number> }?
+<StoreItemName>	::=	"Rosary" | "CraftMetal" | <LinkID>
+
+<IImageURLItem>	::=	<QuoteChar> "https://" <JSStringChar>+ <QuoteChar> <Comma>
+
+;; -------------------------Other standardized sections-------------------------
+;;For “Arena Battle”s the *Notes is in the format <ABRows>:
+;;	^((- \d+ [\w [\]’|]+)( \+ \d+ [\w [\]’|]+?)*(\n|$))+$
+<ABRows>		::=	<ABRow> { "\n" <ABRow> }*
+<ABRow>			::=	"- " <ABItem> { " + " <ABItem> }*
+<ABItem>		::=	<VariableName> | <VariableName>? "[" <VariableName> { "|" <Number> }? "]"
+
+;; *Need Note	: Non-Supported parts of <AndExpr>: <Direction> :: <FlagOptional> is used to flag currently untracked items
+;; *Rewards Note: Same as “*Need Note” except the Not “!” and Started “~” flags are not supported
+<NeedStr>		::=	<QuoteChar> <AndExpr>? <StrExtra>? <QuoteChar>
+
+;; Vendor unlinked items are stored under the Effects field in the following format
+<VendorItems>	::=	<VendorItem> { "\n" <VendorItem> }*
+<VendorItem>	::=	<VariableName> @ <AndExpr>
+
+;; ----------------------“Requirements” *Reqs string format---------------------
+;;															ReqStr: *Reqs and information on where to be found. Note: Will be a <JSString>.
+<ReqStr>		::=	<QuoteChar> <OrExpr>? <StrExtra>? <WhereStr>? <QuoteChar>
+;;															StrExtra: Gives additional information (often *Unlinkable) :: Optional; Starts with ^, followed by one or more non-@ chars.
+<StrExtra>	::=	"^" { character except "@" }+
+;;															WhereStr: Gives where an item can be found :: Optional: Starts with @ followed by one or more any characters.
+<WhereStr>		::=	"@" { character }+
+;;															OrExpr: Different ways to satisfy the requirement :: Alternatives separated by | (OR); one or more AndExpr
+<OrExpr>		::=	<AndExpr> { "|" <AndExpr> }*
+;;															AndExpr: Requirements that must be met together :: One or more ReqItem joined by + (AND, higher precedence)
+<AndExpr>		::=	<ReqItem> { "+" <ReqItem> }*
+;;															ReqItem: Optional flags followed by name
+<ReqItem>		::=	<Flags>* <ReqName>
+;;															Flags: List of flags
+<Flags>			::=	<FlagAmount> | <FlagOptional> | <FlagNot> | <FlagStarted>
+;;															FlagAmount: Number of the items required
+<FlagAmount>	::=	"*" <Number>
+;;															FlagOptional: Recommended (not required)
+<FlagOptional>	::=	"?"
+;;															FlagNot: Requirement must not be met
+<FlagNot>		::=	"!"
+;;															FlagStarted: Must be started (but not complete)
+<FlagStarted>	::=	"~"
+;;															ReqName: Direction, static name, or link name
+<ReqName>		::=	<Direction> | <StaticName> | <LinkID> | <Rosary> | <Shard>
+;;															Direction: Cardinal directions
+<Direction>		::=	"North" | "South" | "East" | "West"
+;;															StaticName: A variable name (from predefined list)
+<StaticName>	::=	<VariableName>
+;;															LinkID: A link to another item in the json file. The VariableName is purely for reference. :: [VariableName|number]
+<LinkID>		::=	"[" <VariableName> "|" <Number> "]"
+;;															Rosary: Represents a single rosary
+<Rosary>		::=	"Rosary"
+;;															Shard: Represents a single shell shard
+<Shard>			::=	"Shard"
+;;															Number: 1–8 digits (value < 100,000,000)
+<Number>		::=	{ <Digit> }{1,8}
+;;															VariableName: One or more allowed characters (matches regex [\w ’]+)
+<VariableName>	::=	{ <Letter> | <Digit> | "_" | " " | "’" | "(" | ")" }+
+;;															Letter: All uppercase and lowercase letters
+<Letter>		::=	  "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M"
+					| "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
+					| "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m"
+					| "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z"
+;;															Digit: Decimal digits
+<Digit>			::=	  "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+;;															This represents a javascript string
+<JSString>		::=	<QuoteChar> <JSStringChar>* <QuoteChar>
+;;															This represents a javascript string character, which cannot be modeled in BNF
+<JSStringChar>	::=	character
+<Float>			::=	"-"? { <Digit> }{1,17} "." { <Digit> }{1,17}
+<QuoteChar>		::=	""""
+<Comma>			::=	","
