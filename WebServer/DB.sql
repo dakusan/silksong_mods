@@ -32,9 +32,6 @@ CREATE TABLE Items (
   x double NOT NULL,
   y double NOT NULL,
   IconID tinyint UNSIGNED NULL,
-  Reqs varchar(512) NULL,
-  Needs varchar(255) NULL,
-  Rewards varchar(255) NULL,
   ReqsSetID int UNSIGNED NULL,
   NeedsSetID int UNSIGNED NULL,
   RewardsSetID int UNSIGNED NULL,
@@ -44,7 +41,6 @@ CREATE TABLE Items (
   WhereAt varchar(1000) NULL,
   IgnPageName varchar(100) CHARACTER SET ascii COLLATE ascii_general_ci NULL,
   Store mediumtext NULL,
-  ImageURLs mediumtext NULL,
 
   PRIMARY KEY (ID),
   FOREIGN KEY (CategoryID) REFERENCES Categories (ID),
@@ -84,9 +80,10 @@ DROP TABLE IF EXISTS ItemLinkDefs;
 CREATE TABLE ItemLinkDefs (
   ID int UNSIGNED NOT NULL AUTO_INCREMENT,
   FlagAmount int UNSIGNED NOT NULL DEFAULT 1,
-  FlagOptional bool NOT NULL DEFAULT false,
+  FlagUnlinked bool NOT NULL DEFAULT false,
   FlagNot bool NOT NULL DEFAULT false,
   FlagStarted bool NOT NULL DEFAULT false,
+  FlagRecommend bool NOT NULL DEFAULT false,
 
   #These are mutually excluive
   ItemID int UNSIGNED NULL,
@@ -101,4 +98,16 @@ CREATE TABLE ItemLinkDefs (
   UNIQUE KEY (SetID, GroupNum, OrderNum),
   FOREIGN KEY (ItemID) REFERENCES Items (ID),
   FOREIGN KEY (StaticLinkID) REFERENCES StaticLinks (ID)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS ImageURLs;
+CREATE TABLE ImageURLs (
+  ID int UNSIGNED NOT NULL AUTO_INCREMENT,
+  ItemID int UNSIGNED NOT NULL,
+  OrderNum tinyint UNSIGNED NOT NULL,
+  URL varchar(255) CHARACTER SET ascii COLLATE ascii_general_ci,
+
+  PRIMARY KEY (ID),
+  UNIQUE KEY (ItemID, OrderNum),
+  FOREIGN KEY (ItemID) REFERENCES Items (ID)
 ) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

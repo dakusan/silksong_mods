@@ -21,4 +21,27 @@ try {
 } catch(Exception $e) {
 	ErrAndDie('Mysql failed while initializing connection parameters', $e->getMessage());
 }
+
+class MysqliResultIterator implements Iterator {
+	private mysqli_result	$Result;
+	private mixed			$Current;
+	private int				$Key=0;
+	private bool			$Valid=false;
+	public function __construct(mysqli_result $Result)			{ $this->Result=$Result; $this->rewind(); }
+	public function current							(): mixed	{ return $this->Current;}
+	public function key								(): int		{ return $this->Key;	}
+	public function valid							(): bool	{ return $this->Valid;	}
+	public function next							(): void	{ $this->Key+=($this->Valid=($this->Current=$this->Result->fetch_object())!==null ? 1 : 0); }
+	public function rewind(): void {
+		if($this->Key!==0)
+			$this->Result->data_seek(0);
+		$this->next();
+	}
+}
+
+function Query($Str)
+{
+	global $Conn;
+	return new MysqliResultIterator($Conn->query($Str));
+}
 ?>

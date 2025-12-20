@@ -1,6 +1,8 @@
 <?php
 require_once(__DIR__.'/Shared.php');
 
+$CompactJSON=false;
+
 //Only output files if script is run directly. Otherwise, used as a library
 if(str_ends_with($_SERVER['SCRIPT_NAME'], pathinfo(__FILE__, PATHINFO_BASENAME))) {
 	file_put_contents('./categories.json', GenerateCategories());
@@ -10,6 +12,10 @@ if(str_ends_with($_SERVER['SCRIPT_NAME'], pathinfo(__FILE__, PATHINFO_BASENAME))
 
 function GenerateJson($Data)
 {
+	global $CompactJSON;
+	if($CompactJSON)
+		return json_encode($Data, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+
 	$Data=json_encode($Data, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
 	for($Count=1; $Count!=0; $Data=preg_replace('/^(\t*)    /m', "\\1\t", $Data, -1, $Count)); //Replace 4 space indents to tabs
 	return preg_replace('/([^{[,])\n/', "\$1,\n", $Data); //Add trailing commas
@@ -18,15 +24,13 @@ function GenerateJson($Data)
 function GenerateCategories()
 {
 	//Get the category groups from the Category’s table CategoryGroup enum
-	global $Conn;
-	if(!preg_match('/CategoryGroup.*enum\(\'(.*?)\'\)/', $Conn->query('SHOW CREATE TABLE Categories')->fetch_row()[1], $Matches))
+	if(!preg_match('/CategoryGroup.*enum\(\'(.*?)\'\)/', Query('SHOW CREATE TABLE Categories')->current()->{'Create Table'}, $Matches))
 		ErrAndDie('Could not find category groups');
 	$CatGroups=array_fill_keys(explode("','", $Matches[1]), []);
 
 	//Fill in the categories
 	$CatOrder=['Order', 'IconID', 'Title', 'Info'];
-	$Q=$Conn->query('SELECT ID, CategoryGroup, OrderNum, IconID, Title, Info FROM Categories ORDER BY ID ASC');
-	while($Row=$Q->fetch_object()) {
+	foreach(Query('SELECT ID, CategoryGroup, OrderNum, IconID, Title, Info FROM Categories ORDER BY ID ASC') as $Row) {
 		$NewItem=(object)[
 			'Order'=>(int)$Row->OrderNum,
 			'IconID'=>(int)$Row->IconID,
@@ -42,43 +46,48 @@ function GenerateCategories()
 
 function GenerateItems()
 {
-	global $Conn;
-	$Items=[];
-
 	//Get the static links
 	$StaticLinks=[];
-	foreach($Conn->query('SELECT ID, Name FROM StaticLinks') as $Row)
-	{
-		$Row=(object)$Row;
+	foreach(Query('SELECT ID, Name FROM StaticLinks') as $Row)
 		$StaticLinks[$Row->ID]=$Row->Name;
-	}
 
 	//Put together the structured item links by set, group, and order
 	$Links=[];
-	foreach($Conn->query('SELECT * FROM ItemLinkDefs ORDER BY SetID ASC, GroupNum ASC, OrderNum ASC') as $Row) {
-		$Row=(object)$Row;
+	foreach(Query('SELECT * FROM ItemLinkDefs ORDER BY SetID ASC, GroupNum ASC, OrderNum ASC') as $Row)
 		$Links[$Row->SetID][$Row->GroupNum][$Row->OrderNum]=$Row;
-	}
+
+	//Get other table data to be integrated below
+	$ImageURLs=[];
+	foreach(Query('SELECT ItemID, URL FROM ImageURLs ORDER BY ItemID ASC, OrderNum ASC') as $Row)
+		$ImageURLs[$Row->ItemID][]=$Row->URL;
 
 	//Fill in the items
-	$Required=['CategoryID', 'Title', 'x', 'y'];
-	$Optional=['IconID', 'Reqs', 'Needs', 'Rewards', 'Effect', 'Tip', 'Notes', 'IgnPageName', 'Store', 'ImageURLs', "Description"];
-	foreach($Conn->query('SELECT * FROM Items ORDER BY ID ASC') as $Row) {
+	global $CompactJSON;
+	$Items=[];
+	$Required=['C'=>'CategoryID', 'T'=>'Title', 'x'=>'x', 'y'=>'y'];
+	$Optional=['I'=>'IconID', 'R'=>'!Reqs', 'A'=>'WhereAt', 'N'=>'!Needs', 'W'=>'!Rewards', 'E'=>'Effect', 'P'=>'Tip', 'O'=>'Notes', 'IGN'=>'IgnPageName', 'S'=>'Store', 'U'=>'!ImageURLs'];
+	$Combined=[...array_flip($Required), ...array_flip(array_map(fn($Str) => substr($Str, $Str[0]==='!' ? 1 : 0), $Optional))];
+	foreach(Query('SELECT * FROM Items ORDER BY ID ASC') as $Row) {
 		//Create item, only adding required and non-null optional members
-		$Items[$Row['ID']]=$NewItem=(object)[];
+		$Items[$Row->ID]=$NewItem=(object)[];
+		$RowArr=(array)$Row;
 		foreach($Required as $Key)
-			$NewItem->{$Key}=$Row[$Key];
+			$NewItem->{$Key}=$RowArr[$Key];
 		foreach($Optional as $Key)
-			if($Row[$Key]!==null)
-				$NewItem->{$Key}=$Row[$Key];
+			if($Key[0]==='!')
+				$NewItem->{substr($Key, 1)}=null;
+			else if($RowArr[$Key]!==null)
+				$NewItem->{$Key}=$RowArr[$Key];
 
 		//Gather structured requirements, notes, and reward
 		foreach(['Reqs', 'Needs', 'Rewards'] as $FieldName) {
 			$NewVal='';
-			if(isset($Row[$FieldName.'SetID']))
-				$NewVal.=CompileSet($Links[$Row[$FieldName.'SetID']], $StaticLinks);
-			if($FieldName=='Reqs' && isset($Row['WhereAt']))
-				$NewVal.='@'.$Row['WhereAt'];
+			if(isset($RowArr[$FieldName.'SetID']))
+				try {
+					$NewVal.=CompileSet($Links[$RowArr[$FieldName.'SetID']], $StaticLinks, $FieldName);
+				} catch(Exception $e) {
+					ErrAndDie("Error compiling set #{$RowArr[$FieldName.'SetID']}. $Row->ID.$FieldName ".$e->getMessage());
+				}
 
 			if($NewVal!=='')
 				$NewItem->$FieldName=$NewVal;
@@ -88,63 +97,129 @@ function GenerateItems()
 
 		//Format non-string fields
 		$NewItem->CategoryID=(int)$NewItem->CategoryID;
-		$NewItem->x=(double)$NewItem->x;
-		$NewItem->y=(double)$NewItem->y;
+		$NewItem->x=GetDouble($NewItem->x);
+		$NewItem->y=GetDouble($NewItem->y);
 		if(isset($NewItem->IconID))
 			$NewItem->IconID=(int)$NewItem->IconID;
 		if(isset($NewItem->Store))
 			$NewItem->Store=($NewItem->Store[0]==='!' ? json_decode(substr($NewItem->Store, 1)) : [$NewItem->Store]);
-		if(isset($NewItem->ImageURLs))
-			$NewItem->ImageURLs=explode('!!!', $NewItem->ImageURLs);
+		if(isset($ImageURLs[$Row->ID]))
+			$NewItem->ImageURLs=$ImageURLs[$Row->ID];
+		else
+			unset($NewItem->ImageURLs);
+
+		//Compact JSON
+		if(!$CompactJSON)
+			continue;
+		$Items[$Row->ID]=$SmallItem=(object)[];
+		foreach($NewItem as $Key => $Val)
+			$SmallItem->{$Combined[$Key]}=$Val;
 	}
 
-	return "//See Items.ebnf for requirements\n".GenerateJson($Items);
+	return ($CompactJSON ? '//Unminified JSON file at https://www.castledragmire.com/silksong/items.json' : '//See Items.ebnf for requirements')."\n"
+		.GenerateJson($Items);
 }
 
 //Compile structured requirements, notes, and reward
-function CompileSet($Set, $StaticLinks)
+function CompileSet($Set, $StaticLinks, $FieldName)
 {
+	//Add and check flags
+	$AddFlag=function($Flag) use (&$ItemFlags, $FieldName) {
+		$ItemFlags[]=$Flag;
+		if(in_array($FieldName, ['Needs', 'Rewards']) && $Flag=='@')
+			throw new Exception('cannot have flag: '.$Flag);
+		if($FieldName=='Rewards' && in_array($Flag, ['!', '~']))
+			throw new Exception('cannot have flag: '.$Flag);
+	};
+
+	//Compile items into groups
 	$Groups=[];
 	$ExtraEnd='';
 	foreach($Set as $GroupIndex => $GroupList) {
 		$Items=[];
 		foreach($GroupList as $Item) {
-			$ItemParts=[];
-			if($Item->FlagStarted)	$ItemParts[]='~';
-			if($Item->FlagNot)		$ItemParts[]='!';
-			if($Item->FlagAmount!=1)$ItemParts[]='*'.$Item->FlagAmount;
-			if($Item->FlagOptional)	$ItemParts[]='?';
-			if($Item->StaticLinkID!==null)
-				$ItemParts[]=$StaticLinks[$Item->StaticLinkID];
-			else if($Item->ItemID!==null)
-				$ItemParts[]="[$Item->Name|$Item->ItemID]";
-			else if($GroupIndex!=255)
-				$ItemParts[]=$Item->Name;
-			else {
-				$ExtraEnd='^'.$Item->Name;
-				continue 2;
-			}
+			//Get flags
+			$ItemFlags=$ItemVals=[];
+			if($Item->FlagAmount!=1)$AddFlag('*'.$Item->FlagAmount);
+			if($Item->FlagStarted)	$AddFlag('~');
+			if($Item->FlagNot)		$AddFlag('!');
+			if($Item->FlagRecommend)$AddFlag('@');
+			if($Item->FlagUnlinked) $AddFlag('?');
+			if($Item->FlagUnlinked)
+				if($Item->Name===null)
+					throw new Exception('name is required when unlinked flag is set');
+				else if($GroupIndex==255)
+					throw new Exception('cannot use GroupID=255 with unlinked flag');
 
-			$Items[]=implode('', $ItemParts);
+			//Get the value
+			if($Item->StaticLinkID!==null) {
+				$ItemVals[]=$Item->StaticLinkID;
+				$Name=$StaticLinks[$Item->StaticLinkID];
+				if(in_array($Name, ['North', 'South', 'East', 'West']) && in_array($FieldName, ['Needs', 'Rewards']))
+					throw new Exception('cannot use directions');
+			}
+			if($Item->ItemID!==null)
+				$ItemVals[]=$Item->ItemID.'';
+			if($Item->Name!==null) {
+				$ItemVals[]=$Item->Name;
+				if($GroupIndex==255)
+					if($ExtraEnd!='')
+						throw new Exception('cannot have multiple extra strings');
+					else if(count($ItemFlags))
+						throw new Exception('cannot have flags on extra strings');
+					else
+						$ExtraEnd='^'.$Item->Name;
+				else if(!$Item->FlagUnlinked)
+					throw new Exception('name can only be used with unlinked flag or GroupID=255');
+			}
+			if(count($ItemVals)!==1)
+				throw new Exception('static links, items, and names are mutually exclusive and one must be set');
+
+			//If the extra text field then nothing to do
+			if($GroupIndex==255)
+				if($Item->Name===null)
+					throw new Exception('GroupNum=255 must only use the name field');
+				else
+					continue;
+
+				//Make sure first character of item will not interfeer with the flags
+				$ItemFlags=implode('', $ItemFlags);
+				$ItemFlagChar=ord($ItemFlags[-1] ?? chr(0));
+				$ItemValChar=ord($ItemVals[0]);
+				$ExtraChar=
+					(    $ItemFlagChar>=ord('0') && $ItemFlagChar<=ord('9')
+					  && $ItemValChar >=ord('0') && $ItemValChar <=ord('9')
+					) || ($Item->Name!==null && strpbrk($Item->Name[0], "*~!?^")!==false)
+					? '^' : '';
+				$Items[]=$ItemFlags.$ExtraChar.$ItemVals[0];
 		}
-		$Groups[$GroupIndex]=implode('+', $Items);
+		if($GroupIndex!=255)
+			$Groups[$GroupIndex]=implode('+', $Items);
 	}
 
+	if(count($Groups)>1 &&  in_array($FieldName, ['Needs', 'Rewards']))
+		throw new Exception('cannot have multiple set groups');
+
 	return implode('|', $Groups).$ExtraEnd;
+}
+
+//Compact a double from a string
+function GetDouble($Str)
+{
+	global $CompactJSON;
+	return (double)(!$CompactJSON ? $Str : preg_replace('/(\.\d{5})\d+/', '\1', $Str));
 }
 
 function GenerateMisc()
 {
 	//Gather the StaticLinks and StaticLinkItems
-	global $Conn;
 	$StaticLinkNames=[];
 	$StaticLinks=[];
-	foreach($Conn->query('SELECT SL.*, SLI.ID AS SLIID, SLI.ItemID, SLI.CategoryID FROM StaticLinks AS SL LEFT JOIN StaticLinkItems AS SLI ON SLI.StaticLinkID=SL.ID ORDER BY SL.Name ASC, SLI.OrderNum') as $Row) {
+	foreach(Query('SELECT SL.*, SLI.ID AS SLIID, SLI.ItemID, SLI.CategoryID FROM StaticLinks AS SL LEFT JOIN StaticLinkItems AS SLI ON SLI.StaticLinkID=SL.ID ORDER BY SL.Name ASC, SLI.OrderNum') as $Row) {
 		//Handle special rows
-		$Row=(object)$Row;
 		if((int)$Row->Special)
 			if($Row->SLIID!==null)
-				throw new Exception("StaticLink [#$Row->ID] special row cannot contain items");
+				ErrAndDie("StaticLink [#$Row->ID] special row cannot contain items");
 			else
 				continue;
 
@@ -153,18 +228,18 @@ function GenerateMisc()
 
 		//Add the category or item to the row
 		if($Row->SLIID===null)
-			throw new Exception("StaticLink [#$Row->ID] must contain at least 1 item");
+			ErrAndDie("StaticLink [#$Row->ID] must contain at least 1 item");
 		else if($Row->ItemID!==null && $Row->CategoryID!==null)
-			throw new Exception("StaticLink [#$Row->ID] cannot contain both an item and category");
+			ErrAndDie("StaticLink [#$Row->ID] cannot contain both an item and category");
 		else if($Row->ItemID!==null)
 			if(!is_array($StaticLinks[$Row->ID] ?? []))
-				throw new Exception("StaticLink [#$Row->ID] cannot contain more than 1 item if it has a category");
+				ErrAndDie("StaticLink [#$Row->ID] cannot contain more than 1 item if it has a category");
 			else
 				$StaticLinks[$Row->ID][]=(int)$Row->ItemID;
 		else if($Row->CategoryID===null)
-			throw new Exception("StaticLinkItem [#$Row->SLIID] for Static Link [#$Row->ID] must contain either a category or item");
+			ErrAndDie("StaticLinkItem [#$Row->SLIID] for Static Link [#$Row->ID] must contain either a category or item");
 		else if(isset($StaticLinks[$Row->ID]))
-			throw new Exception("StaticLink [#$Row->ID] cannot contain more than 1 item if it has a category");
+			ErrAndDie("StaticLink [#$Row->ID] cannot contain more than 1 item if it has a category");
 		else
 			$StaticLinks[$Row->ID]=(int)$Row->CategoryID;
 	}
