@@ -73,7 +73,7 @@
 		"Title": "Bench - Pilgrim’s Rest",
 		"x": 14.099407123560844,
 		"y": -9.61808691282048,
-		"Reqs": "Rosary_30@Inside a building",
+		"Reqs": "*30Rosary@Inside a building",
 		"Tip": "You can break the gear above the door to permanently force the door open. Give it a good whack!",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/aedd12fa-4f17-42d8-bd69-ece3a724518f.jpg",
@@ -305,7 +305,7 @@
 		"Title": "Bench - Deep Docks",
 		"x": 2.648524374123447,
 		"y": -10.322461671993992,
-		"Reqs": "Rosary_30",
+		"Reqs": "*30Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/5df231b5-5869-41c0-986d-50cca8035214.png",
 		],
@@ -336,7 +336,7 @@
 		"Title": "Locked Door - Simple",
 		"x": 5.780616893596054,
 		"y": -12.50627964288094,
-		"Reqs": "Swift Step+Simple Key|Clawline+East+477987",
+		"Reqs": "Swift Step+Simple Key|Clawline+East+[Locked Door - Clawline|477987]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/8aeb8dde-14f4-4653-8bb4-8cc5fbb1ec87.jpg",
 		],
@@ -457,7 +457,7 @@
 		"Title": "Rosary",
 		"x": -7.578841505144439,
 		"y": -10.444867522753263,
-		"Reqs": "At the end of the [Secret Room|477938].",
+		"Reqs": "@At the end of the [Secret Room|477938].",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/280c03b0-88e2-47f1-887f-3d29a75e34a7.jpg",
 		],
@@ -486,7 +486,7 @@
 		"Title": "Bench - The Marrow",
 		"x": -7.688565187744089,
 		"y": -11.286911835641838,
-		"Reqs": "Rosary_30",
+		"Reqs": "*30Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/0942aa3e-b6d0-4356-9f35-35fdcc7b2457.png",
 		],
@@ -568,7 +568,7 @@
 		"Title": "Fleamaster Mooshka - The Marrow",
 		"x": -5.495142368580133,
 		"y": -10.459515898943309,
-		"Reqs": "![Flea Caravan second location|478022]",
+		"Reqs": "![Fleamaster Mooshka - Greymoor|478022]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/66bced9a-2f93-4597-8f6a-f3406667b819.jpg",
 		],
@@ -578,7 +578,7 @@
 		"Title": "The Lost Fleas",
 		"x": -5.5027113538054095,
 		"y": -10.314889812611987,
-		"Reqs": "[Fleamaster Mooshka|477856]",
+		"Reqs": "[Fleamaster Mooshka - The Marrow|477856]",
 		"Needs": "*5Flea",
 		"IgnPageName": "Lost_Flea_Locations",
 	},
@@ -755,7 +755,7 @@
 		"x": -9.074809827564351,
 		"y": -9.206941001349264,
 		"Reqs": "Silkspear^Set it free and begin the fight.",
-		"Rewards": "[Silk Heart|477881]@Unlocks fast travel",
+		"Rewards": "[Silk Heart|477881]^Unlocks fast travel",
 		"IgnPageName": "Bell_Beast_Boss_Guide",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/f16204d5-b613-42fb-9e72-3073b92a992b.jpg",
@@ -818,7 +818,7 @@
 		"Title": "Shakra - Bone Bottom",
 		"x": -11.203564765842046,
 		"y": -11.049411424195526,
-		"Reqs": "If she’s not there, hit the ring on the platform a few times to summon her.",
+		"Reqs": "@If she’s not there, hit the ring on the platform a few times to summon her.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/9c1e40dd-817a-449b-becd-88c8a04b4f77.jpg",
 		],
@@ -828,7 +828,7 @@
 		"Title": "Bench - The Marrow",
 		"x": -7.137357160213625,
 		"y": -9.220502891325403,
-		"Reqs": "Appears after hitting a lever and ringing a bell.",
+		"Reqs": "@Appears after hitting a lever and ringing a bell.",
 		"Tip": "You can leave and re-enter the room to skip the bell animation.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/ce5876f2-ffe3-4d84-9d78-3c7d76d877e7.jpg",
@@ -971,7 +971,7 @@
 		"Title": "Bellway - Deep Docks",
 		"x": 2.4716794807863565,
 		"y": -11.872161698088469,
-		"Reqs": "Rosary_40",
+		"Reqs": "*40Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/06e14734-52d2-4652-826a-fb2e82f0ed38.png",
 		],
@@ -1001,7 +1001,7 @@
 		"Title": "Bench - Far Fields",
 		"x": 8.024559004162057,
 		"y": -10.294252574758993,
-		"Reqs": "Rosary_30",
+		"Reqs": "*30Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/d4368c38-5ace-4a1a-9cc5-177989c78940.png",
 		],
@@ -1196,7 +1196,7 @@
 		"Title": "Bench - Far Fields",
 		"x": 13.711994444649683,
 		"y": -11.207240201273933,
-		"Reqs": "Rosary_30",
+		"Reqs": "*30Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/3cf44b57-cbdd-4127-a072-1b6190aaccf8.png",
 		],
@@ -1206,7 +1206,7 @@
 		"Title": "Bellway - Far Fields",
 		"x": 14.055288389345563,
 		"y": -11.211344335815902,
-		"Reqs": "Rosary_50",
+		"Reqs": "*50Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/00cb68bb-77bb-4849-99bf-21aab2737475.png",
 		],
@@ -1592,7 +1592,7 @@
 		"Title": "Equipped",
 		"x": -7.3960118662536445,
 		"y": -10.093703603508118,
-		"Needs": "*1Tool",
+		"Needs": "Tool",
 		"Notes": "Acquire your first Tool",
 	},
 	"477981": {
@@ -1600,7 +1600,7 @@
 		"Title": "Granted",
 		"x": -9.498927280359055,
 		"y": -8.549796500449048,
-		"Needs": "*1Wish",
+		"Needs": "Wish",
 		"Notes": "Grant your first wish.",
 	},
 	"477982": {
@@ -1608,7 +1608,7 @@
 		"Title": "Shard Bundle",
 		"x": 6.6187513995350145,
 		"y": -13.692076171792252,
-		"Reqs": "On a ledge at the bottom of the lava pit.",
+		"Reqs": "@On a ledge at the bottom of the lava pit.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/2c19cda6-70b8-4f85-b295-1dc1b4eb1d71.png",
 		],
@@ -1638,7 +1638,7 @@
 		"Title": "Shell Shards",
 		"x": 7.792122878814972,
 		"y": -12.529411276641696,
-		"Reqs": "On a ledge beneath the room’s eastern exit.",
+		"Reqs": "@On a ledge beneath the room’s eastern exit.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/5a45ee2e-39c8-4b41-b610-53b1a6c8014d.png",
 		],
@@ -1668,7 +1668,7 @@
 		"Title": "Rosary",
 		"x": 7.4927621875067345,
 		"y": -12.837540881512219,
-		"Reqs": "In a room entered from the west.",
+		"Reqs": "@In a room entered from the west.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/5c86e562-72da-4d3c-b5d8-3baa82a21210.png",
 		],
@@ -1678,7 +1678,7 @@
 		"Title": "Secret Room",
 		"x": -3.6633405370664747,
 		"y": -9.597714621586064,
-		"Reqs": "Hit the glowing orange orb to reveal it, then stand back - it explodes!",
+		"Reqs": "@Hit the glowing orange orb to reveal it, then stand back - it explodes!",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/534e7f89-1b4e-479e-92b2-b71c5cf8ec6d.png",
 		],
@@ -1688,7 +1688,7 @@
 		"Title": "Rosary",
 		"x": -4.4610338354235495,
 		"y": -8.36016201973679,
-		"Reqs": "At the end of a tunnel in the [Secret Room|477995]. Jump and diagonal-slash the red fruit to get over the spikes.",
+		"Reqs": "@At the end of a tunnel in the [Secret Room|477995]. Jump and diagonal-slash the red fruit to get over the spikes.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/a010d067-7481-4dae-a46a-94b24c968f4c.png",
 		],
@@ -1699,7 +1699,7 @@
 		"x": -4.592914455549376,
 		"y": -8.55552090635549,
 		"IconID": 21,
-		"Reqs": "At the end of a tunnel in the [Secret Room|477995]. Jump and diagonal-slash the red fruit to get over the spikes.",
+		"Reqs": "@At the end of a tunnel in the [Secret Room|477995]. Jump and diagonal-slash the red fruit to get over the spikes.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/f523854e-328b-426f-8ac2-af5548202bd8.png",
 		],
@@ -1709,7 +1709,7 @@
 		"Title": "Breakable Wall",
 		"x": -3.612301911342925,
 		"y": -8.388738812881918,
-		"Reqs": "Leads to a secret room.",
+		"Reqs": "@Leads to a secret room.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/38e239ef-3074-4b9b-9507-bff09b1dd1a2.jpg",
 		],
@@ -1728,7 +1728,7 @@
 		"Title": "Rosary",
 		"x": -1.5976857140134655,
 		"y": -9.284241158151573,
-		"Reqs": "In a small room connected to The Marrow.",
+		"Reqs": "@In a small room connected to The Marrow.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/db1f7352-7dc8-4e9b-86f7-89efae101cbf.png",
 		],
@@ -1738,7 +1738,7 @@
 		"Title": "Shell Shards",
 		"x": -0.21672461964247702,
 		"y": -9.640962247964197,
-		"Reqs": "In a small room just above the corridor. Jump to reach it.",
+		"Reqs": "@In a small room just above the corridor. Jump to reach it.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/3f0e1d6f-4fe5-4f7b-8a67-14d7016876b7.png",
 		],
@@ -1748,7 +1748,7 @@
 		"Title": "Lost Flea",
 		"x": 1.190458173175898,
 		"y": -8.766461950174097,
-		"Reqs": "At the top of a long series of red fruit.",
+		"Reqs": "@At the top of a long series of red fruit.",
 		"Notes": "Watch out for flying enemies.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/2a009038-6f7c-42d2-a458-3bd9824ffc77.png",
@@ -1769,7 +1769,7 @@
 		"x": 2.7167964120633243,
 		"y": -8.812769295952315,
 		"IconID": 17,
-		"Reqs": "On a string reached by bouncing on some red fruit.",
+		"Reqs": "@On a string reached by bouncing on some red fruit.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/e46c0f80-d4fc-4de4-851e-65795af5b89a.png",
 		],
@@ -1789,7 +1789,7 @@
 		"Title": "Lever",
 		"x": -2.0395270167612836,
 		"y": -9.190536479012593,
-		"Reqs": "On the ceiling.",
+		"Reqs": "@On the ceiling.",
 		"Notes": "Hit it to create platforms throughout the room below.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/28e6c974-0613-4544-a3ff-48b2a167b480.jpg",
@@ -1809,7 +1809,7 @@
 		"Title": "Shell Shards",
 		"x": 7.332974110329474,
 		"y": -7.905896609112446,
-		"Reqs": "In the side-room.",
+		"Reqs": "@In the side-room.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/04bd7003-b88f-4386-91fc-5e75a5706282.png",
 		],
@@ -1829,7 +1829,7 @@
 		"Title": "Secret Room",
 		"x": -1.8810436256920866,
 		"y": -9.87090777481324,
-		"Reqs": "Walk through the wall to get inside.",
+		"Reqs": "@Walk through the wall to get inside.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/36f5748d-4efd-4b49-88c0-34fbf94e75ea.jpg",
 		],
@@ -1839,7 +1839,7 @@
 		"Title": "Rosary",
 		"x": -1.7179448659291836,
 		"y": -9.906178853663938,
-		"Reqs": "Inside the [Secret Room|478009].",
+		"Reqs": "@Inside the [Secret Room|478009].",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/3d428229-ef66-4150-98d4-7d615aee2014.jpg",
 		],
@@ -1849,7 +1849,7 @@
 		"Title": "Rosary",
 		"x": -1.5985240077835243,
 		"y": -9.902338145196786,
-		"Reqs": "Inside the [Secret Room|478009].",
+		"Reqs": "@Inside the [Secret Room|478009].",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/5b823b4a-aa59-42c7-8b64-9307d454950f.jpg",
 		],
@@ -1859,7 +1859,7 @@
 		"Title": "Gilly",
 		"x": 9.219739052387403,
 		"y": -8.427557562610367,
-		"Reqs": "Attack the bush near the statue to reveal her.",
+		"Reqs": "@Attack the bush near the statue to reveal her.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/a02a15f3-4c47-46a3-a4f8-f51ee9b38477.jpg",
 		],
@@ -1876,7 +1876,7 @@
 		"Title": "Rosary",
 		"x": 16.497649656825523,
 		"y": -7.38319890804334,
-		"Reqs": "In a small room at the top of the area.",
+		"Reqs": "@In a small room at the top of the area.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/d80bc7aa-c364-4841-923f-bc47975d212b.png",
 		],
@@ -1887,7 +1887,7 @@
 		"x": 16.61683497628856,
 		"y": -7.374472252308891,
 		"IconID": 20,
-		"Reqs": "In a small room at the top of the area.",
+		"Reqs": "@In a small room at the top of the area.",
 		"Notes": "340 Rosaries",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/8f6f82df-f76b-4312-bc6f-1d23a3a46782.png",
@@ -1898,7 +1898,7 @@
 		"Title": "Memory Locket",
 		"x": 10.245864084469922,
 		"y": -9.275837295436432,
-		"Reqs": "In a cage at the end of the spiky corridor. Break the cage to loot it.",
+		"Reqs": "@In a cage at the end of the spiky corridor. Break the cage to loot it.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/820d2027-6843-4265-bf05-85ed3221f172.png",
 		],
@@ -1915,8 +1915,8 @@
 		"Title": "Savage Beastfly",
 		"x": 10.916244848889868,
 		"y": -8.654738202481148,
-		"Reqs": "Deep inside the [Chapel of the Beast|478018].",
-		"Rewards": "[Beast Crest|478020]",
+		"Reqs": "@Deep inside the [Chapel of the Beast|478018].",
+		"Rewards": "[Crest of Beast|478020]",
 		"IgnPageName": "Savage_Beastfly_Boss_Guide",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/3c450b26-7852-4faa-80fa-1e4b03be873c.png",
@@ -1939,21 +1939,21 @@
 		"Title": "Fleamaster Mooshka - Greymoor",
 		"x": 1.8989699229277974,
 		"y": -6.558465679791496,
-		"Reqs": "[The Lost Fleas|477857]+![Flea Caravan Third Location|478818]",
+		"Reqs": "[The Lost Fleas|477857]+![Fleamaster Mooshka - Third Encounter|478818]",
 	},
 	"478023": {
 		"CategoryID": 13527,
 		"Title": "Grishkin - Greymoor",
 		"x": 1.7541915851274936,
 		"y": -6.555940346946301,
-		"Reqs": "Next to the Fleabrew cauldron.",
+		"Reqs": "@Next to the Fleabrew cauldron.",
 	},
 	"478025": {
 		"CategoryID": 13567,
 		"Title": "Flea Brew",
 		"x": 1.8287965555079282,
 		"y": -6.382047415175322,
-		"Reqs": "[The Lost Fleas|477857]+[Grishkin|478023]",
+		"Reqs": "[The Lost Fleas|477857]+[Grishkin - Greymoor|478023]",
 		"Effect": "Temporarily increases the speed of movement and attacks",
 	},
 	"478026": {
@@ -1961,7 +1961,7 @@
 		"Title": "Varga - Greymoor",
 		"x": 2.2171769934940144,
 		"y": -6.548142300960507,
-		"Reqs": "Inside one of the Flea Caravan’s carriages.",
+		"Reqs": "@Inside one of the Flea Caravan’s carriages.",
 	},
 	"478027": {
 		"CategoryID": 13573,
@@ -1986,7 +1986,7 @@
 		"Title": "Bellway - Bellhart",
 		"x": -0.9536884042346685,
 		"y": -6.555620261167903,
-		"Reqs": "Rosary_60@In the basement of the building.",
+		"Reqs": "*60Rosary@In the basement of the building.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/22de08cc-708c-4e8b-af57-51459a25b567.png",
 		],
@@ -1996,7 +1996,7 @@
 		"Title": "Temporary Bench - Flea Caravan",
 		"x": 2.0509804957779707,
 		"y": -6.55439926353975,
-		"Reqs": "[Fleamaster Mooshka - Greymoor|478032]",
+		"Reqs": "[Temporary Bench - Flea Caravan|478032]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/d23c5647-3350-46e5-a89a-c8469f6eff6c.png",
 		],
@@ -2025,7 +2025,7 @@
 		"Title": "Memory Locket",
 		"x": 5.283897853760266,
 		"y": -6.1397231637558605,
-		"Reqs": "On a ledge above the [Mitemother|478975].",
+		"Reqs": "@On a ledge above the [Mitemother|478975].",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/8e35b58b-f596-4eb9-9002-af026fb58f9c.png",
 		],
@@ -2035,7 +2035,7 @@
 		"Title": "Rosary",
 		"x": 5.801003566957789,
 		"y": -6.632508693153426,
-		"Reqs": "On the ceiling in a room behind the [Breakable Wall|479691].",
+		"Reqs": "@On the ceiling in a room behind the [Breakable Wall|479691].",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/fa0c88e6-ba4f-47e4-9e82-ddf82a7b8bdc.png",
 		],
@@ -2045,7 +2045,7 @@
 		"Title": "Bellway - Greymoor",
 		"x": 6.5664037556143455,
 		"y": -5.923767120480036,
-		"Reqs": "Rosary_60",
+		"Reqs": "*60Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/f0d5cbe2-99e7-44e2-8996-1e149493735e.jpg",
 		],
@@ -2075,7 +2075,7 @@
 		"Title": "Creige",
 		"x": 7.327600638598049,
 		"y": -5.11364381605928,
-		"Reqs": "Behind the counter in the Halfway Home.",
+		"Reqs": "@Behind the counter in the Halfway Home.",
 		"Notes": "Sells drinks for 10 Rosaries each.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/71b35c42-20fe-4c3a-9ca8-c1a0b54fe024.jpg",
@@ -2140,7 +2140,7 @@
 		"Title": "Temporary Bench - Greymoor",
 		"x": 14.370175359361433,
 		"y": -5.354370564123187,
-		"Reqs": "[Shakra|478048]",
+		"Reqs": "[Shakra - Greymoor|478048]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/07aab97f-f1d0-4f8a-ac20-072e44e62dcd.png",
 		],
@@ -2398,7 +2398,7 @@
 		"Title": "Locked Door",
 		"x": 16.245599487420712,
 		"y": -4.552211417026314,
-		"Reqs": "East+@Opens when a lever is whacked.",
+		"Reqs": "East@Opens when a lever is whacked.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/d812ac76-20ed-4f5d-99b1-e56860ee8dad.jpg",
 		],
@@ -2436,7 +2436,7 @@
 		"Title": "Locked Door",
 		"x": -16.56274383539332,
 		"y": -11.28381429355197,
-		"Reqs": "Cling Grip|Simple Key+478090@Opens when you slice through vines on the western side. Cling Grip, or a Simple Key to open this [Locked Door|478090] and drop down from above.",
+		"Reqs": "Cling Grip|Simple Key+[Locked Door - Simple|478090]@Opens when you slice through vines on the western side. Cling Grip, or a Simple Key to open this [Locked Door|478090] and drop down from above.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/5cfa513b-5ea5-442c-a190-8f2504999bc8.jpg",
 		],
@@ -2656,7 +2656,7 @@
 		"Title": "Bench - Shellwood",
 		"x": -4.987900931610852,
 		"y": -5.225602328701072,
-		"Reqs": "Rosary_40@Directly above an [Arena Battle|479694).",
+		"Reqs": "*40Rosary@Directly above an [Arena Battle|479694).",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/f40bdf32-d32a-4551-8c19-29a1daab32d2.png",
 		],
@@ -2726,7 +2726,7 @@
 		"Title": "Mask Shard",
 		"x": -6.017625933297452,
 		"y": -4.879833716210186,
-		"Reqs": "At the end of the platforming challenge in the room behind a [Breakable Wall|478969].",
+		"Reqs": "@At the end of the platforming challenge in the room behind a [Breakable Wall|478969].",
 		"Notes": "Taking it spawns a few Phacia enemies throughout the room.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/2751201b-1b43-440c-9b53-42d43e1059e6.png",
@@ -2737,7 +2737,7 @@
 		"Title": "Bellway - Shellwood",
 		"x": -9.855209906558642,
 		"y": -4.615525596029258,
-		"Reqs": "Rosary_40",
+		"Reqs": "*40Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/5af77e56-ffa0-4a3d-8e2f-7c2d5521a0cb.png",
 		],
@@ -2785,7 +2785,7 @@
 		"Title": "Passage",
 		"x": -4.989685941185201,
 		"y": -4.506899131208854,
-		"Reqs": "East+@Behind a Gahlia, accessed by attacking.",
+		"Reqs": "East@Behind a Gahlia, accessed by attacking.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/a964035d-4a82-40b4-9c99-8171323e0ca8.jpg",
 		],
@@ -2994,7 +2994,7 @@
 		"x": -1.8448325484993262,
 		"y": -6.571724762560322,
 		"Reqs": "[Widow|478138]@Find it on the notice board.",
-		"Needs": "*8Silver Bells",
+		"Needs": "*8Silver Bell",
 		"Rewards": "?Rosary Necklace",
 	},
 	"478207": {
@@ -3137,7 +3137,7 @@
 		"x": -11.340024474334783,
 		"y": -11.00658230817848,
 		"Reqs": "@Appears on the board as soon as you reach Greymoor for the first time.",
-		"Needs": "*300?Shell Shards",
+		"Needs": "*300Shard",
 		"Rewards": "^A bridge is built over the hole to the west. Don’t hit it, or it will break.",
 	},
 	"478221": {
@@ -3192,7 +3192,7 @@
 		"Title": "Weavenest Atla Map",
 		"x": -9.071055519455811,
 		"y": -12.4423290744446,
-		"Reqs": "[Needolin Door|476902]@Hit two glowing cylinders at the end of the corridor",
+		"Reqs": "[Needolin Door - Weavenest Atla|476902]@Hit two glowing cylinders at the end of the corridor",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/e14e9f20-12d7-419e-95e3-f310617fe2a6.png",
 		],
@@ -3469,7 +3469,7 @@
 		"Title": "Locked Gate",
 		"x": 4.437182572341953,
 		"y": -12.163502406928956,
-		"Reqs": "East+@Unlocked by a lever, next to the [Bench|476888].",
+		"Reqs": "East@Unlocked by a lever, next to the [Bench|476888].",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/998763f3-b9af-48d2-a60a-6e03e21b297f.jpg",
 		],
@@ -3603,7 +3603,7 @@
 		"Title": "Kratt",
 		"x": 9.764307986444194,
 		"y": -3.924116627199254,
-		"Reqs": "Stuck in a web at the end of the [secret room.|478270]",
+		"Reqs": "@Stuck in a web at the end of the [secret room.|478270]",
 		"Notes": "Joins the Flea Caravan wherever they are currently based after a brief chat.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/d1ae3cfb-7d89-4c15-b9eb-630f31c89626.jpg",
@@ -3624,7 +3624,7 @@
 		"x": 9.393495426691644,
 		"y": -3.530018116490055,
 		"IconID": 13,
-		"Reqs": "East+@Inside a cage, [eastern side.|478688]",
+		"Reqs": "East@Inside a cage, [eastern side.|478688]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/da54d477-3c03-4364-a966-46d0199394ba.png",
 		],
@@ -3653,7 +3653,7 @@
 		"Title": "Bench - Sinner’s Road",
 		"x": 9.974596676730236,
 		"y": -2.334401768308794,
-		"Reqs": "Rosary_40+[Rooted Cogs|478278]",
+		"Reqs": "*40Rosary+[Rooted Cogs|478278]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/03e26fdc-2269-4f56-b8dc-af898fea8e41.jpg",
 		],
@@ -3705,7 +3705,7 @@
 		"Title": "Breakable Wall",
 		"x": 6.21977218913792,
 		"y": -9.723777397699997,
-		"Reqs": "@Next to a small ledge near the spikes. ",
+		"Reqs": "@Next to a small ledge near the spikes.",
 		"Notes": "Leads to a secret room and a [Frayed Rosary String|477914].",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/ab9c99a8-e7be-45dc-b234-ba2ec46e9d5a.jpg",
@@ -3777,7 +3777,7 @@
 		"Title": "Kratt - Greymoor",
 		"x": 2.3512429432631734,
 		"y": -6.556280236433466,
-		"Reqs": "[Kratt|478271]+Rosary_10",
+		"Reqs": "[Kratt|478271]+*10Rosary",
 		"Tip": "Once inside, hit him when he peeks and he’ll start letting you use his spa for free.",
 	},
 	"478290": {
@@ -3804,7 +3804,7 @@
 		"Title": "Lever",
 		"x": 6.58966523799738,
 		"y": -8.314040737306556,
-		"Reqs": "In a secret room next to the [TRAPPED Bench - Hunter’s March|476886].",
+		"Reqs": "@In a secret room next to the [TRAPPED Bench - Hunter’s March|476886].",
 		"Notes": "Makes the bench safe to sit on.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/3b59c005-c048-48ee-838d-b3f3d988679b.jpg",
@@ -3833,7 +3833,7 @@
 		"Title": "Bench - Shellwood",
 		"x": -12.660226669453806,
 		"y": -6.311260547136754,
-		"Reqs": "Rosary_40",
+		"Reqs": "*40Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/7ca2dea1-42ab-4b8e-b61f-5fc569a4ce56.png",
 		],
@@ -3924,7 +3924,7 @@
 		"Title": "Bench - Blasted Steps",
 		"x": -14.780507755580999,
 		"y": -3.922846816927702,
-		"Reqs": "Rosary_60",
+		"Reqs": "*60Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/51a4355b-22fb-4a28-b449-aedd92f5e5be.jpg",
 		],
@@ -3953,7 +3953,7 @@
 		"Title": "Bellway - Blasted Steps",
 		"x": -14.684337554961303,
 		"y": -0.6548066455140571,
-		"Reqs": "Rosary_60",
+		"Reqs": "*60Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/cd4be499-6aee-49a2-a7f0-52af66bbd7c2.png",
 		],
@@ -3963,7 +3963,7 @@
 		"Title": "Bench - Blasted Steps",
 		"x": -14.26181587191408,
 		"y": -0.6152282827936091,
-		"Reqs": "Rosary_40",
+		"Reqs": "*40Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/9348c5d2-ef5d-47cb-8022-58fb93ec87ea.png",
 		],
@@ -3973,7 +3973,7 @@
 		"Title": "Pharloom’s Welcome",
 		"x": 5.131344202515464,
 		"y": -11.304226012116793,
-		"Needs": "[Lace Deep Docks|476915]",
+		"Needs": "[Lace [Deep Docks]|476915]",
 		"Notes": "Defeat Lace in Deep Docks\n\n<IMPORTANT><b>Warning:</b></IMPORTANT> This achievement is <b>missable</b> if you go to Blasted Steps or Sinner’s Road via the Wormways, or move the Flea Caravan to Greymoor without fighting Lace here first.",
 	},
 	"478312": {
@@ -4252,7 +4252,7 @@
 		"Title": "Lever",
 		"x": -12.880386279276934,
 		"y": -9.99956852743815,
-		"Reqs": "On the ceiling in an area reached by dropping through the [Locked Trapdoor|477865], then proceeding to the left (and down).",
+		"Reqs": "@On the ceiling in an area reached by dropping through the [Locked Trapdoor|477865], then proceeding to the left (and down).",
 		"Notes": "Activates a nearby elevator.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/9ca71483-9117-426d-8d28-e49eeaeb0460.jpg",
@@ -4290,7 +4290,7 @@
 		"Title": "Crafting Kit Upgrade",
 		"x": -1.985162750222429,
 		"y": -6.304634507093951,
-		"Reqs": "Complete  Wish\n\n\nFully upgrading your crafting kit is a requirement for 100% completion.",
+		"Reqs": "[Crawbug Clearing|478208]",
 		"Effect": "Increases tool damage",
 	},
 	"478349": {
@@ -4348,7 +4348,7 @@
 		"Title": "Lift",
 		"x": -12.91981386645449,
 		"y": -10.315361384846078,
-		"Reqs": "Activated via [Lever|478344].",
+		"Reqs": "@Activated via [Lever|478344].",
 		"Notes": "Don’t worry if you fall; it can be summoned by a button on the ground below.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/28cffe41-7d02-4c60-ba68-fa4914cc924c.jpg",
@@ -4470,7 +4470,7 @@
 		"Title": "Phantom",
 		"x": 10.12255492823877,
 		"y": 0.21490321297798687,
-		"Reqs": "In a room at the top of the Exhaust Organ, which acts as an alternative entrance to the Citadel, skipping the [Last Judge|478545] boss.",
+		"Reqs": "@In a room at the top of the Exhaust Organ, which acts as an alternative entrance to the Citadel, skipping the [Last Judge|478545] boss.",
 		"Rewards": "[Cross Stitch|478371]+[Grey Ghost|479061]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/e1ae343d-88d3-41cc-b8f1-da644403d9f2.png",
@@ -4508,7 +4508,7 @@
 		"Title": "Bellway - Grand Bellway",
 		"x": 6.304660380147105,
 		"y": 3.8911370748130594,
-		"Reqs": "Rosary_80",
+		"Reqs": "*80Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/4a35633d-04d8-4e41-8be2-2042db197033.png",
 		],
@@ -4518,7 +4518,7 @@
 		"Title": "Ventrica Station - Grand Bellway",
 		"x": 7.036504815526293,
 		"y": 3.8755747989857383,
-		"Reqs": "Rosary_80",
+		"Reqs": "*80Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/01cb97c7-64ac-4cb2-88c6-14f1ea9c50b7.png",
 		],
@@ -4528,7 +4528,7 @@
 		"Title": "Choral Chambers Map",
 		"x": 7.296763366768857,
 		"y": 3.8915494291296397,
-		"Reqs": "Rosary_70",
+		"Reqs": "*70Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/fe7c1ca6-47cd-4760-8fa4-b24f00b6edae.jpg",
 		],
@@ -4589,7 +4589,7 @@
 		"Title": "Bench - Mount Fay",
 		"x": -20.726198727141337,
 		"y": 5.888401408605574,
-		"Reqs": "Rosary_60",
+		"Reqs": "*60Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/80b2e83b-6db3-4d05-b420-617f30502897.png",
 		],
@@ -4649,7 +4649,7 @@
 		"Title": "Bellway - The Slab",
 		"x": -10.99632123914543,
 		"y": 4.663153619045161,
-		"Reqs": "Rosary_40",
+		"Reqs": "*40Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/ed6be5a5-ef43-48c9-9aed-897046d35506.png",
 		],
@@ -4831,7 +4831,7 @@
 		"Title": "Bench - Putrified Ducts",
 		"x": 16.99776816293798,
 		"y": 8.630980623969151,
-		"Reqs": "Rosary_60",
+		"Reqs": "*60Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/57b9e756-80dc-48f1-88f4-ffb13a5f4462.png",
 		],
@@ -4841,7 +4841,7 @@
 		"Title": "Bellway - Putrified Ducts",
 		"x": 16.55200289637839,
 		"y": 8.643448456653005,
-		"Reqs": "Rosary_80",
+		"Reqs": "*80Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/65eefea6-54f8-4028-8d49-8ccf9eb5f3a7.png",
 		],
@@ -4906,7 +4906,7 @@
 		"Title": "Bench - Underworks",
 		"x": -4.910015359926277,
 		"y": -1.2686478762705207,
-		"Reqs": "Rosary_15",
+		"Reqs": "*15Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/363a718c-54c0-4c6d-80af-ab9a4103192c.png",
 		],
@@ -4935,7 +4935,7 @@
 		"Title": "Ventrica Station - Underworks",
 		"x": 1.7436536833310683,
 		"y": 0.4835031811167738,
-		"Reqs": "Rosary_80",
+		"Reqs": "*80Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/c126f3d6-e72a-474c-9f3f-07710e232ab8.png",
 		],
@@ -4954,14 +4954,14 @@
 		"Title": "Ventrica Station - Choral Chambers",
 		"x": -4.760988527504779,
 		"y": 3.9714547850936555,
-		"Reqs": "Rosary_80",
+		"Reqs": "*80Rosary",
 	},
 	"478425": {
 		"CategoryID": 13539,
 		"Title": "Ventrica Station - Memorium",
 		"x": 4.448441958137678,
 		"y": 10.180025047894503,
-		"Reqs": "Rosary_80",
+		"Reqs": "*80Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/2b444978-fcdf-41fc-81a1-1c67b7fe4899.png",
 		],
@@ -4980,7 +4980,7 @@
 		"Title": "Ventrica Station - First Shrine",
 		"x": 7.876834761609032,
 		"y": 8.092890825821115,
-		"Reqs": "Rosary_80",
+		"Reqs": "*80Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/0f4499dd-5d7b-485b-80dc-de1f3daf8891.png",
 		],
@@ -5009,7 +5009,7 @@
 		"Title": "Bench - Underworks",
 		"x": -1.0026025734917994,
 		"y": 1.1944752701871408,
-		"Reqs": "Rosary_15",
+		"Reqs": "*15Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/797792a2-eb6c-4bda-8d5f-4a266be88c4e.png",
 		],
@@ -5137,7 +5137,7 @@
 		"Title": "Lost Flea",
 		"x": 17.804266388522386,
 		"y": -0.010305478489442521,
-		"Reqs": "In a room behind the [Breakable Wall|478459]. Defeat the two Snitchflies to rescue it.",
+		"Reqs": "@In a room behind the [Breakable Wall|478459]. Defeat the two Snitchflies to rescue it.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/8a47bd46-5749-4688-b3cc-43758b2fcf19.png",
 		],
@@ -5156,7 +5156,7 @@
 		"Title": "Ventrica Station - High Halls",
 		"x": 1.533458500813822,
 		"y": 8.29705723796748,
-		"Reqs": "Rosary_80",
+		"Reqs": "*80Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/6dca3293-9fe5-4c56-b4f0-a254709c7e35.png",
 		],
@@ -5166,7 +5166,7 @@
 		"Title": "Bench - Bilewater",
 		"x": 12.91592690998408,
 		"y": -0.18438668293039484,
-		"Reqs": "Rosary_60",
+		"Reqs": "*60Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/27101bd8-d13c-4038-961d-a9f15ca306c2.png",
 		],
@@ -5176,7 +5176,7 @@
 		"Title": "Bellway - Bilewater",
 		"x": 13.13086539891215,
 		"y": -0.1845090431598635,
-		"Reqs": "Rosary_80",
+		"Reqs": "*80Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/f66a77ef-9264-4d86-afb1-451073c465ef.png",
 		],
@@ -5311,7 +5311,7 @@
 		"Title": "Grindle",
 		"x": -9.840736398598878,
 		"y": 6.790448742345248,
-		"Reqs": "Moves next to a nearby [Bench|478394] after a brief chat through the door.",
+		"Reqs": "@Moves next to a nearby [Bench|478394] after a brief chat through the door.",
 	},
 	"478466": {
 		"CategoryID": 13582,
@@ -5700,7 +5700,7 @@
 		"Title": "Pinstress",
 		"x": -19.431228713749462,
 		"y": -1.7853567368083247,
-		"Reqs": "Inside the hot air balloon suspended in the air.",
+		"Reqs": "@Inside the hot air balloon suspended in the air.",
 		"Notes": "Train with her to learn the [Needle Strike|478510] ability.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/064a0e19-6431-4153-8d22-0a360a1d7e10.jpg",
@@ -5823,7 +5823,7 @@
 		"Title": "Grand Gate Map",
 		"x": -6.9817623101505575,
 		"y": 0.5773908360323503,
-		"Reqs": "Rosary_40",
+		"Reqs": "*40Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/8e69f3c8-b9e0-405c-a707-f14c565a9590.png",
 		],
@@ -5863,7 +5863,7 @@
 		"Title": "Bone Scroll",
 		"x": -4.651314219900257,
 		"y": -0.17438600017712247,
-		"Reqs": "At the end of a tunnel behind the [Breakable Wall|478552].",
+		"Reqs": "@At the end of a tunnel behind the [Breakable Wall|478552].",
 		"Notes": "Filthy rag, marked with the scrawl of an Underworker.\n\n\"So much suffering. Are we truly chosen, or have we sinned unknowing, and now are punished for it?\"",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/e97cd3c9-f388-4396-b36a-2eb310eae3e2.png",
@@ -6037,7 +6037,7 @@
 		"Title": "Spool Fragment",
 		"x": -7.012159339245173,
 		"y": 2.1215425278057296,
-		"Reqs": "At the very top of the platforming puzzle in the room below.",
+		"Reqs": "@At the very top of the platforming puzzle in the room below.",
 		"Tip": "You can hit the bottom of the platforms to change their positions!",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/68605500-8bd0-4353-88ea-22ef738da45c.png",
@@ -6135,7 +6135,7 @@
 		"Title": "Silk Machine",
 		"x": 4.532886682768563,
 		"y": 7.419527756073421,
-		"Reqs": "Rosary_40",
+		"Reqs": "*40Rosary",
 		"Notes": "Replenish some Silk.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/6c9304bc-e26b-4a10-aebd-83807a5bf733.jpg",
@@ -6167,7 +6167,7 @@
 		"Title": "Bench - First Shrine",
 		"x": 8.710019806207733,
 		"y": 7.559637605422566,
-		"Reqs": "Appears when you destroy the web covering a bell inside the building, then hit a lever.",
+		"Reqs": "@Appears when you destroy the web covering a bell inside the building, then hit a lever.",
 		"Tip": "Leave and re-enter the room to skip the bell animation.",
 	},
 	"478601": {
@@ -6175,7 +6175,7 @@
 		"Title": "Caretaker",
 		"x": 8.559385943652337,
 		"y": 7.557742083827236,
-		"Reqs": "Appears after you ring a bell inside the building.",
+		"Reqs": "@Appears after you ring a bell inside the building.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/40a40065-b6c0-422b-ad6e-5bf33bd8c512.jpg",
 		],
@@ -6388,7 +6388,7 @@
 		"Title": "Whispering Vaults Map",
 		"x": 8.919703002831504,
 		"y": 7.180636445944984,
-		"Reqs": "Rosary_70",
+		"Reqs": "*70Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/4e69bd9a-e1c7-4d03-bbe3-cb91ec084b3a.png",
 		],
@@ -6406,7 +6406,7 @@
 		"Title": "Lever",
 		"x": 14.724223413555748,
 		"y": -4.878205671610232,
-		"Reqs": "On a high-up ledge.",
+		"Reqs": "@On a high-up ledge.",
 		"Notes": "Whack it to create balloons in the area below.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/ebe2d096-2f7d-40a7-9e12-49f061b3369b.jpg",
@@ -6542,7 +6542,7 @@
 		"Title": "Silkeater",
 		"x": 10.596378569655464,
 		"y": 6.520607403546165,
-		"Reqs": "At the top of a secret passage behind the [Breakable Wall|478656].",
+		"Reqs": "@At the top of a secret passage behind the [Breakable Wall|478656].",
 		"Notes": "Note: You’ll be attacked by a Vaultkeeper after collecting it.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/1fe60b85-73d8-423c-85f6-8b0651baf531.png",
@@ -6553,7 +6553,7 @@
 		"Title": "Lever",
 		"x": 14.793645254490208,
 		"y": -4.046193151125806,
-		"Reqs": "At the end of a bridge.",
+		"Reqs": "@At the end of a bridge.",
 		"Notes": "Removes the bridge’s collision.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/3634d861-8a40-4ecc-b712-c69de61644ad.jpg",
@@ -6564,7 +6564,7 @@
 		"Title": "Lever",
 		"x": 13.246467533526555,
 		"y": -4.876360191055554,
-		"Reqs": "Outside the bench room.",
+		"Reqs": "@Outside the bench room.",
 		"Notes": "Lowers a platform.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/f2f2984c-e414-45f2-a768-3c79a839b9cb.jpg",
@@ -6756,7 +6756,7 @@
 		"Title": "Claw Mirror",
 		"x": 6.867995946571433,
 		"y": 4.577011430434069,
-		"Reqs": "[Trobbio|478690]+![Claw Mirrors|479378]",
+		"Reqs": "[Trobbio|478690]+![Dark Mirror / Claw Mirrors|479378]",
 		"Effect": "Emits a flash that damages surrounding enemies",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/c4e50a26-21c0-401c-81f3-c3eb84f9fb92.png",
@@ -6870,7 +6870,7 @@
 		"Title": "Craftmetal",
 		"x": 3.0083227581433505,
 		"y": -0.19144942504622975,
-		"Reqs": "At the end of a lava-filled tunnel.",
+		"Reqs": "@At the end of a lava-filled tunnel.",
 		"Notes": "Taking it will trigger an Undercrank ambush.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/7ea14bd8-af07-4fef-99a6-0132dded42d0.png",
@@ -6984,7 +6984,7 @@
 		"Title": "Silkshot (Twelfth Architect)",
 		"x": 4.237360072876179,
 		"y": 1.776069417522109,
-		"Reqs": "[Ruined Tool|478457]+![SilkShot2|479364]+![SilkShot3|479497]",
+		"Reqs": "[Ruined Tool|478457]+![Silkshot (Forge Daughter)|479364]+![Silkshot (Weaver)|479497]",
 		"Needs": "[Twelfth Architect|478723]+*130Rosary+Craftmetal",
 		"Effect": "Triple projectile attack, uses Shell Shards and Silk",
 		"ImageURLs": [
@@ -7035,7 +7035,7 @@
 		"x": 3.2812356389158666,
 		"y": 1.4656373552144828,
 		"Reqs": "[Architect’s Key|478729]",
-		"Rewards": "[Architect Crest|478745]",
+		"Rewards": "[Crest of Architect|478745]",
 	},
 	"478745": {
 		"CategoryID": 13549,
@@ -7172,7 +7172,7 @@
 		"y": -5.527682586105044,
 		"Reqs": "[Rite of the Pollip|478173]+[Twisted Bud|478783]",
 		"Needs": "[Greyroot|478172]",
-		"Rewards": "@A nasty parasite",
+		"Rewards": "^A nasty parasite",
 		"Tip": "<IMPORTANT><b>Warning</b>: Accepting sends you [here|478793], force a new moveset, & blocks equipping tools and silk skills, and other crests.</IMPORTANT>\n\nTalk to [Yarnaby|478268] and complete [Infestation Operation|478814] to get rid of the parasite",
 	},
 	"478793": {
@@ -7261,7 +7261,7 @@
 		"y": -4.3079328396865435,
 		"Reqs": "[Rite of Rebirth|478792]@Pay a visit to [Crull and Benjin|478355] in the Sinner’s Road area and purchase their [Steel Spines|480956] for 160 Rosaries.",
 		"Needs": "[Yarnaby|478268]",
-		"Rewards": "[Witch Crest|478815]@Parasite is extracted",
+		"Rewards": "[Crest of Witch|478815]^Parasite is extracted",
 		"Notes": "<IMPORTANT>Removing the parasite locks you out of the [Twisted Child|479344] achievement.</IMPORTANT>",
 	},
 	"478815": {
@@ -7276,7 +7276,7 @@
 		"Title": "Fleamaster Mooshka - Third Encounter",
 		"x": -10.053810545816447,
 		"y": 0.5901326031562775,
-		"Reqs": "*12Fleas+![Flea Caravan last location|479437]",
+		"Reqs": "*12Flea+![Fleamaster Mooshka - Fleatopia|479437]",
 	},
 	"478820": {
 		"CategoryID": 13548,
@@ -7290,7 +7290,7 @@
 		"Title": "Temporary Bench - Flea Caravan",
 		"x": -10.19311194325411,
 		"y": 0.5941204954407766,
-		"Reqs": "[Fleamaster Mooshka - Third Encounter]",
+		"Reqs": "[Fleamaster Mooshka - Third Encounter|478818]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/7a9c71d9-d3b3-4cb3-9ca8-e20cadfd0e45.png",
 		],
@@ -7384,7 +7384,7 @@
 		"x": -11.485309585375532,
 		"y": -10.731913356436564,
 		"Reqs": "Act 2",
-		"Needs": "*440?Shell Shards",
+		"Needs": "*440Shard",
 		"Rewards": "[Hornet Statuette|479144]",
 	},
 	"478840": {
@@ -7469,7 +7469,7 @@
 		"Title": "Quick Sling",
 		"x": 16.451826750671536,
 		"y": 3.528948944414026,
-		"Reqs": "In a secret area above two [Breakable Ceilings|478847].",
+		"Reqs": "@In a secret area above two [Breakable Ceilings|478847].",
 		"Effect": "Throws tools twice with a single use (uses twice as much ammo)",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/35cf84e2-6c79-41f8-b528-3b5da3401295.png",
@@ -7557,7 +7557,7 @@
 		"Title": "Hidden Passage",
 		"x": 17.48346655448583,
 		"y": 6.278266560410529,
-		"Reqs": "@In the north-eastern corner of the area outside the arena. ",
+		"Reqs": "@In the north-eastern corner of the area outside the arena.",
 		"Notes": "Home to some silk flowers that are quite useful before the battle below.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/2b2f7c61-24f6-46e2-9ceb-445ba4beeaba.jpg",
@@ -7578,7 +7578,7 @@
 		"Title": "Groal The Great",
 		"x": 16.826084337855995,
 		"y": 6.079101651343251,
-		"Reqs": "~[arena battle.|480209]@Appears in the final wave of an arena battle.",
+		"Reqs": "~[Arena Battle|480209]@Appears in the final wave of an arena battle.",
 		"Tip": "The [Wreath of Purity|479133] negates Maggots. To reach it, start [here|479125].",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/14db44dd-98c3-4d7e-bc57-05c68261a941.png",
@@ -7621,7 +7621,7 @@
 		"x": 14.273856993732622,
 		"y": 7.121159193375448,
 		"Reqs": "[Huntress|478864]",
-		"Needs": "*25?Seared Organs+*45?Shredded Organs+*25?Skewered Organs.",
+		"Needs": "*25?Seared Organs+*45?Shredded Organs+*25?Skewered Organs",
 		"Rewards": "[Longclaw|479240]",
 		"Notes": "- Seared Organs - Harvested with:\n    - [Flintslate|477986]\n    - [Pimpillo|478964]\n    - [Voltvessels|479121]\n    - [Wispfire Lantern|479156]\n- Shredded Organs - Harvested with:\n    - [Conchcutter|479230] \n    - [Sawtooth Circlet|478726]\n    - [Cogwork Wheel|478725]\n    - [Delver’s Drill|478577]\n    - [Architect Crest|478745] [Charge Attacks|478510] \n    - [Beast Crest|478020] Plunging Attacks\n- Skewered Organs - Harvested with:\n    - [Longpin|478158]\n    - [Sting Shard|477917]\n\n\nNote: If the Wish isn’t completed by Act 3, [Runt|481481] will appear in the same location to give you the “Runtfeast” wish with the same objective and reward.",
 	},
@@ -7640,7 +7640,7 @@
 		"Title": "Rosary",
 		"x": -0.5564588757079321,
 		"y": 5.703308626571044,
-		"Reqs": "On a ledge, guarded by a [Choir Hornhead|479887] and Choir Pouncer.",
+		"Reqs": "@On a ledge, guarded by a [Choir Hornhead|479887] and Choir Pouncer.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/d963f28e-8b0e-4880-b699-fcb45fa832e2.png",
 		],
@@ -7670,7 +7670,7 @@
 		"Title": "Sherma",
 		"x": -2.0747688364608763,
 		"y": 5.250707661843748,
-		"Reqs": "Appears here before going to Songclave.",
+		"Reqs": "@Appears here before going to Songclave.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/201a3a42-b026-4857-b60e-1e57244003ee.png",
 			"https://media.mapgenie.io/storage/media/f7f37cd2-48db-47e9-9464-7c0f47bd1c81.png",
@@ -7903,7 +7903,7 @@
 		"Title": "Silk Machine",
 		"x": -3.8222399919256986,
 		"y": 6.201335260008605,
-		"Reqs": "Rosary_40",
+		"Reqs": "*40Rosary",
 		"Notes": "Replenish some Silk.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/3286e56a-31fd-45ec-969e-6cdd78a797c1.jpg",
@@ -7958,7 +7958,7 @@
 		"Title": "Cogfly",
 		"x": -0.18705843373167852,
 		"y": 10.129899414197638,
-		"Reqs": "*1Craftmetal",
+		"Reqs": "Craftmetal",
 		"Effect": "Winged cogwork companion that will seek nearby enemies and attack",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/6dea30cc-50c2-4dc3-ba85-34c98ae677c6.png",
@@ -7969,7 +7969,7 @@
 		"Title": "Shell Shards",
 		"x": 0.20339093342822423,
 		"y": 9.809181280908746,
-		"Reqs": "Behind a waterfall in the room where you find the [Cogfly|478903].",
+		"Reqs": "@Behind a waterfall in the room where you find the [Cogfly|478903].",
 		"Notes": "A Giant Drapemite will ambush you as you approach.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/411ac069-b59c-4769-bd05-826a1d610427.png",
@@ -7991,7 +7991,7 @@
 		"Title": "High Halls Map",
 		"x": 1.8523417524641985,
 		"y": 8.281485962902948,
-		"Reqs": "Rosary_70",
+		"Reqs": "*70Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/ed5f1cc2-c5de-48ef-895d-edf0e42dee98.png",
 		],
@@ -8115,7 +8115,7 @@
 		"Title": "Whiteward Map",
 		"x": 1.3358380464824222,
 		"y": 2.8425628548987163,
-		"Reqs": "Rosary_70",
+		"Reqs": "*70Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/dff0921e-f1bf-421c-ae28-74fe44ebe08a.png",
 		],
@@ -8166,7 +8166,7 @@
 		"Title": "The Unravelled",
 		"x": -1.0963827456374844,
 		"y": 2.0236361388252817,
-		"Reqs": "At the bottom of the pit beneath the [Locked Trapdoor - Surgeon|478913].",
+		"Reqs": "@At the bottom of the pit beneath the [Locked Trapdoor - Surgeon|478913].",
 		"Rewards": "[Silk Heart|479082]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/fbec35aa-51b5-44fa-948f-c9db5b24b2e1.png",
@@ -8198,7 +8198,7 @@
 		"x": 9.151246312413157,
 		"y": 7.983948498149104,
 		"Reqs": "[Building Up Songclave|478631]",
-		"Needs": "[Whiteward|478590]^Speak to Sherma in Songclave or approaching him in [Whiteward|479179]",
+		"Needs": "[Locked Elevator|478590]^Speak to Sherma in Songclave or approaching him in [Whiteward|479179]",
 		"Rewards": "[Spool Fragment|479180]",
 	},
 	"478934": {
@@ -8317,7 +8317,7 @@
 		"Title": "Memory Crystal",
 		"x": -18.84770604392908,
 		"y": 5.527258213894498,
-		"Reqs": "Inside a large shard of ice at the end of a tunnel.",
+		"Reqs": "@Inside a large shard of ice at the end of a tunnel.",
 		"Effect": "When you take damage, leave an ice clone behind that shoots out spikes when hit by an enemy.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/9e1d9381-8565-458f-a46d-5eac0a456166.png",
@@ -8746,7 +8746,7 @@
 		"Title": "Lever",
 		"x": -9.74531867170036,
 		"y": 6.198496972282456,
-		"Reqs": "Near the bottom of the elevator shaft.",
+		"Reqs": "@Near the bottom of the elevator shaft.",
 		"Notes": "Opens a trapdoor nearby.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/dffbfc6f-f418-4a41-b4cc-6bd0dcb26499.jpg",
@@ -8858,7 +8858,7 @@
 		"Title": "First Sinner",
 		"x": -8.201461907215176,
 		"y": 4.3537643691768295,
-		"Reqs": "Inside the cell.",
+		"Reqs": "@Inside the cell.",
 		"Rewards": "[Rune Rage|479025]+[Heretic|479024]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/68e1d784-b26f-4953-9852-8a2c685bfa46.jpg",
@@ -8963,7 +8963,7 @@
 		"Title": "Temporary Bench - Mount Fay",
 		"x": -13.290171517339218,
 		"y": 4.690597868025307,
-		"Reqs": "Only appears here while [Shakra|478940] is present.",
+		"Reqs": "@Only appears here while [Shakra|478940] is present.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/2fface11-9939-469d-ba02-cf67c7b20b57.jpg",
 		],
@@ -9073,7 +9073,7 @@
 		"Title": "Mask Maker",
 		"x": -19.70184886305583,
 		"y": 11.640886178632414,
-		"Reqs": "Inside the building.",
+		"Reqs": "@Inside the building.",
 		"Notes": "You can unmask the maker with a [charged needle strike|478510] for additional dialogue.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/ae19d77d-4fd1-4b55-b3c4-71f8b1a1849b.jpg",
@@ -9177,7 +9177,7 @@
 		"Title": "Lore",
 		"x": 23.007443386510516,
 		"y": -13.194249112516573,
-		"Reqs": "At the end of the path beneath the [Passage|479055].",
+		"Reqs": "@At the end of the path beneath the [Passage|479055].",
 		"Notes": "A rune depicting paths away from Pharloom.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/94ced86c-bbaa-4741-89af-2ad9d24ed1a3.jpg",
@@ -9238,7 +9238,7 @@
 		"Title": "Breakable Wall",
 		"x": 7.083469684354569,
 		"y": 4.131558343663855,
-		"Reqs": "Two breakable walls in rapid succession",
+		"Reqs": "@Two breakable walls in rapid succession",
 		"Notes": "Leads to a [Memory Locket|478372]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/d47be9a2-8c39-46b6-bcc4-72bd6334ce91.jpg",
@@ -9316,7 +9316,7 @@
 		"Title": "Weavelight",
 		"x": -15.514914352652582,
 		"y": -13.487215532815583,
-		"Reqs": "Inside a decoration on the ceiling of the rooftop where you fight [Moss Mother x2|478440]",
+		"Reqs": "@Inside a decoration on the ceiling of the rooftop where you fight [Moss Mother x2|478440]",
 		"Effect": "Increases the speed of Silk regeneration.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/980b7d82-d8c0-4e66-9400-dce9d553fd6b.jpg",
@@ -9427,7 +9427,7 @@
 		"Title": "Dead Bug’s Purse",
 		"x": -15.62877088814021,
 		"y": -7.3952021598330475,
-		"Reqs": "Held by a corpse in a small room guarded by 2 Gromlings.",
+		"Reqs": "@Held by a corpse in a small room guarded by 2 Gromlings.",
 		"Effect": "Retain some rosaries upon defeat.",
 		"Notes": "Play the needolin here for more lore.",
 		"ImageURLs": [
@@ -9446,7 +9446,7 @@
 		"Title": "Lever",
 		"x": -15.495812087188725,
 		"y": -3.377452303217183,
-		"Reqs": "On a ledge.",
+		"Reqs": "@On a ledge.",
 		"Notes": "Lowers a platform.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/9f0e14b8-e70b-4e96-8ab9-7b17f713c886.jpg",
@@ -9484,7 +9484,7 @@
 		"Title": "Silk Heart",
 		"x": 2.645340131495338,
 		"y": 12.75038079795931,
-		"Reqs": "[Lace|479088]",
+		"Reqs": "[Lace [Cradle]|479088]",
 	},
 	"479090": {
 		"CategoryID": 13573,
@@ -9541,7 +9541,7 @@
 		"Title": "The Cradle Map",
 		"x": 1.6255261876398777,
 		"y": 13.9999538181073,
-		"Reqs": "Rosary_70",
+		"Reqs": "*70Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/a89e96eb-8342-40bb-8b50-cddd2f4e402a.png",
 		],
@@ -9581,7 +9581,7 @@
 		"Title": "Grand Mother Silk",
 		"x": 2.650552243605624,
 		"y": 15.501428013126954,
-		"Rewards": "Steel Soul Mode (Death is Permanent)",
+		"Rewards": "Steel Soul mode",
 		"Notes": "End Boss",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/bcb0e2a4-50b2-4c62-8a28-54220b7b3ec4.png",
@@ -9664,7 +9664,7 @@
 		"Title": "Memorium Map",
 		"x": 8.145227720463218,
 		"y": 8.416186080562937,
-		"Reqs": "Rosary_70",
+		"Reqs": "*70Rosary",
 	},
 	"479108": {
 		"CategoryID": 13590,
@@ -9954,7 +9954,7 @@
 		"Title": "Vog",
 		"x": 16.848875818891315,
 		"y": 9.318960968608707,
-		"Reqs": "To reach her, start from this [Hidden Passage|479137].",
+		"Reqs": "@To reach her, start from this [Hidden Passage|479137].",
 		"Notes": "Required to complete the flea caravan and receive Fleamaster Mooshka’s final gift. Joins the Flea Caravan wherever they are currently based after a brief chat.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/2e75fe0d-2049-41c0-b2c3-1770f2d66125.png",
@@ -9975,7 +9975,7 @@
 		"Title": "Shell Shards",
 		"x": 24.791845641952108,
 		"y": 7.513030477991705,
-		"Reqs": "On the ceiling above the water.",
+		"Reqs": "@On the ceiling above the water.",
 		"Notes": "Don’t worry the shards float.",
 	},
 	"479141": {
@@ -10052,8 +10052,8 @@
 		"Title": "Moorwing",
 		"x": 5.0581881303401985,
 		"y": -5.707688233987213,
-		"Reqs": "May only appear in this area if you didn’t fight it [here|478453].",
-		"Rewards": "@Beast Shard",
+		"Reqs": "@May only appear in this area if you didn’t fight it [here|478453].",
+		"Rewards": "^Beast Shard",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/b9defdb2-02b5-440a-9bd1-efbefbfc66f7.png",
 		],
@@ -10063,7 +10063,7 @@
 		"Title": "Bone Scroll",
 		"x": 4.560902372143524,
 		"y": -1.0199799352127314,
-		"Reqs": "At the very top of a platforming challenge. You’ll need a fair bit of silk!",
+		"Reqs": "@At the very top of a platforming challenge. You’ll need a fair bit of silk!",
 		"Notes": "Crumpled parchment containing the prayer of a Burning Bug.\n\n\n“Hail to your heat! O glorious flame. You who builds and breaks us. Sear our shells. Char them black. That we may rise to join you, wreathed in bright and blazing joy.”",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/f407eaac-cb77-4448-88b1-85dc8e2f16ef.png",
@@ -10187,7 +10187,7 @@
 		"x": 7.481572270214912,
 		"y": -5.120327312251746,
 		"Reqs": "~[Great Taste of Pharloom|478889]@At the bottom of the Halfway Home’s basement.",
-		"Needs": "[Creige|478040]+*480ROSARY",
+		"Needs": "[Creige|478040]+*480Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/c860c385-1607-418a-a7a2-2f2658dae598.png",
 		],
@@ -10238,7 +10238,7 @@
 		"x": -1.5181010358799938,
 		"y": -5.9858562125018295,
 		"Reqs": "[My Missing Courier|478207]+[My Missing Brother|478798]",
-		"Rewards": "@260 Rosaries",
+		"Rewards": "*260Rosary",
 		"Notes": "<b>Delivery</b>",
 	},
 	"479179": {
@@ -10360,7 +10360,7 @@
 		"x": 23.475605221314332,
 		"y": -8.795271757536497,
 		"Reqs": "Act 3@Begun by speaking to [Sprintmaster Swift|479192].",
-		"Rewards": "@Rosary Necklace - First Race\n- Beast Shard - Second Race\n- [Mask Shard|479194] - Third Race\n- [Sprintmaster Memento|479634] - Fourth Race (after completing [The Old Hearts|479387])",
+		"Rewards": "^Rosary Necklace - First Race\n- Beast Shard - Second Race\n- [Mask Shard|479194] - Third Race\n- [Sprintmaster Memento|479634] - Fourth Race (after completing [The Old Hearts|479387])",
 		"Notes": "<b>Sprint</b>",
 	},
 	"479194": {
@@ -10385,7 +10385,7 @@
 		"Title": "Memory Locket",
 		"x": 20.526452146163187,
 		"y": -7.771473689565369,
-		"Reqs": "Guarded by a void-powered Skarrgard.",
+		"Reqs": "@Guarded by a void-powered Skarrgard.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/11fd9bb1-29a7-41ca-9423-fdc4408ccf91.png",
 		],
@@ -10417,7 +10417,7 @@
 		"x": -1.3976989868889689,
 		"y": -5.9871462100526145,
 		"Reqs": "[Queen’s Egg|479177]",
-		"Rewards": "@650 Rosaries",
+		"Rewards": "*650Rosary",
 		"Notes": "<b>Delivery</b>",
 	},
 	"479200": {
@@ -10638,7 +10638,7 @@
 		"Title": "Voltvyrm",
 		"x": -15.378815170697465,
 		"y": 4.247678019748733,
-		"Reqs": "In the [Voltnest|479221]",
+		"Reqs": "@In the [Voltnest|479221]",
 		"Rewards": "[Volt Filament|479224]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/7666833f-84ca-40c0-897d-4be5e2fed77c.png",
@@ -10679,7 +10679,7 @@
 		"Title": "Raging Conchfly",
 		"x": -18.64468346522098,
 		"y": 3.607557074068467,
-		"Rewards": "@Coral Tower becomes accessible",
+		"Rewards": "^Coral Tower becomes accessible",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/9f0f0f4e-5a54-4e52-86ae-9822a1d7ce61.png",
 		],
@@ -10708,7 +10708,7 @@
 		"Title": "Conchcutter",
 		"x": -20.061403495576286,
 		"y": 3.9879821172786194,
-		"Reqs": "Found almost immediately after entering the Coral Tower.",
+		"Reqs": "@Found almost immediately after entering the Coral Tower.",
 		"Effect": "Throwable weapon, can also ricochet from surfaces",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/ec60e949-a66f-420c-b27b-2ca5b28cd1f2.png",
@@ -10786,7 +10786,7 @@
 		"Title": "Silk and Soul",
 		"x": 8.557667833021164,
 		"y": 7.705072171648382,
-		"Reqs": "[Lace|479088]+[Fleatopia|479143]+[Trail’s End|479237]@Talk to [Caretaker|478601]. You may also need to unlock the [Bellhome|479175].",
+		"Reqs": "[Lace [Cradle]|479088]+[Bone Bottom Repairs|477884]+[Flexile Spines|477964]+[Crawbug Clearing|478208]+[A Lifesaving Bridge|478220]+[Restoration of Bellhart|478291]+[Building Up Songclave|478631]+[Balm for The Wounded|478933]+[Strengthening Songclave|479239]+[Bellhart’s Glory|478797]+[Trail’s End|479237]@Talk to [Caretaker|478601].",
 		"Needs": "[Maiden’s Soul|479256]+[Hermit’s Soul|479258]+[Seeker’s Soul|478863]+[Snare Setter|479071]",
 		"Rewards": "[Soul Snare|479260]",
 	},
@@ -10829,7 +10829,7 @@
 		"Title": "Spider Strings",
 		"x": 8.8041691899652,
 		"y": 7.969000608828836,
-		"Reqs": "[The Lost Merchant|479244]+[Jubilana|478877]+Rosary_320",
+		"Reqs": "[The Lost Merchant|479244]+[Jubilana|478877]+*320Rosary",
 		"Effect": "Expands the range of the [Needolin|478199], and makes Needolin dialogue / lore appear and cycle faster.",
 	},
 	"479249": {
@@ -10837,21 +10837,21 @@
 		"Title": "Spool Fragment",
 		"x": 8.935488730870162,
 		"y": 7.957200322946079,
-		"Reqs": "[The Lost Merchant|479244]+[Jubilana|478877]+Rosary_500",
+		"Reqs": "[The Lost Merchant|479244]+[Jubilana|478877]+*500Rosary",
 	},
 	"479250": {
 		"CategoryID": 13561,
 		"Title": "Craftmetal",
 		"x": 8.935838067607996,
 		"y": 8.086180912463618,
-		"Reqs": "[The Lost Merchant|479244]+[Jubilana|478877]+Rosary_180",
+		"Reqs": "[The Lost Merchant|479244]+[Jubilana|478877]+*180Rosary",
 	},
 	"479251": {
 		"CategoryID": 13551,
 		"Title": "Choral Commandment",
 		"x": 8.804507940731497,
 		"y": 8.094072692020802,
-		"Reqs": "[The Lost Merchant|479244]+[Jubilana|478877]+Rosary_210",
+		"Reqs": "[The Lost Merchant|479244]+[Jubilana|478877]+*210Rosary",
 	},
 	"479252": {
 		"CategoryID": 13571,
@@ -10884,7 +10884,7 @@
 		"x": -10.985396474162158,
 		"y": 8.145645178766657,
 		"Reqs": "[The Wailing Mother|479246]",
-		"Rewards": "@Broodmother’s Eye",
+		"Rewards": "^Broodmother’s Eye",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/1af6683c-8554-4c91-99fb-2927eebe1ac5.png",
 		],
@@ -11041,7 +11041,7 @@
 		"Title": "Diving Bell Key",
 		"x": 7.4414886143473,
 		"y": -14.316963808391968,
-		"Reqs": "Act3",
+		"Reqs": "Act 3",
 	},
 	"479280": {
 		"CategoryID": 13560,
@@ -11179,7 +11179,7 @@
 		"Title": "Passage",
 		"x": 3.2489720970105225,
 		"y": 11.138284960282647,
-		"Reqs": "Act3",
+		"Reqs": "Act 3",
 	},
 	"479301": {
 		"CategoryID": 13571,
@@ -11187,7 +11187,7 @@
 		"x": 18.53170273880636,
 		"y": -5.143718267651067,
 		"Reqs": "Act 3+[Green Prince|478342]",
-		"Needs": "[Green Prince|479367]",
+		"Needs": "[Green Prince - Third Encounter|479367]",
 	},
 	"479309": {
 		"CategoryID": 13567,
@@ -11202,7 +11202,7 @@
 		"Title": "Green Prince - Second Encounter",
 		"x": -4.778507709730121,
 		"y": 5.034834231195887,
-		"Reqs": "[cell|478342]@Clearing the room of enemies",
+		"Reqs": "[Green Prince|478342]@Clearing the room of enemies",
 		"Notes": "You may need to rest on a bench and return to the area before he will spawn.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/5c5cc360-4368-4c30-a69b-22beb536559f.png",
@@ -11403,7 +11403,7 @@
 		"Title": "White Knight",
 		"x": 2.8871532093463514,
 		"y": 12.752930199783123,
-		"Needs": "[Lace Cradle|479088]",
+		"Needs": "[Lace [Cradle]|479088]",
 		"Notes": "Defeat Lace in the Cradle",
 	},
 	"479344": {
@@ -11419,7 +11419,7 @@
 		"Title": "Resident",
 		"x": -2.112965036073348,
 		"y": -5.729012086863364,
-		"Needs": "[Bellhome|479171]",
+		"Needs": "[Bellhome Key|479171]",
 		"Notes": "Acquire your own Bellhome.",
 	},
 	"479346": {
@@ -11486,7 +11486,7 @@
 		"Title": "Trail’s End",
 		"x": 24.93832828197072,
 		"y": 6.339734785206019,
-		"Needs": "[Shakra’s Wish|479237]",
+		"Needs": "[Trail’s End|479237]",
 		"Notes": "Grant Shakra’s Wish.",
 	},
 	"479360": {
@@ -11530,7 +11530,7 @@
 		"Title": "Silkshot (Forge Daughter)",
 		"x": 5.337609368917512,
 		"y": -11.84301212765569,
-		"Reqs": "[Ruined Tool|478457]+![SilkShot1|478732]+![SilkShot3|479497]",
+		"Reqs": "[Ruined Tool|478457]+![Silkshot (Twelfth Architect)|478732]+![Silkshot (Weaver)|479497]",
 		"Needs": "[Forge Daughter|476912]+*240Rosary+Craftmetal",
 		"Effect": "Burst projectile attack",
 		"ImageURLs": [
@@ -11644,7 +11644,7 @@
 		"x": 6.730420733562369,
 		"y": 4.7590814505537224,
 		"Reqs": "Act 3+[Pain, Anguish and Misery|479370]",
-		"Rewards": "[Dark Mirror|479378]",
+		"Rewards": "[Dark Mirror / Claw Mirrors|479378]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/b13ec8ba-7dd5-4a83-992e-48ac9b78a9dc.png",
 		],
@@ -11826,7 +11826,7 @@
 		"x": -11.042944261118663,
 		"y": -1.528743478999374,
 		"Reqs": "Act 3+[Heart of the Woods|479389]",
-		"Rewards": "[Pollen Heart|481830][Seed|479405]",
+		"Rewards": "[Pollen Heart|481830]+[Seed|479405]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/f3f6ab6e-e2cd-419c-9ca4-9330c49690e1.png",
 		],
@@ -12091,7 +12091,7 @@
 		"Title": "Fleamaster Mooshka - Fleatopia",
 		"x": 22.47953859278433,
 		"y": 7.100609502421719,
-		"Reqs": "22*Fleas^Pale Lake",
+		"Reqs": "*22Flea^Pale Lake",
 		"Notes": "**Rewards for finding Fleas:**\n- 15 - [Spool Fragment|478820]  \n- 20 - [Tool Pouch Upgrade|479436]\n- 30 - [Egg of Flealia|479439]",
 	},
 	"479439": {
@@ -12292,7 +12292,7 @@
 		"x": 20.834704776000038,
 		"y": -10.334280465839186,
 		"Reqs": "[The Hidden Hunter|479446]",
-		"Rewards": "@??",
+		"Rewards": "^??",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/cb119c36-deef-49e4-9f63-3d6f35864404.png",
 		],
@@ -12322,7 +12322,7 @@
 		"x": 2.2443553818552004,
 		"y": -20.558960526131855,
 		"Reqs": "[Last Dive|479431]",
-		"Rewards": "@True Ending ??",
+		"Rewards": "^True Ending ??",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/a640e345-a4d5-4d69-a696-a3e149e9fa80.png",
 		],
@@ -12351,7 +12351,7 @@
 		"Title": "Rune Harp",
 		"x": -2.5917985227097518,
 		"y": 8.435226207948773,
-		"Reqs": "Where Conductor Ballador would be in Act 3.",
+		"Reqs": "@Where Conductor Ballador would be in Act 3.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/d455c811-7c7a-41ba-be61-381de806245e.png",
 		],
@@ -12371,7 +12371,7 @@
 		"Title": "Silkshot (Weaver)",
 		"x": -12.693911836061304,
 		"y": 12.142709162910862,
-		"Reqs": "[Ruined Tool|478457]+![SilkShot1|478732]+![SilkShot2|479364]",
+		"Reqs": "[Ruined Tool|478457]+![Silkshot (Twelfth Architect)|478732]+![Silkshot (Forge Daughter)|479364]",
 		"Needs": "[Bench - Mount Fay|478382]+Craftmetal",
 		"Effect": "Uses shell canisters and the wielder’s own Silk to fire.",
 	},
@@ -12498,35 +12498,35 @@
 		"Title": "Mosslands Map",
 		"x": -10.116301250611798,
 		"y": -9.53150204936879,
-		"Reqs": "[Shakra|477850]+Rosary_40",
+		"Reqs": "[Shakra - The Marrow|477850]+*40Rosary",
 	},
 	"479515": {
 		"CategoryID": 13585,
 		"Title": "The Marrow Map",
 		"x": -10.259593576579917,
 		"y": -9.531420475882463,
-		"Reqs": "[Shakra|477850]+Rosary_50",
+		"Reqs": "[Shakra - The Marrow|477850]+*50Rosary",
 	},
 	"479516": {
 		"CategoryID": 13585,
 		"Title": "Deep Docks Map",
 		"x": 3.372294176269264,
 		"y": -11.574146797669165,
-		"Reqs": "[Shakra|477904]+Rosary_50",
+		"Reqs": "[Shakra - Deep Docks|477904]+*50Rosary",
 	},
 	"479517": {
 		"CategoryID": 13585,
 		"Title": "Far Fields Map",
 		"x": 13.248223627847587,
 		"y": -11.688724192001978,
-		"Reqs": "[Shakra|477929]+Rosary_50",
+		"Reqs": "[Shakra - Far Fields|477929]+*50Rosary",
 	},
 	"479518": {
 		"CategoryID": 13585,
 		"Title": "Hunter’s March Map",
 		"x": 9.232061083410173,
 		"y": -9.297246520654745,
-		"Reqs": "Rosary_70+[Shakra|478003]|Rosary_70+[Shakra|479060]",
+		"Reqs": "*70Rosary+[Shakra - Hunter’s March|478003]|*70Rosary+[Shakra - Hunter’s March|479060]",
 	},
 	"479519": {
 		"CategoryID": 13529,
@@ -12574,56 +12574,56 @@
 		"Title": "Wormways Map",
 		"x": -16.084723934669427,
 		"y": -8.0213073508057,
-		"Reqs": "[Shakra|478330]+Rosary_70",
+		"Reqs": "[Shakra - Wormways|478330]+*70Rosary",
 	},
 	"479524": {
 		"CategoryID": 13585,
 		"Title": "Sands of Karak Map",
 		"x": -16.47461751740103,
 		"y": 1.7815088973508608,
-		"Reqs": "[Shakra|478523]+Rosary_90",
+		"Reqs": "[Shakra - Sands of Karak|478523]+*90Rosary",
 	},
 	"479525": {
 		"CategoryID": 13585,
 		"Title": "Mount Fay Map",
 		"x": -13.565467117992512,
 		"y": 4.698478905214472,
-		"Reqs": "[Shakra|478940]+Rosary_40",
+		"Reqs": "[Shakra - Mount Fay|478940]+*40Rosary",
 	},
 	"479526": {
 		"CategoryID": 13585,
 		"Title": "Sinner’s Road Map",
 		"x": 9.907365095812764,
 		"y": -2.147194044972238,
-		"Reqs": "[Shakra|478274]+Rosary_90",
+		"Reqs": "[Shakra - Sinner’s Road|478274]+*90Rosary",
 	},
 	"479527": {
 		"CategoryID": 13585,
 		"Title": "Greymoor Map",
 		"x": 14.656848436751538,
 		"y": -5.327173211948946,
-		"Reqs": "[Shakra|478048]+Rosary_70",
+		"Reqs": "[Shakra - Greymoor|478048]+*70Rosary",
 	},
 	"479528": {
 		"CategoryID": 13585,
 		"Title": "Bilewater Map",
 		"x": 16.52006680354304,
 		"y": 1.4446650021252054,
-		"Reqs": "[Shakra|478736]+Rosary_90",
+		"Reqs": "[Shakra - Bilewater|478736]+*90Rosary",
 	},
 	"479529": {
 		"CategoryID": 13585,
 		"Title": "Bellhart Map",
 		"x": -0.5396500647969589,
 		"y": -6.249759019305998,
-		"Reqs": "[Shakra|479054]+[Shellwoods|478171]+Rosary_40",
+		"Reqs": "[Shakra - Bellhart|479054]+[Shakra - Shellwoods|478171]+*40Rosary",
 	},
 	"479530": {
 		"CategoryID": 13585,
 		"Title": "Shellwood Map",
 		"x": -7.016859473105228,
 		"y": -6.365774361063174,
-		"Reqs": "[Shakra|478171]+Rosary_70",
+		"Reqs": "[Shakra - Shellwoods|478171]+*70Rosary",
 	},
 	"479531": {
 		"CategoryID": 13529,
@@ -12787,7 +12787,7 @@
 		"Title": "Lever",
 		"x": -8.50832234466182,
 		"y": -9.745441045523435,
-		"Reqs": "On the ground.",
+		"Reqs": "@On the ground.",
 		"Notes": "Raises the box suspended above it.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/6cff057b-bc22-4a70-be54-4198b81b1f0d.jpg",
@@ -12859,7 +12859,7 @@
 		"Title": "Breakable Ceiling",
 		"x": 7.137450759182869,
 		"y": -10.473547604506358,
-		"Reqs": "Hit the explosive rock (then stand back a bit) to create a new path.",
+		"Reqs": "@Hit the explosive rock (then stand back a bit) to create a new path.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/92d2af92-0b27-4dcc-88e2-4a33388b0b5f.jpg",
 		],
@@ -12980,7 +12980,7 @@
 		"Title": "Breakable Wall",
 		"x": 9.843360700020781,
 		"y": -12.258910752167367,
-		"Reqs": "Attack the wooden supports on the platform below.",
+		"Reqs": "@Attack the wooden supports on the platform below.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/78b02fbe-f1b5-41e0-bc73-3677d37d97db.jpg",
 		],
@@ -13010,7 +13010,7 @@
 		"Title": "Breakable Wall",
 		"x": 19.333472514423697,
 		"y": -12.699162575338455,
-		"Reqs": "Hit the explosive rock to open a new path.",
+		"Reqs": "@Hit the explosive rock to open a new path.",
 	},
 	"479573": {
 		"CategoryID": 13579,
@@ -13047,7 +13047,7 @@
 		"Title": "Court of Craws",
 		"x": 17.723560818042372,
 		"y": -6.202503192449825,
-		"Reqs": "[Craw’s Door|479575]",
+		"Reqs": "[Locked Door - Craw|479575]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/e3f2375a-7ab4-4ee7-8564-6cdb8d3f064b.png",
 		],
@@ -13280,14 +13280,14 @@
 		"Title": "Guardian’s Memento",
 		"x": 21.925793305571858,
 		"y": 7.291953561483439,
-		"Reqs": "Act 3+[Shrine Guardian Seth|479401]+[Seth in Greymoor|479407]+[Seth in Shellwood|479640]+[Seth in Grand Gate|480277]+[Seth in Fleatopia|479641]@Beat Seth’s high scores in all minigames in caravan games then talk to [Seth in Fleatopia|479641]",
+		"Reqs": "Act 3+[Shrine Guardian Seth|479401]+[Seth - Greymoor|479407]+[Seth in Shellwood|479640]+[Seth - Grand Gate|480277]+[Seth - Fleatopia|479641]@Beat Seth’s high scores in all minigames in caravan games then talk to [Seth in Fleatopia|479641]",
 	},
 	"479640": {
 		"CategoryID": 13527,
 		"Title": "Seth in Shellwood",
 		"x": -6.334986083011572,
 		"y": -4.393759837571366,
-		"Reqs": "[Seth in Greymoor|479407]",
+		"Reqs": "[Seth - Greymoor|479407]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/c3053889-fbb6-49c1-82b8-8422cb776668.png",
 		],
@@ -13297,7 +13297,7 @@
 		"Title": "Seth - Fleatopia",
 		"x": 21.914832809524803,
 		"y": 7.1028852375378335,
-		"Reqs": "[Grand Gate|480277]",
+		"Reqs": "[Seth - Grand Gate|480277]",
 		"Notes": "May only appear here after completing [The Old Hearts|479387] / [Ecstasy of the End|479444]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/4f4dd968-502b-4b1c-bc95-ffd52e030ba1.png",
@@ -13377,7 +13377,7 @@
 		"Title": "Blasted Steps Map",
 		"x": -12.02930971877997,
 		"y": -2.9929372222562876,
-		"Reqs": "[Shakra|478307]+Rosary_70",
+		"Reqs": "[Shakra - Blasted Steps|478307]+*70Rosary",
 	},
 	"479674": {
 		"CategoryID": 13529,
@@ -13519,7 +13519,7 @@
 		"Title": "Breakable Floor",
 		"x": 3.004761472334579,
 		"y": -6.190703995259156,
-		"Reqs": "Hi the rope suspending the platform to open a new path.",
+		"Reqs": "@Hit the rope suspending the platform to open a new path.",
 		"Notes": "This will also create a stream of air for you to return to the area above.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/af70813e-a01d-454a-b92b-eb403ab2261c.jpg",
@@ -13839,7 +13839,7 @@
 		"Title": "Choral Chambers Map",
 		"x": -3.732181070518692,
 		"y": 4.00280845497916,
-		"Reqs": "Rosary_70",
+		"Reqs": "*70Rosary",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/df12b6c6-5946-4256-ae83-9aaa0520635c.png",
 		],
@@ -13906,7 +13906,7 @@
 		"Title": "Summoned Saviour",
 		"x": -21.533333522322494,
 		"y": -11.833360235248243,
-		"Reqs": "~[A Vassal Lost|479727]+*3RestingSite",
+		"Reqs": "~[A Vassal Lost|479727]+*3Resting Site",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/f43987d6-3963-45fd-b4c3-65f4e6233f89.png",
 		],
@@ -14100,7 +14100,7 @@
 		"Title": "Breakable Wall",
 		"x": -2.7290872476178407,
 		"y": 1.493334772455384,
-		"Reqs": "On your right after climbing a vertical tunnel.",
+		"Reqs": "@On your right after climbing a vertical tunnel.",
 		"Notes": "Leads to a platforming challenge and [Frayed Rosary String|478582].",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/b405b79c-0063-46ab-b7bc-594b8f238557.jpg",
@@ -14193,7 +14193,7 @@
 		"Title": "Lever",
 		"x": -5.685750689611879,
 		"y": -0.19040865964775833,
-		"Reqs": "At the end of a tunnel that runs alongside the elevator.",
+		"Reqs": "@At the end of a tunnel that runs alongside the elevator.",
 		"Notes": "Opens the wall next to it.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/0a165b57-375e-45cb-907b-5c49bd32d85d.jpg",
@@ -14212,7 +14212,7 @@
 		"Title": "Lever",
 		"x": -2.186012010935329,
 		"y": 4.041075726782623,
-		"Reqs": "At the “end” of the corridor.",
+		"Reqs": "@At the “end” of the corridor.",
 		"Notes": "Opens a trapdoor to the tunnels below.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/3a7276bf-b8db-4458-881e-3254edcd1aec.jpg",
@@ -14223,7 +14223,7 @@
 		"Title": "Lever",
 		"x": -1.7882060329462632,
 		"y": 4.048422086275622,
-		"Reqs": "In the tunnels.",
+		"Reqs": "@In the tunnels.",
 		"Notes": "Opens a trapdoor to re-enter the main corridor.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/0fdc8824-fc27-4c7b-9b55-65ec3bfc19e0.jpg",
@@ -14364,7 +14364,7 @@
 		"Title": "Rosary",
 		"x": -0.2855574701457897,
 		"y": 7.439877175065092,
-		"Reqs": "Inside a [Secret Room|479900] - and guarded by a Drapemite.",
+		"Reqs": "@Inside a [Secret Room|479900] - and guarded by a Drapemite.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/40eb8284-deec-425c-805f-7a31064166f9.jpg",
 		],
@@ -14434,7 +14434,7 @@
 		"Title": "Silkeater",
 		"x": 3.8852287040383686,
 		"y": 12.570374637161251,
-		"Reqs": "At the end of a tunnel beneath the [Breakable Floor|479934]. Look for a lever, then follow the tunnel down towards the steam and continue to the left.",
+		"Reqs": "@At the end of a tunnel beneath the [Breakable Floor|479934]. Look for a lever, then follow the tunnel down towards the steam and continue to the left.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/46d01bd1-e528-4ca7-ad6f-0282243f614a.jpg",
 		],
@@ -14444,7 +14444,7 @@
 		"Title": "Locked Door",
 		"x": 3.901799111227028,
 		"y": 12.901850860489986,
-		"Reqs": "[Lace|479088]+West",
+		"Reqs": "[Lace [Cradle]|479088]+West",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/067e85e9-62bb-4bd7-ba1e-e003fdef9744.jpg",
 		],
@@ -15015,7 +15015,7 @@
 		"Title": "Lever",
 		"x": 1.530543916979326,
 		"y": 0.8254631829734933,
-		"Reqs": "On the lower part of the corridor.",
+		"Reqs": "@On the lower part of the corridor.",
 		"Notes": "Creates a platform above the saws.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/54b02f40-e211-45d4-8997-cefb5fc29b0b.jpg",
@@ -15068,7 +15068,7 @@
 		"Title": "Breakable Wall",
 		"x": -2.7061856860451314,
 		"y": -2.1717283536027594,
-		"Reqs": "Directly to the right of the [Delver’s Drill|478577] (but can be broken with your regular attacks)",
+		"Reqs": "@Directly to the right of the [Delver’s Drill|478577] (but can be broken with your regular attacks)",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/d20c8c90-07c8-4a7f-8463-1a23ee971310.jpg",
 		],
@@ -15086,7 +15086,7 @@
 		"Title": "Breakable Wall",
 		"x": -0.4065687057356797,
 		"y": 3.311668860302092,
-		"Reqs": "Four breakable walls can be found east of the [Choral Commandment|478914]",
+		"Reqs": "@Four breakable walls can be found east of the [Choral Commandment|478914]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/8d7e6994-fd0f-4a51-823c-01207545874f.jpg",
 		],
@@ -15117,7 +15117,7 @@
 		"Title": "Lever",
 		"x": -0.5074389115592055,
 		"y": 3.6223932433833994,
-		"Reqs": "At the end of the vents.",
+		"Reqs": "@At the end of the vents.",
 		"Notes": "Temporarily opens a trapdoor to the corridor below.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/5ca40a45-f6c5-4071-973e-10c87a6c8bb2.jpg",
@@ -15487,7 +15487,7 @@
 		"Title": "Breakable Wall",
 		"x": 6.594588474317213,
 		"y": -10.34669450412899,
-		"Reqs": "West+Attack@Hit an explosive rock to break open a new path.",
+		"Reqs": "West^Attack@Hit an explosive rock to break open a new path.",
 		"Notes": "Watch out for the blast!",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/bb97346f-6d3c-4ace-aaaa-f1259df4faf3.jpg",
@@ -15563,7 +15563,7 @@
 		"Title": "Keen Hunter",
 		"x": 7.482216735416337,
 		"y": -4.606829395773431,
-		"Needs": "[Nuu’s Wish|478042]",
+		"Needs": "[Bugs of Pharloom|478042]",
 		"Notes": "Grant Nuu’s Wish",
 	},
 	"480189": {
@@ -15786,7 +15786,7 @@
 		"Title": "Secret Room",
 		"x": 20.140793680762897,
 		"y": 6.3505272653571865,
-		"Reqs": "On a high-up ledge",
+		"Reqs": "@On a high-up ledge",
 		"Notes": "You can find some silk.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/ec8ca635-7a67-481c-a0e2-853f4780b265.jpg",
@@ -16213,7 +16213,7 @@
 		"Title": "Seth - Grand Gate",
 		"x": -7.996433579874434,
 		"y": 0.5772292515199666,
-		"Reqs": "[Shellwood|479640]",
+		"Reqs": "[Seth in Shellwood|479640]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/1d7697a8-b81d-418f-8a32-5b4339b09d5a.png",
 		],
@@ -16439,7 +16439,7 @@
 		"Title": "Great / Raging Conchfly",
 		"x": -18.63561891678266,
 		"y": 3.435575303542805,
-		"Needs": "[Great Conchfly|478506][Raging Conchfly|479227]",
+		"Needs": "[Great Conchflies|478506]+[Raging Conchfly|479227]",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/9f0f0f4e-5a54-4e52-86ae-9822a1d7ce61.png",
 		],
@@ -16542,7 +16542,7 @@
 		"Title": "Groal The Great",
 		"x": 16.827253589645387,
 		"y": 5.885852073678819,
-		"Reqs": "~[arena battle|480209]@Appears in the final wave",
+		"Reqs": "~[Arena Battle|480209]@Appears in the final wave",
 		"Needs": "^1",
 		"Tip": "The [Wreath of Purity|479133] negates Maggots. To reach it, start [here|479125].",
 		"ImageURLs": [
@@ -16574,7 +16574,7 @@
 		"Title": "Second Sentinel",
 		"x": 1.593976423170119,
 		"y": 8.628795727631982,
-		"Reqs": "[Second Sentinel Boss|479253]",
+		"Reqs": "[Second Sentinel|479253]",
 		"Needs": "^1",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/5865a75f-c6ba-47f1-a6a4-852efb01299c.png",
@@ -16727,7 +16727,7 @@
 		"Title": "Plasmium Cocoon",
 		"x": -19.18479836409277,
 		"y": -9.86779495633732,
-		"Reqs": "Act3",
+		"Reqs": "Act 3",
 	},
 	"480387": {
 		"CategoryID": 13571,
@@ -16843,7 +16843,7 @@
 		"Title": "Arena Battle",
 		"x": 3.6508028078868193,
 		"y": 3.2628813630390425,
-		"Reqs": "[Balm for The Wounded|478933]+[Sherma|479179]",
+		"Reqs": "[Balm for The Wounded|478933]+[Sherma - Whiteward|479179]",
 		"Notes": "- 1 Surgeon\n- 2 Mortician\n- 2 Surgeon",
 	},
 	"480409": {
@@ -17037,7 +17037,7 @@
 		"Title": "A Hard Day’s Work",
 		"x": -0.7970307571547437,
 		"y": 0.3996933785700776,
-		"Reqs": "Run on the treadmill next to [Loam|478562] for some time",
+		"Reqs": "@Run on the treadmill next to [Loam|478562] for some time",
 		"Notes": "Receive a generous salary, courtesy of the Citadel - one rosary bead!",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/9d077d81-a8dd-4762-a682-472a67e318e3.jpeg",
@@ -17121,7 +17121,7 @@
 		"Title": "Hidden Passage",
 		"x": 12.630671263264986,
 		"y": 4.548094360195975,
-		"Reqs": "At the edge of the pit leading toward the Bilewater area. Hug the left wall (watch out for a falling rock), jump up, and continue left.",
+		"Reqs": "@At the edge of the pit leading toward the Bilewater area. Hug the left wall (watch out for a falling rock), jump up, and continue left.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/b1da7ca8-716e-4cc9-9377-fa979c59d81c.jpg",
 		],
@@ -17132,7 +17132,7 @@
 		"x": 12.329869597002507,
 		"y": 5.177541250964367,
 		"Reqs": "@Reached via [Hidden Passage|480499].",
-		"Notes": "Temporarily creates a passage between the two sides of the room. ",
+		"Notes": "Temporarily creates a passage between the two sides of the room.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/e6579b98-95a5-4fba-a7a4-2c5dd205292e.jpg",
 		],
@@ -17142,7 +17142,7 @@
 		"Title": "Lever",
 		"x": 12.21269296807489,
 		"y": 4.532698115568124,
-		"Reqs": "Reached by following a path from the [Hidden Passage|480499] past the [Levers|480500].",
+		"Reqs": "@Reached by following a path from the [Hidden Passage|480499] past the [Levers|480500].",
 		"Notes": "Hit the spinning lever a few times to start a fan, then stand on the button next to it to create a new path.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/c32759ed-451f-4d43-a201-275ab3747661.jpg",
@@ -17240,7 +17240,7 @@
 		"Title": "Plasmium Cocoon",
 		"x": -17.2749443382788,
 		"y": -9.895955796707668,
-		"Reqs": "Act3",
+		"Reqs": "Act 3",
 	},
 	"480626": {
 		"CategoryID": 13527,
@@ -17300,7 +17300,7 @@
 		"Title": "Secret Room",
 		"x": -12.334945610927988,
 		"y": 3.1078220921163933,
-		"Reqs": "Jump up the left wall to get inside.",
+		"Reqs": "@Jump up the left wall to get inside.",
 		"Notes": "Home to two Silk Flowers.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/105bb25b-31b4-4613-b8f3-4c18b6052f85.jpg",
@@ -17397,7 +17397,7 @@
 		"Title": "Breakable Сeiling",
 		"x": 11.961154337449926,
 		"y": -13.0384521279058,
-		"Reqs": "Hit the explosive rock to clear a path",
+		"Reqs": "@Hit the explosive rock to clear a path",
 		"Notes": "Watch out for falling rocks.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/cdd090e8-a69a-4eff-9454-bcd1c32e882d.jpg",
@@ -17620,8 +17620,8 @@
 		"Title": "Levers",
 		"x": -4.117390605445735,
 		"y": 5.48415549210462,
-		"Reqs": "Reached via [Breakable Ceiling|480997]",
-		"Notes": "Create a passage between the sides of the corridor. ",
+		"Reqs": "@Reached via [Breakable Ceiling|480997]",
+		"Notes": "Create a passage between the sides of the corridor.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/c32c5e6f-81b8-49bb-aa2f-84cada54d9ee.jpg",
 		],
@@ -17652,7 +17652,7 @@
 		"Title": "Garmond and Zaza",
 		"x": -0.4301424519080257,
 		"y": 8.280342519817665,
-		"Reqs": "[GarmondAndZaraFriendlyDuel|479361]",
+		"Reqs": "[Garmond & Zaza|479361]",
 		"Needs": "~[Arena Battle|479420]",
 		"Notes": "The dynamic duo may aid you in the nearby arena battle",
 		"ImageURLs": [
@@ -18126,7 +18126,7 @@
 		"Title": "Free Quill!",
 		"x": 7.931833183903464,
 		"y": 5.014407154447142,
-		"Reqs": "![Shakra quill|477852]@If you avoid purchasing a quill from [Shakra quill|477852], a unique red one can be collected here, near [Trobbio|478690]’s boss room - though defeating him is not a requirement.",
+		"Reqs": "![Quill|477852]@If you avoid purchasing a quill from [Shakra quill|477852], a unique red one can be collected here, near [Trobbio|478690]’s boss room - though defeating him is not a requirement.",
 		"Notes": "Similarly, a unique purple quill can be found here in Act 3.\n\nThe quill you collect will determine the icon of the Map & Quill in the inventory screen.",
 	},
 	"481820": {
@@ -18248,7 +18248,7 @@
 		"Title": "Lace",
 		"x": -13.490517545087428,
 		"y": -4.580080256308264,
-		"Reqs": "![Deep Docks boss fight|476915]",
+		"Reqs": "![Lace [Deep Docks]|476915]",
 		"Notes": "Only appears here if her Deep Docks boss fight was skipped via the Wormways or Flea Caravan.",
 		"ImageURLs": [
 			"https://media.mapgenie.io/storage/media/8633badb-96d4-4677-86e1-a18d7e4e08e6.jpg",
@@ -18259,7 +18259,7 @@
 		"Title": "Lace",
 		"x": 8.32468241308365,
 		"y": -3.484225422577026,
-		"Reqs": "![Deep Docks boss fight|476915]",
+		"Reqs": "![Lace [Deep Docks]|476915]",
 		"Notes": "Only appears here if her Deep Docks boss fight was skipped via the Wormways or Flea Caravan.",
 	},
 	"482700": {
