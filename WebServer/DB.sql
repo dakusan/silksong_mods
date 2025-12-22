@@ -40,7 +40,6 @@ CREATE TABLE Items (
   Notes varchar(255) NULL,
   WhereAt varchar(1000) NULL,
   IgnPageName varchar(100) CHARACTER SET ascii COLLATE ascii_general_ci NULL,
-  Store mediumtext NULL,
 
   PRIMARY KEY (ID),
   FOREIGN KEY (CategoryID) REFERENCES Categories (ID),
@@ -98,6 +97,23 @@ CREATE TABLE ItemLinkDefs (
   UNIQUE KEY (SetID, GroupNum, OrderNum),
   FOREIGN KEY (ItemID) REFERENCES Items (ID),
   FOREIGN KEY (StaticLinkID) REFERENCES StaticLinks (ID)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS Stores;
+CREATE TABLE Stores (
+  ID int UNSIGNED NOT NULL AUTO_INCREMENT,
+  VendorItemID int UNSIGNED NOT NULL,
+  ReqsSetID int UNSIGNED NULL,
+  NeedsSetID int UNSIGNED NOT NULL,
+  RewardsSetID int UNSIGNED NOT NULL,
+  OrderNum int UNSIGNED NOT NULL,
+
+  PRIMARY KEY (ID),
+  UNIQUE KEY (VendorItemID, OrderNum),
+  FOREIGN KEY (VendorItemID) REFERENCES Items (ID),
+  FOREIGN KEY (ReqsSetID) REFERENCES ItemLinkDefs (SetID),
+  FOREIGN KEY (NeedsSetID) REFERENCES ItemLinkDefs (SetID),
+  FOREIGN KEY (RewardsSetID) REFERENCES ItemLinkDefs (SetID)
 ) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS ImageURLs;

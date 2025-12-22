@@ -56,6 +56,34 @@ function GenerateItems()
 	foreach(Query('SELECT * FROM ItemLinkDefs ORDER BY SetID ASC, GroupNum ASC, OrderNum ASC') as $Row)
 		$Links[$Row->SetID][$Row->GroupNum][$Row->OrderNum]=$Row;
 
+	//Put together the structured stores
+	$Stores=[];
+	foreach(Query('SELECT VendorItemID, ReqsSetID AS Reqs, NeedsSetID AS Needs, RewardsSetID AS Rewards FROM Stores ORDER BY VendorItemID ASC, OrderNum ASC') as $Row) {
+		$Stores[$Row->VendorItemID][]=$Row;
+		unset($Row->VendorItemID);
+	}
+	$StoreSetIDs=array_values(array_filter(
+		array_merge(...array_map(fn($S) => [$S->Reqs, $S->Needs, $S->Rewards], array_merge(...$Stores))),
+		fn($ID) => $ID!==null
+	));
+	$StoreSets=[];
+	foreach(Query('SELECT FlagAmount, FlagUnlinked, FlagNot, FlagStarted, "0" AS FlagRecommend, ItemID, StaticLinkID, Name, SetID FROM ItemLinkDefs WHERE SetID IN ('.implode(', ', $StoreSetIDs).') ORDER BY SetID ASC, OrderNum ASC') as $Row)
+		$StoreSets[$Row->SetID][]=$Row;
+	if(count($StoreSets)!=count($StoreSetIDs))
+		ErrAndDie('count($StoreSets)!=count($StoreSetIDs) ['.count($StoreSets).'!='.count($StoreSetIDs).']');
+	unset($StoreSetIDs);
+	$UnsetAndReturn=function(&$Arr, $ID) { $Val=$Arr[$ID]; unset($Arr[$ID]); return $Val; };
+	foreach($Stores as $StoreItems)
+		foreach($StoreItems as $StoreItem)
+			foreach(['Reqs', 'Needs', 'Rewards'] as $FieldName)
+				if(($SetID=$StoreItem->$FieldName)===null)
+					unset($StoreItem->$FieldName);
+				else
+					$StoreItem->$FieldName=CompileSet([$UnsetAndReturn($StoreSets, $SetID)], $StaticLinks, $FieldName);
+	if(count($StoreSets))
+		ErrAndDie('Store sets not used: '.count($StoreSets));
+	unset($StoreSets, $UnsetAndReturn);
+
 	//Get other table data to be integrated below
 	$ImageURLs=[];
 	foreach(Query('SELECT ItemID, URL FROM ImageURLs ORDER BY ItemID ASC, OrderNum ASC') as $Row)
@@ -65,7 +93,7 @@ function GenerateItems()
 	global $CompactJSON;
 	$Items=[];
 	$Required=['C'=>'CategoryID', 'T'=>'Title', 'x'=>'x', 'y'=>'y'];
-	$Optional=['I'=>'IconID', 'R'=>'!Reqs', 'A'=>'WhereAt', 'N'=>'!Needs', 'W'=>'!Rewards', 'E'=>'Effect', 'P'=>'Tip', 'O'=>'Notes', 'IGN'=>'IgnPageName', 'S'=>'Store', 'U'=>'!ImageURLs'];
+	$Optional=['I'=>'IconID', 'R'=>'!Reqs', 'A'=>'WhereAt', 'N'=>'!Needs', 'W'=>'!Rewards', 'E'=>'Effect', 'P'=>'Tip', 'O'=>'Notes', 'IGN'=>'IgnPageName', 'S'=>'!Store', 'U'=>'!ImageURLs'];
 	$Combined=[...array_flip($Required), ...array_flip(array_map(fn($Str) => substr($Str, $Str[0]==='!' ? 1 : 0), $Optional))];
 	foreach(Query('SELECT * FROM Items ORDER BY ID ASC') as $Row) {
 		//Create item, only adding required and non-null optional members
@@ -101,8 +129,10 @@ function GenerateItems()
 		$NewItem->y=GetDouble($NewItem->y);
 		if(isset($NewItem->IconID))
 			$NewItem->IconID=(int)$NewItem->IconID;
-		if(isset($NewItem->Store))
-			$NewItem->Store=($NewItem->Store[0]==='!' ? json_decode(substr($NewItem->Store, 1)) : [$NewItem->Store]);
+		if(isset($Stores[$Row->ID]))
+			$NewItem->Store=$Stores[$Row->ID];
+		else
+			unset($NewItem->Store);
 		if(isset($ImageURLs[$Row->ID]))
 			$NewItem->ImageURLs=$ImageURLs[$Row->ID];
 		else
