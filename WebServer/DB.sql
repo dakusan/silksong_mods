@@ -1,3 +1,6 @@
+SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci';
+SET FOREIGN_KEY_CHECKS=0;
+
 DROP TABLE IF EXISTS SilkSongItems;
 CREATE TABLE SilkSongItems (
   ID int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -5,7 +8,8 @@ CREATE TABLE SilkSongItems (
   ItemName varchar(100) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
   Username varchar(50) NOT NULL,
   CreatedAt TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-  PRIMARY KEY(ID),
+
+  PRIMARY KEY (ID),
   KEY (ItemID),
   KEY (ItemName),
   KEY (Username)
@@ -18,7 +22,7 @@ CREATE TABLE Categories (
   OrderNum tinyint UNSIGNED NOT NULL,
   IconID tinyint UNSIGNED NOT NULL,
   Title varchar(50) NOT NULL,
-  Info varchar(255) NULL,
+
   PRIMARY KEY (ID),
   UNIQUE KEY (CategoryGroup, OrderNum),
   KEY (Title)
@@ -28,17 +32,17 @@ DROP TABLE IF EXISTS Items;
 CREATE TABLE Items (
   ID int UNSIGNED NOT NULL AUTO_INCREMENT,
   CategoryID int UNSIGNED NOT NULL,
-  Title varchar(100) NOT NULL,
   x double NOT NULL,
   y double NOT NULL,
   IconID tinyint UNSIGNED NULL,
   ReqsSetID int UNSIGNED NULL,
   NeedsSetID int UNSIGNED NULL,
   RewardsSetID int UNSIGNED NULL,
+  Title varchar(100) NOT NULL,
+  WhereAt varchar(255) NULL,
+  Notes varchar(550) NULL,
   Effect varchar(255) NULL,
   Tip varchar(255) NULL,
-  Notes varchar(255) NULL,
-  WhereAt varchar(1000) NULL,
   IgnPageName varchar(100) CHARACTER SET ascii COLLATE ascii_general_ci NULL,
 
   PRIMARY KEY (ID),
@@ -54,6 +58,7 @@ CREATE TABLE StaticLinks (
   ID int UNSIGNED NOT NULL AUTO_INCREMENT,
   Name varchar(100) NOT NULL,
   Special bool NOT NULL DEFAULT false,
+
   PRIMARY KEY (ID),
   KEY (Name)
 ) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -87,7 +92,7 @@ CREATE TABLE ItemLinkDefs (
   #These are mutually excluive
   ItemID int UNSIGNED NULL,
   StaticLinkID int UNSIGNED NULL,
-  Name varchar(100) NULL,
+  Name varchar(125) NULL,
 
   SetID int UNSIGNED NOT NULL,
   GroupNum tinyint UNSIGNED NOT NULL DEFAULT 0,
@@ -121,9 +126,11 @@ CREATE TABLE ImageURLs (
   ID int UNSIGNED NOT NULL AUTO_INCREMENT,
   ItemID int UNSIGNED NOT NULL,
   OrderNum tinyint UNSIGNED NOT NULL,
-  URL varchar(255) CHARACTER SET ascii COLLATE ascii_general_ci,
+  URL varchar(255) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
 
   PRIMARY KEY (ID),
   UNIQUE KEY (ItemID, OrderNum),
   FOREIGN KEY (ItemID) REFERENCES Items (ID)
 ) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+SET FOREIGN_KEY_CHECKS=1;

@@ -29,15 +29,13 @@ function GenerateCategories()
 	$CatGroups=array_fill_keys(explode("','", $Matches[1]), []);
 
 	//Fill in the categories
-	$CatOrder=['Order', 'IconID', 'Title', 'Info'];
-	foreach(Query('SELECT ID, CategoryGroup, OrderNum, IconID, Title, Info FROM Categories ORDER BY ID ASC') as $Row) {
+	$CatOrder=['Order', 'IconID', 'Title'];
+	foreach(Query('SELECT ID, CategoryGroup, OrderNum, IconID, Title FROM Categories ORDER BY ID ASC') as $Row) {
 		$NewItem=(object)[
 			'Order'=>(int)$Row->OrderNum,
 			'IconID'=>(int)$Row->IconID,
 			'Title'=>$Row->Title,
 		];
-		if($Row->Info!==null)
-			$NewItem->Info=$Row->Info;
 		$CatGroups[$Row->CategoryGroup][$Row->ID]=$NewItem;
 	}
 
@@ -67,19 +65,26 @@ function GenerateItems()
 		fn($ID) => $ID!==null
 	));
 	$StoreSets=[];
-	foreach(Query('SELECT FlagAmount, FlagUnlinked, FlagNot, FlagStarted, "0" AS FlagRecommend, ItemID, StaticLinkID, Name, SetID FROM ItemLinkDefs WHERE SetID IN ('.implode(', ', $StoreSetIDs).') ORDER BY SetID ASC, OrderNum ASC') as $Row)
+	foreach(Query('SELECT FlagAmount, FlagUnlinked, FlagNot, FlagStarted, "0" AS FlagRecommend, ItemID, StaticLinkID, Name, SetID, GroupNum FROM ItemLinkDefs WHERE SetID IN ('.implode(', ', $StoreSetIDs).') ORDER BY SetID ASC, GroupNum ASC, OrderNum ASC') as $Row)
 		$StoreSets[$Row->SetID][]=$Row;
 	if(count($StoreSets)!=count($StoreSetIDs))
 		ErrAndDie('count($StoreSets)!=count($StoreSetIDs) ['.count($StoreSets).'!='.count($StoreSetIDs).']');
 	unset($StoreSetIDs);
 	$UnsetAndReturn=function(&$Arr, $ID) { $Val=$Arr[$ID]; unset($Arr[$ID]); return $Val; };
-	foreach($Stores as $StoreItems)
+	foreach($Stores as $VendorID => $StoreItems)
 		foreach($StoreItems as $StoreItem)
 			foreach(['Reqs', 'Needs', 'Rewards'] as $FieldName)
 				if(($SetID=$StoreItem->$FieldName)===null)
 					unset($StoreItem->$FieldName);
 				else
-					$StoreItem->$FieldName=CompileSet([$UnsetAndReturn($StoreSets, $SetID)], $StaticLinks, $FieldName);
+					try {
+						$Set=[$UnsetAndReturn($StoreSets, $SetID)];
+						if(end($Set[0])->GroupNum==255)
+							$Set[255]=[array_pop($Set[0])];
+						$StoreItem->$FieldName=CompileSet($Set, $StaticLinks, $FieldName);
+					} catch(Exception $e) {
+						ErrAndDie("Error compiling set #$SetID. Store#$VendorID.$FieldName ".$e->getMessage());
+					}
 	if(count($StoreSets))
 		ErrAndDie('Store sets not used: '.count($StoreSets));
 	unset($StoreSets, $UnsetAndReturn);
@@ -109,17 +114,13 @@ function GenerateItems()
 
 		//Gather structured requirements, notes, and reward
 		foreach(['Reqs', 'Needs', 'Rewards'] as $FieldName) {
-			$NewVal='';
-			if(isset($RowArr[$FieldName.'SetID']))
+			if(($SetID=$RowArr[$FieldName.'SetID'] ?? null)!==null)
 				try {
-					$NewVal.=CompileSet($Links[$RowArr[$FieldName.'SetID']], $StaticLinks, $FieldName);
+					$NewItem->$FieldName=CompileSet($Links[$SetID], $StaticLinks, $FieldName);
 				} catch(Exception $e) {
-					ErrAndDie("Error compiling set #{$RowArr[$FieldName.'SetID']}. $Row->ID.$FieldName ".$e->getMessage());
+					ErrAndDie("Error compiling set #$SetID. $Row->ID.$FieldName ".$e->getMessage());
 				}
-
-			if($NewVal!=='')
-				$NewItem->$FieldName=$NewVal;
-			else
+			if($NewItem->$FieldName===null)
 				unset($NewItem->$FieldName);
 		}
 
@@ -192,7 +193,9 @@ function CompileSet($Set, $StaticLinks, $FieldName)
 				$ItemVals[]=$Item->ItemID.'';
 			if($Item->Name!==null) {
 				$ItemVals[]=$Item->Name;
-				if($GroupIndex==255)
+				if(trim($Item->Name)==='')
+					throw new Exception('name cannot be blank');
+				else if($GroupIndex==255)
 					if($ExtraEnd!='')
 						throw new Exception('cannot have multiple extra strings');
 					else if(count($ItemFlags))
@@ -201,9 +204,11 @@ function CompileSet($Set, $StaticLinks, $FieldName)
 						$ExtraEnd='^'.$Item->Name;
 				else if(!$Item->FlagUnlinked)
 					throw new Exception('name can only be used with unlinked flag or GroupID=255');
+				else if(strpbrk($Item->Name, '`|^')!==false)
+					throw new Exception('name cannot use characters: ` | ^');
 			}
 			if(count($ItemVals)!==1)
-				throw new Exception('static links, items, and names are mutually exclusive and one must be set');
+				throw new Exception('static links, items, and names are mutually exclusive and exactly one must be set');
 
 			//If the extra text field then nothing to do
 			if($GroupIndex==255)
@@ -217,14 +222,13 @@ function CompileSet($Set, $StaticLinks, $FieldName)
 				$ItemFlagChar=ord($ItemFlags[-1] ?? chr(0));
 				$ItemValChar=ord($ItemVals[0]);
 				$ExtraChar=
-					(    $ItemFlagChar>=ord('0') && $ItemFlagChar<=ord('9')
-					  && $ItemValChar >=ord('0') && $ItemValChar <=ord('9')
-					) || ($Item->Name!==null && strpbrk($Item->Name[0], "*~!?^")!==false)
+					   $ItemFlagChar>=ord('0') && $ItemFlagChar<=ord('9')
+					&& $ItemValChar >=ord('0') && $ItemValChar <=ord('9')
 					? '^' : '';
 				$Items[]=$ItemFlags.$ExtraChar.$ItemVals[0];
 		}
 		if($GroupIndex!=255)
-			$Groups[$GroupIndex]=implode('+', $Items);
+			$Groups[$GroupIndex]=implode('`', $Items);
 	}
 
 	if(count($Groups)>1 &&  in_array($FieldName, ['Needs', 'Rewards']))
