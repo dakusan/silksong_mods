@@ -1,5 +1,6 @@
 using SilkDev;
 using SilkDev.Textures;
+using SilkDev.Windows;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -73,7 +74,7 @@ public partial class SideBar
 			List<string> Lines=[
 				MakeItemInfoLine("Title", SelectedItem.Title),
 				MakeItemInfoLine("Category", MapControl.Self.DS.Categories[SelectedItem.CategoryID].Title),
-				SelectedItem.Description==null ? Misc.Empty : MakeItemInfoLine("Description", SelectedItem.Description),
+				SelectedItem.Description,
 				SelectedItem.IgnPageName==null ? Misc.Empty : MakeItemInfoLine("IGN Page", "https://www.ign.com/wikis/hollow-knight-silksong/"+SelectedItem.IgnPageName),
 			];
 			if(Config.C.ShowSideBarPictures)
@@ -86,7 +87,7 @@ public partial class SideBar
 				});
 
 			//Render text, images, and a horizontal border line
-			GUILayout.Label(string.Join(Misc.NewLine, Lines.Where(static I => I!=Misc.Empty)), ItemInfoBoxStyle);
+			GUILayout.Label(Item.StripLinkIDTags(string.Join(Misc.NewLine, Lines.Where(static I => I!=Misc.Empty))), ItemInfoBoxStyle);
 			Images.ForEach(Tex => {
 				float WidthRatio=ClientWidth/Tex.width;
 				GUI.DrawTexture(GUILayoutUtility.GetRect(Tex.width*WidthRatio, Tex.height*WidthRatio), Tex);
@@ -97,6 +98,10 @@ public partial class SideBar
 		//Return the image to render or a text string explaining its state
 		private (string?, Texture2D?) RenderImage(string ImageURL)
 		{
+			//If URL starts with an exclamation mark then prepend the const URL path
+			if(ImageURL.Length>0 && ImageURL[0]=='!')
+				ImageURL="https://media.mapgenie.io/storage/media/"+ImageURL[1..];
+
 			//See if the picture is already loaded
 			string ImageFileName=FileOps.GetFileName(ImageURL);
 			if(LoadedImages.TryGetValue(ImageFileName, out Texture2D? Image))

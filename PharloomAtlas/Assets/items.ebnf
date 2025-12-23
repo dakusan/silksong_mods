@@ -23,7 +23,7 @@
 ;;				- Can contain any character except: “^” or “|” or “`”
 ;;		- Items can be preceeded by one or more flags in any order
 ;;			- Amount: An asterisk “*” followed by a number. This specifies how many of an item is needed.
-;;				- If an amount is directly followed by a numeric ID without any flags after, a caret “^” is added to separate the numeric digits.
+;;				- If an amount is directly followed by a numeric ID without any flags after, another asterisk “*” is added to separate the numeric digits.
 ;;			- Recommended: An at sign “@” specifying the item is only recommended, not required
 ;;			- Not: An exclamation mark “!” specifyiung the requirement fails if the item is true.
 ;;			- Started: A tilde “~” specifying the item only needs to be started, not completed.
@@ -98,8 +98,8 @@
 <ReqItem>		::=	<Flags>* <ReqName>
 ;;															Flags: List of flags
 <Flags>			::=	<FlagAmount> | <FlagNot> | <FlagStarted> | <FlagRecommend>
-;;															FlagAmount: Number of the items required. Caret is required if following RegName is a <StaticID> or <LinkID>
-<FlagAmount>	::=	"*" <UInt> { "^" }?
+;;															FlagAmount: Number of the items required. Extra asterisk is required if following RegName is a <StaticID> or <LinkID>
+<FlagAmount>	::=	"*" <UInt> { "*" }?
 ;;															FlagNot: Requirement must not be met
 <FlagNot>		::=	"!"
 ;;															FlagStarted: Must be started (but not complete)

@@ -1,4 +1,7 @@
+using SilkDev;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using Misc=SilkDev.Misc;
 
@@ -34,7 +37,6 @@ public class Category
 	public int TotalCount	{ get; internal set; }
 	public int CurrentCount { get; internal set; } = 0;
 	public string Title=Misc.Empty;
-	public string? Info;
 	public Sprite Sprite	{ get; internal set; } = null!;
 	public CategoryToggleState ToggleState=CategoryToggleState.Unknown;
 //		internal Category() {} //Not yet ready for other people to make these. Would need some work.
@@ -48,12 +50,166 @@ public class Item
 	public Sprite Sprite	{ get; internal set; } = null!;
 	public int IconID=-1;
 	public string Title=Misc.Empty;
-	public string? Description;
+	public RenderedField? WhereAt, Notes, Effect, Tip;
+	public ChainList? Reqs, Needs, Rewards;
+	public string? IgnPageName;
 	public float x, y;
 	public string[]? ImageURLs;
-	public string? IgnPageName;
+	public StoreItems? Store;
 	public Vector2 Pos => new(x, y);
 //		internal Item() {} //Not yet ready for other people to make these. Would need some work.
+
+	//Render the description
+	public string Description => ToString();
+	public override string ToString() =>
+		string.Join(Misc.NewLine, (new string?[] {
+			WhereAt	?.Render("Where"		),
+			Notes	?.Render("Notes"		),
+			Effect	?.Render("Effect"		),
+			Tip		?.Render("Tip"			),
+			Reqs	?.Render("Requirements"	),
+			Needs	?.Render("Needs"		),
+			Rewards	?.Render("Rewards"		),
+			Store	?.Render("Store"		),
+		}).Where(static V => V!=null));
+
+	//Get the title from the item ID (cannot be ran until after all Items are loaded, which is why below objects have delayed string rendering)
+	private static string GetItemTitleFromID(string ID) =>
+		  !int.TryParse(ID, out int i) ? ID
+		: i<1000 ? (MapControl.Self?.DS.StaticLinks.Get(i)?.Name ?? ID)
+		: (MapControl.Self?.DS.Items.Get(i)?.Title ?? ID);
+
+	//A full chain list for a single field
+	public class ChainList
+	{
+		public readonly string StartString;
+		public string RenderedString => field ??= FinishInternalRender();
+		public readonly RenderedField? ExtraStr;
+		public readonly ChainItem[][]? Items;
+		internal ChainList(string ItemList)
+		{
+			StartString=ItemList;
+
+			//Get and remove the extra string part
+			int ExtraStrPos=ItemList.IndexOf('^');
+			if(ExtraStrPos!=-1) {
+				ExtraStr=new RenderedField(ItemList[(ExtraStrPos+1)..]);
+				ItemList=ItemList[0..ExtraStrPos];
+			}
+
+			//Parse the list
+			if(ItemList!=Misc.Empty)
+				Items=[..ItemList.Split('|').Select(static (OrStr, GroupIndex) =>
+					OrStr.Split('`').Select((ItemStr, ItemIndex) =>
+						new ChainItem(ItemStr, GroupIndex, ItemIndex)
+					).ToArray()
+				)];
+		}
+		private string FinishInternalRender()
+		{
+			//If no list, just use the extra string
+			if(Items==null)
+				return ExtraStr?.ToString() ?? Misc.Empty;
+
+			//Reformat the list
+			string Ret=string.Join(" <b><color=purple>OR</color></b> ", Items.Select(ItemList =>
+				string.Join(", ", ItemList.Select(I => I.RenderedString))
+			));
+
+			//Combine the list and the extra string
+			return
+				  ExtraStr==null ? Ret
+				: $"{Ret}; {ExtraStr}";
+		}
+
+		public string Render(string FieldTitle) => $"<b>{Misc.SanitizeRichString(FieldTitle)}</b>: "+RenderedString;
+	}
+
+	//A single item in a ChainList
+	public class ChainItem
+	{
+		public readonly string StartString;
+		public string RenderedString => field ??= FinishInternalRender();
+		public readonly bool FlagNot=false, FlagStarted=false, FlagRecommend=false, FlagUnlinked=false;
+		public readonly int FlagAmount=1, GroupID, GroupIndex;
+		public string Name { get; internal set; } //Not set until after FinishInternalRender()
+		public int LinkID { get; internal set; } = -1; //Not set until after FinishInternalRender()
+		internal ChainItem(string Item, int GroupID, int GroupIndex)
+		{
+			(this.GroupID, this.GroupIndex, StartString)=(GroupID, GroupIndex, Item);
+
+			//Find flags
+			bool LoopDone=false;
+			int CharIndex;
+			for(CharIndex=0; CharIndex<Item.Length && !LoopDone; CharIndex++)
+				switch(Item[CharIndex]) {
+					case '!': FlagNot				=true; break;
+					case '~': FlagStarted			=true; break;
+					case '@': FlagRecommend			=true; break;
+					case '?': FlagUnlinked= LoopDone=true; break;
+					default : CharIndex--;  LoopDone=true; break;
+					case '*':
+						FlagAmount=0;
+						while(Item[++CharIndex] is >='0' and <='9')
+							FlagAmount=FlagAmount*10+(Item[CharIndex]-'0');
+						if(Item[CharIndex]=='*')
+							LoopDone=true;
+						else
+							CharIndex--;
+						break;
+				}
+			Name=Item[CharIndex..]; //Temporarily use name until final render happens
+		}
+		private string FinishInternalRender()
+		{
+			//Add flags back
+			List<string> Parts=[];
+			if(FlagNot		) Parts.Add("<i>NOT</i> "			);
+			if(FlagStarted	) Parts.Add("<i>STARTED</i> "		);
+			if(FlagRecommend) Parts.Add("<i>RECOMMENDED</i> "	);
+			if(FlagAmount!=1) Parts.Add($"{FlagAmount}*"		);
+
+			//Render as a linked item if item is found
+			string ItemValue=Name, NewItemValue;
+			if(!FlagUnlinked && (NewItemValue=GetItemTitleFromID(ItemValue))!=ItemValue)
+			{
+				Name=NewItemValue;
+				LinkID=int.Parse(ItemValue);
+				return $"<LinkID><ATTR=LinkID>{GroupID}.{GroupIndex}.{ItemValue}</ATTR><u>"+string.Join(Misc.Empty, [.. Parts, NewItemValue])+"</u></LinkID>";
+			}
+
+			//If unlinked or linking failed do do not make it a real link
+			Name=ItemValue;
+			return "<u>"+string.Join(Misc.Empty, [.. Parts, ItemValue])+"</u>";
+		}
+	}
+
+	//A string with item links inside square brackets rendered as actual links
+	public class RenderedField
+	{
+		//Turn item links in a string into actual links
+		private static readonly Regex GetLinks=new(@"\[(\d+)(~[^^|`\]]+)?]");
+
+		public readonly string StartString;
+		public string RenderedString => field ??= FinishInternalRender();
+		internal RenderedField(string FieldValue) => StartString=FieldValue;
+		private string FinishInternalRender()
+		{
+			int ReplaceIndex=0;
+			return
+				GetLinks.Replace(
+					StartString,
+					Match => {
+						string ID=Match.Groups[1].Value;
+						string Text=Match.Groups[2].Value;
+						Text=!string.IsNullOrEmpty(Text) ? Text[1..] : GetItemTitleFromID(ID);
+						return $"<LinkID><ATTR=LinkID>{ReplaceIndex++}.{ID}</ATTR><u>{Text}</u></LinkID>";
+					}
+				);
+		}
+		public override string ToString() => RenderedString;
+		public string Render(string FieldTitle) => $"<b>{Misc.SanitizeRichString(FieldTitle)}</b>: "+RenderedString;
+	}
 
 	public CategoryToggleState CurrentToggleState
 	{
@@ -103,4 +259,97 @@ public class Item
 	public bool Visible =>
 		   CurrentToggleState==CategoryToggleState.All
 		|| (CurrentToggleState==CategoryToggleState.Incomplete && !IsFound);
+
+	//JSON type conversion
+	internal class CreateItem : Item
+	{
+		public new string? WhereAt	{ set => Misc.IFF(value!=null, () => base.WhereAt	=new RenderedField	(value!)); }
+		public new string? Notes	{ set => Misc.IFF(value!=null, () => base.Notes		=new RenderedField	(value!)); }
+		public new string? Effect	{ set => Misc.IFF(value!=null, () => base.Effect	=new RenderedField	(value!)); }
+		public new string? Tip		{ set => Misc.IFF(value!=null, () => base.Tip		=new RenderedField	(value!)); }
+		public new string? Reqs		{ set => Misc.IFF(value!=null, () => base.Reqs		=new ChainList		(value!)); }
+		public new string? Needs	{ set => Misc.IFF(value!=null, () => base.Needs		=new ChainList		(value!)); }
+		public new string? Rewards	{ set => Misc.IFF(value!=null, () => base.Rewards	=new ChainList		(value!)); }
+
+		//Store needs to be created separately since it is nested
+		private new CreateStoreItems[]? Store=null;
+		private class CreateStoreItems { public string? Reqs; public string Needs=null!, Rewards=null!; }
+		internal Item GetItem()
+		{
+			//If store is not set, nothing to do but return self
+			if(Store==null)
+				return this;
+
+			//Fill in the store
+			StoreItem[] Items=new StoreItem[Store.Length];
+			foreach((int Index, CreateStoreItems Item) in Store.Entries())
+				Items[Index]=new StoreItem(
+					  Item.Reqs==null ? null
+					: new ChainList(Item.Reqs	),
+					  new ChainList(Item.Needs	),
+					  new ChainList(Item.Rewards)
+				);
+			base.Store=new StoreItems(Items);
+			return this;
+		}
+	}
+
+	//Store structures
+	public class StoreItem(ChainList? Reqs, ChainList Needs, ChainList Rewards) {
+		public readonly ChainList? Reqs=Reqs;
+		public readonly ChainList Needs=Needs, Rewards=Rewards;
+	}
+	public class StoreItems(StoreItem[] Items)
+	{
+		public string RenderedString => field ??= FinishInternalRender();
+		public StoreItem[] Items=Items;
+		private string FinishInternalRender() =>
+			string.Join(Misc.Empty, Items.Select(I =>
+				"\n- "+I.Rewards.RenderedString+" for "+I.Needs.RenderedString+
+				(I.Reqs!=null ? $" (Required: {I.Reqs.RenderedString})" : Misc.Empty)
+			));
+		public string Render(string FieldTitle) => $"<b>{Misc.SanitizeRichString(FieldTitle)}</b>: "+RenderedString;
+	}
+
+	//TODO: Temporarily remove links until ClickableLabel class is ready
+	private static readonly Regex RemoveAttrs=new(@"<ATTR\s*=([^>\n]+)>(.*?)</ATTR>", RegexOptions.IgnoreCase);
+	private static readonly Regex ReplaceLinkIDs=new(@"<LinkID>(.*?)</LinkID>", RegexOptions.IgnoreCase);
+	public static string StripLinkIDTags(string Str) =>
+		ReplaceLinkIDs.Replace(RemoveAttrs.Replace(Str, Misc.Empty), @"<color=blue>$1</color>");
+}
+
+public class StaticLink(string Name, int CategoryID, int[]? ItemIDs)
+{
+	public string Name=Name;
+	public int CategoryID=CategoryID;
+	public int[]? ItemIDs=ItemIDs;
+
+	//JSON type conversion
+	internal class CreateStaticLinks
+	{
+		public Dictionary<string, List<object>> StaticLinks=[];
+		public Dictionary<int, StaticLink> Process()
+		{
+			Dictionary<int, StaticLink> Out=[];
+			foreach((string ID, List<object> L) in StaticLinks)
+				try {
+					//Unlinked
+					if(L.Count==1) {
+						Out[int.Parse(ID)]=new StaticLink((string)L[0], -1, null);
+						continue;
+					}
+
+					//Category or item lists
+					bool IsCategory=(L.Count==2 && (int)(long)L[1]<1000);
+					Out[int.Parse(ID)]=new StaticLink(
+						(string)L[0],
+						IsCategory ? (int)(long)L[1] : -1,
+						IsCategory ? null : [..L.Skip(1).Select(I => (int)(long)I)]
+					);
+				} catch(System.Exception e) {
+					Log.Error($"Error parsing Static Link {ID}: {e.Message}", L, L[1].GetType().Name);
+				}
+			return Out;
+		}
+	}
 }

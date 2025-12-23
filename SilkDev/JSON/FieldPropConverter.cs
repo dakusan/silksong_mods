@@ -27,7 +27,7 @@ public class FieldPropConverter<MyClass> : JsonConverter<MyClass> where MyClass 
 				ValueType.String		=> Val?.ToObject<string>()	?? Misc.Empty,
 				ValueType.Float			=> Val?.ToObject<float>()	?? 0f,
 				ValueType.StringArray	=> Val?.ToObject<string[]>()?? null,
-				_						=> null,
+				_						=> Val?.ToObject(T)
 			};
 	}
 	private class FieldAccessor(FieldInfo FI) : Accessor(FI.FieldType)
@@ -44,7 +44,7 @@ public class FieldPropConverter<MyClass> : JsonConverter<MyClass> where MyClass 
 	//Store the valid accessors by name
 	private readonly Dictionary<string, Accessor> Accessors=[];
 	private void AddAccessor(string Name, Accessor A) => Misc.IFF(
-		A.MyValueType!=ValueType.Unknown && !Name.Contains("k__BackingField"),
+		!Accessors.ContainsKey(Name) && !Name.Contains("k__BackingField"),
 		() => Accessors[Name]=A
 	);
 	private readonly bool OutputNulls;
@@ -53,10 +53,13 @@ public class FieldPropConverter<MyClass> : JsonConverter<MyClass> where MyClass 
 	public FieldPropConverter(bool OutputNulls=true)
 	{
 		this.OutputNulls=OutputNulls;
-		foreach(FieldInfo FI in typeof(MyClass).GetFields(bindingAttr: BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public))
-			AddAccessor(FI.Name, new FieldAccessor(FI));
-		foreach(PropertyInfo PI in typeof(MyClass).GetProperties(bindingAttr: BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public))
-			AddAccessor(PI.Name, new PropertyAccessor(PI));
+		BindingFlags BF=BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public|BindingFlags.DeclaredOnly;
+		for(Type CurrentType=typeof(MyClass); CurrentType!=null && CurrentType!=typeof(object); CurrentType=CurrentType.BaseType) {
+			foreach(FieldInfo FI in CurrentType.GetFields(bindingAttr:BF))
+				AddAccessor(FI.Name, new FieldAccessor(FI));
+			foreach(PropertyInfo PI in CurrentType.GetProperties(bindingAttr:BF))
+				AddAccessor(PI.Name, new PropertyAccessor(PI));
+		}
 	}
 
 	//For any value that has an accessor, set it

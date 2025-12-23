@@ -134,7 +134,7 @@ public class SearchWindow : SilkDev.Windows.Window
 			MakeItemInfoLine("Title", I.Title, EscapedTerms),
 			MakeItemInfoLine("Category", Cats[I.CategoryID].Title, EscapedTerms),
 			I.IgnPageName==null ? Misc.Empty : MakeItemInfoLine("IGN Page", "https://www.ign.com/wikis/hollow-knight-silksong/"+I.IgnPageName, EscapedTerms),
-			I.Description==null ? Misc.Empty : MakeItemInfoLine("Description", I.Description, EscapedTerms),
+			I.Description==null ? Misc.Empty : MakeItemInfoLine("Description", Item.StripLinkIDTags(I.Description), EscapedTerms),
 		}.Where(static S => S!=Misc.Empty)
 		)))];
 	}
@@ -142,7 +142,6 @@ public class SearchWindow : SilkDev.Windows.Window
 	//Create a string with sized down title and Info with highlighted search terms
 	private static string MakeItemInfoLine(string Title, string Info, string[] EscapedTerms)
 	{
-		Info=Misc.SanitizeRichString(Info);
 		foreach(string Term in EscapedTerms)
 			Info=Regex.Replace(Info, Term, (char)1+"$1"+(char)2, RegexOptions.IgnoreCase);
 		Info=Info.Replace((char)1+Misc.Empty, $"<color={TextHighlightColor}>").Replace((char)2+Misc.Empty, "</color>");

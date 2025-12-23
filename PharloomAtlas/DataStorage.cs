@@ -12,6 +12,7 @@ public class DataStorage
 	public readonly CategoryGroup[] CategoryGroups;
 	public readonly Dictionary<int, Category> Categories=[];
 	public readonly Dictionary<int, Item> Items;
+	public readonly Dictionary<int, StaticLink> StaticLinks=[];
 	public readonly Texture2D IconPicsTex;
 	internal const int IconLenX=10, IconLenY=8, IconWidth=65, IconHeight=65, IconPadding=1;
 
@@ -86,11 +87,19 @@ public class DataStorage
 			}
 		}
 
+		//Load the static links
+		try {
+			StaticLinks.AddRange(LoadJSON<StaticLink.CreateStaticLinks, string>("Misc.json")?.Process() ?? throw new Exception("Misc is null"));
+		} catch(Exception e) {
+			throw new Exception($"Could not load static links, failing out: {e.Message}");
+		}
+
 		//Load the items
 		try {
-			Items=LoadJSON<Dictionary<int, Item>, Item>("items.json") ?? throw new Exception("Items is null");
+			Items=(LoadJSON<Dictionary<int, Item.CreateItem>, Item.CreateItem>("items.json") ?? throw new Exception("Items is null"))
+				.ToDictionary(Pair => Pair.Key, Pair => Pair.Value.GetItem());
 		} catch(Exception e) {
-			throw new Exception($"Could not load items, failing out: {e.Message}");
+			throw new Exception($"Could not load items, failing out: "+FileOps.Ser(e)); //The exceptions in this can get pretty deep, so just output the entire exception chain
 		}
 		var MatchedIcons=MonitorSaveValues.Self.GetMatchedIcons;
 		foreach((int ItemID, Item ItemData) in Items) {

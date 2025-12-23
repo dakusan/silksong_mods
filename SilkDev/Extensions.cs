@@ -69,6 +69,11 @@ public static class Extensions
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static TValue? Get<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> Dict, TKey Key) =>
 		Dict.GetValueOrDefault(Key);
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void AddRange<TKey, TValue>(this Dictionary<TKey, TValue> ToDict, IReadOnlyDictionary<TKey, TValue> FromDict) {
+		foreach((TKey Key, TValue Value) in FromDict)
+			ToDict[Key]=Value;
+	}
 
 	//Unity stuff
 	//If calling a unity-nulled UnityEngine.Object with a null conditional operator, it still throws a null exception. This fixes it.
