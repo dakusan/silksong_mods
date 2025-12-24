@@ -218,19 +218,26 @@ public class ClickableLabel
 			).Split(SplitChar)
 		];
 
-		//Pop off the last part since we don’t need it after the last link
-		StringParts.RemoveAt(StringParts.Count-1);
-		if(LiveLinks.Count!=StringParts.Count)
-			throw new Exception($"Impossible error happened: {LiveLinks.Count}!={StringParts.Count}");
+		//Confirm the splits look good
+		if(LiveLinks.Count!=StringParts.Count-1)
+			throw new Exception($"Impossible error happened: {LiveLinks.Count}!={StringParts.Count-1}");
 
-		//Process each link
+		//Make a full render string with redetermined link placement for quick string rendering
 		StringBuilder SB=new("<color=#00000000>");
+		var CreateStrings=new (Link L, int StartPos, int EndPos)[LiveLinks.Count];
 		foreach((int Index, string StrPart) in StringParts.Entries()) {
 			_=SB.Append(StrPart);
+			if(Index>=LiveLinks.Count)
+				break;
 			Link L=LiveLinks[Index];
-			L.Boxes=GSR.Exec($"{SB}<color=black>{L.Text}</color>", Index, Style);
+			CreateStrings[Index]=(L, SB.Length, SB.Length+L.Text.Length);
 			_=SB.Append(L.Text);
 		}
+		string FinalStr=SB.ToString();
+
+		//Create the separate strings with colored text to measure boxes
+		foreach((Link L, int StartPos, int EndPos) in CreateStrings)
+			L.Boxes=GSR.Exec(FinalStr[..StartPos]+$"<color=black>{L.Text}</color>"+FinalStr[EndPos..], Style);
 
 		Log.Info($"Time to extract ClickLabel Rects: {(DateTime.Now-StartTime).TotalSeconds:F3} seconds");
 	}
@@ -255,7 +262,7 @@ public class ClickableLabel
 		}
 
 		//The StrText needs to ONLY show the text of the rectangle we are measuring. The alpha channel is used to determine the rectangles
-		public Rect[] Exec(string RenderStr, int Index, GUIStyle Style)
+		public Rect[] Exec(string RenderStr, GUIStyle Style)
 		{
 			//Draw to RT
 			GL.Clear(true, true, Color.clear);
