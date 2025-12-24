@@ -1,5 +1,6 @@
 using SilkDev;
 using SilkDev.JSON;
+using SilkDev.Windows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -97,7 +98,7 @@ public class DataStorage
 		//Load the items
 		try {
 			Items=(LoadJSON<Dictionary<int, Item.CreateItem>, Item.CreateItem>("items.json") ?? throw new Exception("Items is null"))
-				.ToDictionary(Pair => Pair.Key, Pair => Pair.Value.GetItem());
+				.ToDictionary(static Pair => Pair.Key, static Pair => Pair.Value.GetItem());
 		} catch(Exception e) {
 			throw new Exception($"Could not load items, failing out: "+FileOps.Ser(e)); //The exceptions in this can get pretty deep, so just output the entire exception chain
 		}
@@ -228,4 +229,19 @@ public class DataStorage
 		foreach(Item Item in Items.Values)
 			Item.CurrentToggleState=Categories[Item.CategoryID].ToggleState;
 	}
+
+	public void LinkSelected(int ID)
+	{
+		if(ID<1000)
+			if(StaticLinks.TryGetValue(ID, out StaticLink SL))
+				SL.Selected();
+			else
+				_=new PopupMessage("Invalid static link ID");
+		else if(Items.TryGetValue(ID, out Item I))
+			I.Selected();
+		else
+			_=new PopupMessage("Invalid Item ID");
+	}
+	public void LinkSelected(string StrID) =>
+		Misc.IFF(int.TryParse(StrID, out int ID), () => LinkSelected(ID));
 }

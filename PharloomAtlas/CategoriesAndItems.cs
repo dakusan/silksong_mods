@@ -279,7 +279,7 @@ public class Item
 
 		//Store needs to be created separately since it is nested
 		private new readonly CreateStoreItems[]? Store=null; //Set via JSON
-		private class CreateStoreItems { public string? Reqs; public string Needs=null!, Rewards=null!; }
+		private class CreateStoreItems { public string? Reqs=null; public string Needs=null!, Rewards=null!; }
 		internal Item GetItem()
 		{
 			//If store is not set, nothing to do but return self
@@ -328,6 +328,9 @@ public class Item
 	private static readonly Regex RemoveAttrs=new(@"<ATTR\s*=([^>\n]+)>(.*?)</ATTR>", RegexOptions.IgnoreCase);
 	public static string StripLinkIDTags(string Str) =>
 		ReplaceLinkIDs.Replace(RemoveAttrs.Replace(Str, Misc.Empty), $"<color=#{CurrentLinkColor}>$1</color>");
+
+	//Selected via a link
+	public void Selected() => MapControl.Self.SelectAndCenterItemI(ID);
 }
 
 public class StaticLink(string Name, int CategoryID, int[]? ItemIDs)
@@ -364,4 +367,8 @@ public class StaticLink(string Name, int CategoryID, int[]? ItemIDs)
 			return Out;
 		}
 	}
+
+	//Selected via a link
+	public void Selected() =>
+		_=new SilkDev.Windows.PopupMessage("Category selection is not yet supported");
 }

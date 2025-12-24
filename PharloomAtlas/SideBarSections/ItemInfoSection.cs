@@ -1,4 +1,5 @@
 using SilkDev;
+using SilkDev.DevInput.Mouse;
 using SilkDev.Textures;
 using SilkDev.Windows;
 using System;
@@ -14,21 +15,21 @@ public partial class SideBar
 {
 	//Draw the information for the hovered and last selected items
 	private readonly ItemInfoSection IIS;
-	private class ItemInfoSection
+	private class ItemInfoSection : SideBarSection
 	{
 		private const string CachedImagesDir="CachedImages";
-		private readonly SideBar SB;
+		private const float SaveImageWidth=480;
+		private const int InfoSectionHorPadding=20;
 		private float ClientWidth;
 		private Texture2D FakeTex=null!;
 		private readonly GUIStyle ItemInfoBoxStyle=new(GUI.skin.label) { fontSize=16, normal={textColor=Color.white}, richText=true };
 		private readonly Dictionary<string, Texture2D?> LoadedImages=[];
-		internal void Draw(int ClientWidth)
+		protected override void ExecDraw(int ClientWidth)
 		{
 			//Make sure FakeTex has been created
 			FakeTex??=new Texture2D(1, 1);
 
 			//Add a margin
-			const int InfoSectionHorPadding=20;
 			GUILayout.BeginHorizontal();
 			GUILayout.Space(InfoSectionHorPadding);
 			GUILayout.BeginVertical(GUILayout.Width(SB.Width-InfoSectionHorPadding*2));
@@ -44,6 +45,8 @@ public partial class SideBar
 
 			//Render the selected item
 			this.ClientWidth=ClientWidth-InfoSectionHorPadding*2;
+			if(LastSelectedItem!=MapControl.Self.SelectedItem)
+				UpdateClickableLink(MapControl.Self.SelectedItem);
 			if(MapControl.Self.SelectedItem!=null)
 				RenderSelectedItem(MapControl.Self.SelectedItem);
 
@@ -54,25 +57,34 @@ public partial class SideBar
 		}
 
 		//Handle the clickable label
-		private ClickableLabel CLabel=null!;
-		private Item LastSelectedItem=null!;
-		public ItemInfoSection(SideBar SB)
+		private ClickableLabel? CLabel;
+		private Item? LastSelectedItem;
+		public ItemInfoSection(string Name, SideBar SB) : base(Name, SB)
 		{
-			this.SB=SB;
 			Config.C.Color_Link.SettingChanged += (_, _) => CLabel?.LinkColor=Config.C.Color_Link;
 			Config.C.Color_LinkHover.SettingChanged += (_, _) => CLabel?.HoverColor=Config.C.Color_LinkHover;
 		}
-		private void UpdateClickableLink(Item SelectedItem)
+		private void UpdateClickableLink(Item? CurrentSelectedItem)
 		{
-			LastSelectedItem=SelectedItem;
-			CLabel=new ClickableLabel() {
+			LastSelectedItem=CurrentSelectedItem;
+			CLabel=CurrentSelectedItem==null ? null : new ClickableLabel() {
 				LinkColor=Config.C.Color_Link,
 				HoverColor=Config.C.Color_LinkHover
 			};
+			SelectedItem=-1; //Selection state is unknown until the next frame when we know if the ClickableLabel has any links
+			if(!IsSectionSelected)
+				return;
+			if(CLabel==null)
+				NextSection.MoveTo(MoveToType.FirstRow|MoveToType.NoCol);
+			else
+				OnNextFrame(() => Misc.IFF(
+					CLabel.ActiveLinks.Length==(SelectedItem=0),
+					() => NextSection.MoveTo(MoveToType.FirstRow|MoveToType.NoCol)
+				), false);
 		}
 
 		//Render the currently selected item
-		private void RenderSelectedItem(Item SelectedItem)
+		private void RenderSelectedItem(Item CurSelectedItem)
 		{
 			static void DrawInfoSectionLine(Rect TitleRect) =>
 				GUI.DrawTexture(
@@ -90,13 +102,13 @@ public partial class SideBar
 			//Get list of text and images
 			List<Texture2D> Images=[];
 			List<string> Lines=[
-				MakeItemInfoLine("Title", SelectedItem.Title),
-				MakeItemInfoLine("Category", MapControl.Self.DS.Categories[SelectedItem.CategoryID].Title),
-				SelectedItem.Description,
-				SelectedItem.IgnPageName==null ? Misc.Empty : MakeItemInfoLine("IGN Page", "https://www.ign.com/wikis/hollow-knight-silksong/"+SelectedItem.IgnPageName),
+				MakeItemInfoLine("Title", CurSelectedItem.Title),
+				MakeItemInfoLine("Category", MapControl.Self.DS.Categories[CurSelectedItem.CategoryID].Title),
+				CurSelectedItem.Description,
+				CurSelectedItem.IgnPageName==null ? Misc.Empty : MakeItemInfoLine("IGN Page", "https://www.ign.com/wikis/hollow-knight-silksong/"+CurSelectedItem.IgnPageName),
 			];
 			if(Config.C.ShowSideBarPictures)
-				SelectedItem.ImageURLs?.ForEach(ImageURL => {
+				CurSelectedItem.ImageURLs?.ForEach(ImageURL => {
 					(string? FailureString, Texture2D? Image)=RenderImage(ImageURL);
 					if(FailureString!=null)
 						Lines.Add(TSan(FailureString));
@@ -105,14 +117,23 @@ public partial class SideBar
 				});
 
 			//Render text, images, and a horizontal border line
-			if(LastSelectedItem!=SelectedItem)
-				UpdateClickableLink(SelectedItem);
-			ClickableLabel.Link? L=CLabel.GUILabelLayout(string.Join(Misc.NewLine, Lines.Where(static I => I!=Misc.Empty)), ItemInfoBoxStyle);
-			if(L!=null && Event.current.type==EventType.MouseDown)
-				_=new PopupMessage($"Clicked [{L.LinkID}]: {L.Text}");
+			ClickableLabel.Link? L=CLabel!.GUILabelLayout(
+				string.Join(Misc.NewLine, Lines.Where(static I => I!=Misc.Empty)),
+				ItemInfoBoxStyle,
+				IsSectionSelected && SelectedItem!=-1 ? [CLabel.ActiveLinks[SelectedItem]] : []
+			);
+			if(L!=null && Event.current.type==EventType.MouseDown && Button.CurrentButton==Button.Enum.Left)
+				MapControl.Self.DS.LinkSelected(L.Attributes.Get("ItemID") ?? "1");
 			Images.ForEach(Tex => {
-				float WidthRatio=ClientWidth/Tex.width;
-				GUI.DrawTexture(GUILayoutUtility.GetRect(Tex.width*WidthRatio, Tex.height*WidthRatio), Tex);
+				float RealClientWidth=ClientWidth+InfoSectionHorPadding;
+				float DrawWidth=Math.Min(RealClientWidth, SaveImageWidth);
+				float WidthRatio=DrawWidth/Tex.width;
+				GUI.DrawTexture(
+					GUILayoutUtility.GetRect(Tex.width*WidthRatio, Tex.height*WidthRatio)
+						.SetWidth(DrawWidth)
+						.AddX((RealClientWidth-DrawWidth)/2),
+					Tex
+				);
 			});
 			DrawInfoSectionLine(GUILayoutUtility.GetLastRect());
 		}
@@ -192,7 +213,7 @@ public partial class SideBar
 				return $"Load image for {ImageFileName} failed";
 
 			//Resize the image and get its jpeg bytes
-			float WidthRatio=ClientWidth/NewTex.Target.width;
+			float WidthRatio=SaveImageWidth/NewTex.Target.width;
 			int StartWidth=NewTex.Target.width, StartHeight=NewTex.Target.height;
 			Vector2 NewSize=new Vector2(StartWidth, StartHeight)*WidthRatio;
 			byte[] OutBytes;
@@ -247,5 +268,27 @@ public partial class SideBar
 			$"<size=-1>{Tr.T(Title, "ItemFields", true)}</size>: <b>{Misc.SanitizeRichString(Info)}</b>";
 		private static string TSan(string Message) => Tr.T(Message, nameof(ItemInfoSection), true);
 		private static readonly Translations Tr=Config.C.Tr;
+
+		//SideBarSection actions
+		public override void MoveHor(bool IsNeg)
+		{
+			SelectedItem+=(IsNeg ? -1 : 1); //Select next/previous button
+			if(SelectedItem>=(CLabel?.ActiveLinks.Length ?? 0)) //Last button moves to next title
+				NextSection.MoveTo(MoveToType.FirstRow|MoveToType.NoCol);
+			else if(SelectedItem<0) //First button moves to last group last item in column 1
+				PrevSection.MoveTo(MoveToType.LastRow|MoveToType.NoCol);
+		}
+		public override void MoveVer(bool IsNeg) =>
+			(IsNeg ? PrevSection : NextSection).MoveTo(IsNeg ? MoveToType.LastRow : MoveToType.FirstRow);
+		public override void MoveTo(MoveToType M) => OnNextFrame(() =>
+		{
+			int NumLinks=CLabel?.ActiveLinks.Length ?? 0;
+			if(NumLinks==0)
+				(M.HasFlag(MoveToType.LastRow) ? PrevSection : NextSection).MoveTo(M); //Pass through section if empty
+			else
+				MovedTo(M.HasFlag(MoveToType.LastRow) ? NumLinks-1 : 0);
+		});
+		public override void ExecSelected() =>
+			MapControl.Self.DS.LinkSelected(CLabel?.ActiveLinks.ElementAtOrDefault(SelectedItem)?.Attributes.Get("ItemID") ?? "1");
 	}
 }

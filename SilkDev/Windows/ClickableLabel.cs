@@ -33,9 +33,8 @@ public class ClickableLabel
 			LinkColorHex=(field=value).ToHex();
 
 			//Recreate the render string with the new colors
-			RenderString=Links.Values
-				.Where(L => L.IsLive)
-				.OrderByDescending(L => L.StringStartPos)
+			RenderString=LiveLinks.AsEnumerable()
+				.Reverse()
 				.Aggregate(RenderString, (Str, L) =>
 					 Str[..L.StringStartPos]
 					+$"<color=#{LinkColorHex}>{L.Text}</color>"
@@ -58,6 +57,8 @@ public class ClickableLabel
 
 	//This holds the links by their LinkID
 	private readonly Dictionary<string, Link> Links=[];
+	private readonly List<Link> LiveLinks=[];
+	public Link[] ActiveLinks => [..LiveLinks];
 
 	//Information about a found link. All fields are updated during extraction.
 	public class Link
@@ -89,7 +90,7 @@ public class ClickableLabel
 	private string RenderString=null!;
 
 	//Renders the label. Reextraction is only ever ran if the mouse is over the label. Does not return Link on layout phase
-	public Link? GUILabel(Rect Rect, string Content, GUIStyle? NewGUIStyle=null)
+	public Link? GUILabel(Rect Rect, string Content, GUIStyle? NewGUIStyle=null, params Link[] ExtraSelectedItems)
 	{
 		//Update fields to make sure we don’t need a reparse or rerender
 		RectSize=Rect.size;
@@ -100,7 +101,10 @@ public class ClickableLabel
 			Parse();
 
 		//If mouse is not over the label, or in layout phase, then just render the label as is
-		if(Event.current.type==EventType.Layout || !Rect.Contains(DevInput.Util.MousePos)) {
+		if(
+			   Event.current.type==EventType.Layout
+			|| (!Rect.Contains(DevInput.Util.MousePos) && ExtraSelectedItems.Length==0)
+		) {
 			GUI.Label(Rect, RenderString, Style);
 			return null;
 		}
@@ -111,22 +115,25 @@ public class ClickableLabel
 
 		//Find if any live labels are being hovered
 		Vector2 LocalMPos=DevInput.Util.MousePos-Pos;
-		Link? HoveredLink=Links.Values.FirstOrDefault(L => L.IsLive && L.Boxes.Any(R => R.Contains(LocalMPos)));
+		Link? HoveredLink=LiveLinks.FirstOrDefault(L => L.Boxes.Any(R => R.Contains(LocalMPos)));
 
-		//Add the hover color to the link
-		string RenderText=RenderString;
-		if(HoveredLink!=null)
-			 RenderText=RenderText[..HoveredLink.StringStartPos]
-			+$"<color=#{HoverColorHex}>{HoveredLink.Text}</color>"
-			+RenderText[HoveredLink.StringEndPos..];
+		//Combine hover link with ExtraSelectedItems
+		string RenderText=
+			((Link[])[.. ExtraSelectedItems, .. HoveredLink!=null ? [HoveredLink] : (Link[])[]])
+			.OrderByDescending(static L => L.StringStartPos)
+			.Aggregate(RenderString, (Str, L) =>
+				 Str[..L.StringStartPos]
+				+$"<color=#{HoverColorHex}>{L.Text}</color>"
+				+Str[L.StringEndPos..]
+			);
 
 		//Render and return
 		GUI.Label(Rect, RenderText, Style);
 		return HoveredLink;
 	}
-	public Link? GUILabel(Rect Position, GUIContent Content, GUIStyle? NewGUIStyle=null) =>
-		GUILabel(Position, Content.text, NewGUIStyle);
-	public Link? GUILabelLayout(string Content, GUIStyle? NewGUIStyle=null, params GUILayoutOption[] Options)
+	public Link? GUILabel(Rect Position, GUIContent Content, GUIStyle? NewGUIStyle=null, params Link[] ExtraSelectedItems) =>
+		GUILabel(Position, Content.text, NewGUIStyle, ExtraSelectedItems);
+	public Link? GUILabelLayout(string Content, GUIStyle? NewGUIStyle=null, Link[]? ExtraSelectedItems=null, params GUILayoutOption[] Options)
 	{
 		//Parse first
 		Text=Content;
@@ -140,7 +147,7 @@ public class ClickableLabel
 		GUI.color=PrevColor;
 
 		//Render again if not layout phase (when we actually know its positioning)
-		return Event.current.type!=EventType.Layout ? GUILabel(GUILayoutUtility.GetLastRect(), Content, NewGUIStyle) : null;
+		return Event.current.type!=EventType.Layout ? GUILabel(GUILayoutUtility.GetLastRect(), Content, NewGUIStyle, ExtraSelectedItems ?? []) : null;
 	}
 
 	//Whenever the label’s string changes, this is needed
@@ -154,6 +161,7 @@ public class ClickableLabel
 		//Mark all links as not live
 		foreach(Link L in Links.Values)
 			L.IsLive=false;
+		LiveLinks.Clear();
 
 		//Extract all <color> blocks
 		Regex LinkRegEx=new(@"<LinkID\s*=([^>]+)>(.*?)</LinkID>", RegexOptions.IgnoreCase);
@@ -182,6 +190,7 @@ public class ClickableLabel
 			string LinkID=LinkMatch.Groups[1].Value.Trim();
 			if(!Links.TryGetValue(LinkID, out Link L))
 				L=Links[LinkID]=new Link(this, LinkID);
+			LiveLinks.Add(L);
 
 			//Copy over the new values to the link
 			L.Text=OutString;
@@ -191,9 +200,10 @@ public class ClickableLabel
 			L.StringStartPos=Result.Length;
 			_=Result.Append($"<color=#{LinkColorHex}>{L.Text}</color>");
 			L.StringEndPos=Result.Length;
-			CurIndex=LinkMatch.Index+LinkMatch.Length;;
+			CurIndex=LinkMatch.Index+LinkMatch.Length;
 		}
 
+		LiveLinks.Sort(static (a, b) => a.StringStartPos.CompareTo(b.StringStartPos));
 		RenderString=Result.ToString();
 	}
 
@@ -208,11 +218,10 @@ public class ClickableLabel
 		using GetStringRects GSR=new((int)RectSize.x, (int)RectSize.y);
 
 		//Create a list of the render string sections separated by the links, and all color tags removed
-		List<Link> LiveLinks=[.. Links.Values.Where(static L => L.IsLive).OrderBy(L => L.StringStartPos)];
-		char SplitChar='\x01'; //A character that should not be used in the string used for splitting. Too bad we aren’t in UTF8. (Mumble muble Microsoft mumble muble)
+		const char SplitChar='\x01'; //A character that should not be used in the string used for splitting. Too bad we aren’t in UTF8. (Mumble muble Microsoft mumble muble)
 		List<string> StringParts=[..
 			Regex.Replace(
-				LiveLinks.AsEnumerable().Reverse().Aggregate(RenderString, (Str, L) => Str[..L.StringStartPos]+SplitChar+Str[L.StringEndPos..]),
+				LiveLinks.AsEnumerable().Reverse().Aggregate(RenderString, static (Str, L) => Str[..L.StringStartPos]+SplitChar+Str[L.StringEndPos..]),
 				@"<color\s*=[^>]+>|</color>",
 				Misc.Empty
 			).Split(SplitChar)
@@ -292,7 +301,7 @@ public class ClickableLabel
 				return [];
 
 			//Group lines by consecutive y with small gaps
-			List<int> SortedYs=[.. LineData.Keys.OrderBy(K => K)];
+			List<int> SortedYs=[.. LineData.Keys.OrderBy(static K => K)];
 			List<int> CurrentGroup=[SortedYs[0]];
 			for(int i=1; i<SortedYs.Count; i++)
 				if(SortedYs[i]-SortedYs[i-1] <= 2) //Threshold

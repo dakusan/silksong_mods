@@ -60,7 +60,7 @@ public partial class SideBar : Window
 		CustomSkin.box.padding=CustomSkin.box.margin=new RectOffset(0, 0, 0, 0);
 
 		//Set up the top sidebar sections
-		IIS=new ItemInfoSection(this);
+		IIS=new ItemInfoSection("ItemInfoSection", this);
 		CurrentSection=new ButtonsRowSection("ToggleGroups", "Toggle Groups", this, [
 			new ButtonsRowSection.CreateButton("Show All",			() => DS.SetAllCategoriesStates(CategoryToggleState.All)),
 			new ButtonsRowSection.CreateButton("Show Incomplete",	() => DS.SetAllCategoriesStates(CategoryToggleState.Incomplete)),
@@ -151,7 +151,6 @@ public partial class SideBar : Window
 		int ClientWidth=(int)(WindowRect.width-GUI.skin.verticalScrollbar.fixedWidth-AreaMargin*2);
 		GUILayout.BeginVertical(GUILayout.Width(Width));
 		GUILayout.Space(AreaMargin);
-		IIS.Draw(ClientWidth);
 		SectionsList.ForEach(S => S.Draw(ClientWidth));
 
 		//Get the height of the categories section

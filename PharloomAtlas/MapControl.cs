@@ -399,6 +399,7 @@ public class MapControl : SilkDev.Windows.Window
 
 		SelectedItem?.MapIcon!.SetSelected(false);
 		NewSelectItem?.MapIcon!.SetSelected(true);
+		NewSelectItem?.MapIcon!.BringToFront();
 		SelectedItem=NewSelectItem;
 		SideBar.OnNewIconSelected();
 		SideBar.Visible=true;

@@ -14,12 +14,14 @@ public class MapIcon
 	public bool IsSelected	{ get; private set; } = false;
 	public bool IsLinked	{ get; private set; } = false;
 	private CategoryToggleState CTS=CategoryToggleState.Unknown;
+	private static float CurrentZ=1.9f;
 
 	public MapIcon(Item Item, Sprite MySprite)
 	{
 		//Create the new GameObject and set its location
 		MyGO=new GameObject("Pin - "+Item.Title);
 		MyGO.transform.SetLocalPosition2D(Item.Pos);
+		MyGO.transform.SetLocalPositionZ(CurrentZ);
 		MyGO.layer=5;
 
 		//Turn it into a Sprite
@@ -107,4 +109,6 @@ public class MapIcon
 		NewMaterial .SetFloat("_Val"  , C.b*2	);
 		NewMaterial .SetFloat("_Alpha", C.a		);
 	}
+
+	public void BringToFront() => MyGO?.transform.SetLocalPositionZ(CurrentZ-=.001f);
 }
