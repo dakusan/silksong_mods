@@ -1,4 +1,5 @@
 using SilkDev;
+using SilkDev.Textures;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -82,26 +83,27 @@ public class Item
 	//A full chain list for a single field
 	public class ChainList
 	{
+		public readonly Item Parent;
 		public readonly string StartString;
 		public string RenderedString => field ??= FinishInternalRender();
 		public readonly RenderedField? ExtraStr;
 		public readonly ChainItem[][]? Items;
-		internal ChainList(string ItemList)
+		internal ChainList(Item Parent, string ItemList)
 		{
-			StartString=ItemList;
+			(this.Parent, StartString)=(Parent, ItemList);
 
 			//Get and remove the extra string part
 			int ExtraStrPos=ItemList.IndexOf('^');
 			if(ExtraStrPos!=-1) {
-				ExtraStr=new RenderedField(ItemList[(ExtraStrPos+1)..]);
+				ExtraStr=new RenderedField(Parent, ItemList[(ExtraStrPos+1)..]);
 				ItemList=ItemList[0..ExtraStrPos];
 			}
 
 			//Parse the list
 			if(ItemList!=Misc.Empty)
-				Items=[..ItemList.Split('|').Select(static (OrStr, GroupIndex) =>
+				Items=[..ItemList.Split('|').Select((OrStr, GroupIndex) =>
 					OrStr.Split('`').Select((ItemStr, ItemIndex) =>
-						new ChainItem(ItemStr, GroupIndex, ItemIndex)
+						new ChainItem(this, ItemStr, GroupIndex, ItemIndex)
 					).ToArray()
 				)];
 		}
@@ -112,8 +114,8 @@ public class Item
 				return ExtraStr?.ToString() ?? Misc.Empty;
 
 			//Reformat the list
-			string Ret=string.Join(" <b><color=purple>OR</color></b> ", Items.Select(ItemList =>
-				string.Join(", ", ItemList.Select(I => I.RenderedString))
+			string Ret=string.Join(" <b><color=purple>OR</color></b> ", Items.Select(static ItemList =>
+				string.Join(", ", ItemList.Select(static I => I.RenderedString))
 			));
 
 			//Combine the list and the extra string
@@ -128,15 +130,16 @@ public class Item
 	//A single item in a ChainList
 	public class ChainItem
 	{
+		public readonly ChainList Parent;
 		public readonly string StartString;
 		public string RenderedString => field ??= FinishInternalRender();
 		public readonly bool FlagNot=false, FlagStarted=false, FlagRecommend=false, FlagUnlinked=false;
 		public readonly int FlagAmount=1, GroupID, GroupIndex;
 		public string Name { get; internal set; } //Not set until after FinishInternalRender()
 		public int LinkID { get; internal set; } = -1; //Not set until after FinishInternalRender()
-		internal ChainItem(string Item, int GroupID, int GroupIndex)
+		internal ChainItem(ChainList Parent, string Item, int GroupID, int GroupIndex)
 		{
-			(this.GroupID, this.GroupIndex, StartString)=(GroupID, GroupIndex, Item);
+			(this.Parent, this.GroupID, this.GroupIndex, StartString)=(Parent, GroupID, GroupIndex, Item);
 
 			//Find flags
 			bool LoopDone=false;
@@ -175,7 +178,7 @@ public class Item
 			{
 				Name=NewItemValue;
 				LinkID=int.Parse(ItemValue);
-				return $"<LinkID><ATTR=LinkID>{GroupID}.{GroupIndex}.{ItemValue}</ATTR><u>"+string.Join(Misc.Empty, [.. Parts, NewItemValue])+"</u></LinkID>";
+				return $"<LinkID={Parent.Parent.ID}.{GroupID}.{GroupIndex}.{ItemValue}><u>"+string.Join(Misc.Empty, [.. Parts, NewItemValue])+"</u></LinkID>";
 			}
 
 			//If unlinked or linking failed do do not make it a real link
@@ -190,9 +193,10 @@ public class Item
 		//Turn item links in a string into actual links
 		private static readonly Regex GetLinks=new(@"\[(\d+)(~[^^|`\]]+)?]");
 
+		public readonly Item Parent;
 		public readonly string StartString;
 		public string RenderedString => field ??= FinishInternalRender();
-		internal RenderedField(string FieldValue) => StartString=FieldValue;
+		internal RenderedField(Item Parent, string FieldValue) => (this.Parent, StartString)=(Parent, FieldValue);
 		private string FinishInternalRender()
 		{
 			int ReplaceIndex=0;
@@ -203,7 +207,7 @@ public class Item
 						string ID=Match.Groups[1].Value;
 						string Text=Match.Groups[2].Value;
 						Text=!string.IsNullOrEmpty(Text) ? Text[1..] : GetItemTitleFromID(ID);
-						return $"<LinkID><ATTR=LinkID>{ReplaceIndex++}.{ID}</ATTR><u>{Text}</u></LinkID>";
+						return $"<LinkID={Parent.ID}.{ReplaceIndex++}.{ID}><u>{Text}</u></LinkID>";
 					}
 				);
 		}
@@ -263,16 +267,16 @@ public class Item
 	//JSON type conversion
 	internal class CreateItem : Item
 	{
-		public new string? WhereAt	{ set => Misc.IFF(value!=null, () => base.WhereAt	=new RenderedField	(value!)); }
-		public new string? Notes	{ set => Misc.IFF(value!=null, () => base.Notes		=new RenderedField	(value!)); }
-		public new string? Effect	{ set => Misc.IFF(value!=null, () => base.Effect	=new RenderedField	(value!)); }
-		public new string? Tip		{ set => Misc.IFF(value!=null, () => base.Tip		=new RenderedField	(value!)); }
-		public new string? Reqs		{ set => Misc.IFF(value!=null, () => base.Reqs		=new ChainList		(value!)); }
-		public new string? Needs	{ set => Misc.IFF(value!=null, () => base.Needs		=new ChainList		(value!)); }
-		public new string? Rewards	{ set => Misc.IFF(value!=null, () => base.Rewards	=new ChainList		(value!)); }
+		public new string? WhereAt	{ set => Misc.IFF(value!=null, () => base.WhereAt	=new RenderedField	(this, value!)); }
+		public new string? Notes	{ set => Misc.IFF(value!=null, () => base.Notes		=new RenderedField	(this, value!)); }
+		public new string? Effect	{ set => Misc.IFF(value!=null, () => base.Effect	=new RenderedField	(this, value!)); }
+		public new string? Tip		{ set => Misc.IFF(value!=null, () => base.Tip		=new RenderedField	(this, value!)); }
+		public new string? Reqs		{ set => Misc.IFF(value!=null, () => base.Reqs		=new ChainList		(this, value!)); }
+		public new string? Needs	{ set => Misc.IFF(value!=null, () => base.Needs		=new ChainList		(this, value!)); }
+		public new string? Rewards	{ set => Misc.IFF(value!=null, () => base.Rewards	=new ChainList		(this, value!)); }
 
 		//Store needs to be created separately since it is nested
-		private new CreateStoreItems[]? Store=null;
+		private new readonly CreateStoreItems[]? Store=null; //Set via JSON
 		private class CreateStoreItems { public string? Reqs; public string Needs=null!, Rewards=null!; }
 		internal Item GetItem()
 		{
@@ -285,9 +289,9 @@ public class Item
 			foreach((int Index, CreateStoreItems Item) in Store.Entries())
 				Items[Index]=new StoreItem(
 					  Item.Reqs==null ? null
-					: new ChainList(Item.Reqs	),
-					  new ChainList(Item.Needs	),
-					  new ChainList(Item.Rewards)
+					: new ChainList(this, Item.Reqs		),
+					  new ChainList(this, Item.Needs	),
+					  new ChainList(this, Item.Rewards	)
 				);
 			base.Store=new StoreItems(Items);
 			return this;
@@ -304,7 +308,7 @@ public class Item
 		public string RenderedString => field ??= FinishInternalRender();
 		public StoreItem[] Items=Items;
 		private string FinishInternalRender() =>
-			string.Join(Misc.Empty, Items.Select(I =>
+			string.Join(Misc.Empty, Items.Select(static I =>
 				"\n- "+I.Rewards.RenderedString+" for "+I.Needs.RenderedString+
 				(I.Reqs!=null ? $" (Required: {I.Reqs.RenderedString})" : Misc.Empty)
 			));
@@ -312,10 +316,15 @@ public class Item
 	}
 
 	//TODO: Temporarily remove links until ClickableLabel class is ready
-	private static readonly Regex RemoveAttrs=new(@"<ATTR\s*=([^>\n]+)>(.*?)</ATTR>", RegexOptions.IgnoreCase);
-	private static readonly Regex ReplaceLinkIDs=new(@"<LinkID>(.*?)</LinkID>", RegexOptions.IgnoreCase);
+	static Item()
+	{
+		CurrentLinkColor=Config.C.Color_Link.V.ToHex();
+		Config.C.Color_Link.SettingChanged += (_, _) => CurrentLinkColor=Config.C.Color_Link.V.ToHex();
+	}
+	private static string CurrentLinkColor=null!;
+	private static readonly Regex ReplaceLinkIDs=new(@"<LinkID=[^>]+>(.*?)</LinkID>", RegexOptions.IgnoreCase);
 	public static string StripLinkIDTags(string Str) =>
-		ReplaceLinkIDs.Replace(RemoveAttrs.Replace(Str, Misc.Empty), @"<color=blue>$1</color>");
+		ReplaceLinkIDs.Replace(Str, $"<color=#{CurrentLinkColor}>$1</color>");
 }
 
 public class StaticLink(string Name, int CategoryID, int[]? ItemIDs)
@@ -344,7 +353,7 @@ public class StaticLink(string Name, int CategoryID, int[]? ItemIDs)
 					Out[int.Parse(ID)]=new StaticLink(
 						(string)L[0],
 						IsCategory ? (int)(long)L[1] : -1,
-						IsCategory ? null : [..L.Skip(1).Select(I => (int)(long)I)]
+						IsCategory ? null : [..L.Skip(1).Select(static I => (int)(long)I)]
 					);
 				} catch(System.Exception e) {
 					Log.Error($"Error parsing Static Link {ID}: {e.Message}", L, L[1].GetType().Name);

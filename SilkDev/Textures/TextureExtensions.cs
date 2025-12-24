@@ -57,4 +57,13 @@ public static class TextureExtensions
 		NewTex.Target.Apply();
 		return NewTex.Detach();
 	}
+
+	//Convert a color to RRGGBBAA
+	private static readonly System.Collections.Generic.Dictionary<Color, string> HexCache=[];
+	public static string ToHex(this Color C) =>
+		HexCache.TryGetValue(C, out string Val) ? Val :
+		HexCache[C]=string.Format("{0:X2}{1:X2}{2:X2}{3:X2}",
+			(int)(C.r*255), (int)(C.g*255),
+			(int)(C.b*255), (int)(C.a*255)
+		);
 }

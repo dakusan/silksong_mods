@@ -17,7 +17,7 @@ public class Config
 	public readonly ConfigEntryT<int> SideBarWidth;
 	public readonly ConfigEntryTKeyboardShortcut Shortcut_ZoomIn, Shortcut_ZoomOut, Shortcut_CenterOverChar, Shortcut_ToggleSideBar, Shortcut_EditMarkerLabel, Shortcut_SaveValueWindow, Shortcut_Val_ScrollUp, Shortcut_Val_ScrollDown;
 	public readonly ConfigEntryTKeyboardShortcut Shortcut_SB_Up, Shortcut_SB_Down, Shortcut_SB_Left, Shortcut_SB_Right, Shortcut_SB_ToggleItem, Shortcut_SB_ScrollUp, Shortcut_SB_ScrollDown, Shortcut_SB_SelectIcon;
-	public readonly ConfigEntryT<Color> Color_SideBar_Background, Color_SideBar_Interface, Color_SideBar_Highlight, Color_MarkerLabelText, Color_MarkerLabelBG, Color_FoundIcon;
+	public readonly ConfigEntryT<Color> Color_SideBar_Background, Color_SideBar_Interface, Color_SideBar_Highlight, Color_MarkerLabelText, Color_MarkerLabelBG, Color_FoundIcon, Color_Link, Color_LinkHover;
 	public readonly ConfigEntryT<Rect> Rect_SaveValuesWindow, Rect_SearchWindow;
 	public readonly DynamicEnumConfig IconSet;
 	internal readonly ConfigEntryT<HornetIconAnimators.HornetHighlightTypes> HornetHighlights;
@@ -77,9 +77,11 @@ public class Config
 		Color_SideBar_Background=Con.Bind(Title, "Sidebar background color",				new Color(0, 0, 0, .9f));
 		Color_SideBar_Interface	=Con.Bind(Title, "Sidebar interface items color",			new Color(0, 0, 1, 1));
 		Color_SideBar_Highlight	=Con.Bind(Title, "Sidebar highlight color",					new Color(1, 1, 0, 0.5f));
-		SideBarWidth			=Con.Bind(Title, "Sidebar width",							480, AVR(300, 800, CMA:IsAdvanced));
+		SideBarWidth			=Con.Bind(Title, "Sidebar width (also resizable w/ mouse)",	480, AVR(300, 800));
 		Color_MarkerLabelText	=Con.Bind(Title, "Marker label text color",					Color.white);
 		Color_MarkerLabelBG		=Con.Bind(Title, "Marker label background color",			new Color(0, 0, 0, .26f));
+		Color_Link				=Con.Bind(Title, "Item Link color",							new Color(0, 1, 1, 1));
+		Color_LinkHover			=Con.Bind(Title, "Item link hover color",					new Color(1, 1, 0, 1));
 
 		Title="Map Sidebar";
 		ShowSidebarOnGameLoad	=Con.Bind(Title, "Starts open on game load",				true);
