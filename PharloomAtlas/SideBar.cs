@@ -214,7 +214,7 @@ public partial class SideBar : Window
 
 	//Handle key presses
 	private static InControl.InputDevice AD => ActiveDevice;
-	public  enum KRType { X=0, Y, Scroll, NUM_ENUMS }
+	public  enum KRType { X=0, Y, NUM_ENUMS }
 	private record struct KeyResults(KRType Type, int Value);
 	private readonly SilkDev.DevInput.InputRepeatDelay<KeyResults> KeysCheck=new(.075f,
 		(Conf			.Shortcut_SB_Down		, new(KRType.Y,		 1)),
@@ -224,11 +224,7 @@ public partial class SideBar : Window
 		(Conf			.Shortcut_SB_Right		, new(KRType.X,		 1)),
 		(Conf			.Shortcut_SB_Left		, new(KRType.X,		-1)),
 		(static AD => AD.DPadLeft				, new(KRType.X,		-1)),
-		(static AD => AD.DPadRight				, new(KRType.X,		 1)),
-		(Conf			.Shortcut_SB_ScrollUp	, new(KRType.Scroll,-1)),
-		(Conf			.Shortcut_SB_ScrollDown	, new(KRType.Scroll, 1)),
-		(false,Direction.Left					, new(KRType.Scroll,-1)),
-		(false,Direction.Right					, new(KRType.Scroll, 1))
+		(static AD => AD.DPadRight				, new(KRType.X,		 1))
 	);
 	protected override void OnUpdate()
 	{
@@ -251,8 +247,6 @@ public partial class SideBar : Window
 			CurrentSection.MoveVer(TempVal<0);
 		if((TempVal=KRTypes[(int)KRType.X])!=0)
 			CurrentSection.MoveHor(TempVal<0);
-		if(!HelpWindow.HasAnyOpen && (TempVal=KRTypes[(int)KRType.Scroll])!=0)
-			ScrollPosition.y=Mathf.Max(ScrollPosition.y+TempVal*30, 0);
 	}
 
 	//Called when a new icon is selected

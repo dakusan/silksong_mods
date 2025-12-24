@@ -16,7 +16,7 @@ public class Config
 	public readonly ConfigEntryT<float> ZoomSpeed, PanSpeed, MarkerPanSpeed, IconSize, QueryTime_PersistentObj, QueryTime_PlayerData, HornetHighlightSpeed, HornetRainbow2WaitTime, HornetRainbow2RunTime, HornetGrowingMax, HornetRevolvingDist, HornetRainbow1Scale;
 	public readonly ConfigEntryT<int> SideBarWidth;
 	public readonly ConfigEntryTKeyboardShortcut Shortcut_ZoomIn, Shortcut_ZoomOut, Shortcut_CenterOverChar, Shortcut_ToggleSideBar, Shortcut_EditMarkerLabel, Shortcut_SaveValueWindow, Shortcut_Val_ScrollUp, Shortcut_Val_ScrollDown;
-	public readonly ConfigEntryTKeyboardShortcut Shortcut_SB_Up, Shortcut_SB_Down, Shortcut_SB_Left, Shortcut_SB_Right, Shortcut_SB_ToggleItem, Shortcut_SB_ScrollUp, Shortcut_SB_ScrollDown, Shortcut_SB_SelectIcon;
+	public readonly ConfigEntryTKeyboardShortcut Shortcut_SB_Up, Shortcut_SB_Down, Shortcut_SB_Left, Shortcut_SB_Right, Shortcut_SB_ToggleItem, Shortcut_SelStack_Next, Shortcut_SelStack_Prev, Shortcut_SB_SelectIcon;
 	public readonly ConfigEntryT<Color> Color_SideBar_Background, Color_SideBar_Interface, Color_SideBar_Highlight, Color_MarkerLabelText, Color_MarkerLabelBG, Color_FoundIcon, Color_Link, Color_LinkHover;
 	public readonly ConfigEntryT<Rect> Rect_SaveValuesWindow, Rect_SearchWindow;
 	public readonly DynamicEnumConfig IconSet;
@@ -61,6 +61,8 @@ public class Config
 		HornetRainbow1Scale		=Con.Bind(Title, "Hornet marker: Rainbow 1: Scale",			.5f, AVR(.1f, 1f, "The zoom-scale of the 256 color gradient texture. This basically dictates how many color bands you can see at a time (higher=more).", IsAdvanced));
 		HornetRainbow2WaitTime	=Con.Bind(Title, "Hornet marker: Rainbow 2: Wait time",		6f, AVR(0, 10f, "The time in between rainbow 2 effects", IsAdvanced));
 		HornetRainbow2RunTime	=Con.Bind(Title, "Hornet marker: Rainbow 2: Run time",		1.2f, AVR(0.5f, 5f, "The time the rainbow 2 effects run", IsAdvanced));
+		Shortcut_SelStack_Next	=Con.Bind(Title, "Next item in selection stack",			new KeyboardShortcut(KeyCode.Keypad7));
+		Shortcut_SelStack_Prev	=Con.Bind(Title, "Previous item in selection stack",		new KeyboardShortcut(KeyCode.Keypad1));
 
 		Title="Map Controls";
 		ZoomSpeed				=Con.Bind(Title, "Zoom Speed",								1.03f, AVR(1.01f, 1.5f));
@@ -94,8 +96,6 @@ public class Config
 		Shortcut_SB_Right		=Con.Bind(Title, "Sidebar navigation: Right",				new KeyboardShortcut(KeyCode.Keypad6));
 		Shortcut_SB_ToggleItem	=Con.Bind(Title, "Shortcut Key: Execute selected item",		new KeyboardShortcut(KeyCode.Keypad5), "Executes the selected button/group/category on the sidebar.");
 		Shortcut_SB_SelectIcon	=Con.Bind(Title, "Shortcut Key: Select icon",				new KeyboardShortcut(KeyCode.KeypadEnter), "When the sidebar and marker modes are active, pressing this will ‘select’ the icon you are over");
-		Shortcut_SB_ScrollUp	=Con.Bind(Title, "Shortcut Key: Scroll categories up",		new KeyboardShortcut(KeyCode.Keypad7));
-		Shortcut_SB_ScrollDown	=Con.Bind(Title, "Shortcut Key: Scroll categories down",	new KeyboardShortcut(KeyCode.Keypad1));
 
 		Title="Saved Value Window";
 		Shortcut_SaveValueWindow=Con.Bind(Title, "Shortcut Key: Show/hide the window",		new KeyboardShortcut(KeyCode.KeypadMultiply), "Toggle the value window. See help or mod page for more information.");

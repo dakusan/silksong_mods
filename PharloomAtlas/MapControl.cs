@@ -1,5 +1,6 @@
 using SilkDev;
 using SilkDev.DevInput.Mouse;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -26,6 +27,7 @@ public class MapControl : SilkDev.Windows.Window
 	public bool IsMapOpened		=> MapState!=MapStateEnum.Closed;
 
 	//Private members
+	private static readonly Stack<Item> MoveBackStack=[], MoveForwardStack=[];
 	internal MarkerLabels MarkerLabels=null!;
 	private readonly HornetIconAnimators HornetIconAnimators=new();
 	private bool SideBarWasOpen=false, SearchWasOpen=false;
@@ -222,7 +224,7 @@ public class MapControl : SilkDev.Windows.Window
 
 	//Find the closest vector to the map position within a radius, returning its item
 	public record struct VItem<T>(Vector2 Pos, T Item) where T: class;
-	public T? FindClosestVector<T>(System.Collections.Generic.IEnumerable<VItem<T>> VList, Vector2 PosOnMap, float ItemRadius, float SelectionRadius) where T: class
+	public T? FindClosestVector<T>(IEnumerable<VItem<T>> VList, Vector2 PosOnMap, float ItemRadius, float SelectionRadius) where T: class
 	{
 		//Find the closest item
 		VItem<T> ClosestVec=default;
@@ -265,6 +267,13 @@ public class MapControl : SilkDev.Windows.Window
 		(false, Direction	.Up					,  1),
 		(false, Direction	.Down				, -1)
 	);
+	private readonly SilkDev.DevInput.InputRepeatDelay<bool> SelectItemStackCheck=new(.25f,
+		(Conf			.Shortcut_SelStack_Next	, true ),
+		(Conf			.Shortcut_SelStack_Prev	, false),
+		(false,Direction.Left					, false),
+		(false,Direction.Right					, true )
+	);
+
 	protected override void OnUpdate()
 	{
 		//Toggling sidebar and centering
@@ -291,6 +300,24 @@ public class MapControl : SilkDev.Windows.Window
 		//Zooming
 		if(ZoomCheck.IsReadyValueVType is float ZoomAmount)
 			ZoomI(ZoomAmount);
+
+		//Item selection stack
+		if(!SideBar.HelpWindow.HasAnyOpen && SelectItemStackCheck.IsReadyValueVType is bool StackDirectionForward)
+			if(StackDirectionForward && MoveForwardStack.Count>0) {
+				Item NewItem=MoveForwardStack.Pop();
+				MoveBackStack.Push(NewItem);
+				SelectAndCenterItemI(NewItem.ID, true);
+			} else if(
+				   !StackDirectionForward
+				&& (
+					   MoveBackStack.Count>1
+					|| (MoveBackStack.Count==1 && SelectedItem==null)
+				)
+			) {
+				if(SelectedItem!=null)
+					MoveForwardStack.Push(MoveBackStack.Pop());
+				SelectAndCenterItemI(MoveBackStack.Peek().ID, true);
+			}
 
 		HornetIconAnimators.Run();
 	}
@@ -387,7 +414,7 @@ public class MapControl : SilkDev.Windows.Window
 
 	//Selects a new item
 	public  void SelectItem (Item? NewSelectItem) => Misc.IFF(GameMap!=null, () => SelectItemI(NewSelectItem));
-	private void SelectItemI(Item? NewSelectItem)
+	private void SelectItemI(Item? NewSelectItem, bool IsStackMove=false)
 	{
 		//If the same item, nothing to do
 		if(SelectedItem==NewSelectItem)
@@ -403,15 +430,21 @@ public class MapControl : SilkDev.Windows.Window
 		SelectedItem=NewSelectItem;
 		SideBar.OnNewIconSelected();
 		SideBar.Visible=true;
+
+		//Add to stack
+		if(!IsStackMove && NewSelectItem!=null) {
+			MoveBackStack.Push(NewSelectItem);
+			MoveForwardStack.Clear();
+		}
 	}
 
 	//Center over and select an item by its ID
 	public   void SelectAndCenterItem (int ItemID) => Misc.IFF(GameMap!=null, () => SelectAndCenterItemI(ItemID));
-	internal void SelectAndCenterItemI(int ItemID)
+	internal void SelectAndCenterItemI(int ItemID, bool IsStackMove=false)
 	{
 		Item I=DS.Items.Get(ItemID) ?? throw new System.ArgumentOutOfRangeException("ItemID");
 		MapPos=I.Pos;
-		SelectItemI(I);
+		SelectItemI(I, IsStackMove);
 		I.MapIcon?.IconGO?.SetActive(true); //Force the icon to be visible
 	}
 

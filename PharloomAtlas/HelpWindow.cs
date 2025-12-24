@@ -11,7 +11,7 @@ namespace PharloomAtlas;
 public partial class SideBar
 {
 	//Displays a help message
-	private class HelpWindow : SilkDev.Windows.PopupMessage
+	internal class HelpWindow : SilkDev.Windows.PopupMessage
 	{
 		private static int NumOpen=0;
 		private static Texture2D? ControllerLayout;
@@ -103,7 +103,7 @@ public partial class SideBar
 
 			//Draw the message
 			ScrollPosition=GUILayout.BeginScrollView(ScrollPosition, ScrollStyle, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-			GUILayout.Label($"<color=#FF6C9C><size=20>{TSan("Scroll this window with Sidebar Scroll Up/Down")}</size></color>", CenterRichText);
+			GUILayout.Label($"<color=#FF6C9C><size=20>{TSan("Scroll this window with selected-icon-stack next/previous")}</size></color>", CenterRichText);
 			GUILayout.Label(Message, LabelStyle);
 			GUILayout.EndScrollView();
 
@@ -113,8 +113,8 @@ public partial class SideBar
 		//Scroll up/down the help info
 		private const float MoreOftenMultiplier=4;
 		private readonly SilkDev.DevInput.InputRepeatDelay<int> WinScrollCheck=new(.075f/MoreOftenMultiplier,
-			(Config.C		.Shortcut_SB_ScrollUp	, -1),
-			(Config.C		.Shortcut_SB_ScrollDown	,  1),
+			(Config.C		.Shortcut_SelStack_Next , -1),
+			(Config.C		.Shortcut_SelStack_Prev ,  1),
 			(false,Direction.Left					, -1),
 			(false,Direction.Right					,  1)
 		);
@@ -135,8 +135,8 @@ public partial class SideBar
 
 		//Do not close from scroll buttons
 		protected override bool BlockClose =>
-			   Config.C.Shortcut_SB_ScrollUp.IsPressed()
-			|| Config.C.Shortcut_SB_ScrollDown.IsPressed()
+			   Config.C.Shortcut_SelStack_Next.IsPressed()
+			|| Config.C.Shortcut_SelStack_Prev.IsPressed()
 			|| ActiveDevice.RightStick.HasChanged;
 
 		//Translation
