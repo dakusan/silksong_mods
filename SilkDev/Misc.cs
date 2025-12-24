@@ -42,6 +42,10 @@ public static class Misc
 	}
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static RetType PassThru<Unused, RetType>(Unused _, RetType Return) => Return;
+	public static RetType PassThru<RetType>(Action A, RetType Return) {
+		A();
+		return Return;
+	}
 
 	//Open Unity Explorer inspection on game object (if plugin is loaded)
 	private static Action<GameObject>? Call_UnityExplorer_Inspect=null;

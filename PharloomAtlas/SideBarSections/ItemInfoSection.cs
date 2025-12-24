@@ -14,10 +14,10 @@ public partial class SideBar
 {
 	//Draw the information for the hovered and last selected items
 	private readonly ItemInfoSection IIS;
-	private class ItemInfoSection(SideBar SB)
+	private class ItemInfoSection
 	{
 		private const string CachedImagesDir="CachedImages";
-		private readonly SideBar SB=SB;
+		private readonly SideBar SB;
 		private float ClientWidth;
 		private Texture2D FakeTex=null!;
 		private readonly GUIStyle ItemInfoBoxStyle=new(GUI.skin.label) { fontSize=16, normal={textColor=Color.white}, richText=true };
@@ -51,6 +51,24 @@ public partial class SideBar
 			GUILayout.EndVertical();
 			GUILayout.EndHorizontal();
 			GUILayout.Space(10);
+		}
+
+		//Handle the clickable label
+		private ClickableLabel CLabel=null!;
+		private Item LastSelectedItem=null!;
+		public ItemInfoSection(SideBar SB)
+		{
+			this.SB=SB;
+			Config.C.Color_Link.SettingChanged += (_, _) => CLabel?.LinkColor=Config.C.Color_Link;
+			Config.C.Color_LinkHover.SettingChanged += (_, _) => CLabel?.HoverColor=Config.C.Color_LinkHover;
+		}
+		private void UpdateClickableLink(Item SelectedItem)
+		{
+			LastSelectedItem=SelectedItem;
+			CLabel=new ClickableLabel() {
+				LinkColor=Config.C.Color_Link,
+				HoverColor=Config.C.Color_LinkHover
+			};
 		}
 
 		//Render the currently selected item
@@ -87,7 +105,11 @@ public partial class SideBar
 				});
 
 			//Render text, images, and a horizontal border line
-			GUILayout.Label(Item.StripLinkIDTags(string.Join(Misc.NewLine, Lines.Where(static I => I!=Misc.Empty))), ItemInfoBoxStyle);
+			if(LastSelectedItem!=SelectedItem)
+				UpdateClickableLink(SelectedItem);
+			ClickableLabel.Link? L=CLabel.GUILabelLayout(string.Join(Misc.NewLine, Lines.Where(static I => I!=Misc.Empty)), ItemInfoBoxStyle);
+			if(L!=null && Event.current.type==EventType.MouseDown)
+				_=new PopupMessage($"Clicked [{L.LinkID}]: {L.Text}");
 			Images.ForEach(Tex => {
 				float WidthRatio=ClientWidth/Tex.width;
 				GUI.DrawTexture(GUILayoutUtility.GetRect(Tex.width*WidthRatio, Tex.height*WidthRatio), Tex);

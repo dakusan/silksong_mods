@@ -58,6 +58,8 @@ public class Item
 	public string[]? ImageURLs;
 	public StoreItems? Store;
 	public Vector2 Pos => new(x, y);
+	private int UniqueLinkIndex=0;
+	private string GetLinkID => $"{ID}.{UniqueLinkIndex++}";
 //		internal Item() {} //Not yet ready for other people to make these. Would need some work.
 
 	//Render the description
@@ -178,7 +180,7 @@ public class Item
 			{
 				Name=NewItemValue;
 				LinkID=int.Parse(ItemValue);
-				return $"<LinkID={Parent.Parent.ID}.{GroupID}.{GroupIndex}.{ItemValue}><u>"+string.Join(Misc.Empty, [.. Parts, NewItemValue])+"</u></LinkID>";
+				return $"<LinkID={Parent.Parent.GetLinkID}><ATTR=GroupID>{GroupID}</ATTR><ATTR=GroupIndex>{GroupIndex}</ATTR><ATTR=ItemID>{LinkID}</ATTR><u>"+string.Join(Misc.Empty, [.. Parts, NewItemValue])+"</u></LinkID>";
 			}
 
 			//If unlinked or linking failed do do not make it a real link
@@ -207,7 +209,7 @@ public class Item
 						string ID=Match.Groups[1].Value;
 						string Text=Match.Groups[2].Value;
 						Text=!string.IsNullOrEmpty(Text) ? Text[1..] : GetItemTitleFromID(ID);
-						return $"<LinkID={Parent.ID}.{ReplaceIndex++}.{ID}><u>{Text}</u></LinkID>";
+						return $"<LinkID={Parent.GetLinkID}><ATTR=RepIndx>{ReplaceIndex++}</ATTR><ATTR=ItemID>{ID}</ATTR><u>{Text}</u></LinkID>";
 					}
 				);
 		}
@@ -323,8 +325,9 @@ public class Item
 	}
 	private static string CurrentLinkColor=null!;
 	private static readonly Regex ReplaceLinkIDs=new(@"<LinkID=[^>]+>(.*?)</LinkID>", RegexOptions.IgnoreCase);
+	private static readonly Regex RemoveAttrs=new(@"<ATTR\s*=([^>\n]+)>(.*?)</ATTR>", RegexOptions.IgnoreCase);
 	public static string StripLinkIDTags(string Str) =>
-		ReplaceLinkIDs.Replace(Str, $"<color=#{CurrentLinkColor}>$1</color>");
+		ReplaceLinkIDs.Replace(RemoveAttrs.Replace(Str, Misc.Empty), $"<color=#{CurrentLinkColor}>$1</color>");
 }
 
 public class StaticLink(string Name, int CategoryID, int[]? ItemIDs)
