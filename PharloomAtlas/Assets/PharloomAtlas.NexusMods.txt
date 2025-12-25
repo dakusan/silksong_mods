@@ -75,7 +75,7 @@ Enabled by default: [i]Sidebar &amp; map icons[/i] + [i]Highlight Hornet pin[/i]
 [center]&nbsp;[size=5][img=middle]https://www.castledragmire.com/silksong/MaskSmallRev.png[/img] &nbsp;&nbsp;[b]Roadmap&nbsp;&amp;&nbsp;Community&nbsp;Goals[/b]&nbsp;&nbsp; [img=middle]https://www.castledragmire.com/silksong/MaskSmall.png[/img][/size]&nbsp;
 [img=top]https://www.castledragmire.com/silksong/Line425.png[/img]
 [/center]At [b]50 endorsements[/b], this mod goes [b]open-source on GitHub[/b]!
-Every additional 50 unlocks a new [url=https://TEMPLINK.com]community-voted feature[/url]. [Coming soon]
+Every additional 50 unlocks a new [url=https://forums.nexusmods.com/topic/13527956-shape-pharloom-atlas-vote-nowfor-your-favorite-feature/]community-voted feature[/url].
 
 [size=3][i]Planned poll options (suggest more anytime!):[/i][/size][list]
 [*]Mini-map overlay
@@ -96,7 +96,7 @@ Every additional 50 unlocks a new [url=https://TEMPLINK.com]community-voted feat
 [center][size=5][img=middle]https://www.castledragmire.com/silksong/SilkSpoolSmallRev.png[/img] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[b]Help&nbsp;Improve&nbsp;the&nbsp;Atlas[/b]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [img=middle]https://www.castledragmire.com/silksong/SilkSpoolSmall.png[/img][/size]
 [img=top]https://www.castledragmire.com/silksong/Line425.png[/img]
 [/center]Many icons remain unlinked (and unchecked) — and you can help! See the [b]Saved Values Window[/b] section below for details.
-[img]https://www.castledragmire.com/silksong/MissingIcons.jpg[/img] [Image coming soon]
+[img]https://www.castledragmire.com/silksong/Unlinked.jpg[/img]
 
 Icon categorization also needs refinement. A first pass is complete, but more cleanup is welcome.
 
@@ -157,6 +157,7 @@ Some values are hard to identify — e.g., some secrets are hidden behind “*Re
 
 [b]Icon accessibility requirements and fulfillment needs [color=cyan](the chain system)[/color] also need additions and confirmation.[/b] For now that’s only possible via json editing and submission. This feature is also currently experimental.
 Here is the current dependency graph of data I’ve been able to compile.
+[img]https://www.castledragmire.com/silksong/ChainSystem.jpg?v=2[/img]
 
 [b]If anyone is interested in helping get the database in this project complete, [color=green][i]PLEASE contact me[/i][/color][/b]. If there is enough interest I’ll put up a discord.
 

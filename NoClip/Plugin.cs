@@ -6,7 +6,7 @@ internal static class PluginInfo
 {
 	public const string PLUGIN_GUID="com.dakusan.noclip";
 	public const string PLUGIN_NAME="NoClip";
-	public const string PLUGIN_VERSION="1.2.1";
+	public const string PLUGIN_VERSION="1.2.2";
 }
 
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]

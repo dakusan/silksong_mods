@@ -278,7 +278,7 @@ public class Item
 		public new string? Rewards	{ set => Misc.IFF(value!=null, () => base.Rewards	=new ChainList		(this, value!)); }
 
 		//Store needs to be created separately since it is nested
-		private new readonly CreateStoreItems[]? Store=null; //Set via JSON
+		private new CreateStoreItems[]? Store=null; //Set via JSON
 		private class CreateStoreItems { public string? Reqs=null; public string Needs=null!, Rewards=null!; }
 		internal Item GetItem()
 		{
@@ -298,6 +298,21 @@ public class Item
 			base.Store=new StoreItems(Items);
 			return this;
 		}
+
+		//Handle compacted Json data from CreateJSONs.php
+		private int					C	{ set => CategoryID	=value; }
+		private string				T	{ set => Title		=value; }
+		private int					I	{ set => IconID		=value; }
+		private string?				R	{ set => Reqs		=value; }
+		private string?				A	{ set => WhereAt	=value; }
+		private string?				N	{ set => Needs		=value; }
+		private string?				W	{ set => Rewards	=value; }
+		private string?				E	{ set => Effect		=value; }
+		private string?				P	{ set => Tip		=value; }
+		private string?				O	{ set => Notes		=value; }
+		private string?				IGN { set => IgnPageName=value; }
+		private CreateStoreItems[]? S	{ set => Store		=value; }
+		private string[]?			U	{ set => ImageURLs	=value; }
 	}
 
 	//Store structures
