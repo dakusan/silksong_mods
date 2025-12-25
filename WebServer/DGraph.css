@@ -1,0 +1,156 @@
+.OrgTag {
+	position	:relative;
+	width		:100vw;
+	min-height	:100vh;
+	column-count:3;
+	column-gap	:20px;
+}
+.OrgTag::before {
+	content		:"";
+	position	:fixed;
+	top			:0;
+	left		:0;
+	width		:100vw;
+	height		:100vh;
+	background	:url('https://i.redd.it/spoiler-silksong-4k-wallpaper-hk-hkss-v0-s0vr674ad3yf1.jpg?width=3840&format=pjpg&auto=webp&s=13118a32cb6c413ceb8053df47bcf296085b2a68') center/cover no-repeat;
+	opacity		:0.5;
+	z-index		:-1;
+}
+.OrgTag>pre {
+	white-space	:pre-wrap;
+	word-wrap	:break-word;
+}
+
+.NormalFlag		{ color:green;				}
+.StartedFlag	{ color:yellow;				}
+.NotFlag		{ color:red;				}
+.StartedS:after	{ color:yellow; content:"★️";}
+.RequiredLink	{ color:red;				}
+.NeedLink		{ color:blue;				}
+.RewardLink		{ color:yellow;				}
+.Bracket		{ color:lightgrey;			}
+
+.SubtreeLink		{ text-decoration:none;	}
+.SubtreeLink::after	{
+	position		:relative;
+	top				:-1px;
+	left			:-5px;
+	font-size		:8px;
+	font-style		:italic;
+	content			:"[Subtree here]";
+	color			:blue;
+	text-decoration	:underline;
+}
+
+.Icon {
+	--out-icon-size		:16;
+	--sprite-size		:65;
+	--sprite-padding	:1 ;
+	--sheet-icon-width	:10;
+	--sheet-icon-height	:8 ;
+	--sprite-offset		:calc(var(--sprite-size) + var(--sprite-padding));
+	--sheet-width		:calc(var(--sheet-icon-width ) * var(--sprite-offset) - var(--sprite-padding));
+	--sheet-height		:calc(var(--sheet-icon-height) * var(--sprite-offset) - var(--sprite-padding));
+
+	position	:relative;
+	display		:inline-block;
+	top			:3px;
+	margin		:-4px -6px 0 0;
+	width		:var(--out-icon-size);
+	height		:var(--out-icon-size);
+	background	:url("Icons-FromGame.png") no-repeat;
+	background-size:
+		calc((var(--sheet-width ) * var(--out-icon-size) / var(--sprite-size)) * 1px)
+		calc((var(--sheet-height) * var(--out-icon-size) / var(--sprite-size)) * 1px);
+	background-position:
+		calc(var(--sprite-offset) * var(--i-x) * var(--out-icon-size) / var(--sprite-size) * -1px)
+		calc(var(--sprite-offset) * var(--i-y) * var(--out-icon-size) / var(--sprite-size) * -1px);
+}
+
+.I00 { --i-x:0; --i-y:0; }
+.I01 { --i-x:1; --i-y:0; }
+.I02 { --i-x:2; --i-y:0; }
+.I03 { --i-x:3; --i-y:0; }
+.I04 { --i-x:4; --i-y:0; }
+.I05 { --i-x:5; --i-y:0; }
+.I06 { --i-x:6; --i-y:0; }
+.I07 { --i-x:7; --i-y:0; }
+.I08 { --i-x:8; --i-y:0; }
+.I09 { --i-x:9; --i-y:0; }
+
+.I10 { --i-x:0; --i-y:1; }
+.I11 { --i-x:1; --i-y:1; }
+.I12 { --i-x:2; --i-y:1; }
+.I13 { --i-x:3; --i-y:1; }
+.I14 { --i-x:4; --i-y:1; }
+.I15 { --i-x:5; --i-y:1; }
+.I16 { --i-x:6; --i-y:1; }
+.I17 { --i-x:7; --i-y:1; }
+.I18 { --i-x:8; --i-y:1; }
+.I19 { --i-x:9; --i-y:1; }
+
+.I20 { --i-x:0; --i-y:2; }
+.I21 { --i-x:1; --i-y:2; }
+.I22 { --i-x:2; --i-y:2; }
+.I23 { --i-x:3; --i-y:2; }
+.I24 { --i-x:4; --i-y:2; }
+.I25 { --i-x:5; --i-y:2; }
+.I26 { --i-x:6; --i-y:2; }
+.I27 { --i-x:7; --i-y:2; }
+.I28 { --i-x:8; --i-y:2; }
+.I29 { --i-x:9; --i-y:2; }
+
+.I30 { --i-x:0; --i-y:3; }
+.I31 { --i-x:1; --i-y:3; }
+.I32 { --i-x:2; --i-y:3; }
+.I33 { --i-x:3; --i-y:3; }
+.I34 { --i-x:4; --i-y:3; }
+.I35 { --i-x:5; --i-y:3; }
+.I36 { --i-x:6; --i-y:3; }
+.I37 { --i-x:7; --i-y:3; }
+.I38 { --i-x:8; --i-y:3; }
+.I39 { --i-x:9; --i-y:3; }
+
+.I40 { --i-x:0; --i-y:4; }
+.I41 { --i-x:1; --i-y:4; }
+.I42 { --i-x:2; --i-y:4; }
+.I43 { --i-x:3; --i-y:4; }
+.I44 { --i-x:4; --i-y:4; }
+.I45 { --i-x:5; --i-y:4; }
+.I46 { --i-x:6; --i-y:4; }
+.I47 { --i-x:7; --i-y:4; }
+.I48 { --i-x:8; --i-y:4; }
+.I49 { --i-x:9; --i-y:4; }
+
+.I50 { --i-x:0; --i-y:5; }
+.I51 { --i-x:1; --i-y:5; }
+.I52 { --i-x:2; --i-y:5; }
+.I53 { --i-x:3; --i-y:5; }
+.I54 { --i-x:4; --i-y:5; }
+.I55 { --i-x:5; --i-y:5; }
+.I56 { --i-x:6; --i-y:5; }
+.I57 { --i-x:7; --i-y:5; }
+.I58 { --i-x:8; --i-y:5; }
+.I59 { --i-x:9; --i-y:5; }
+
+.I60 { --i-x:0; --i-y:6; }
+.I61 { --i-x:1; --i-y:6; }
+.I62 { --i-x:2; --i-y:6; }
+.I63 { --i-x:3; --i-y:6; }
+.I64 { --i-x:4; --i-y:6; }
+.I65 { --i-x:5; --i-y:6; }
+.I66 { --i-x:6; --i-y:6; }
+.I67 { --i-x:7; --i-y:6; }
+.I68 { --i-x:8; --i-y:6; }
+.I69 { --i-x:9; --i-y:6; }
+
+.I70 { --i-x:0; --i-y:7; }
+.I71 { --i-x:1; --i-y:7; }
+.I72 { --i-x:2; --i-y:7; }
+.I73 { --i-x:3; --i-y:7; }
+.I74 { --i-x:4; --i-y:7; }
+.I75 { --i-x:5; --i-y:7; }
+.I76 { --i-x:6; --i-y:7; }
+.I77 { --i-x:7; --i-y:7; }
+.I78 { --i-x:8; --i-y:7; }
+.I79 { --i-x:9; --i-y:7; }
