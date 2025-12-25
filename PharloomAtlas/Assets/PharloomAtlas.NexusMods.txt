@@ -16,9 +16,15 @@ Enabled by default: [i]Sidebar &amp; map icons[/i] + [i]Highlight Hornet pin[/i]
 [*][b][img=middle]https://www.castledragmire.com/silksong/BenchSmall.png[/img] Icons[/b][list]
 [*]All notable location data imported from [url=https://mapgenie.io/hollow-knight-silksong/maps/pharloom]MapGenie.io[/url] and displayed on the in-game map.
 [*]Progress tracking — found icons automatically become invisible.
-[*]Icon categories and category groups can be toggled through 3 states:
-    Show all (found icons appear translucent/greyed) • Show incomplete • Hide all
-[*]Detailed info with images for each icon on sidebar.
+[*]Icon categories and category groups can be toggled through 3 states:[list]
+[*][b]Show all[/b]: Displays everything; found icons translucent/greyed (config: [i]Found icon color [HSL][/i]).
+[*][b]Show Normal[/b]: Hides found icons; hide unaccessible [size=1](config: [i]Hide unaccessible icons[/i])[/size] and undiscovered area [size=1](config: [i]Show undiscovered icons[/i])[/size] icons. [i][Both coming soon][/i][list]
+[*]Full data sets incomplete; requirements/needs experimental—see [b]Saved Values Window[/b] below.
+[*][i]“Hide unaccessible icons” off by default until databases complete.[/i]
+[/list]
+[*][b]Show None[/b]: No icons visible.
+[/list]
+[*]Detailed info with images for each icon on sidebar. Includes requirements to start/finish wishes and objectives—quickly switch selected icons to map branching paths.
 [*]Multiple icon sets supported — add your own by placing “[b]Icons-*.png[/b]” files in the plugin directory.
 [*][img=middle]https://www.castledragmire.com/silksong/RingSmall.png[/img] [b]Search window[/b]: Find icons by name or description. Mouse+Keyboard only.
 [*][b]Saved Values Window[/b]: Watch live save data updates and link discoveries for crowdsourcing final data files.
@@ -77,14 +83,13 @@ Every additional 50 unlocks a new [url=https://TEMPLINK.com]community-voted feat
 [*]Icons on the quick-map
 [*]“Best route” guidance to any icon
 [*]Hollow Knight backport
-[*]NPC tracking
+[*]NPC tracking [i][partially implemented][/i]
 [*]Add (and submit) new icons[list]
 [*]Monster tracking[/list]
-[*]Hide icons until an area is mapped
-[*]Hide icons until accessible (crowdsourced logic)
+[*]Add (and submit) icon metadata [requirements, needs, effects, notes, etc]
+[*]Hide icons until an area is mapped [i][partially implemented. Currently tied to linked icons][/i]
 [*]Textured map (Google Maps terrain-style)
 [*]Teleport to benches
-[*]Parse MapGenie.io descriptions for clickable links
 [*]Precise bench visit tracking (currently just checks scene visits; planned: detect actual bench interactions)
 [*]Misc non-map features (suggestions welcome!) [I know this game’s codebase pretty intricately at this point.]
 [/list]
@@ -129,16 +134,16 @@ Via config you can:[list]
 [/list]
 [center][size=5][img=middle]https://www.castledragmire.com/silksong/MusicBoxSmallRev.png[/img] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[b]Saved&nbsp;Values&nbsp;Window[/b]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [img=middle]https://www.castledragmire.com/silksong/MusicBoxSmall.png[/img][/size]
 [img=top]https://www.castledragmire.com/silksong/Line425.png[/img]
-[/center]Community help is crucial to nail every icon—I’ve matched 550 out of 1,908 using my [url=https://www.nexusmods.com/hollowknightsilksong/mods/772]Pin Finder mod[/url], but that was error-prone.
+[/center]Community help is crucial to nail every icon! I’ve matched 550/1,908 via my [url=https://www.nexusmods.com/hollowknightsilksong/mods/772]Pin Finder mod[/url] (error-prone) and spent countless hours on requirement/need chains, but it’s a huge dataset I can’t finish alone.
 
-Linking values in the Saved Values window is super simple, so anyone can pitch in! With endorsements and submissions, we could fully map all of Pharloom’s monsters, secrets, and more. Let’s do this together. 🤝🏻"
+Linking values is super simple, so pitch in! With endorsements and submissions, we could map all Pharloom’s monsters, secrets, and more. Let’s do this together. 🤝🏻
 
 [img]https://www.castledragmire.com/silksong/SavedValuesWindow.png[/img]
 Use “Show Linked” on the sidebar to view icons not yet associated with save data.
 [img]https://www.castledragmire.com/silksong/ValuesWindowOptions.png[/img]
 
 To link icons and values:[list]
-[*] Select an icon on the map (green highlight) and a value in the Saved Values window.
+[*]Select an icon on the map (green highlight) and a value in the Saved Values window.
 [*]Click [b]Save[/b] or [b]Save+Send[/b]:[list]
 [*][b]Save[/b] → Local JSON
 [*][b]Send[/b] → Uploads data to me for crowdsourcing
@@ -150,8 +155,25 @@ This is the only window that persists without the map open.
 🎮️ Controller fully supported here too.
 Some values are hard to identify — e.g., some secrets are hidden behind “*Remasker*” flags.
 
+[b]Icon accessibility requirements and fulfillment needs [color=cyan](the chain system)[/color] also need additions and confirmation.[/b] For now that’s only possible via json editing and submission. This feature is also currently experimental.
+Here is the current dependency graph of data I’ve been able to compile.
+
+[b]If anyone is interested in helping get the database in this project complete, [color=green][i]PLEASE contact me[/i][/color][/b]. If there is enough interest I’ll put up a discord.
+
 [center][size=5][img=middle]https://www.castledragmire.com/silksong/FireSmall.png[/img] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[b]Bonus&nbsp;Rant[/b]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [img=middle]https://www.castledragmire.com/silksong/FireSmallRev.png[/img][/size]
 [img=top]https://www.castledragmire.com/silksong/Line425.png[/img]
 [/center]Nexus re-encoded my GIFs into WebP and butchered the quality 😅️
 Here’s the original, as intended:
 [img]https://www.castledragmire.com/silksong/SilksongAnimations.gif[/img]
+
+[center][size=5]📜️ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[b]Immediate&nbsp;Todos[/b]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 📜️[/size]
+[img=top]https://www.castledragmire.com/silksong/Line425.png[/img]
+[b][color=red]C[/color] [color=green]o[/color] [color=red]m[/color] [color=green]i[/color] [color=red]n[/color] [color=green]g[/color]   [color=lightblue]B[/color] [color=white]e[/color] [color=lightblue]f[/color] [color=white]o[/color] [color=lightblue]r[/color] [color=white]e[/color]   [color=red]N[/color] [color=green]e[/color] [color=red]w[/color]   [color=gold]Y[/color] [color=silver]e[/color] [color=gold]a[/color] [color=silver]r[/color] [color=gold]s[/color][/b][/center]
+[list]
+[*]Finish the chain system:[list]
+[*]Hide icons until an area is mapped
+[*]Hide icons until accessible
+[*]Cross off requirements/needs in sidebar descriptions
+[/list]
+[*]Fix link clicking in the search window
+[/list]

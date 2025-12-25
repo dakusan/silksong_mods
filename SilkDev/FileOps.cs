@@ -31,8 +31,8 @@ public static class FileOps
 	public static string	GetPluginPath										  => GetDirectoryName			(Assembly.GetCallingAssembly().Location);
 
 	//Shorthands to use during debugging
-	public static string	Ser				(object Obj							) =>		  JSON.JsonUtils.Serialize(Obj);
-	public static void		LogSer			(object Obj							) => Log.Info(JSON.JsonUtils.Serialize(Obj));
+	public static string	Ser				(params object[] Obj				) => JSON.JsonUtils.Serialize(Obj.Length==1 ? Obj[0] : Obj);
+	public static void		LogSer			(params object[] Obj				) => Log.Info(Obj);
 
 	//Load resources
 	public static Stream LoadEmbeddedResource(string Name) =>

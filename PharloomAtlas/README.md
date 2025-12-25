@@ -34,6 +34,7 @@ Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework
 - Highly customizable map experience: toggle UI elements, icon categories, and map behaviors.
 - Spoiler-safe “reveal” mechanics that let you uncover Pharloom naturally.
 - Real-time tracking of icons, pins, and player position.
+- Dependency chains for icon accessibility requirements and fulfillment needs.
 - Optional mouse, keyboard, and controller support for every interface including map control enhancements.
 - Built-in data collection tools for community-sourced completion accuracy.
 

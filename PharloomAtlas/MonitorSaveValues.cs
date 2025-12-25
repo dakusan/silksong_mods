@@ -400,7 +400,7 @@ public class MonitorSaveValues
 		static string UrlQuery() => string.Join('&', new List<(string Key, string Value)> {
 			("ItemID", MapControl.Self.SelectedItem!.ID.ToString()),
 			("ItemName", SaveValuesWindow.Self.SelectedItem!.FullName),
-			("Username", Misc.SteamUsername),
+			("Username", Config.C.AnonymousSubmissions ? Misc.UsernameErrorString : Misc.SteamUsername),
 		}.Select(static Tuple => HttpUtility.UrlEncode(Tuple.Key)+"="+HttpUtility.UrlEncode(Tuple.Value)));
 
 		//Send the web request and format returns
