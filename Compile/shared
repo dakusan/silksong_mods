@@ -36,16 +36,18 @@ ensure_dir() {
 	mkdir -p "$dir" || report_error "$dir failed creation"
 }
 
+compile_json() {
+	rm -f "$1"
+	php "$ESCAPE_LINKS/WebServer/CreateJsons.php" "Build=$2&CompactJSON=1" > "$1" || report_error "$1 build failed: `cat "$1"`"
+}
+
 #Make all symlinks in the links directory
 ensure_dir "$links_dir" || exit 1
 cd "$links_dir"
 ESCAPE_LINKS="../.."
 
 #Ensure file symlinks
-ensure_link "categories.json" "$ESCAPE_LINKS/PharloomAtlas/Assets/categories.json"
 ensure_link "ItemFinder.json" "$ESCAPE_LINKS/PharloomAtlas/Assets/ItemFinder.json"
-ensure_link "items.json" "$ESCAPE_LINKS/PharloomAtlas/Assets/items.json"
-ensure_link "Misc.json" "$ESCAPE_LINKS/PharloomAtlas/Assets/Misc.json"
 for project in NoClip PharloomAtlas PinFinder SilkDev; do
 	ensure_link "$project.dll" "$ESCAPE_LINKS/$project/bin/Release/netstandard2.1/$project.dll"
 	ensure_link "$project.NexusMods.txt" "$ESCAPE_LINKS/$project/Assets/$project.NexusMods.txt"
@@ -53,6 +55,7 @@ for project in NoClip PharloomAtlas PinFinder SilkDev; do
 done
 ensure_link "Root.README.md" "$ESCAPE_LINKS/README.md"
 ensure_link "WebServer.README.md" "$ESCAPE_LINKS/WebServer/README.md"
+[[ $(type -t extra_links) == function ]] && extra_links
 
 #Ensure translation symlinks
 ensure_dir "$trans_dir" || exit 1

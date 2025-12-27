@@ -1,8 +1,14 @@
 <?php
-function ErrAndDie($User, $Log=null)
+function ErrAndDie($User, $Log=null, $ResponseCode=500)
 {
+	global $argv;
 	file_put_contents(__DIR__.'/errors.log', date('Y-m-d H:i:s ').($Log!=null ? "$User: $Log" : $User)."\n", FILE_APPEND|LOCK_EX);
-	die($User);
+	http_response_code($ResponseCode);
+	if(isset($argv))
+		fwrite(STDERR, "$User\n");
+	else
+		print $User;
+	exit(1);
 }
 
 require_once(__DIR__.'/Config.php');

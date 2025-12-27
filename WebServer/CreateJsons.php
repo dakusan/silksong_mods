@@ -1,14 +1,35 @@
 <?php
 require_once(__DIR__.'/Shared.php');
 
+//Check for request variables
 $CompactJSON=false;
-
-//Only output files if script is run directly. Otherwise, used as a library
-if(str_ends_with($_SERVER['SCRIPT_NAME'], pathinfo(__FILE__, PATHINFO_BASENAME))) {
-	file_put_contents('./categories.json', GenerateCategories());
-	file_put_contents('./items.json', GenerateItems());
-	file_put_contents('./Misc.json', GenerateMisc());
+$Vars=$Vars ?? $_GET;
+if(isset($argv) && count($argv)>1)
+	parse_str($argv[1], $Vars);
+if(isset($Vars['CompactJSON']))
+	$CompactJSON=($Vars['CompactJSON']==1);
+if(isset($Vars['Build'])) {
+	if(!in_array($Vars['Build'], ['Categories', 'Items', 'Misc']))
+		return ErrAndDie('Invalid Build parameter', null, 400);
+	header('Content-Type: application/json');
+	try {
+		print ('Generate'.$Vars['Build'])();
+	} catch(Exception $e) {
+		return ErrAndDie('An exception occurred', $e->getMessage());
+	}
+	exit(0);
 }
+
+//If not running the script from the command line, throw an error
+if(!isset($argv) || !str_ends_with($_SERVER['SCRIPT_NAME'], pathinfo(__FILE__, PATHINFO_BASENAME)))
+	return ErrAndDie('Missing Build parameter', null, 400);
+
+//Output all files to local folder (which are probably symlinked elsewhere)
+file_put_contents('./categories.json', GenerateCategories());
+file_put_contents('./items.json', GenerateItems());
+file_put_contents('./Misc.json', GenerateMisc());
+print "Generated all files\n";
+exit(0);
 
 function GenerateJson($Data)
 {
