@@ -85,17 +85,81 @@ public partial class SideBar
 			FullMessage=Message;
 		}
 
+		/*!=double height, ~=double width.
+		Translation strings can start with 1-9 to dictate their vertical and horizontal alignment scheme. 1=upper left, 9=lower right. Default is 5 (middle center).
+		Translation strings can also have at the beginning (following the optional alignment scheme) a section in the format “!#!#!#” where # is a 1-2 digit number.
+			The sections dictate in sequential order: Font size, line height/spacing, and (optional) margin-top.
+			When using this format, the strings are always drawn from the top and ignore the style’s vertical alignment. */
+		private static readonly string?[] NumPadButtons=[
+			null, "/" , "*", "-",
+			"7"	, "8" , "9", "!+",
+			"4"	, "5" , "6", null,
+			"1"	, "2" , "3", "!Enter",
+			"~0", null, ".", null,
+		];
+		private static readonly Regex GetFontHeights=new(@"^!(\d\d?)!(\d\d?)(?:!(\d\d?))?"), GetSizeBlock=new(@"^<size\s*=\s*\d+>.*?</size>");
+
 		protected override void DrawContents(Vector2 AreaSize)
 		{
 			//Draw the controller (if we have it)
 			if(ControllerLayout!=null) {
+				//Center the controller
 				const int ImageBottomSpacing=5;
 				GUILayout.BeginHorizontal();
 				GUILayout.FlexibleSpace();
 				GUILayout.Label(ControllerLayout, GUILayout.Width(ControllerLayout.width), GUILayout.Height(ControllerLayout.height));
+				Vector2 StartPos=GUILayoutUtility.GetLastRect().position;
 				GUILayout.FlexibleSpace();
 				GUILayout.EndHorizontal();
 				GUILayout.Space(ImageBottomSpacing);
+
+				//Draw the numpad labels
+				const int NPButtonX=611, NPButtonWidth =70, NPButtonPaddingX=11;
+				const int NPButtonY=3  , NPButtonHeight=79, NPButtonPaddingY=1 ;
+				int StartX=(int)StartPos.x+NPButtonX, StartY=(int)StartPos.y+NPButtonY, PrevFontSize=CenterRichText.fontSize;
+				Color PrevTextColor=CenterRichText.normal.textColor;
+				CenterRichText.normal.textColor=Color.black;
+				foreach((int Index, string? NPName) in NumPadButtons.Entries()) {
+					if(NPName==null)
+						continue;
+
+					//Get the translation string
+					string TString=Tr.TDef("Button_"+(NPName[0] is '~' or '!' ? NPName[1..] : NPName), nameof(HelpWindow), Misc.Empty);
+					if(TString==Misc.Empty)
+						continue;
+
+					//Change the alignment if requested for the translation string
+					bool HasAlignNum=(TString[0] is >='1' and <='9');
+					CenterRichText.alignment=HasAlignNum ? TextAnchor.UpperLeft+(TString[0]-'1') : TextAnchor.MiddleCenter;
+					if(HasAlignNum)
+						TString=TString[1..];
+
+					//Determine the rect to draw the label in
+					Rect DrawRect=new(
+						StartX+Index%4*(NPButtonWidth +NPButtonPaddingX),
+						StartY+Index/4*(NPButtonHeight+NPButtonPaddingY),
+						NPButtonWidth *(NPName[0]=='~' ? 2 : 1),
+						NPButtonHeight*(NPName[0]=='!' ? 2 : 1)
+					);
+
+					DrawHelpString(DrawRect, TString, CenterRichText);
+				}
+
+				//Draw the other 3 labels
+				void DrawLabel(int x, int y, int Width, int Height, TextAnchor A, Color c, string Key)
+				{
+					CenterRichText.alignment=A;
+					CenterRichText.normal.textColor=c;
+					DrawHelpString(new Rect(StartPos.x+x, StartPos.y+y, Width, Height), Tr.TDef(Key, nameof(HelpWindow), ""), CenterRichText);
+				}
+				DrawLabel(480, 0  , 125, 89, TextAnchor.UpperRight , Color.cyan , "NumPadReqs"		);
+				DrawLabel(152, 0  , 287, 82, TextAnchor.UpperCenter, Color.white, "WhenButtonsWork"	);
+				DrawLabel(104, 360, 378, 41, TextAnchor.UpperLeft  , Color.white, "AsteriskDefines"	);
+
+				//Restore the GUIStyle
+				CenterRichText.alignment=TextAnchor.MiddleCenter;
+				CenterRichText.normal.textColor=PrevTextColor;
+				CenterRichText.fontSize=PrevFontSize;
 			}
 
 			//Draw the press any key text
@@ -103,11 +167,53 @@ public partial class SideBar
 
 			//Draw the message
 			ScrollPosition=GUILayout.BeginScrollView(ScrollPosition, ScrollStyle, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-			GUILayout.Label($"<color=#FF6C9C><size=20>{TSan("Scroll this window with selected-icon-stack next/previous")}</size></color>", CenterRichText);
+			GUILayout.Label($"<color=#FF6C9C><size=20>{TSan("Scroll this window with next/previous selected item buttons")}</size></color>", CenterRichText);
 			GUILayout.Label(Message, LabelStyle);
 			GUILayout.EndScrollView();
 
 			GUILayout.Space(2);
+		}
+
+		public void DrawHelpString(Rect Rect, string Str, GUIStyle Style)
+		{
+			//If no regex match, just draw the line normally
+			Match FontSizeMatch=GetFontHeights.Match(Str);
+			if(!FontSizeMatch.Success) {
+				GUI.Label(Rect, Str, Style);
+				return;
+			}
+
+			//Make sure the string isn’t empty after the regex
+			Str=Str[FontSizeMatch.Length..];
+			if(string.IsNullOrEmpty(Str))
+				return;
+
+			//Get the custom spacing values
+			int FontSize=int.Parse(FontSizeMatch.Groups[1].Value);
+			int LineHeight=int.Parse(FontSizeMatch.Groups[2].Value);
+			int MarginTop=FontSizeMatch.Groups[3].Value==Misc.Empty ? 0 : int.Parse(FontSizeMatch.Groups[3].Value);
+
+			//Get the lines by adding 1 character (or size block) at a time until a line overflows
+			System.Collections.Generic.List<string> Lines=[];
+			string CurrentLine=Misc.Empty, CurBlock, TestStr=Misc.Empty;
+			Match SizeBlock;
+			bool Overflow=false;
+			Style.fontSize=FontSize;
+			for(int i=0; i<Str.Length; i+=CurBlock.Length) {
+				CurBlock=(Str[i]=='<' && (SizeBlock=GetSizeBlock.Match(Str[i..])).Success ? SizeBlock.Value : Str[i].ToString());
+				if(CurBlock=="\n" || (Overflow=Style.CalcSize(new GUIContent(TestStr=CurrentLine+CurBlock)).x>Rect.width && CurrentLine.Length>0))
+					Lines.Add(CurrentLine);
+				CurrentLine=(CurBlock=="\n" ? Misc.Empty : Overflow ? CurBlock : TestStr);
+			}
+			if(CurrentLine.Length>0)
+				Lines.Add(CurrentLine);
+
+			//Render the lines
+			float y=Rect.y+MarginTop;
+			foreach(string Line in Lines) {
+				GUI.Label(new Rect(Rect.x, y, Rect.width, FontSize*2), Line, Style);
+				y+=LineHeight;
+			}
 		}
 
 		//Scroll up/down the help info
