@@ -10,14 +10,21 @@ namespace PharloomAtlas;
 
 public class RicherLabel : LinkedLabel
 {
+	//Process important and found links
 	private const string ImportantAttr="Important";
-	public RicherLabel()
+	public RicherLabel() => Window.OnNextFrame(InitAfterFrame, false);
+	private void InitAfterFrame()
 	{
+		//Strike found links
+		foreach(Link L in ActiveLinks)
+			if(int.TryParse(L.Attributes.Get("ItemID") ?? Misc.Empty, out int LID) && MapControl.Self.DS.Items.TryGetValue(LID, out Item I) && I.IsFound)
+				L.StrikeColor=Color.white;
+
 		//Extract important links
-		Window.OnNextFrame(() => Extract(
+		Extract(
 			(L, T2D) => ImportantLinks.Add(new ImportantLink(L, T2D)),
 			[.. ActiveLinks.Where(static L => L.Attributes.Get(ImportantAttr)!=null)]
-		), false);
+		);
 	}
 
 	public void Dispose()

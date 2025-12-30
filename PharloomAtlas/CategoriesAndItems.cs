@@ -180,7 +180,14 @@ public class Item
 			{
 				Name=NewItemValue;
 				LinkID=int.Parse(ItemValue);
-				return $"<LinkID={Parent.Parent.GetLinkID}><ATTR=GroupID>{GroupID}</ATTR><ATTR=GroupIndex>{GroupIndex}</ATTR><ATTR=ItemID>{LinkID}</ATTR><u>"+string.Join(Misc.Empty, [.. Parts, NewItemValue])+"</u></LinkID>";
+				string? ExtraColor=
+					  FlagNot		? "red"
+					: FlagStarted	? "teal"
+					: FlagRecommend	? "#dda0dd" //plum
+					: null;
+				ExtraColor=(ExtraColor!=null ? $"<Attr=NormalColor>{ExtraColor}</Attr>" : Misc.Empty);
+
+				return $"<LinkID={Parent.Parent.GetLinkID}><ATTR=GroupID>{GroupID}</ATTR><ATTR=GroupIndex>{GroupIndex}</ATTR><ATTR=ItemID>{LinkID}</ATTR>{ExtraColor}<u>"+string.Join(Misc.Empty, [.. Parts, NewItemValue])+"</u></LinkID>";
 			}
 
 			//If unlinked or linking failed do do not make it a real link
