@@ -119,7 +119,7 @@ public partial class SideBar
 				int StartX=(int)StartPos.x+NPButtonX, StartY=(int)StartPos.y+NPButtonY, PrevFontSize=CenterRichText.fontSize;
 				Color PrevTextColor=CenterRichText.normal.textColor;
 				CenterRichText.normal.textColor=Color.black;
-				foreach((int Index, string? NPName) in NumPadButtons.Entries()) {
+				foreach((int Index, string? NPName) in NumPadButtons.Entries) {
 					if(NPName==null)
 						continue;
 

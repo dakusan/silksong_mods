@@ -142,7 +142,7 @@ public class DataStorage
 				Cat.ToggleState=CategoryToggleState.Incomplete;
 
 			//Load the categories from the settings
-			foreach((int CatToggleState, int[] CatIDs) in CatIDsLists.Take((int)CategoryToggleState.Unknown).Entries())
+			foreach((int CatToggleState, int[] CatIDs) in CatIDsLists.Take((int)CategoryToggleState.Unknown).Entries)
 				foreach(int CatID in CatIDs)
 					_=Categories.Get(CatID)?.ToggleState=(CategoryToggleState)CatToggleState;
 

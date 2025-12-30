@@ -10,7 +10,10 @@ namespace SilkDev.Windows;
 
 /*
  * This draws a GUI.Label or GUILayout.Label. Links, denoted by “<LinkID=LINKID>...</LinkID>”, will be turned into a Link object. Link objects are clickable, colored LinkColor, and change to LinkHoverColor on mouse hover.
- * Links can have a list of attributes “<ATTR=AttrName>AttrVal</ATTR>” fields preceeding their text in the LinkID block. These attributes are stored in the link and not displayed. Names cannot contain a “>” sign.
+ * Links can have a list of attributes “<ATTR=AttrName>AttrVal</ATTR>” fields preceeding their text in the LinkID block. These attributes are stored in the link and not displayed. Names cannot contain a “>” sign. Attributes can be set after link processing.
+ * Supported attributes (case sensitive) copied to link members, and removed after processing:
+ *   - NormalColor, HoverColor, StrikeColor
+ *     - Must be parsable by ColorUtility.TryParseHtmlString()
  * Everytime a member of ClickableLabel changes which will change the rendering of the label, it has to redetermine all the info for the Links, which is a bit expensive.
  *	- When this happens, it has to determine which Link is which. It does this via the LinkID for each Link, which needs to be unique.
  * Link labels nesting is not supported.
@@ -30,29 +33,21 @@ public class ClickableLabel
 		set {
 			if(field==value)
 				return;
-			LinkColorHex=(field=value).ToHex();
-
-			//Recreate the render string with the new colors
-			RenderString=LiveLinks.AsEnumerable()
-				.Reverse()
-				.Aggregate(RenderString, (Str, L) =>
-					 Str[..L.StringStartPos]
-					+$"<color=#{LinkColorHex}>{L.Text}</color>"
-					+Str[L.StringEndPos..]
-				);
+			LinkColorHex=(field=value).Hex;
+			LiveLinks.ForEach(L => RenderString=L.UpdateColor(RenderString));
 		}
 	} = Color.cyan;
 	public Color HoverColor
 	{
 		get;
-		set => HoverColorHex=(field=value).ToHex();
+		set => HoverColorHex=(field=value).Hex;
 	} = Color.yellow;
 	private string LinkColorHex=null!, HoverColorHex=null!;
 
 	public ClickableLabel()
 	{
-		LinkColorHex=LinkColor.ToHex();
-		HoverColorHex=HoverColor.ToHex();
+		LinkColorHex=LinkColor.Hex;
+		HoverColorHex=HoverColor.Hex;
 	}
 
 	//This holds the links by their LinkID
@@ -73,24 +68,58 @@ public class ClickableLabel
 		public readonly string LinkID;
 		public string Text { get; internal set; } = null!;
 		public bool IsLive { get; internal set; } = false; //If the link is being rendered inside the current label
-		internal Rect[] Boxes=null!; //Relative to the upper left corner of the ClickableLabel
-		internal readonly Dictionary<string, string> Attrs=[];
+		internal Rect[]? Boxes=null; //Relative to the upper left corner of the ClickableLabel
+		public Dictionary<string, string> Attributes=[];
 		public int StringStartPos, StringEndPos;
 
-		//Public getters
-		public System.Collections.ObjectModel.ReadOnlyDictionary<string, string> Attributes => new(Attrs);
-		public Rect[] Rects => Misc.PassThru(Parent.Extract, IsLive ? [..Boxes] : (Rect[])[]);
+		//Override link colors
+		public Color? NormalColor { get; set { //Overwrite the default LinkColor
+			NormalColorHex=(field=value)?.Hex;
+			if(IsLive)
+				Parent.RenderString=UpdateColor(Parent.RenderString, false);
+		} }
+		public Color? HoverColor { get; set => HoverColorHex=(field=value)?.Hex; } //Overwrite the default HoverColor
+		public Color? StrikeColor; //Add a strikethrough line
+		internal string? NormalColorHex, HoverColorHex;
+
+		//Get the rectangles
+		public Rect[] Rects { get {
+			if(!IsLive || Boxes!=null)
+				return !IsLive ? [] : Boxes!;
+			if(Event.current.type!=EventType.Layout)
+				Parent.Extract(this);
+			return Boxes ?? [];
+		} }
+
+		//Update the color in place in the render string
+		public string UpdateColor(string Str, bool UseHoverColor=false) =>
+			 Str[..StringStartPos]
+			+$"<color=#{(UseHoverColor ? (HoverColorHex ?? Parent.HoverColorHex) : NormalColorHex ?? Parent.LinkColorHex)}>{Text}</color>"
+			+Str[StringEndPos..];
 	}
 
 	//Marks that the links need to be reextracted. If you change something inside your LabelStyle, this may be needed.
-	public void Clear(bool NeedsParsing) => (this.NeedsParsing, NeedsExtracting)=(NeedsParsing|this.NeedsParsing, true);
-	private bool NeedsParsing=true, NeedsExtracting=true; //This keeps track of when parsing or link rects need to be refreshed.
+	public void Clear(bool NeedsParsing)
+	{
+		this.NeedsParsing|=NeedsParsing;
+
+		if(NeedsExtracting)
+			return;
+		GetLinkRectsOnFrame=NeedsExtracting=true;
+		foreach(Link L in LiveLinks)
+			L.Boxes=null;
+	}
+
+	//This keeps track of when parsing or link rects need to be refreshed.
+	private bool NeedsParsing=true, NeedsExtracting=true, GetLinkRectsOnFrame=true;
 
 	//Information needed for rendering
 	private string RenderString=null!;
+	private static Color CurStrikeColor=Color.black;
+	private static readonly Texture2D StrikeColorTex=CurStrikeColor.MakeTexture();
 
-	//Renders the label. Reextraction is only ever ran if the mouse is over the label. Does not return Link on layout phase
-	public Link? GUILabel(Rect Rect, string Content, GUIStyle? NewGUIStyle=null, params Link[] ExtraSelectedItems)
+	//Renders the label. Full reextraction is only ever ran if the mouse is over the label. Does not return Link on layout phase
+	public Link? GUILabel(Rect Rect, string Content, GUIStyle? NewGUIStyle=null, params Link[] SelectedItems)
 	{
 		//Update fields to make sure we don’t need a reparse or rerender
 		RectSize=Rect.size;
@@ -100,35 +129,39 @@ public class ClickableLabel
 		if(NeedsParsing)
 			Parse();
 
-		//If mouse is not over the label, or in layout phase, then just render the label as is
-		if(
-			   Event.current.type==EventType.Layout
-			|| (!Rect.Contains(DevInput.Util.MousePos) && ExtraSelectedItems.Length==0)
-		) {
-			GUI.Label(Rect, RenderString, Style);
-			return null;
+		//Check for hovered item
+		bool IsLayout=Event.current.type==EventType.Layout;
+		Link? HoveredLink=null;
+		if(!IsLayout && Rect.Contains(DevInput.Util.MousePos)) {
+			if(NeedsExtracting)
+				IExtract();
+			Vector2 LocalMPos=DevInput.Util.MousePos-Pos;
+			HoveredLink=LiveLinks.FirstOrDefault(L => L.Boxes.Any(R => R.Contains(LocalMPos)));
+			if(HoveredLink!=null && !SelectedItems.Contains(HoveredLink))
+				SelectedItems=[..SelectedItems, HoveredLink];
 		}
 
-		//Run extraction if needed
-		if(NeedsExtracting)
-			Extract();
-
-		//Find if any live labels are being hovered
-		Vector2 LocalMPos=DevInput.Util.MousePos-Pos;
-		Link? HoveredLink=LiveLinks.FirstOrDefault(L => L.Boxes.Any(R => R.Contains(LocalMPos)));
-
-		//Combine hover link with ExtraSelectedItems
-		string RenderText=
-			((Link[])[.. ExtraSelectedItems, .. HoveredLink!=null ? [HoveredLink] : (Link[])[]])
-			.OrderByDescending(static L => L.StringStartPos)
-			.Aggregate(RenderString, (Str, L) =>
-				 Str[..L.StringStartPos]
-				+$"<color=#{HoverColorHex}>{L.Text}</color>"
-				+Str[L.StringEndPos..]
-			);
-
-		//Render and return
+		//Render the label
+		string RenderText=IsLayout ? RenderString : SelectedItems.Aggregate(RenderString, static (Str, L) => Str=L.UpdateColor(Str, true));
 		GUI.Label(Rect, RenderText, Style);
+
+		//Get all the rects at once for any links that have a strike in them
+		if(!IsLayout && NeedsExtracting && GetLinkRectsOnFrame) {
+			GetLinkRectsOnFrame=false;
+			IExtract(LiveLinks.Where(static L => L.StrikeColor!=null));
+		}
+
+		//Draw strikes
+		foreach(Link L in LiveLinks) {
+			if(L.StrikeColor==null)
+				continue;
+			if(CurStrikeColor!=L.StrikeColor)
+				_=StrikeColorTex.ReColor(CurStrikeColor=L.StrikeColor.Value);
+			foreach(Rect R in L.Rects)
+				GUI.DrawTexture(R.AddPos(Pos).AddY(R.height/2).SetHeight(1), StrikeColorTex);
+		}
+
+		//Return the hovered link
 		return HoveredLink;
 	}
 	public Link? GUILabel(Rect Position, GUIContent Content, GUIStyle? NewGUIStyle=null, params Link[] ExtraSelectedItems) =>
@@ -163,6 +196,13 @@ public class ClickableLabel
 			L.IsLive=false;
 		LiveLinks.Clear();
 
+		//Color attributes that can be replaced
+		(string, Action<Link, Color>)[] ColorAttrs=[
+			(nameof(Link.NormalColor), static (L, C) => L.NormalColor=C),
+			(nameof(Link.HoverColor ), static (L, C) => L.HoverColor =C),
+			(nameof(Link.StrikeColor), static (L, C) => L.StrikeColor=C),
+		];
+
 		//Extract all <color> blocks
 		Regex LinkRegEx=new(@"<LinkID\s*=([^>]+)>(.*?)</LinkID>", RegexOptions.IgnoreCase);
 		Regex AttrRegEx=new(@"^(<ATTR\s*=\s*([^>]+)\s*>\s*(.*?)\s*</ATTR>)*", RegexOptions.IgnoreCase);
@@ -190,13 +230,19 @@ public class ClickableLabel
 			string LinkID=LinkMatch.Groups[1].Value.Trim();
 			if(!Links.TryGetValue(LinkID, out Link L))
 				L=Links[LinkID]=new Link(this, LinkID);
+			if(L.IsLive) {
+				Log.Error($"Link ID found more than once, excluding: {LinkID}");
+				CurIndex=LinkMatch.Index+LinkMatch.Length;
+				continue;
+			}
 			LiveLinks.Add(L);
 
 			//Copy over the new values to the link
 			L.Text=OutString;
-			L.Attrs.Clear();
-			L.Attrs.AddRange(AttrList);
+			L.Attributes.Clear();
+			L.Attributes.AddRange(AttrList);
 			L.IsLive=true;
+			L.Boxes=null;
 			L.StringStartPos=Result.Length;
 			_=Result.Append($"<color=#{LinkColorHex}>{L.Text}</color>");
 			L.StringEndPos=Result.Length;
@@ -205,50 +251,55 @@ public class ClickableLabel
 
 		LiveLinks.Sort(static (a, b) => a.StringStartPos.CompareTo(b.StringStartPos));
 		RenderString=Result.ToString();
+
+		//Get color attribute overrides
+		foreach(Link L in LiveLinks)
+			foreach((string AttrName, Action<Link, Color> A) in ColorAttrs)
+				if(
+					   L.Attributes.TryGetValue(AttrName, out string StrCol)
+					&& ColorUtility.TryParseHtmlString(StrCol, out Color C)
+					&& L.Attributes.Remove(AttrName)
+				)
+					A(L, C);
 	}
 
-	//This is only ran when the label will render differently visually. It extracts the rectangles for the links.
-	private void Extract()
+	public void Extract(params Link[] WhichLinks) => IExtract(WhichLinks);
+
+	//This extracts the rectangles for the links.
+	//If NeedsExtracting and WhichLinks=null (only ran when the label will render differently visually), it will extract all links and set NeedsExtracting=false.
+	private void IExtract(IEnumerable<Link>? WhichLinks=null)
 	{
 		//Make sure we need to extract
-		if(!NeedsExtracting)
+		if(!NeedsExtracting || WhichLinks?.Any()==false)
 			return;
-		NeedsExtracting=false;
+		if(WhichLinks==null) //Only mark as no longer needing extraction if we are processing all the live links
+			NeedsExtracting=false;
 		DateTime StartTime=DateTime.Now;
 		using GetStringRects GSR=new((int)RectSize.x, (int)RectSize.y);
 
-		//Create a list of the render string sections separated by the links, and all color tags removed
-		const char SplitChar='\x01'; //A character that should not be used in the string used for splitting. Too bad we aren’t in UTF8. (Mumble muble Microsoft mumble muble)
-		List<string> StringParts=[..
-			Regex.Replace(
-				LiveLinks.AsEnumerable().Reverse().Aggregate(RenderString, static (Str, L) => Str[..L.StringStartPos]+SplitChar+Str[L.StringEndPos..]),
-				@"<color\s*=[^>]+>|</color>",
-				Misc.Empty
-			).Split(SplitChar)
-		];
-
-		//Confirm the splits look good
-		if(LiveLinks.Count!=StringParts.Count-1)
-			throw new Exception($"Impossible error happened: {LiveLinks.Count}!={StringParts.Count-1}");
-
 		//Make a full render string with redetermined link placement for quick string rendering
-		StringBuilder SB=new("<color=#00000000>");
 		var CreateStrings=new (Link L, int StartPos, int EndPos)[LiveLinks.Count];
-		foreach((int Index, string StrPart) in StringParts.Entries()) {
-			_=SB.Append(StrPart);
-			if(Index>=LiveLinks.Count)
-				break;
-			Link L=LiveLinks[Index];
-			CreateStrings[Index]=(L, SB.Length, SB.Length+L.Text.Length);
-			_=SB.Append(L.Text);
+		StringBuilder SB=new("<color=#00000000>");
+		int PrevPos=0;
+		foreach((int Index, Link L) in LiveLinks.Entries) {
+			_=SB.Append(RenderString[PrevPos..L.StringStartPos]).Append(L.Text);
+			CreateStrings[Index]=(L, SB.Length-L.Text.Length, SB.Length);
+			PrevPos=L.StringEndPos;
 		}
+		_=SB.Append(RenderString[PrevPos..]);
 		string FinalStr=SB.ToString();
 
 		//Create the separate strings with colored text to measure boxes
+		int NumExtracted=LiveLinks.Count;
 		foreach((Link L, int StartPos, int EndPos) in CreateStrings)
-			L.Boxes=GSR.Exec(FinalStr[..StartPos]+$"<color=black>{L.Text}</color>"+FinalStr[EndPos..], Style);
+			if(L.Boxes==null && (WhichLinks==null || WhichLinks.Contains(L)))
+				L.Boxes=GSR.Exec(FinalStr[..StartPos]+$"<color=black>{L.Text}</color>"+FinalStr[EndPos..], Style);
+			else
+				NumExtracted--;
 
-		Log.Info($"Time to extract ClickLabel Rects: {(DateTime.Now-StartTime).TotalSeconds:F3} seconds");
+		//Output the time to complete the process
+		double RenderTime=(DateTime.Now-StartTime).TotalSeconds;
+		Log.Info($"Time to extract {NumExtracted} ClickLabel Link Rects: {RenderTime:F4} seconds [{RenderTime/MathF.Max(NumExtracted, 1):F4}/link]");
 	}
 
 	//This class takes a string, renders it, and determines the rects of the visible sections

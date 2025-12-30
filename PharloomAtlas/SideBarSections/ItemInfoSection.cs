@@ -116,7 +116,7 @@ public partial class SideBar
 						Images.Add(Image!);
 				});
 
-			//Render text, images, and a horizontal border line
+			//Render text
 			ClickableLabel.Link? L=CLabel!.GUILabelLayout(
 				string.Join(Misc.NewLine, Lines.Where(static I => I!=Misc.Empty)),
 				ItemInfoBoxStyle,
@@ -124,9 +124,11 @@ public partial class SideBar
 			);
 			if(L!=null && Event.current.type==EventType.MouseDown && Button.CurrentButton==Button.Enum.Left)
 				MapControl.Self.DS.LinkSelected(L.Attributes.Get("ItemID") ?? "1");
+
+			//Render images
 			Images.ForEach(Tex => {
 				float RealClientWidth=ClientWidth+InfoSectionHorPadding;
-				float DrawWidth=Math.Min(RealClientWidth, SaveImageWidth);
+				float DrawWidth=Mathf.Min(RealClientWidth, SaveImageWidth);
 				float WidthRatio=DrawWidth/Tex.width;
 				GUI.DrawTexture(
 					GUILayoutUtility.GetRect(Tex.width*WidthRatio, Tex.height*WidthRatio)
@@ -135,6 +137,8 @@ public partial class SideBar
 					Tex
 				);
 			});
+
+			//Render a a horizontal border line
 			DrawInfoSectionLine(GUILayoutUtility.GetLastRect());
 		}
 

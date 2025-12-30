@@ -5,8 +5,10 @@ namespace SilkDev.Textures;
 
 public static class TextureExtensions
 {
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect ConvertTexCoords(this Rect R, Texture2D Tex) => new(R.position/Tex.Size(), R.size/Tex.Size()); //Convert 2D absolute sprite texture coordinates into scaled 0-1.0 floats
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Vector2 Size(this Texture2D T) => new(T.width, T.height);
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static Rect ConvertTexCoords(this Rect R, Texture2D Tex) => new(R.position/Tex.Size, R.size/Tex.Size); //Convert 2D absolute sprite texture coordinates into scaled 0-1.0 floats
+	extension(Texture2D T) { public Vector2 Size {
+		[MethodImpl(MethodImplOptions.AggressiveInlining)] get => new(T.width, T.height);
+	} }
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] public static void TDestroy(this Texture2D T) => Object.Destroy(T);
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static Texture2D MakeTexture(this Color c) => new Texture2D(2, 2).ReColor(c); //Create a 2x2 pixel texture to create solid colors
@@ -23,7 +25,7 @@ public static class TextureExtensions
 	public static Texture2D ToReadable(this Texture2D Tex, Rect? TexCoords=null, Vector2? ResizeDimensions=null)
 	{
 		//Create a render texture that we will use for blitting/resizing
-		Vector2 NewSize=ResizeDimensions ?? TexCoords?.size ?? Tex.Size();
+		Vector2 NewSize=ResizeDimensions ?? TexCoords?.size ?? Tex.Size;
 		RenderTexture PrevRT=RenderTexture.active;
 		using TypedDisposer<RenderTexture> RT=new(
 			RenderTexture.GetTemporary((int)NewSize.x, (int)NewSize.y, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear),
@@ -60,10 +62,11 @@ public static class TextureExtensions
 
 	//Convert a color to RRGGBBAA
 	private static readonly System.Collections.Generic.Dictionary<Color, string> HexCache=[];
-	public static string ToHex(this Color C) =>
+	extension(Color C) { public string Hex =>
 		HexCache.TryGetValue(C, out string Val) ? Val :
 		HexCache[C]=string.Format("{0:X2}{1:X2}{2:X2}{3:X2}",
 			(int)(C.r*255), (int)(C.g*255),
 			(int)(C.b*255), (int)(C.a*255)
 		);
+	};
 }

@@ -93,8 +93,8 @@ public class MarkerLabels : Window
 
 		(int, int) GetIndex(WrappedVector2List[] OuterList)
 		{
-			foreach((int OuterIndex, WrappedVector2List VL) in OuterList.Entries())
-				foreach((int InnerIndex, Vector2 LPos) in VL.List.Entries())
+			foreach((int OuterIndex, WrappedVector2List VL) in OuterList.Entries)
+				foreach((int InnerIndex, Vector2 LPos) in VL.List.Entries)
 					if(new MarkerPos(LPos)==Pos)
 						return (OuterIndex, InnerIndex);
 			return (-1, -1);

@@ -106,7 +106,7 @@ public class SpriteObject_tk2dBaseSprite(string Name, string ParentTree, tk2dBas
 	public override bool IsSafe			=> TKS.NullSafe?.CurrentSprite!=null && TKS.GetComponent<Renderer>()!=null && TKS.Collection!=null;
 	public override Bounds Bounds		=> TKS.GetComponent<Renderer>().bounds;
 	public override Texture2D Texture	=> (Texture2D)TKS.CurrentSprite.material.mainTexture;
-	public override Rect TextureRect	=> TextureRectFromUVs(TKS.CurrentSprite.uvs, Texture.Size());
+	public override Rect TextureRect	=> TextureRectFromUVs(TKS.CurrentSprite.uvs, Texture.Size);
 	public override float? PPU			=> 1f/TKS.CurrentSprite.texelSize.x;
 }
 
@@ -117,7 +117,7 @@ public class SpriteObject_MeshFilter(string Name, string ParentTree, MeshFilter 
 	public override bool IsSafe			=> MF.NullSafe?.sharedMesh.NullSafe!=null && MF.GetComponent<Renderer>()?.sharedMaterial!=null;
 	public override Bounds Bounds		=> MF.sharedMesh.bounds;
 	public override Texture2D Texture	=> (Texture2D)MF.GetComponent<Renderer>().sharedMaterial.mainTexture;
-	public override Rect TextureRect	=> TextureRectFromUVs(MF.sharedMesh.uv, Texture.Size());
+	public override Rect TextureRect	=> TextureRectFromUVs(MF.sharedMesh.uv, Texture.Size);
 	public override float? PPU			{ get {
 		Vector2 PPU2=TextureRect.size/Bounds.size;
 		return Mathf.Approximately(PPU2.x, PPU2.y) ? PPU2.x : null;

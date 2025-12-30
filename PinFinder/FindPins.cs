@@ -202,7 +202,7 @@ public static class FindPins
 		DateTime StartTime=DateTime.Now;
 		string[] AllScenes=AllSceneFiles;
 		PB_TotalFiles=AllScenes.Length;
-		foreach((int Index, string SceneFile) in AllScenes.Entries()) {
+		foreach((int Index, string SceneFile) in AllScenes.Entries) {
 			//Skip if the file already exists
 			string FileName=Path.GetFileName(SceneFile);
 			string SavePath=Path.Combine(SaveDir, FileName+".obj");

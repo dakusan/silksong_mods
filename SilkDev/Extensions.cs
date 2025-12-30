@@ -49,12 +49,14 @@ public static class Extensions
 		foreach(T Item in IEnum)
 			Action(Item);
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static IEnumerable<(int Index, T Value)> Entries<T>(this IEnumerable<T> Source)
-	{
-		int i=0;
-		foreach(T Item in Source)
-			yield return (i++, Item);
+	extension<T>(IEnumerable<T> Source) {
+		public IEnumerable<(int Index, T Value)> Entries {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)] get {
+				int i=0;
+				foreach(T Item in Source)
+					yield return (i++, Item);
+			}
+		}
 	}
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static IEnumerable<T> AsEnumerable<T>(this IEnumerator enumerator) {

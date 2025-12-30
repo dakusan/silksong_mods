@@ -288,7 +288,7 @@ public class Item
 
 			//Fill in the store
 			StoreItem[] Items=new StoreItem[Store.Length];
-			foreach((int Index, CreateStoreItems Item) in Store.Entries())
+			foreach((int Index, CreateStoreItems Item) in Store.Entries)
 				Items[Index]=new StoreItem(
 					  Item.Reqs==null ? null
 					: new ChainList(this, Item.Reqs		),
@@ -335,8 +335,8 @@ public class Item
 	//TODO: Temporarily remove links until ClickableLabel class is ready
 	static Item()
 	{
-		CurrentLinkColor=Config.C.Color_Link.V.ToHex();
-		Config.C.Color_Link.SettingChanged += (_, _) => CurrentLinkColor=Config.C.Color_Link.V.ToHex();
+		CurrentLinkColor=Config.C.Color_Link.V.Hex;
+		Config.C.Color_Link.SettingChanged += (_, _) => CurrentLinkColor=Config.C.Color_Link.V.Hex;
 	}
 	private static string CurrentLinkColor=null!;
 	private static readonly Regex ReplaceLinkIDs=new(@"<LinkID=[^>]+>(.*?)</LinkID>", RegexOptions.IgnoreCase);
