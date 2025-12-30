@@ -18,7 +18,7 @@ namespace SilkDev.Windows;
  *	- When this happens, it has to determine which Link is which. It does this via the LinkID for each Link, which needs to be unique.
  * Link labels nesting is not supported.
 */
-public class ClickableLabel
+public class LinkedLabel
 {
 	//If any of the following are updated, the links have to be reextracted
 	public GUIStyle Style		{ get; set { if(field!=value) Clear(false); field=value; } } = null!;
@@ -44,7 +44,7 @@ public class ClickableLabel
 	} = Color.yellow;
 	private string LinkColorHex=null!, HoverColorHex=null!;
 
-	public ClickableLabel()
+	public LinkedLabel()
 	{
 		LinkColorHex=LinkColor.Hex;
 		HoverColorHex=HoverColor.Hex;
@@ -58,11 +58,11 @@ public class ClickableLabel
 	//Information about a found link. All fields are updated during extraction.
 	public class Link
 	{
-		internal Link(ClickableLabel Parent, string LinkID) =>
+		internal Link(LinkedLabel Parent, string LinkID) =>
 			(this.Parent, this.LinkID)=(Parent, LinkID);
 
 		//Used to make sure this link stays up to date
-		private readonly ClickableLabel Parent;
+		private readonly LinkedLabel Parent;
 
 		//Updated during extraction
 		public readonly string LinkID;
@@ -263,14 +263,18 @@ public class ClickableLabel
 					A(L, C);
 	}
 
-	public void Extract(params Link[] WhichLinks) => IExtract(WhichLinks);
+	public void Extract(params IEnumerable<Link> WhichLinks) => IExtract(WhichLinks);
+	public void Extract(Action<Link, Texture2D> GetRenderedTexture, params IEnumerable<Link> WhichLinks) => IExtract(WhichLinks, GetRenderedTexture);
 
 	//This extracts the rectangles for the links.
 	//If NeedsExtracting and WhichLinks=null (only ran when the label will render differently visually), it will extract all links and set NeedsExtracting=false.
-	private void IExtract(IEnumerable<Link>? WhichLinks=null)
+	private void IExtract(IEnumerable<Link>? WhichLinks=null, Action<Link, Texture2D>? GetRenderedTexture=null)
 	{
 		//Make sure we need to extract
-		if(!NeedsExtracting || WhichLinks?.Any()==false)
+		if(!(
+			   (GetRenderedTexture!=null || NeedsExtracting)
+			&& WhichLinks?.Any()!=false
+		))
 			return;
 		if(WhichLinks==null) //Only mark as no longer needing extraction if we are processing all the live links
 			NeedsExtracting=false;
@@ -278,8 +282,10 @@ public class ClickableLabel
 		using GetStringRects GSR=new((int)RectSize.x, (int)RectSize.y);
 
 		//Make a full render string with redetermined link placement for quick string rendering
+		const string MakeTransparent="<color=#00000000>";
 		var CreateStrings=new (Link L, int StartPos, int EndPos)[LiveLinks.Count];
-		StringBuilder SB=new("<color=#00000000>");
+		StringBuilder SB=new(MakeTransparent.Length+RenderString.Length-LiveLinks.Sum(static L => L.StringEndPos-L.StringStartPos-L.Text.Length)); //Preallocate to the final length
+		_=SB.Append(MakeTransparent);
 		int PrevPos=0;
 		foreach((int Index, Link L) in LiveLinks.Entries) {
 			_=SB.Append(RenderString[PrevPos..L.StringStartPos]).Append(L.Text);
@@ -290,12 +296,20 @@ public class ClickableLabel
 		string FinalStr=SB.ToString();
 
 		//Create the separate strings with colored text to measure boxes
-		int NumExtracted=LiveLinks.Count;
-		foreach((Link L, int StartPos, int EndPos) in CreateStrings)
-			if(L.Boxes==null && (WhichLinks==null || WhichLinks.Contains(L)))
-				L.Boxes=GSR.Exec(FinalStr[..StartPos]+$"<color=black>{L.Text}</color>"+FinalStr[EndPos..], Style);
-			else
-				NumExtracted--;
+		int NumExtracted=0;
+		foreach((Link L, int StartPos, int EndPos) in CreateStrings) {
+			//Confirm that we need to render it
+			if(!(
+				   (L.Boxes==null || GetRenderedTexture!=null) //Either we need the uncalculated boxes or the rendered texture
+				&& (WhichLinks==null || WhichLinks.Contains(L)) //Only for requested links
+			))
+				continue;
+
+			//Render it and update the boxes
+			L.Boxes=GSR.Exec(FinalStr[..StartPos]+$"<color=black>{L.Text}</color>"+FinalStr[EndPos..], Style);
+			NumExtracted++;
+			GetRenderedTexture?.Invoke(L, GSR.Tex);
+		}
 
 		//Output the time to complete the process
 		double RenderTime=(DateTime.Now-StartTime).TotalSeconds;
@@ -307,7 +321,7 @@ public class ClickableLabel
 	{
 		private readonly int Width, Height;
 		private readonly Rect DrawRect;
-		private readonly Texture2D Tex;
+		public Texture2D Tex { get; }
 		private readonly RenderTexture RT, PrevRT;
 
 		public GetStringRects(int Width, int Height)

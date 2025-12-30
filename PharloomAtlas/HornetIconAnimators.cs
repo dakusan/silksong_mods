@@ -85,7 +85,7 @@ internal class HornetIconAnimators
 			//Create a material from the new shader
 			try {
 				using TypedDisposer<AssetBundle> Bundle=new(
-					AssetBundle.LoadFromStream(FileOps.LoadEmbeddedResource(BundleFile)),
+					AssetBundle.LoadFromStream(FileOps.LoadLocalFileOrResource(BundleFile)),
 					static Target => Target.Unload(false)
 				);
 				MyMaterial=new Material(Bundle.Target.LoadAsset<Shader>(ShaderFile));

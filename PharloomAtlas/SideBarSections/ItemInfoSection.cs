@@ -1,9 +1,6 @@
 using SilkDev;
-using SilkDev.DevInput.Mouse;
 using SilkDev.Textures;
-using SilkDev.Windows;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -45,8 +42,8 @@ public partial class SideBar
 
 			//Render the selected item
 			this.ClientWidth=ClientWidth-InfoSectionHorPadding*2;
-			if(LastSelectedItem!=MapControl.Self.SelectedItem)
-				UpdateClickableLink(MapControl.Self.SelectedItem);
+			if(LastSelectedItem!=MapControl.Self.SelectedItem || (MapControl.Self.SelectedItem!=null && CLabel==null))
+				NewItemSelected(MapControl.Self.SelectedItem);
 			if(MapControl.Self.SelectedItem!=null)
 				RenderSelectedItem(MapControl.Self.SelectedItem);
 
@@ -57,21 +54,24 @@ public partial class SideBar
 		}
 
 		//Handle the clickable label
-		private ClickableLabel? CLabel;
+		private RicherLabel? CLabel;
 		private Item? LastSelectedItem;
 		public ItemInfoSection(string Name, SideBar SB) : base(Name, SB)
 		{
 			Config.C.Color_Link.SettingChanged += (_, _) => CLabel?.LinkColor=Config.C.Color_Link;
 			Config.C.Color_LinkHover.SettingChanged += (_, _) => CLabel?.HoverColor=Config.C.Color_LinkHover;
 		}
-		private void UpdateClickableLink(Item? CurrentSelectedItem)
+		private void NewItemSelected(Item? CurrentSelectedItem)
 		{
+			//Select the new item
 			LastSelectedItem=CurrentSelectedItem;
-			CLabel=CurrentSelectedItem==null ? null : new ClickableLabel() {
+			CLabel=CurrentSelectedItem==null ? null : new RicherLabel() {
 				LinkColor=Config.C.Color_Link,
 				HoverColor=Config.C.Color_LinkHover
 			};
 			SelectedItem=-1; //Selection state is unknown until the next frame when we know if the ClickableLabel has any links
+
+			//Handle if this SideBarSection was selected
 			if(!IsSectionSelected)
 				return;
 			if(CLabel==null)
@@ -117,13 +117,11 @@ public partial class SideBar
 				});
 
 			//Render text
-			ClickableLabel.Link? L=CLabel!.GUILabelLayout(
+			CLabel!.Draw(
 				string.Join(Misc.NewLine, Lines.Where(static I => I!=Misc.Empty)),
 				ItemInfoBoxStyle,
-				IsSectionSelected && SelectedItem!=-1 ? [CLabel.ActiveLinks[SelectedItem]] : []
+				IsSectionSelected ? SelectedItem : -1
 			);
-			if(L!=null && Event.current.type==EventType.MouseDown && Button.CurrentButton==Button.Enum.Left)
-				MapControl.Self.DS.LinkSelected(L.Attributes.Get("ItemID") ?? "1");
 
 			//Render images
 			Images.ForEach(Tex => {
@@ -183,7 +181,7 @@ public partial class SideBar
 			}
 		}
 
-		private IEnumerator DownloadFileAsync(string Url, string SavePath)
+		private System.Collections.IEnumerator DownloadFileAsync(string Url, string SavePath)
 		{
 			//Execute the download
 			using UnityWebRequest Request=UnityWebRequest.Get(Url);
@@ -250,6 +248,8 @@ public partial class SideBar
 				Misc.IFF(Tex!=FakeTex, () => Tex!.NullSafe?.TDestroy())
 			);
 			LoadedImages.Clear();
+			CLabel?.Dispose();
+			CLabel=null;
 		}
 
 		//Make sure the cache path has been created
@@ -293,6 +293,6 @@ public partial class SideBar
 				MovedTo(M.HasFlag(MoveToType.LastRow) ? NumLinks-1 : 0);
 		});
 		public override void ExecSelected() =>
-			MapControl.Self.DS.LinkSelected(CLabel?.ActiveLinks.ElementAtOrDefault(SelectedItem)?.Attributes.Get("ItemID") ?? "1");
+			CLabel!.LinkClicked(CLabel.ActiveLinks.ElementAtOrDefault(SelectedItem));
 	}
 }

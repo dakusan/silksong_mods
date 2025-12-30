@@ -65,8 +65,10 @@ public static class TextureExtensions
 	extension(Color C) { public string Hex =>
 		HexCache.TryGetValue(C, out string Val) ? Val :
 		HexCache[C]=string.Format("{0:X2}{1:X2}{2:X2}{3:X2}",
-			(int)(C.r*255), (int)(C.g*255),
-			(int)(C.b*255), (int)(C.a*255)
+			(int)(Mathf.Clamp01(C.r)*255),
+			(int)(Mathf.Clamp01(C.g)*255),
+			(int)(Mathf.Clamp01(C.b)*255),
+			(int)(Mathf.Clamp01(C.a)*255)
 		);
 	};
 }

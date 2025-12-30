@@ -88,7 +88,7 @@ public class MapIcon
 	{
 		try {
 			using TypedDisposer<AssetBundle> Bundle=new(
-				AssetBundle.LoadFromStream(FileOps.LoadEmbeddedResource(BundleFile)),
+				AssetBundle.LoadFromStream(FileOps.LoadLocalFileOrResource(BundleFile)),
 				static Target => Target.Unload(false)
 			);
 			NewMaterial=new Material(Bundle.Target.LoadAsset<Shader>(ShaderFile));
