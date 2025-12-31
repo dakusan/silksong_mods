@@ -9,7 +9,7 @@ if(isset($argv) && count($argv)>1)
 if(isset($Vars['CompactJSON']))
 	$CompactJSON=($Vars['CompactJSON']==1);
 if(isset($Vars['Build'])) {
-	if(!in_array($Vars['Build'], ['Categories', 'Items', 'Misc']))
+	if(!in_array($Vars['Build'], ['Categories', 'Items', 'Misc', 'ItemFinder']))
 		return ErrAndDie('Invalid Build parameter', null, 400);
 	header('Content-Type: application/json');
 	try {
@@ -28,6 +28,7 @@ if(!isset($argv) || !str_ends_with($_SERVER['SCRIPT_NAME'], pathinfo(__FILE__, P
 file_put_contents('./categories.json', GenerateCategories());
 file_put_contents('./items.json', GenerateItems());
 file_put_contents('./Misc.json', GenerateMisc());
+file_put_contents('./ItemFinder.json', GenerateItemFinder());
 print "Generated all files\n";
 exit(0);
 
@@ -317,5 +318,16 @@ function GenerateMisc()
 	];
 	$Out=preg_replace(array_keys($Replacements), array_values($Replacements), $Out);
 	return $Out;
+}
+
+//Generate Matched Icons
+function GenerateItemFinder()
+{
+	$IgnorePlayerNamedValues=$MatchedIcons=[];
+	foreach(Query('SELECT Name FROM IgnorePlayerNamedValues ID ORDER BY Name') as $Row)
+		$IgnorePlayerNamedValues[]=$Row->Name;
+	foreach(Query('SELECT ItemID, ForStarting, Parent, ValueName FROM MatchedIcons ORDER BY ItemID ASC, ForStarting ASC') as $Row)
+		$MatchedIcons[$Row->ItemID.($Row->ForStarting==1 ? '~' : '')]="$Row->Parent.$Row->ValueName";
+	return GenerateJson(compact('IgnorePlayerNamedValues', 'MatchedIcons'));
 }
 ?>

@@ -133,4 +133,27 @@ CREATE TABLE ImageURLs (
   FOREIGN KEY (ItemID) REFERENCES Items (ID)
 ) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS IgnorePlayerNamedValues;
+CREATE TABLE IgnorePlayerNamedValues (
+  ID int UNSIGNED NOT NULL AUTO_INCREMENT,
+  Name varchar(255) NOT NULL,
+
+  PRIMARY KEY (ID),
+  UNIQUE KEY (Name)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS MatchedIcons;
+CREATE TABLE MatchedIcons (
+  ID int UNSIGNED NOT NULL AUTO_INCREMENT,
+  ItemID int UNSIGNED NOT NULL,
+  ForStarting bool NOT NULL DEFAULT false,
+  Parent varchar(255) NOT NULL,
+  ValueName varchar(255) NOT NULL,
+
+  PRIMARY KEY (ID),
+  UNIQUE KEY (ItemID, ForStarting),
+  FOREIGN KEY (ItemID) REFERENCES Items (ID),
+  KEY (Parent, ValueName)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS=1;

@@ -47,7 +47,6 @@ cd "$links_dir"
 ESCAPE_LINKS="../.."
 
 #Ensure file symlinks
-ensure_link "ItemFinder.json" "$ESCAPE_LINKS/PharloomAtlas/Assets/ItemFinder.json"
 for project in NoClip PharloomAtlas PinFinder SilkDev; do
 	ensure_link "$project.dll" "$ESCAPE_LINKS/$project/bin/Release/netstandard2.1/$project.dll"
 	ensure_link "$project.NexusMods.txt" "$ESCAPE_LINKS/$project/Assets/$project.NexusMods.txt"
