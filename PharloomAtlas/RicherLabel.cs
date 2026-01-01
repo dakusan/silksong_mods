@@ -17,8 +17,12 @@ public class RicherLabel : LinkedLabel
 	{
 		//Strike found links
 		foreach(Link L in ActiveLinks)
-			if(int.TryParse(L.Attributes.Get("ItemID") ?? Misc.Empty, out int LID) && MapControl.Self.DS.Items.TryGetValue(LID, out Item I) && I.IsFound)
-				L.StrikeColor=Color.white;
+			if(
+				   int.TryParse(L.Attributes.Get("ItemID") ?? Misc.Empty, out int LID)
+				&& MapControl.Self.DS.Items.TryGetValue(LID, out Item I)
+				&& (I.IsFound || I.IsStarted)
+			)
+				L.StrikeColor=(I.IsFound ? Color.white : Color.gray);
 
 		//Extract important links
 		Extract(

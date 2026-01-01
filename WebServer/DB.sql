@@ -152,8 +152,8 @@ CREATE TABLE MatchedIcons (
 
   PRIMARY KEY (ID),
   UNIQUE KEY (ItemID, ForStarting),
-  FOREIGN KEY (ItemID) REFERENCES Items (ID),
-  KEY (Parent, ValueName)
+  UNIQUE KEY (Parent, ValueName),
+  FOREIGN KEY (ItemID) REFERENCES Items (ID)
 ) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS=1;

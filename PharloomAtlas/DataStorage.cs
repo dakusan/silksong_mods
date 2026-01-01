@@ -105,7 +105,7 @@ public class DataStorage
 		var MatchedIcons=MonitorSaveValues.Self.GetMatchedIcons;
 		foreach((int ItemID, Item ItemData) in Items) {
 			ItemData.ID=ItemID;
-			ItemData.IsLinked=MatchedIcons.ContainsKey(ItemID);
+			ItemData.IsLinked=MatchedIcons.ContainsKey(new(ItemID, false));
 			if(Categories.ContainsKey(ItemData.CategoryID))
 				continue;
 			Log.Error($"Invalid CategoryID[#{ItemData.CategoryID}] on Item[#{ItemID}]");

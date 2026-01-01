@@ -37,14 +37,27 @@ public class MonitorSaveValues
 	}
 
 	//Data loaded (and written) to JSON and web
+	public readonly struct ItemFinderItem(int ID, bool ForStarting) : IEquatable<ItemFinderItem>
+	{
+		public const	int		AddForFlagForStarting				=  1_000_000_000; //This is added to the ID for the hash when ForStarting is true
+		public readonly int		ID									=  ID;
+		public readonly bool	ForStarting							=  ForStarting;
+		public			string	ToKey								=> ID.ToString()+(ForStarting ? '~' : null);
+		public override string	ToString	()						=> ID.ToString()+(ForStarting ? " [STARTED]" : null);
+		public override int		GetHashCode	()						=> ID+(ForStarting ? AddForFlagForStarting : 0);
+		public override bool	Equals		(object Obj)			=> Obj is ItemFinderItem Other && Equals(Other);
+		public			bool	Equals		(ItemFinderItem Other)	=> ID==Other.ID && ForStarting==Other.ForStarting;
+		public static	bool	operator ==	(ItemFinderItem Left, ItemFinderItem Right) => Left.Equals(Right);
+		public static	bool	operator !=	(ItemFinderItem Left, ItemFinderItem Right) => !(Left==Right);
+	}
 	private class ItemFinder
 	{
 		public readonly List<string> IgnorePlayerNamedValues=[];
-		public readonly Dictionary<int, string> MatchedIcons=[];
-		[NonSerialized] public readonly Dictionary<string, int> MatchedIconsReverse=[];
+		public readonly Dictionary<ItemFinderItem, string> MatchedIcons=[];
+		[NonSerialized] public readonly Dictionary<string, ItemFinderItem> MatchedIconsReverse=[];
 	}
-	private static readonly string JsonFilename=FileOps.PathCombine(FileOps.GetPluginPath, "ItemFinder.json");
-	private static readonly string LogFile=FileOps.PathCombine(FileOps.GetPluginPath, "ItemFinder.log");
+	private static readonly string JsonFileName="ItemFinder.json", JsonFilePath=FileOps.PathCombine(FileOps.GetPluginPath, JsonFileName);
+	private static readonly string LogFilePath=FileOps.PathCombine(FileOps.GetPluginPath, "ItemFinder.log");
 	private readonly ItemFinder IF=null!;
 	private const string WebAddress="https://www.castledragmire.com/silksong/Submit.php";
 	private const string PlayerDataStr=nameof(PlayerData);
@@ -60,8 +73,8 @@ public class MonitorSaveValues
 	public readonly SilkDev.Events.EventRegister<FromNamePair, Action<SaveItem>> RegisterValueChanged=new(nameof(RegisterValueChanged)); //Listen for a single value change
 
 	//Get the dictionaries
-	public ReadOnlyDictionary<int, string> GetMatchedIcons			=> new(IF.MatchedIcons);
-	public ReadOnlyDictionary<string, int> GetMatchedIconsReverse	=> new(IF.MatchedIconsReverse);
+	public ReadOnlyDictionary<ItemFinderItem, string> GetMatchedIcons			=> new(IF.MatchedIcons);
+	public ReadOnlyDictionary<string, ItemFinderItem> GetMatchedIconsReverse	=> new(IF.MatchedIconsReverse);
 
 	//Things to ignore
 	private bool IsFirstSceneValueCheck=false; //We don’t report anything on the first scene value load
@@ -82,13 +95,13 @@ public class MonitorSaveValues
 	{
 		Misc.InitSingleton(this, ref _Self);
 		try {
-			IF=JsonUtils.Deserialize<ItemFinder>(FileOps.ReadFile(JsonFilename));
-			foreach((int MI_ID, string MI_Val) in IF.MatchedIcons)
+			IF=JsonUtils.Deserialize<JsonConverter_ItemFinder>(FileOps.ReadFile(JsonFilePath)).ToItemFinder();
+			foreach((ItemFinderItem MI_ID, string MI_Val) in IF.MatchedIcons)
 				IF.MatchedIconsReverse[MI_Val]=MI_ID;
 		} catch(Exception e) {
 			string DefaultMessage=$"Loading item finder json failed! Everything will be marked as not found and you’ll be getting excessive save value finds.{Misc.NewLine}{{0}}";
-			Log.Error(string.Format(DefaultMessage, e.Message));
-			_=new PopupMessage(Tr.TDef("ItemFinderLoadFailed", nameof(MonitorSaveValues), DefaultMessage, true, e.Message));
+			Log.Error(string.Format(DefaultMessage, Catcher.GetOutputException("Item finder loading", e)));
+			_=new PopupMessage(Tr.TDef("ItemFinderLoadFailed", nameof(MonitorSaveValues), DefaultMessage, true, Catcher.GetRelevantException(e).Message));
 			IF=new ItemFinder();
 		}
 
@@ -225,10 +238,10 @@ public class MonitorSaveValues
 
 		//If this is mapped to an icon then set its value
 		string FullName=SI.FullName;
-		if(!IF.MatchedIconsReverse.TryGetValue(FullName, out int ItemID))
+		if(!IF.MatchedIconsReverse.TryGetValue(FullName, out ItemFinderItem ItemID))
 			return;
-		Item? I=MapControl.Self?.DS.Items.Get(ItemID);
-		_=I?.IsFound=IsValueCompleted(SI.NewValue);
+		Item? I=MapControl.Self?.DS.Items.Get(ItemID.ID);
+		I?.SetStatusFlag(ItemID.ForStarting, IsValueCompleted(SI.NewValue));
 		Log.Info(
 			$"Item found: [{ItemID}] {FullName} :: "+(
 				  MapControl.Self==null ? "MAP NOT YET LOADED"
@@ -243,19 +256,15 @@ public class MonitorSaveValues
 		if(MapControl.Self==null)
 			return;
 
-		PlayerData PD=PlayerData.instance;
-		SceneData SD=SceneData.instance;
-		DataStorage DS=MapControl.Self.DS;
-		foreach((int LocalID, string GameName) in IF.MatchedIcons) {
-			string[] Parts=GameName.Split('.');
-			if(Parts.Length!=2)
-				Log.Error($"Invalid name found: {GameName}");
-			else
-				_=DS.Items.Get(LocalID)?.IsFound=IsValueCompleted(Parts[0]==PlayerDataStr
-					? GetLiveCompletedValue_PlayerData(Parts[1], PD)
-					: GetLiveCompletedValue_SceneData(Parts[0], Parts[1], SD)
+		string[] Parts;
+		foreach(Item I in MapControl.Self.DS.Items.Values)
+			foreach(bool ForStarting in (bool[])[false, true])
+				I.SetStatusFlag(
+					ForStarting,
+					   IF.MatchedIcons.TryGetValue(new(I.ID, ForStarting), out string GameName)												//Match was found
+					&& ((Parts=GameName.Split('.')).Length==2 || Misc.PassThru(() => Log.Error($"Invalid name found: {GameName}"), false))	//Match value is in proper format (dot separated)
+					&& IsValueCompleted(GetLiveCompletedValue(new(Parts[0], Parts[1])))														//Is value completed
 				);
-		}
 	}
 
 	//Simple value comparitor
@@ -273,6 +282,33 @@ public class MonitorSaveValues
 		: a is int v1 ? v1==0
 		: a is string v2 && v2!=Misc.Empty;
 		//: false;
+
+	//JSON converter for ItemFinder
+	private class JsonConverter_ItemFinder()
+	{
+		public readonly List<string> IgnorePlayerNamedValues=[];
+		public readonly Dictionary<string, string> MatchedIcons=[];
+		public JsonConverter_ItemFinder(ItemFinder IF) : this()
+		{
+			IgnorePlayerNamedValues.AddRange(IF.IgnorePlayerNamedValues);
+			foreach((ItemFinderItem ID, string Value) in IF.MatchedIcons)
+				MatchedIcons[ID.ToKey]=Value;
+		}
+		public ItemFinder ToItemFinder()
+		{
+			ItemFinder IF=new();
+			IF.IgnorePlayerNamedValues.AddRange(IgnorePlayerNamedValues);
+			bool IsForStarging;
+			foreach((string Key, string Value) in MatchedIcons)
+				if(Key.Length>0 && int.TryParse((IsForStarging=(Key[^1]=='~')) ? Key[..^1] : Key, out int KeyID))
+					IF.MatchedIcons[new ItemFinderItem(KeyID, IsForStarging)]=Value;
+				else
+					Log.Error($"Invalid key found in {JsonFileName}: {Key}");
+			Clear();
+			return IF;
+		}
+		public void Clear() { IgnorePlayerNamedValues.Clear(); MatchedIcons.Clear(); }
+	}
 
 	//------------------Save and possibly send the currently selected icon’s new value------------------
 	private class MSException(string Message) : Exception(Message) {}
@@ -303,7 +339,7 @@ public class MonitorSaveValues
 		try {
 			SVP.PopupMessage=LogMessage=SaveIconValueReal();
 			try {
-				FileOps.WriteFile(JsonFilename, JsonUtils.Serialize(IF, Sorted:true, TrailingCommas:true));
+				FileOps.WriteFile(JsonFilePath, JsonUtils.Serialize(new JsonConverter_ItemFinder(IF), Sorted:true, TrailingCommas:true));
 			} catch {
 				const string ErrMsg="Could not save to JSON file!";
 				SVP.PopupMessage+=$"{Misc.NewLine}{Misc.NewLine}<color=red>{TSan(ErrMsg)}</color>";
@@ -334,9 +370,9 @@ public class MonitorSaveValues
 		try {
 			LogMessage=Regex.Replace(LogMessage.Replace("\n\n", "\n"), @"</?(size|color|b)\b.*?>", Misc.Empty); //Remove double newlines and richText tags
 			Log.Info(LogMessage);
-			if(!FileOps.FileExists(LogFile))
-				FileOps.WriteFile(LogFile, "Initializing log file");
-			FileOps.AppendFile(LogFile,
+			if(!FileOps.FileExists(LogFilePath))
+				FileOps.WriteFile(LogFilePath, "Initializing log file");
+			FileOps.AppendFile(LogFilePath,
 				DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss: ")+ //Adds the timestamp to the beginning of the log line
 				LogMessage
 			);
@@ -357,23 +393,24 @@ public class MonitorSaveValues
 		//See if the icon or item was already matched
 		string AddStringStatement=Misc.Empty;
 		DataStorage DS=MapControl.Self.DS;
-		if(IF.MatchedIcons.TryGetValue(SelectedItem.ID, out string PreviousMatch))
+		if(IF.MatchedIcons.TryGetValue(new(SelectedItem.ID, false), out string PreviousMatch))
 			AddStringStatement+=$"{Misc.NewLine}{Misc.NewLine}<size=-15>{TrT("Warning: Icon previously matched to “<b>{0}</b>”", San(PreviousMatch))}</size>";
-		if(IF.MatchedIconsReverse.TryGetValue(SelectedValue.FullName, out int PreviousMatch2))
-			AddStringStatement+=$"{Misc.NewLine}{Misc.NewLine}<size=-15>{TrT("Warning: SaveValue was previously matched to #{0} “<b>{1}</b>”", PreviousMatch2, San(DS.Items.Get(PreviousMatch2)?.Title ?? TrT("INVALID ITEM")))}</size>";
+		if(IF.MatchedIconsReverse.TryGetValue(SelectedValue.FullName, out ItemFinderItem PreviousMatch2))
+			AddStringStatement+=$"{Misc.NewLine}{Misc.NewLine}<size=-15>{TrT("Warning: SaveValue was previously matched to #{0} “<b>{1}</b>”", PreviousMatch2, San(DS.Items.Get(PreviousMatch2.ID)?.Title ?? TrT("INVALID ITEM")))}</size>";
 
 		//Save the values and run icon updates
-		if(PreviousMatch2!=0) {
-			_=DS.Items.Get(PreviousMatch2)?.IsFound=false;
-			_=DS.Items.Get(PreviousMatch2)?.IsLinked=false;
+		if(PreviousMatch2.ID!=0) {
+			DS.Items.Get(PreviousMatch2.ID)?.SetStatusFlag(PreviousMatch2.ForStarting, false);
+			if(!PreviousMatch2.ForStarting)
+				_=DS.Items.Get(PreviousMatch2.ID)?.IsLinked=false;
 			_=IF.MatchedIcons.Remove(PreviousMatch2);
 		}
 		SelectedItem.IsFound=IsValueCompleted(GetLiveCompletedValue(SelectedValue.FromName));
 		SelectedItem.IsLinked=true;
 
 		//Update the dictionaries
-		IF.MatchedIcons[SelectedItem.ID]=SelectedValue.FullName;
-		IF.MatchedIconsReverse[SelectedValue.FullName]=SelectedItem.ID;
+		IF.MatchedIcons[new(SelectedItem.ID, false)]=SelectedValue.FullName;
+		IF.MatchedIconsReverse[SelectedValue.FullName]=new(SelectedItem.ID, false);
 
 		//Return the message
 		return TrT("{0} set to {1}{2}", San(SelectedItem.Title), San(SelectedValue.FullName), AddStringStatement);

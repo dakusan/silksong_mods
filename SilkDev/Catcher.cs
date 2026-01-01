@@ -30,11 +30,16 @@ public static class Catcher
 		try {
 			A();
 		} catch(Exception e) {
-			while(e is TargetInvocationException or TypeInitializationException)
-				e=e.InnerException;
-
-			OutputException(ActionName, A, e ?? new Exception("No exception found"));
+			OutputException(ActionName, A, GetRelevantException(e));
 		}
+	}
+
+	//Returns the first exception in the chain that is not a TargetInvocationException or TypeInitializationException. Stops on the last exception too.
+	public static Exception GetRelevantException(Exception e)
+	{
+		while(e?.InnerException!=null && e is TargetInvocationException or TypeInitializationException)
+			e=e.InnerException;
+		return e!;
 	}
 
 	//Runs a list of singlecast action and outputs stack trace (if turned on in config) for exceptions. CallWrapper is required for any Action with parameters.

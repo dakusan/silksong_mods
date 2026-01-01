@@ -234,7 +234,14 @@ public class Item
 			MapIcon?.UpdateState(value);
 		}
 	} = CategoryToggleState.Unknown;
-
+	public void SetStatusFlag(bool ForStarted, bool Value)
+	{
+		if(!ForStarted)
+			IsFound=Value;
+		else
+			IsStarted=Value;
+	}
+	public bool IsStarted=false;
 	public bool IsFound
 	{
 		get;
