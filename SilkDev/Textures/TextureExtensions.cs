@@ -20,6 +20,10 @@ public static class TextureExtensions
 		Tex.Apply();
 		return Tex;
 	}
+	public static void DrawRect(
+		this Color C, Rect R, Texture? Image=null, ScaleMode ScaleMode=ScaleMode.StretchToFill,
+		bool AlphaBlend=true, float ImageAspect=0, float BorderWidth=0, float BorderRadius=0
+	) => GUI.DrawTexture(R, Image ?? Texture2D.whiteTexture, ScaleMode, AlphaBlend, ImageAspect, C, BorderWidth, BorderRadius);
 
 	//Copy an unreadable texture (Texture2D.isReadable) to a readable texture. TexCoords when set will specify the coordinates to extract. ResizeDimensions when set will specify the final texture size.
 	public static Texture2D ToReadable(this Texture2D Tex, Rect? TexCoords=null, Vector2? ResizeDimensions=null)

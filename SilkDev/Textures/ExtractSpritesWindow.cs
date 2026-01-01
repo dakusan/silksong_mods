@@ -55,7 +55,7 @@ public class ExtractSpritesWindow : Window
 	//Constants
 	private const string EllipsesStr="...", WindowTitle="Extract Sprites: ";
 	private readonly GUIStyle EllipsesStyle, LabelStyleBold, LabelStyle=new(GUI.skin.label) { fontSize=14, wordWrap=false, richText=false, margin=new RectOffset(0, 0, 0, 0), padding=new RectOffset(0, 0, 0, 0) };
-	private readonly Texture2D SelectTex=new Color(1, 1, 0, 0.5f).MakeTexture(), TooltipBorderTex=Color.black.MakeTexture();
+	private readonly Color SelectCol=new(1, 1, 0, 0.5f), TooltipBorderCol=Color.black;
 	private readonly float EllipsesWidth;
 
 	//Members
@@ -295,7 +295,7 @@ public class ExtractSpritesWindow : Window
 
 			//Highlight the label if selected
 			if(CurFoundObj?.SO==SO)
-				GUI.DrawTexture(LabelRect, SelectTex);
+				SelectCol.DrawRect(LabelRect);
 
 			//Check to see if clicked
 			if(!IsMouseOver || Event.current.type!=EventType.MouseDown)
@@ -330,12 +330,11 @@ public class ExtractSpritesWindow : Window
 
 			//Highlight the sprite on the sprite sheet
 			if(CurFoundObj.HighlightSpriteOnSheet && CurFoundObj.TexType==CurrentObj.Type.FullTexture)
-				GUI.DrawTexture(
+				SelectCol.DrawRect(
 					CurFoundObj.SO.TextureRect
 						.SetY(Y => CurFoundObj.height-Y-CurFoundObj.SO.TextureRect.height) //Adjust for flipped y axis
 						.Mul(ImageDisplayWidth/CurFoundObj.width) //Adjust to resized texture size
-						.AddPos(TextureRect.position), //Offset to drawn texture
-					SelectTex
+						.AddPos(TextureRect.position) //Offset to drawn texture
 				);
 
 			//Interact with the image
@@ -367,8 +366,8 @@ public class ExtractSpritesWindow : Window
 				Event.current.mousePosition,
 				LabelStyleBold.CalcSize(new GUIContent(TooltipString.Name))
 			).AddX(LabelPaddingX+TooltipXOffset).AddY(LabelPaddingY+TooltipYOffset).AddWidth(ParentWidth);
-			GUI.DrawTexture(BoxRect.Grow(LabelPaddingX+1, LabelPaddingY+1), Texture2D.whiteTexture);
-			GUI.DrawTexture(BoxRect.Grow(LabelPaddingX, LabelPaddingY), TooltipBorderTex);
+			Color.white.DrawRect(BoxRect.Grow(LabelPaddingX+1, LabelPaddingY+1));
+			TooltipBorderCol.DrawRect(BoxRect.Grow(LabelPaddingX, LabelPaddingY));
 			GUI.Label(BoxRect, TooltipString.Parent, LabelStyle);
 			GUI.Label(BoxRect.AddX(ParentWidth), TooltipString.Name, LabelStyleBold);
 			GUI.BeginClip(WindowRect);
@@ -382,8 +381,6 @@ public class ExtractSpritesWindow : Window
 	//Destroy the window
 	public override void Close() => OnNextFrame(() => {
 		DevInput.Mouse.Visibility.ForceEvent -= ForceCursor;
-		SelectTex.TDestroy();
-		TooltipBorderTex.TDestroy();
 		ShowSelection.Close();
 		CurFoundObj=null;
 		LR?.Close();
@@ -462,8 +459,8 @@ public class ExtractSpritesWindow : Window
 			const int LabelPaddingX=5, LabelPaddingY=2;
 			Vector2 LabelSize=Parent.LabelStyle.CalcSize(new GUIContent(ClosestObj.SO.Name))+new Vector2(LabelPaddingX*2, LabelPaddingY*2);
 			Rect BoxRect=LabelSize.CenterIn(ClosestObj.R.Rect.size).AddPos(ClosestObj.R.Rect.position);
-			GUI.DrawTexture(BoxRect.Grow(1, 1), Texture2D.whiteTexture);
-			GUI.DrawTexture(BoxRect, Parent.TooltipBorderTex);
+			Color.white.DrawRect(BoxRect.Grow(1, 1));
+			Parent.TooltipBorderCol.DrawRect(BoxRect);
 			GUI.Label(BoxRect.Grow(-LabelPaddingX, -LabelPaddingY), ClosestObj.SO.Name, Parent.LabelStyle);
 		}
 

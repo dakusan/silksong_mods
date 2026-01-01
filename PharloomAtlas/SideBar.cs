@@ -25,7 +25,6 @@ public partial class SideBar : Window
 	private int PickerContentHeight=690; //Measured beforehand but updated every frame
 	private readonly Sprite Arrow;
 	private readonly DataStorage DS;
-	private readonly Texture2D CTexRightBorder=Color.white.MakeTexture();
 	private readonly System.Collections.Generic.List<Texture2D> StoreTextures=[];
 	private Vector2 ScrollPosition=Vector2.zero;
 	private readonly GUISkin CustomSkin;
@@ -163,10 +162,7 @@ public partial class SideBar : Window
 		GUI.EndScrollView();
 
 		//Draw the right border
-		if(MouseOverResize)
-			GUI.color=Color.green;
-		GUI.DrawTexture(RightBorderRect, CTexRightBorder);
-		GUI.color=Color.white;
+		(MouseOverResize ? Color.green : Color.white).DrawRect(RightBorderRect);
 
 		//Reset state
 		GUILayout.EndArea();
@@ -273,7 +269,7 @@ public partial class SideBar : Window
 				}
 				break;
 			case UpdateColorType.Highlight:
-				_=SideBarSection.CTexSelect.ReColor(Conf.Color_SideBar_Highlight);
+				_=SideBarSection.CTexSelectColor=Conf.Color_SideBar_Highlight;
 				break;
 			default:
 				break;

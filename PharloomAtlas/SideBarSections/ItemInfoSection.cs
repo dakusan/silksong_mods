@@ -87,10 +87,7 @@ public partial class SideBar
 		private void RenderSelectedItem(Item CurSelectedItem)
 		{
 			static void DrawInfoSectionLine(Rect TitleRect) =>
-				GUI.DrawTexture(
-					TitleRect.AddY(TitleRect.height).SetHeight(1),
-					Texture2D.whiteTexture, ScaleMode.StretchToFill
-				);
+				Color.white.DrawRect(TitleRect.AddY(TitleRect.height).SetHeight(1));
 
 			//Draw the header and horizontal border line
 			GUILayout.Space(5);

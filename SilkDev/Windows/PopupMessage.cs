@@ -11,7 +11,7 @@ namespace SilkDev.Windows;
 //Automatic "Press any key to close this message." message.
 public class PopupMessage
 {
-	private static Texture2D BorderTex=null!, BackgroundTex=null!;
+	private static readonly Color BorderCol=Color.grey, BackgroundCol=Color.black;
 	private readonly DateTime InitTime=DateTime.Now;
 	private DateTime CloseTime=DateTime.MinValue;
 
@@ -33,11 +33,9 @@ public class PopupMessage
 
 	//Create the background textures
 	static PopupMessage() =>
-		Window.OnNextFrame(static () => {
-			BackgroundTex=Color.black.MakeTexture();
-			BorderTex=Color.grey.MakeTexture();
-			DefaultTextStyle=new GUIStyle(GUI.skin.label) { fontSize=50, alignment=TextAnchor.MiddleCenter, wordWrap=true, richText=true };
-		});
+		Window.OnNextFrame(static () =>
+			DefaultTextStyle=new GUIStyle(GUI.skin.label) { fontSize=50, alignment=TextAnchor.MiddleCenter, wordWrap=true, richText=true }
+		);
 
 	//Default contents drawer that shows the message. This can be overwritten in a derived class
 	protected virtual void DrawContents(Vector2 AreaSize)
@@ -65,8 +63,8 @@ public class PopupMessage
 		Rect LocalWinRect=CurrentSize.CenterIn(FullSize);
 
 		//Draw the window and border
-		GUI.DrawTexture(LocalWinRect, BorderTex);
-		GUI.DrawTexture(LocalWinRect.Grow(-BorderWidth, -BorderWidth), BackgroundTex);
+		BorderCol.DrawRect(LocalWinRect);
+		BackgroundCol.DrawRect(LocalWinRect.Grow(-BorderWidth, -BorderWidth));
 
 		//If IsStillGrowing then set up a clip rectangle and adjust the final region for it
 		bool IsStillGrowing=(PercentPassed<1);

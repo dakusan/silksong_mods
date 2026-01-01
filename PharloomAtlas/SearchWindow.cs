@@ -19,7 +19,7 @@ public class SearchWindow : SilkDev.Windows.Window
 	private readonly GUIStyle MouseOnlyStyle=new(GUI.skin.label) { fontSize=14, wordWrap=false, richText=false, alignment=TextAnchor.UpperCenter, normal={textColor=Color.red} };
 	private readonly GUIStyle SearchHereStyle=new(GUI.skin.label) { fontSize=13, richText=false, alignment=TextAnchor.MiddleCenter, fontStyle=FontStyle.Bold, normal={textColor=Color.grey} };
 	private readonly GUIStyle NumResults=new(GUI.skin.label) { fontSize=13, alignment=TextAnchor.MiddleRight, normal={textColor=Color.magenta} };
-	private readonly Texture2D SelectTex=new Color(1, 1, 0, 0.5f).MakeTexture();
+	private readonly Color SelectCol=new(1, 1, 0, 0.5f);
 	private const int MaxSearchResults=50, MaxLinesPerItem=7;
 	private const string TextHighlightColor="green";
 
@@ -178,16 +178,13 @@ public class SearchWindow : SilkDev.Windows.Window
 
 		//Highlight the label if hovered and check for click
 		if(MouseOver) {
-			GUI.DrawTexture(LabelRect, SelectTex);
+			SelectCol.DrawRect(LabelRect);
 			if(Event.current.type==EventType.MouseUp && MButton.CurrentButton==MButton.Enum.Left)
 				MapControl.Self.SelectAndCenterItemI(SI.ID);
 		}
 
 		//Draw a line under the label
-		GUI.DrawTexture(
-			LabelRect.AddY(LabelRect.height+2).SetHeight(1),
-			Texture2D.whiteTexture, ScaleMode.StretchToFill
-		);
+		Color.white.DrawRect(LabelRect.AddY(LabelRect.height+2).SetHeight(1));
 	}
 
 	//Setting as invisible

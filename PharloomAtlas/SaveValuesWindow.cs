@@ -31,7 +31,7 @@ public class SaveValuesWindow : Window
 	private readonly GUIStyle TextStyle=new(GUI.skin.label) { fontSize=14, wordWrap=false, margin=new RectOffset(5, 5, 0, 0), padding=new RectOffset(5, 5, 0, 0) };
 	private readonly GUIStyle ScrollbarStyle=new(GUI.skin.verticalScrollbar) { margin=new RectOffset(0, 0, 0, 0) };
 	private readonly GUIStyle NoScrollStyle=new(GUI.skin.scrollView) { margin=new RectOffset(0, 0, 0, 0) };
-	private readonly Texture2D SelectTex=new Color(1, 1, 0, 0.5f).MakeTexture();
+	private readonly Color SelectCol=new(1, 1, 0, 0.5f);
 
 	//Members
 	private readonly System.Collections.Generic.List<SaveItem> SavedItems=[];
@@ -135,10 +135,7 @@ public class SaveValuesWindow : Window
 
 		//Highlight the selected item
 		if(SavedItems.Count>0 && IsSelectedLineInView)
-			GUI.DrawTexture(
-				MainLabelRect.AddY((SelectedLine-ScrollPosition)*LineHeight).SetHeight(LineHeight),
-				SelectTex
-			);
+			SelectCol.DrawRect(MainLabelRect.AddY((SelectedLine-ScrollPosition)*LineHeight).SetHeight(LineHeight));
 
 		//Vertical scrollbar
 		GUILayout.EndScrollView();

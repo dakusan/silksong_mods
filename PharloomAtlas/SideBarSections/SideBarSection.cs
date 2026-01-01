@@ -25,7 +25,7 @@ public partial class SideBar
 		public Action<int>? BeforeDraw=null, AfterDraw=null;
 
 		//Static members
-		internal static Texture2D CTexSelect=Config.C.Color_SideBar_Highlight.V.MakeTexture();
+		internal static Color CTexSelectColor=Config.C.Color_SideBar_Highlight.V;
 
 		//Getters
 		protected SideBarSection PrevSection=> SB.SectionsList[Index-1>=0 ? Index-1 : SB.SectionsList.Count-1];
@@ -85,6 +85,6 @@ public partial class SideBar
 		}
 
 		protected static void HighlightLastItem() => //Draw a highlight texture over the currently highlighted item (which is the last item drawn)
-			GUI.DrawTexture(GUILayoutUtility.GetLastRect(), CTexSelect);
+			CTexSelectColor.DrawRect(GUILayoutUtility.GetLastRect());
 	}
 }

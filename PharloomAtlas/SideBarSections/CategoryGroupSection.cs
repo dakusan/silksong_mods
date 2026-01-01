@@ -11,7 +11,7 @@ public partial class SideBar
 	{
 		//Styling stuff
 		private const int IconSize=16, ItemLabelPadding=4, ColumnPadding=10;
-		private static readonly Texture2D CTexIconHover=new Color(0, 0, 0, .5f).MakeTexture(), CTexStrike=Color.white.MakeTexture();
+		private static readonly Color ColIconHover=new(0, 0, 0, .5f), ColStrike=Color.white;
 		private static readonly GUIStyle TitleTextStyle=new(GUI.skin.label) { fontSize=18, wordWrap=false, richText=false };
 		private static readonly GUIStyle LabelTextStyle=new(GUI.skin.label) { fontSize=14, wordWrap=false, richText=false };
 		private static readonly Color NormalTitleTextColor=GUI.skin.label.normal.textColor;
@@ -150,7 +150,7 @@ public partial class SideBar
 				).ConvertTexCoords(MySprite.texture)
 			);
 			if(IsMouseOver)
-				GUI.DrawTexture(GUILayoutUtility.GetLastRect(), CTexIconHover);
+				ColIconHover.DrawRect(GUILayoutUtility.GetLastRect());
 			GUILayout.Space(ItemLabelPadding);
 			GUILayout.Label(TrT(CategoryInfo.Title), LabelTextStyle, GUILayout.Width(ColumnWidth-IconSize-CountStrWidth-ItemLabelPadding*2));
 			GUILayout.Space(ItemLabelPadding);
@@ -164,7 +164,7 @@ public partial class SideBar
 			//Draw the strikethrough line depending on its toggle state
 			if(CategoryInfo.ToggleState==CategoryToggleState.None) {
 				Rect CategoryLineRect=GUILayoutUtility.GetLastRect();
-				GUI.DrawTexture(CategoryLineRect.AddY(CategoryLineRect.height/2).AddX(1).SetHeight(1), CTexStrike);
+				ColStrike.DrawRect(CategoryLineRect.AddY(CategoryLineRect.height/2).AddX(1).SetHeight(1));
 			}
 
 			GUILayout.Space(ItemLabelPadding);

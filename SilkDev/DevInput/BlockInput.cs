@@ -82,7 +82,7 @@ public class BlockInput : Windows.Window
 	//Init
 	internal BlockInput() : base(nameof(BlockInput), false, 2000, true) { }
 	protected override void OnInit() =>
-		(BGTex, UnboundDraw)=(new Color(0, 0, 0, .5f).MakeTexture(), true);
+		UnboundDraw=true;
 
 	//Window events
 	protected override void OnUpdate()
@@ -114,7 +114,7 @@ public class BlockInput : Windows.Window
 		//Draw the message
 		Vector2 StrSize=TextStyle.CalcSize(Message)+new Vector2(1, 1), GrowSize=new(10, 3);
 		Rect WindowRect=new(new Vector2((Screen.width-StrSize.x)/2, HeightOffset+GrowSize.y), StrSize);
-		GUI.DrawTexture(WindowRect.Grow(GrowSize), BGTex);
+		new Color(0, 0, 0, .5f).DrawRect(WindowRect.Grow(GrowSize));
 		GUI.Label(WindowRect, Message, TextStyle);
 	}
 

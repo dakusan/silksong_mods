@@ -11,10 +11,7 @@ namespace SilkDev.Windows;
 public class ProgressBarWithLogs() : Window(nameof(ProgressBarWithLogs), null, 1200, 1)
 {
 	//Constants
-	private readonly Texture2D DarkGreyTex=new Color(0.25f, 0.25f, 0.25f, 1f).MakeTexture();
-	private readonly Texture2D GreyTex=Color.grey.MakeTexture();
-	private readonly Texture2D BlackTex=Color.black.MakeTexture();
-	private readonly Texture2D BlueTex=Color.blue.MakeTexture();
+	private readonly Color DarkGreyCol=new(0.25f, 0.25f, 0.25f, 1f);
 	private readonly GUIStyle PercentTextStyle=new(GUI.skin.label) { fontSize=DefaultPercentFontSize, alignment=TextAnchor.MiddleCenter };
 	private readonly GUIStyle MessageTextStyle=new(GUI.skin.label) { fontSize=15, alignment=TextAnchor.MiddleLeft, richText=true };
 	private const int Margin=5, DefaultBarHeight=120, MinBarHeight=20, DefaultPercentFontSize=80;
@@ -57,10 +54,10 @@ public class ProgressBarWithLogs() : Window(nameof(ProgressBarWithLogs), null, 1
 		Rect MessageTextRect=PBRect.AddY(PBRect.height).SetHeight(Height-BarHeight-Margin*2);
 
 		//Draw the window, border, and progress bar
-		GUI.DrawTexture(new Rect(0, 0, Width, Height), DarkGreyTex); //Border
-		GUI.DrawTexture(PBRect, BlackTex); //Window
-		GUI.DrawTexture(PBRect.SetWidth(Mathf.Clamp(PercentAmount, 0, 1)*PBRect.width), BlueTex); //Progress bar background
-		GUI.DrawTexture(MessageTextRect, GreyTex); //Progress bar progress
+		DarkGreyCol.DrawRect(new Rect(0, 0, Width, Height)); //Border
+		Color.black.DrawRect(PBRect); //Window
+		Color.blue.DrawRect(PBRect.SetWidth(Mathf.Clamp(PercentAmount, 0, 1)*PBRect.width)); //Progress bar background
+		Color.grey.DrawRect(MessageTextRect); //Progress bar progress
 
 		//Draw the text
 		string NewMessageText=string.Join(Misc.Empty, [
@@ -135,7 +132,5 @@ public class ProgressBarWithLogs() : Window(nameof(ProgressBarWithLogs), null, 1
 	{
 		OnClose?.Invoke();
 		base.Close();
-		foreach(Texture2D DelTex in new Texture2D[] { DarkGreyTex, GreyTex, BlackTex, BlueTex })
-			DelTex.TDestroy();
 	}
 }
