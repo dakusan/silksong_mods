@@ -14,11 +14,13 @@ namespace SilkDev.Windows;
  * Supported attributes (case sensitive) copied to link members, and removed after processing:
  *   - NormalColor, HoverColor, StrikeColor
  *     - Must be parsable by ColorUtility.TryParseHtmlString()
+ *   - SquiggleStrike
+ *     - true=“1”, “true”, “TRUE”; false=anything else
  * Everytime a member of ClickableLabel changes which will change the rendering of the label, it has to redetermine all the info for the Links, which is a bit expensive.
  *	- When this happens, it has to determine which Link is which. It does this via the LinkID for each Link, which needs to be unique.
  * Link labels nesting is not supported.
 */
-public class LinkedLabel
+public class LinkedLabel : IDisposable
 {
 	//If any of the following are updated, the links have to be reextracted
 	public GUIStyle Style		{ get; set { if(field!=value) Clear(false); field=value; } } = null!;
@@ -80,6 +82,7 @@ public class LinkedLabel
 		} }
 		public Color? HoverColor { get; set => HoverColorHex=(field=value)?.Hex; } //Overwrite the default HoverColor
 		public Color? StrikeColor; //Add a strikethrough line
+		public bool SquiggleStrike=false;
 		internal string? NormalColorHex, HoverColorHex;
 
 		//Get the rectangles
@@ -115,8 +118,6 @@ public class LinkedLabel
 
 	//Information needed for rendering
 	private string RenderString=null!;
-	private static Color CurStrikeColor=Color.black;
-	private static readonly Texture2D StrikeColorTex=CurStrikeColor.MakeTexture();
 
 	//Renders the label. Full reextraction is only ever ran if the mouse is over the label. Does not return Link on layout phase
 	public Link? GUILabel(Rect Rect, string Content, GUIStyle? NewGUIStyle=null, params Link[] SelectedItems)
@@ -155,11 +156,16 @@ public class LinkedLabel
 		foreach(Link L in LiveLinks) {
 			if(L.StrikeColor==null)
 				continue;
-			if(CurStrikeColor!=L.StrikeColor)
-				_=StrikeColorTex.ReColor(CurStrikeColor=L.StrikeColor.Value);
+			GUI.color=L.StrikeColor.Value;
+			int LineHeight=L.SquiggleStrike ? SStrike.Height : 1;
+			Texture2D Tex=L.SquiggleStrike ? SStrike.Tex : Texture2D.whiteTexture;
 			foreach(Rect R in L.Rects)
-				GUI.DrawTexture(R.AddPos(Pos).AddY(R.height/2).SetHeight(1), StrikeColorTex);
+				GUI.DrawTextureWithTexCoords(
+					R.AddPos(Pos).AddY((R.height-LineHeight)/2).SetHeight(LineHeight),
+					Tex, new Rect(0, 0, R.width/Tex.width, 1f)
+				);
 		}
+		GUI.color=Color.white;
 
 		//Return the hovered link
 		return HoveredLink;
@@ -184,6 +190,27 @@ public class LinkedLabel
 	}
 
 	//Whenever the label’s string changes, this is needed
+	private record class ParseAttrBase(string Name, object? BaseValue)
+	{
+		public object? Parse(string StrValue) =>
+			  StrValue==null ? null
+			: BaseValue is bool ? (StrValue is "1" or "true" or "TRUE")
+			: BaseValue is not Color ? null
+			: ColorUtility.TryParseHtmlString(StrValue, out Color C) ? C
+			: null;
+		public bool TrySetValue(Link L, string StrValue)
+		{
+			object? Value=Parse(StrValue);
+			switch(Value) {
+				case null: return false;
+				case Color C: ((ParseAttr<Color>)this).SetValue(L, C); break;
+				case bool  B: ((ParseAttr<bool >)this).SetValue(L, B); break;
+			}
+			return true;
+		}
+	}
+	private record class ParseAttr<T>(string Name, T Value, Action<Link, T> SetValue) : ParseAttrBase(Name, Value!);
+
 	private void Parse()
 	{
 		//Make sure we need to parse
@@ -197,10 +224,11 @@ public class LinkedLabel
 		LiveLinks.Clear();
 
 		//Color attributes that can be replaced
-		(string, Action<Link, Color>)[] ColorAttrs=[
-			(nameof(Link.NormalColor), static (L, C) => L.NormalColor=C),
-			(nameof(Link.HoverColor ), static (L, C) => L.HoverColor =C),
-			(nameof(Link.StrikeColor), static (L, C) => L.StrikeColor=C),
+		ParseAttrBase[] ExtractAttrs=[
+			new ParseAttr<Color>(nameof(Link.NormalColor	), Color.white	, static (L, C) => L.NormalColor	=C),
+			new ParseAttr<Color>(nameof(Link.HoverColor		), Color.white	, static (L, C) => L.HoverColor		=C),
+			new ParseAttr<Color>(nameof(Link.StrikeColor	), Color.white	, static (L, C) => L.StrikeColor	=C),
+			new ParseAttr<bool >(nameof(Link.SquiggleStrike	), false		, static (L, B) => L.SquiggleStrike	=B),
 		];
 
 		//Extract all <color> blocks
@@ -254,13 +282,12 @@ public class LinkedLabel
 
 		//Get color attribute overrides
 		foreach(Link L in LiveLinks)
-			foreach((string AttrName, Action<Link, Color> A) in ColorAttrs)
+			foreach(ParseAttrBase PAB in ExtractAttrs)
 				if(
-					   L.Attributes.TryGetValue(AttrName, out string StrCol)
-					&& ColorUtility.TryParseHtmlString(StrCol, out Color C)
-					&& L.Attributes.Remove(AttrName)
+					   L.Attributes.TryGetValue(PAB.Name, out string StrValue)
+					&& PAB.TrySetValue(L, StrValue)
 				)
-					A(L, C);
+					_=L.Attributes.Remove(PAB.Name);
 	}
 
 	public void Extract(params IEnumerable<Link> WhichLinks) => IExtract(WhichLinks);
@@ -352,8 +379,7 @@ public class LinkedLabel
 				int MinX=Width, MaxX=0;
 				bool HasPixels=false;
 				for(int x=0; x<Width; x++)
-					if(Pixels[y*Width+x].rgba>0)
-					{
+					if(Pixels[y*Width+x].rgba>0) {
 						HasPixels=true;
 						MinX=Mathf.Min(MinX, x);
 						MaxX=Mathf.Max(MaxX, x);
@@ -403,4 +429,46 @@ public class LinkedLabel
 			RenderTexture.ReleaseTemporary(RT);
 		}
 	}
+
+	//Handle squiggly strikes
+	public readonly SquiggleStrike SStrike=new();
+	public class SquiggleStrike(int Width=19, int Height=4, float MainAlpha=.9f, float AntiAliasAlpha=.4f) : IDisposable
+	{
+		public int			  Width	{ get; set { field=value; _=MakeSquiggleStrike(); } } = Width			;
+		public int			 Height	{ get; set { field=value; _=MakeSquiggleStrike(); } } = Height			;
+		public float	  MainAlpha	{ get; set { field=value; _=MakeSquiggleStrike(); } } = MainAlpha		;
+		public float AntiAliasAlpha	{ get; set { field=value; _=MakeSquiggleStrike(); } } = AntiAliasAlpha	;
+		public Texture2D Tex => _Tex ?? MakeSquiggleStrike();
+		private Texture2D? _Tex=null;
+		private Texture2D MakeSquiggleStrike()
+		{
+			//Create the base color as white transparent
+			Color[] Colors=new Color[Width*Height];
+			for(int i=0; i<Colors.Length; i++)
+				Colors[i]=new Color(1, 1, 1, 0);
+
+			//Create the sine wave
+			void SetPixel(int x, int y, float Alpha) => Colors[y*Width+x].a=Alpha;
+			float MidY=Height/2f;
+			float SinCalc=2f*Mathf.PI/Width;
+			for(int x=0; x<Width; x++) {
+				int y=Mathf.Clamp(Mathf.RoundToInt(MidY*(1+Mathf.Sin(SinCalc*x))), 0, Height-1);
+				 				SetPixel(x, y  , MainAlpha		);
+				if(y-1>=0)		SetPixel(x, y-1, AntiAliasAlpha	);
+				if(y+1<Height)	SetPixel(x, y+1, AntiAliasAlpha	);
+			}
+
+			//Create the texture
+			Dispose();
+			_Tex=new Texture2D(Width, Height, TextureFormat.ARGB32, false) {
+				wrapMode=TextureWrapMode.Repeat,
+				filterMode=FilterMode.Point,
+			};
+			_Tex.SetPixels(Colors);
+			_Tex.Apply();
+			return _Tex;
+		}
+		public void Dispose() => _Tex?.TDestroy();
+	}
+	public void Dispose() => SStrike.Dispose();
 }
