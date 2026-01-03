@@ -1,4 +1,5 @@
 using BepInEx;
+using SilkDev;
 
 namespace PharloomAtlas;
 
@@ -21,8 +22,12 @@ internal class Plugin : BaseUnityPlugin
 	//Initialize the plugin
 	private void Init()
 	{
+		#if DEBUG
+			Log.AdditionalLogFile=FileOps.PathCombine(FileOps.GetPluginPath, "PAtlasLog.txt");
+		#endif
+
 		new HarmonyLib.Harmony(PluginInfo.PLUGIN_GUID).PatchAll();
-		SilkDev.Catcher.Run($"{PluginInfo.PLUGIN_NAME} Init", () => {
+		Catcher.Run($"{PluginInfo.PLUGIN_NAME} Init", () => {
 			_=new Config(Config);
 			_=new MonitorSaveValues();
 			_=new MoreMarkers();
