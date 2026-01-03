@@ -6,6 +6,13 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using StringBuilder = System.Text.StringBuilder;
 
+#if DEBUG
+	using SafeTexture2D = SilkDev.Textures.SafeTexture2D;
+#else
+	using SafeTexture2D = UnityEngine.Texture2D;
+#endif
+using RTexture2D = UnityEngine.Texture2D;
+
 namespace SilkDev.Windows;
 
 /*
@@ -158,7 +165,7 @@ public class LinkedLabel : IDisposable
 				continue;
 			GUI.color=L.StrikeColor.Value;
 			int LineHeight=L.SquiggleStrike ? SStrike.Height : 1;
-			Texture2D Tex=L.SquiggleStrike ? SStrike.Tex : Texture2D.whiteTexture;
+			RTexture2D Tex=L.SquiggleStrike ? SStrike.Tex : RTexture2D.whiteTexture;
 			foreach(Rect R in L.Rects)
 				GUI.DrawTextureWithTexCoords(
 					R.AddPos(Pos).AddY((R.height-LineHeight)/2).SetHeight(LineHeight),
@@ -291,11 +298,11 @@ public class LinkedLabel : IDisposable
 	}
 
 	public void Extract(params IEnumerable<Link> WhichLinks) => IExtract(WhichLinks);
-	public void Extract(Action<Link, Texture2D> GetRenderedTexture, params IEnumerable<Link> WhichLinks) => IExtract(WhichLinks, GetRenderedTexture);
+	public void Extract(Action<Link, RTexture2D> GetRenderedTexture, params IEnumerable<Link> WhichLinks) => IExtract(WhichLinks, GetRenderedTexture);
 
 	//This extracts the rectangles for the links.
 	//If NeedsExtracting and WhichLinks=null (only ran when the label will render differently visually), it will extract all links and set NeedsExtracting=false.
-	private void IExtract(IEnumerable<Link>? WhichLinks=null, Action<Link, Texture2D>? GetRenderedTexture=null)
+	private void IExtract(IEnumerable<Link>? WhichLinks=null, Action<Link, RTexture2D>? GetRenderedTexture=null)
 	{
 		//Make sure we need to extract
 		if(!(
@@ -348,7 +355,7 @@ public class LinkedLabel : IDisposable
 	{
 		private readonly int Width, Height;
 		private readonly Rect DrawRect;
-		public Texture2D Tex { get; }
+		public SafeTexture2D Tex { get; }
 		private readonly RenderTexture RT, PrevRT;
 
 		public GetStringRects(int Width, int Height)
@@ -356,7 +363,7 @@ public class LinkedLabel : IDisposable
 			//Create/set render textures
 			(this.Width, this.Height)=(Width, Height);
 			DrawRect=new(0, 0, Width, Height);
-			Tex=new(Width, Height, TextureFormat.ARGB32, false);
+			Tex=SafeTexture2D.New(Width, Height);
 			RT=RenderTexture.GetTemporary(Screen.width, Screen.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear); //TODO: This might be doable with normal sized texture and a matrix scale
 			PrevRT=RenderTexture.active;
 			RenderTexture.active=RT;
@@ -438,9 +445,9 @@ public class LinkedLabel : IDisposable
 		public int			 Height	{ get; set { field=value; _=MakeSquiggleStrike(); } } = Height			;
 		public float	  MainAlpha	{ get; set { field=value; _=MakeSquiggleStrike(); } } = MainAlpha		;
 		public float AntiAliasAlpha	{ get; set { field=value; _=MakeSquiggleStrike(); } } = AntiAliasAlpha	;
-		public Texture2D Tex => _Tex ?? MakeSquiggleStrike();
-		private Texture2D? _Tex=null;
-		private Texture2D MakeSquiggleStrike()
+		public  RTexture2D Tex => _Tex?.Tex ?? MakeSquiggleStrike();
+		private SafeTexture2D? _Tex=null;
+		private RTexture2D MakeSquiggleStrike()
 		{
 			//Create the base color as white transparent
 			Color[] Colors=new Color[Width*Height];
@@ -460,10 +467,9 @@ public class LinkedLabel : IDisposable
 
 			//Create the texture
 			Dispose();
-			_Tex=new Texture2D(Width, Height, TextureFormat.ARGB32, false) {
-				wrapMode=TextureWrapMode.Repeat,
-				filterMode=FilterMode.Point,
-			};
+			_Tex=SafeTexture2D.New(Width, Height);
+			_Tex.wrapMode=TextureWrapMode.Repeat;
+			_Tex.filterMode=FilterMode.Point;
 			_Tex.SetPixels(Colors);
 			_Tex.Apply();
 			return _Tex;

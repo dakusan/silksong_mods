@@ -1,5 +1,6 @@
 using SilkDev;
 using SilkDev.Hooks;
+using SilkDev.Textures;
 using System;
 using System.Reflection;
 using UnityEngine;
@@ -96,7 +97,7 @@ internal class HornetIconAnimators
 
 			//Create and set the rainbow texture
 			const int NumPixels=256;
-			Texture2D RainbowTexture=new(1, NumPixels, TextureFormat.ARGB32, false);
+			Texture2D RainbowTexture=Texture2D.New(1, NumPixels);
 			Color[] Pixels=new Color[NumPixels];
 			for(int i=0; i<NumPixels; i++) {
 				Color NewColor=Color.HSVToRGB((float)i/NumPixels, 1f, 1f);

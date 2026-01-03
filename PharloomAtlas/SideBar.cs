@@ -7,6 +7,13 @@ using UnityEngine;
 using static SilkDev.DevInput.Joystick;
 using Dragger=SilkDev.DevInput.Mouse.Dragger;
 
+#if DEBUG
+	using SafeTexture2D = SilkDev.Textures.SafeTexture2D;
+#else
+	using SafeTexture2D = UnityEngine.Texture2D;
+#endif
+using RTexture2D = UnityEngine.Texture2D;
+
 namespace PharloomAtlas;
 
 public partial class SideBar : Window
@@ -25,9 +32,10 @@ public partial class SideBar : Window
 	private int PickerContentHeight=690; //Measured beforehand but updated every frame
 	private readonly Sprite Arrow;
 	private readonly DataStorage DS;
-	private readonly System.Collections.Generic.List<Texture2D> StoreTextures=[];
 	private Vector2 ScrollPosition=Vector2.zero;
 	private readonly GUISkin CustomSkin;
+	private readonly System.Collections.Generic.Dictionary<RTexture2D, SafeTexture2D> StoreTextures=[];
+	private void StoreTexture(RTexture2D Tex) => StoreTextures[Tex]=Tex;
 
 	//Create the sidebar
 	internal SideBar(DataStorage DS) : base(nameof(SideBar), false, -50)
@@ -53,9 +61,9 @@ public partial class SideBar : Window
 			CustomSkin=ScriptableObject.CreateInstance<GUISkin>();
 			CustomSkin=UnityEngine.Object.Instantiate(GUI.skin);
 		}
-		StoreTextures.Add(CustomSkin.box.normal.background=Conf.Color_SideBar_Background.V.MakeTexture());
+		StoreTexture(CustomSkin.box.normal.background=Conf.Color_SideBar_Background.V.MakeTexture());
 		foreach(GUIStyle S in new GUIStyle[] { CustomSkin.verticalScrollbar, CustomSkin.verticalScrollbarThumb, CustomSkin.button })
-			StoreTextures.Add(S.normal.background=CreateTintedTexture(S.normal.background, Conf.Color_SideBar_Interface));
+			StoreTexture(S.normal.background=CreateTintedTexture(S.normal.background, Conf.Color_SideBar_Interface));
 		CustomSkin.box.padding=CustomSkin.box.margin=new RectOffset(0, 0, 0, 0);
 
 		//Set up the top sidebar sections
@@ -259,10 +267,14 @@ public partial class SideBar : Window
 			case UpdateColorType.Interface:
 				foreach(string StyleName in new string[] { "verticalScrollbar", "verticalScrollbarThumb", "button" }) {
 					GUIStyle MyGS=new Reflectors.RProp<GUISkin, GUIStyle>(CustomSkin, StyleName).Get();
-					Texture2D MyTex=MyGS.normal.background;
+					RTexture2D MyTex=MyGS.normal.background;
+					if(StoreTextures.TryGetValue(MyTex, out SafeTexture2D ST))
+						ST.TDestroy();
+					else
+						MyTex.TDestroy();
 					_=StoreTextures.Remove(MyTex);
-					MyTex.TDestroy();
-					StoreTextures.Add(MyGS.normal.background=CreateTintedTexture(
+
+					StoreTexture(MyGS.normal.background=CreateTintedTexture(
 						new Reflectors.RProp<GUISkin, GUIStyle>(GUI.skin, StyleName).Get().normal.background,
 						Conf.Color_SideBar_Interface)
 					);
@@ -277,14 +289,11 @@ public partial class SideBar : Window
 	}
 
 	//Create a texture copy with all pixels multiplied by Tint
-	private static Texture2D CreateTintedTexture(Texture2D Source, Color Tint)
+	private static RTexture2D CreateTintedTexture(RTexture2D Source, Color Tint)
 	{
 		//Get the textures pixels
 		try {
-			using TypedDisposer<Texture2D> WorkTexture=new(
-				Source.ToReadable(),
-				Target => Target.TDestroy()
-			);
+			using TypedDisposer<RTexture2D> WorkTexture=Source.ToReadable().Disposable;
 
 			//Tint the texture
 			Color[] Pixels=WorkTexture.Target.GetPixels();

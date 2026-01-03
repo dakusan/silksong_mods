@@ -1,10 +1,18 @@
 using SilkDev;
 using SilkDev.JSON;
+using SilkDev.Textures;
 using SilkDev.Windows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+
+#if DEBUG
+	using SafeTexture2D = SilkDev.Textures.SafeTexture2D;
+#else
+	using SafeTexture2D = UnityEngine.Texture2D;
+#endif
+using RTexture2D = UnityEngine.Texture2D;
 
 namespace PharloomAtlas;
 
@@ -14,16 +22,16 @@ public class DataStorage
 	public readonly Dictionary<int, Category> Categories=[];
 	public readonly Dictionary<int, Item> Items;
 	public readonly Dictionary<int, StaticLink> StaticLinks=[];
-	public readonly Texture2D IconPicsTex;
+	public readonly SafeTexture2D IconPicsTex;
 	internal const int IconLenX=10, IconLenY=8, IconWidth=65, IconHeight=65, IconPadding=1;
 
 	//Create icon sprites when needed
 	public class IconSprites
 	{
 		private readonly Sprite?[] SpriteList=new Sprite?[IconLenX*IconLenY];
-		private readonly Texture2D IconPicsTex;
+		private readonly RTexture2D IconPicsTex;
 		private const int ErrorTexSize=54;
-		internal IconSprites(Texture2D IconPicsTex)
+		internal IconSprites(RTexture2D IconPicsTex)
 		{
 			this.IconPicsTex=IconPicsTex;
 
@@ -115,7 +123,7 @@ public class DataStorage
 			Categories[Item.CategoryID].TotalCount++;
 
 		//Create and update the sprite texture
-		IconPicsTex=new Texture2D(2, 2, TextureFormat.ARGB32, false);
+		IconPicsTex=SafeTexture2D.New();
 		if(!IconPicsTex.LoadImage(FileOps.LoadLocalFileOrResource(Config.C.IconSet.Value).ReadAllAndCloseB()))
 			throw new Exception("Could not load icons texture, failing out");
 		IconPicsTex.Apply();

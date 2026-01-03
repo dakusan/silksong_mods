@@ -6,6 +6,13 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using static SilkDev.DevInput.Joystick;
 
+#if DEBUG
+	using SafeTexture2D = SilkDev.Textures.SafeTexture2D;
+#else
+	using SafeTexture2D = UnityEngine.Texture2D;
+#endif
+using RTexture2D = UnityEngine.Texture2D;
+
 namespace PharloomAtlas;
 
 public partial class SideBar
@@ -14,7 +21,7 @@ public partial class SideBar
 	internal class HelpWindow : SilkDev.Windows.PopupMessage
 	{
 		private static int NumOpen=0;
-		private static Texture2D? ControllerLayout;
+		private static SafeTexture2D? ControllerLayout;
 		private static string FullMessage=Misc.Empty;
 		private const string ControllerFileName="KeyMappings.png";
 		private const string HelpTextFile="Help.txt";
@@ -22,7 +29,7 @@ public partial class SideBar
 		private static readonly string SettingTranslationSection=TranslatedConfig.SettingTranslationSections.Names.TranslationName();
 		private Vector2 ScrollPosition=Vector2.zero;
 		public static bool HasAnyOpen => NumOpen>0;
-		public GUIStyle ScrollStyle=new(GUI.skin.scrollView) { normal={background=Texture2D.grayTexture}, margin=new RectOffset(2, 2, 0, 0) };
+		public GUIStyle ScrollStyle=new(GUI.skin.scrollView) { normal={background=RTexture2D.grayTexture}, margin=new RectOffset(2, 2, 0, 0) };
 		public GUIStyle LabelStyle=new(GUI.skin.label) { fontSize=20, alignment=TextAnchor.UpperLeft, wordWrap=true, richText=true };
 		public GUIStyle CenterRichText=new(GUI.skin.label) { alignment=TextAnchor.MiddleCenter, richText=true };
 
@@ -69,7 +76,7 @@ public partial class SideBar
 			Message=Message.Replace("<ABYSS>", !PlayerData.instance.visitedAbyss ? "@#$%@" : TSan("Abyss"));
 
 			//Load the texture
-			ControllerLayout=new Texture2D(2, 2, TextureFormat.ARGB32, false);
+			ControllerLayout=SafeTexture2D.New();
 			try {
 				if(!ControllerLayout.LoadImage(FileOps.LoadEmbeddedResource(ControllerFileName).ReadAllAndCloseB()))
 					throw new Exception("Unity failed loading the image");

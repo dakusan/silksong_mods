@@ -128,10 +128,7 @@ internal class ExtractAllTextures : ProgressBarWithLogs
 		string NewFileName;
 		try {
 			//Get the bytes
-			using TypedDisposer<Texture2D> TempTex=new(
-				CurTex.ToReadable(),
-				Target => Target.TDestroy()
-			);
+			using TypedDisposer<Texture2D> TempTex=CurTex.ToReadable().Disposable;
 			PNGBytes=TempTex.Target.EncodeToPNG();
 
 			//Get the filename

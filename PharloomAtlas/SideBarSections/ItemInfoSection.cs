@@ -6,6 +6,12 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
+#if DEBUG
+	using SafeTexture2D = SilkDev.Textures.SafeTexture2D;
+#else
+	using SafeTexture2D = UnityEngine.Texture2D;
+#endif
+
 namespace PharloomAtlas;
 
 public partial class SideBar
@@ -18,13 +24,13 @@ public partial class SideBar
 		private const float SaveImageWidth=480;
 		private const int InfoSectionHorPadding=20;
 		private float ClientWidth;
-		private Texture2D FakeTex=null!;
+		private SafeTexture2D FakeTex=null!;
 		private readonly GUIStyle ItemInfoBoxStyle=new(GUI.skin.label) { fontSize=16, normal={textColor=Color.white}, richText=true };
-		private readonly Dictionary<string, Texture2D?> LoadedImages=[];
+		private readonly Dictionary<string, SafeTexture2D?> LoadedImages=[];
 		protected override void ExecDraw(int ClientWidth)
 		{
 			//Make sure FakeTex has been created
-			FakeTex??=new Texture2D(1, 1);
+			FakeTex??=SafeTexture2D.New();
 
 			//Add a margin
 			GUILayout.BeginHorizontal();
@@ -97,7 +103,7 @@ public partial class SideBar
 			DrawInfoSectionLine(GUILayoutUtility.GetLastRect());
 
 			//Get list of text and images
-			List<Texture2D> Images=[];
+			List<SafeTexture2D> Images=[];
 			List<string> Lines=[
 				MakeItemInfoLine("Title", CurSelectedItem.Title),
 				MakeItemInfoLine("Category", MapControl.Self.DS.Categories[CurSelectedItem.CategoryID].Title),
@@ -106,7 +112,7 @@ public partial class SideBar
 			];
 			if(Config.C.ShowSideBarPictures)
 				CurSelectedItem.ImageURLs?.ForEach(ImageURL => {
-					(string? FailureString, Texture2D? Image)=RenderImage(ImageURL);
+					(string? FailureString, SafeTexture2D? Image)=RenderImage(ImageURL);
 					if(FailureString!=null)
 						Lines.Add(TSan(FailureString));
 					else if(Image!=null)
@@ -138,7 +144,7 @@ public partial class SideBar
 		}
 
 		//Return the image to render or a text string explaining its state
-		private (string?, Texture2D?) RenderImage(string ImageURL)
+		private (string?, SafeTexture2D?) RenderImage(string ImageURL)
 		{
 			//If URL starts with an exclamation mark then prepend the const URL path
 			if(ImageURL.Length>0 && ImageURL[0]=='!')
@@ -146,7 +152,7 @@ public partial class SideBar
 
 			//See if the picture is already loaded
 			string ImageFileName=FileOps.GetFileName(ImageURL);
-			if(LoadedImages.TryGetValue(ImageFileName, out Texture2D? Image))
+			if(LoadedImages.TryGetValue(ImageFileName, out SafeTexture2D? Image))
 				return
 				  Image==null ? ("[Downloading image]", null)
 				: Image==FakeTex ? ("[Image download failed]", null)
@@ -167,7 +173,7 @@ public partial class SideBar
 			//Get the picture locally
 			LoadedImages[ImageFileName]=null; //Mark as acquiring
 			try {
-				Texture2D NewTexture=new(1, 1);
+				SafeTexture2D NewTexture=SafeTexture2D.New();
 				if(!NewTexture.LoadImage(FileOps.ReadFileBytes(FilePath)))
 					throw new Exception("Cached load failed");
 				LoadedImages[ImageFileName]=NewTexture;
@@ -204,10 +210,7 @@ public partial class SideBar
 		{
 			//Load the image into a temporary texture
 			string ImageFileName=FileOps.GetFileName(SavePath);
-			using TypedDisposer<Texture2D> NewTex=new(
-				new(2, 2, TextureFormat.ARGB32, false),
-				Target => Target.TDestroy()
-			);
+			using var NewTex=SafeTexture2D.New().Disposable;
 			if(!NewTex.Target.LoadImage(FileBytes))
 				return $"Load image for {ImageFileName} failed";
 
@@ -217,10 +220,7 @@ public partial class SideBar
 			Vector2 NewSize=new Vector2(StartWidth, StartHeight)*WidthRatio;
 			byte[] OutBytes;
 			try {
-				using TypedDisposer<Texture2D> ResizedTex=new(
-					NewTex.Target.ToReadable(ResizeDimensions: NewSize),
-					Target => Target.TDestroy()
-				);
+				using var ResizedTex=NewTex.Target.ToReadable(ResizeDimensions: NewSize).Disposable;
 				OutBytes=ResizedTex.Target.EncodeToJPG(80);
 			} catch(Exception e) {
 				return $"Error resizing {ImageFileName}: {e.Message}";

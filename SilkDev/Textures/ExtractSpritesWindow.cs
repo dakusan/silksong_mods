@@ -1,10 +1,18 @@
 using SilkDev.Windows;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Button=SilkDev.DevInput.Mouse.Button;
+
+#if DEBUG
+	//using SafeTexture2D = SilkDev.Textures.SafeTexture2D;
+#else
+	using SafeTexture2D = UnityEngine.Texture2D;
+#endif
+using RTexture2D = UnityEngine.Texture2D;
 
 namespace SilkDev.Textures;
 
@@ -73,22 +81,31 @@ public class ExtractSpritesWindow : Window
 		//Members
 		public enum Type { None, Failed, CroppedTexture, Rendered, FullTexture };
 		public readonly SpriteObject SO;
-		public readonly Texture2D Tex;
+		public readonly SafeTexture2D Tex;
 		public readonly Type TexType;
 		public readonly DateTime CreationTime=DateTime.Now;
 		public bool HighlightSpriteOnSheet=true;
+
+	#if DEBUG
+		private static SafeTexture2D GetSafeTex(RTexture2D NewTex, bool IsDisposable) => new(NewTex, !IsDisposable, 0);
+	#else
+		private static RTexture2D GetSafeTex(RTexture2D NewTex, bool _) => NewTex;
+	#endif
 
 		//Initialization
 		public CurrentObj(SpriteObject SO, Type TexType=Type.CroppedTexture)
 		{
 			(this.SO, this.TexType)=(SO, TexType);
 			try {
-				Tex=TexType switch {
-					Type.CroppedTexture	=> SO.Texture.ToReadable(TexCoords: SO.TextureRect),
-					Type.Rendered		=> SO.CaptureToTexture(),
-					Type.FullTexture	=> SO.Texture,
-					_					=> throw new ArgumentException("TexType is not valid")
-				};
+				Tex=GetSafeTex(
+					TexType switch {
+						Type.CroppedTexture	=> SO.Texture.ToReadable(TexCoords: SO.TextureRect),
+						Type.Rendered		=> SO.CaptureToTexture(),
+						Type.FullTexture	=> SO.Texture,
+						_					=> throw new ArgumentException("TexType is not valid"),
+					},
+					IsDisposable
+				);
 			} catch(Exception e) {
 				if(Tex!=null && IsDisposable) //This should not be possible
 					Tex.TDestroy();
@@ -98,16 +115,17 @@ public class ExtractSpritesWindow : Window
 		}
 
 		//Pass through functions
-		[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification="Wrapped field")] public int width  => Tex.width;
-		[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification="Wrapped field")] public int height => Tex.height;
-		public static implicit operator Texture2D?(CurrentObj? CO)	=> CO?.Tex;
+		[SuppressMessage("Style", "IDE1006:Naming Styles", Justification="Wrapped field")] public int width  => Tex.width;
+		[SuppressMessage("Style", "IDE1006:Naming Styles", Justification="Wrapped field")] public int height => Tex.height;
+		public static implicit operator RTexture2D?(CurrentObj? CO)	=> CO?.Tex?.Tex;
 		public Rect		ScreenPos									=> SO.ScreenPos;
 		public string	Name										=> TexType!=Type.FullTexture ? SO.Name : Tex.name ?? "NO NAME";
 
 		//Helper functions
 		public bool HasTexture		=> TexType is not (Type.None or Type.Failed);
 		public bool IsDisposable	=> TexType is not (Type.None or Type.FullTexture);
-		public void Destroy()		=> Misc.IFF(IsDisposable, Tex.TDestroy);
+		[SuppressMessage("Style", "IDE0200:Remove unnecessary lambda expression", Justification = "In release mode TDestroy() takes a parameter")]
+		public void Destroy()		=> Misc.IFF(IsDisposable, () => Tex.TDestroy());
 
 		//Encode to PNG
 		public byte[] EncodeToPNG()
@@ -117,7 +135,7 @@ public class ExtractSpritesWindow : Window
 			else if(TexType!=Type.FullTexture || Tex.isReadable)
 				return Tex.EncodeToPNG();
 
-			using TypedDisposer<Texture2D> CopiedTex=new(Tex.ToReadable(), static T => T.TDestroy());
+			using var CopiedTex=Tex.ToReadable().Disposable;
 			return CopiedTex.Target.EncodeToPNG();
 		}
 	}
@@ -232,16 +250,15 @@ public class ExtractSpritesWindow : Window
 		return MyRect;
 	}
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0042:Deconstruct variable declaration", Justification="Keeping previous code unchanged")]
 	protected override void DoLayout(int ID, Event Ev)
 	{
 		//Precalculations
 		RectOffset WinPad=GUI.skin.window.padding;
 		bool HasImage=(CurFoundObj?.HasTexture==true);
-		(int width, int height) TexImage=(HasImage ? (CurFoundObj!.width, CurFoundObj!.height) : (0, 0));
+		(int TIWidth, int TIHeight)=(HasImage ? (CurFoundObj!.width, CurFoundObj!.height) : (0, 0));
 		float AvailableHeight=WindowRect.height-WinPad.vertical-LabelStyle.lineHeight;
-		float Aspect=(!HasImage ? 0 : TexImage.width/(float)TexImage.height);
-		float ImageDisplayHeight=!HasImage ? 0 : Mathf.Min(AvailableHeight, TexImage.height);
+		float Aspect=(!HasImage ? 0 : TIWidth/(float)TIHeight);
+		float ImageDisplayHeight=!HasImage ? 0 : Mathf.Min(AvailableHeight, TIHeight);
 		float ImageDisplayWidth=ImageDisplayHeight*Aspect;
 		float LeftWidth=WindowRect.width-ImageDisplayWidth-WinPad.horizontal;
 		if(LeftWidth<MinListWidth) {
@@ -254,7 +271,7 @@ public class ExtractSpritesWindow : Window
 		//Title the window with our sprite and display sizes
 		Title=Tr.T(WindowTitle)+(
 			  !HasImage ? Tr.T("No sprite selected")
-			: $"{TexImage.width}*{TexImage.height} -> {ImageDisplayWidth}*{ImageDisplayHeight}"
+			: $"{TIWidth}*{TIHeight} -> {ImageDisplayWidth}*{ImageDisplayHeight}"
 		);
 
 		//Begin the window layout
@@ -402,7 +419,7 @@ public class ExtractSpritesWindow : Window
 	private LiveRectangles? LR=null;
 	private class LiveRectangles(ExtractSpritesWindow Parent) : Window("Live ExtractSprite Rectangles", true, -300)
 	{
-		private readonly Texture2D BoxTex=Color.red.MakeTexture(), SelectedTex=new Color(0, 0, 1, 0.35f).MakeTexture();
+		private readonly SafeTexture2D BoxTex=Color.red.MakeTexture(), SelectedTex=new Color(0, 0, 1, 0.35f).MakeTexture();
 		private record class MouseOverSprites(DrawGeometry.Rectangle R, SpriteObject SO, Misc.Ref<DateTime> LastUpdate);
 		private readonly Dictionary<GameObject, MouseOverSprites> MOOList=[];
 		private readonly ExtractSpritesWindow Parent=Parent;

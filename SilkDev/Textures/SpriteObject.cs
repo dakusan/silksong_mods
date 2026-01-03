@@ -74,7 +74,7 @@ public abstract class SpriteObject(string Name, string ParentTree, GameObject GO
 		Cam.targetTexture=RT;
 		Cam.Render();
 		RenderTexture.active=RT;
-		Texture2D Tex=new(Width, Height, TextureFormat.ARGB32, false);
+		Texture2D Tex=Texture2D.New(Width, Height);
 		Tex.ReadPixels(new Rect(0, 0, Width, Height), 0, 0);
 		Tex.Apply();
 

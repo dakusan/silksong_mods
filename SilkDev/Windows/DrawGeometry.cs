@@ -3,6 +3,13 @@ using System;
 using UnityEngine;
 using OA=System.ObsoleteAttribute;
 
+#if DEBUG
+	using SafeTexture2D = SilkDev.Textures.SafeTexture2D;
+#else
+	using SafeTexture2D = UnityEngine.Texture2D;
+#endif
+using RTexture2D = UnityEngine.Texture2D;
+
 namespace SilkDev.Windows;
 
 #pragma warning disable CS0809 //Obsolete member overrides non-obsolete member
@@ -25,7 +32,8 @@ public static class DrawGeometry
 	//Only a texture or a color can be activated at once
 	public class ColorOrTexture
 	{
-		private Texture2D? ColorTexture, UserTexture;
+		private SafeTexture2D? ColorTexture;
+		private RTexture2D? UserTexture;
 
 		public Color? Color
 		{
@@ -34,13 +42,14 @@ public static class DrawGeometry
 				if(field==value)
 					return;
 				ColorTexture?.TDestroy();
-				ColorTexture=UserTexture=null;
+				ColorTexture=null;
+				UserTexture=null;
 				if((field=value).HasValue)
 					ColorTexture=value!.Value.MakeTexture();
 			}
 		}
 
-		public Texture2D? Texture
+		public RTexture2D? Texture
 		{
 			get => UserTexture;
 			set {
@@ -51,7 +60,7 @@ public static class DrawGeometry
 			}
 		}
 
-		public Texture2D? ActiveTexture => ColorTexture ?? UserTexture;
+		public RTexture2D? ActiveTexture => ColorTexture?.Tex ?? UserTexture;
 	}
 
 	private static readonly Rect Rotate90CW=new(0f, 1f, 1f, -1f);
@@ -68,7 +77,7 @@ public static class DrawGeometry
 
 		protected Geometry(int X, int Y, Color Color  , string Title) : base(Title, true, 5000) =>
 			(this.X, this.Y, MainTexture.Color  , UnboundDraw)=(X, Y, Color, true);
-		protected Geometry(int X, int Y, Texture2D Tex, string Title) : base(Title, true, 5000) =>
+		protected Geometry(int X, int Y, RTexture2D Tex,string Title) : base(Title, true, 5000) =>
 			(this.X, this.Y, MainTexture.Texture, UnboundDraw)=(X, Y, Tex  , true);
 
 		public override void Close()
@@ -87,9 +96,9 @@ public static class DrawGeometry
 		[OA(NA,T)] public override int BorderSize			{ get => (int)				NaF(); set => NaF(); }
 		[OA(NA,T)] public override int Size					{ get => (int)				NaF(); set => NaF(); }
 		public Dot(int X, int Y,  Color Color) : base(         X,          Y, 1, Color, -1, "Dot"	) { }
-		public Dot(int X, int Y,Texture2D Tex) : base(         X,          Y, 1, Tex  , -1, "Dot"	) { }
+		public Dot(int X, int Y,RTexture2D Tex): base(         X,          Y, 1, Tex  , -1, "Dot"	) { }
 		public Dot(Vector2 Pos,   Color Color) : this((int)Pos.x, (int)Pos.y,    Color				) { }
-		public Dot(Vector2 Pos, Texture2D Tex) : this((int)Pos.x, (int)Pos.y,    Tex				) { }
+		public Dot(Vector2 Pos,RTexture2D Tex) : this((int)Pos.x, (int)Pos.y,    Tex				) { }
 	}
 
 	//A square on the screen (Subclass of rectangle)
@@ -98,12 +107,12 @@ public static class DrawGeometry
 		[OA(NA,T)] public override int Width		{ get => (int)NaF(); set => NaF(); }
 		[OA(NA,T)] public override int Height		{ get => (int)NaF(); set => NaF(); }
 		public virtual int Size { get => base.Width; set => base.Width=base.Height=value; }
-		public   Square(int X, int Y, int Size, Color   Color, int BorderSize=-1)			: this(         X,          Y, Size,       Color, BorderSize, "Square")	{ }
-		public   Square(int X, int Y, int Size, Texture2D Tex, int BorderSize=-1)			: this(         X,          Y, Size,       Tex,   BorderSize, "Square")	{ }
-		public   Square(Vector2 Pos,  int Size, Color   Color, int BorderSize=-1)			: this((int)Pos.x, (int)Pos.y, Size,       Color, BorderSize)			{ }
-		public   Square(Vector2 Pos,  int Size, Texture2D Tex, int BorderSize=-1)			: this((int)Pos.x, (int)Pos.y, Size,       Tex,   BorderSize)			{ }
-		internal Square(int X, int Y, int Size, Color   Color, int BorderSize, string Title): base(X, Y, Size, Size, Color, BorderSize, Title) { }
-		internal Square(int X, int Y, int Size, Texture2D Tex, int BorderSize, string Title): base(X, Y, Size, Size, Tex  , BorderSize, Title) { }
+		public   Square(int X, int Y, int Size, Color    Color, int BorderSize=-1)			: this(         X,          Y, Size,       Color, BorderSize, "Square")	{ }
+		public   Square(int X, int Y, int Size, RTexture2D Tex, int BorderSize=-1)			: this(         X,          Y, Size,       Tex,   BorderSize, "Square")	{ }
+		public   Square(Vector2 Pos,  int Size, Color    Color, int BorderSize=-1)			: this((int)Pos.x, (int)Pos.y, Size,       Color, BorderSize)			{ }
+		public   Square(Vector2 Pos,  int Size, RTexture2D Tex, int BorderSize=-1)			: this((int)Pos.x, (int)Pos.y, Size,       Tex,   BorderSize)			{ }
+		internal Square(int X, int Y, int Size, Color    Color, int BorderSize, string Title):base(X, Y, Size, Size, Color, BorderSize, Title) { }
+		internal Square(int X, int Y, int Size, RTexture2D Tex, int BorderSize, string Title):base(X, Y, Size, Size, Tex  , BorderSize, Title) { }
 	}
 
 	//A rectangle on the screen
@@ -113,16 +122,16 @@ public static class DrawGeometry
 		public virtual int Width		{ get => _Width		; set => _Width		=value; }
 		public virtual int Height		{ get => _Height	; set => _Height	=value; }
 		public virtual int BorderSize	{ get => _BorderSize; set => _BorderSize=Mathf.Max(value, 0); }
-		public   Rectangle(int X, int Y, int Width, int Height, Color   Color, int BorderSize=-1)			: this(               X,           Y, Width, Height, Color, BorderSize, "Rectangle"){ }
-		public   Rectangle(int X, int Y, int Width, int Height, Texture2D Tex, int BorderSize=-1)			: this(               X,           Y, Width, Height, Tex  , BorderSize, "Rectangle"){ }
-		public   Rectangle(Vector2 Pos,  int Width, int Height, Color   Color, int BorderSize=-1)			: this(     (int) Pos.x, (int) Pos.y, Width, Height, Color, BorderSize)				{ }
-		public   Rectangle(Vector2 Pos,  int Width, int Height, Texture2D Tex, int BorderSize=-1)			: this(     (int) Pos.x, (int) Pos.y, Width, Height, Tex  , BorderSize)				{ }
-		public   Rectangle(Vector2 Pos,  Vector2 Size,          Color   Color, int BorderSize=-1)			: this(Pos, (int)Size.x, (int)Size.y,                Color, BorderSize)				{ }
-		public   Rectangle(Vector2 Pos,  Vector2 Size,          Texture2D Tex, int BorderSize=-1)			: this(Pos, (int)Size.x, (int)Size.y,                Tex  , BorderSize)				{ }
-		public   Rectangle(Rect Rect,                           Color   Color, int BorderSize=-1)			: this(Rect.position,    Rect.size,                  Color, BorderSize)				{ }
-		public   Rectangle(Rect Rect,                           Texture2D Tex, int BorderSize=-1)			: this(Rect.position,    Rect.size,                  Tex  , BorderSize)				{ }
-		internal Rectangle(int X, int Y, int Width, int Height, Color   Color, int BorderSize, string Title): base(X, Y, Color, Title) => (_Width, _Height, _BorderSize)=(Width, Height, BorderSize);
-		internal Rectangle(int X, int Y, int Width, int Height, Texture2D Tex, int BorderSize, string Title): base(X, Y, Tex  , Title) => (_Width, _Height, _BorderSize)=(Width, Height, BorderSize);
+		public   Rectangle(int X, int Y, int Width, int Height, Color    Color, int BorderSize=-1)			: this(               X,           Y, Width, Height, Color, BorderSize, "Rectangle"){ }
+		public   Rectangle(int X, int Y, int Width, int Height, RTexture2D Tex, int BorderSize=-1)			: this(               X,           Y, Width, Height, Tex  , BorderSize, "Rectangle"){ }
+		public   Rectangle(Vector2 Pos,  int Width, int Height, Color    Color, int BorderSize=-1)			: this(     (int) Pos.x, (int) Pos.y, Width, Height, Color, BorderSize)				{ }
+		public   Rectangle(Vector2 Pos,  int Width, int Height, RTexture2D Tex, int BorderSize=-1)			: this(     (int) Pos.x, (int) Pos.y, Width, Height, Tex  , BorderSize)				{ }
+		public   Rectangle(Vector2 Pos,  Vector2 Size,          Color    Color, int BorderSize=-1)			: this(Pos, (int)Size.x, (int)Size.y,                Color, BorderSize)				{ }
+		public   Rectangle(Vector2 Pos,  Vector2 Size,          RTexture2D Tex, int BorderSize=-1)			: this(Pos, (int)Size.x, (int)Size.y,                Tex  , BorderSize)				{ }
+		public   Rectangle(Rect Rect,                           Color    Color, int BorderSize=-1)			: this(Rect.position,    Rect.size,                  Color, BorderSize)				{ }
+		public   Rectangle(Rect Rect,                           RTexture2D Tex, int BorderSize=-1)			: this(Rect.position,    Rect.size,                  Tex  , BorderSize)				{ }
+		internal Rectangle(int X, int Y, int Width, int Height, Color    Color, int BorderSize, string Title):base(X, Y, Color, Title) => (_Width, _Height, _BorderSize)=(Width, Height, BorderSize);
+		internal Rectangle(int X, int Y, int Width, int Height, RTexture2D Tex, int BorderSize, string Title):base(X, Y, Tex  , Title) => (_Width, _Height, _BorderSize)=(Width, Height, BorderSize);
 		public Rect Rect { get => new(X, Y, _Width, _Height); set => (X, Y, _Width, _Height)=((int)value.x, (int)value.y, (int)value.width, (int)value.height); }
 
 		protected override void DoLayout(int _, Event __)
@@ -132,7 +141,7 @@ public static class DrawGeometry
 				return;
 
 			//If main texture is null, throw an error
-			Texture2D MainTex=MainTexture.ActiveTexture ?? throw new InvalidOperationException("MainTexture.Color or MainTexture.Texture must be set");
+			RTexture2D MainTex=MainTexture.ActiveTexture ?? throw new InvalidOperationException("MainTexture.Color or MainTexture.Texture must be set");
 
 			//Optionally draw the background texture
 			if(base.BGTexture.ActiveTexture!=null) {

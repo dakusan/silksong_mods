@@ -46,7 +46,7 @@ public class SearchWindow : SilkDev.Windows.Window
 	private SearchWindow() : base(Misc.Empty, Config.C.Rect_SearchWindow, 0, 0)
 	{
 		Misc.InitSingleton(this, ref _Self);
-		TextStyle.normal.background=BGTex;
+		TextStyle.normal.background=BGTex?.Tex;
 		NumResults.padding.right+=8;
 		if(WindowRect.width==0)
 			WindowRect=new Rect(Screen.width-800-45, 42+179+10, 800, 600); //Set just below the default for SaveValuesWindow and aligned on the right side

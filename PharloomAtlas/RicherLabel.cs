@@ -6,9 +6,16 @@ using System.Linq;
 using UnityEngine;
 using Button = SilkDev.DevInput.Mouse.Button;
 
+#if DEBUG
+	using SafeTexture2D = SilkDev.Textures.SafeTexture2D;
+#else
+	using SafeTexture2D = UnityEngine.Texture2D;
+#endif
+using RTexture2D = UnityEngine.Texture2D;
+
 namespace PharloomAtlas;
 
-public class RicherLabel : LinkedLabel
+public class RicherLabel : LinkedLabel, IDisposable
 {
 	//Process important and found links
 	private const string ImportantAttr="Important";
@@ -31,8 +38,9 @@ public class RicherLabel : LinkedLabel
 		);
 	}
 
-	public void Dispose()
+	public new void Dispose()
 	{
+		base.Dispose();
 		ImportantLinks.ForEach(static IL => IL.Dispose());
 		ImportantLinks.Clear();
 	}
@@ -85,7 +93,7 @@ public class RicherLabel : LinkedLabel
 
 			//Create and set the rainbow texture
 			const int NumPixels=256;
-			Texture2D RainbowTexture=new(NumPixels, 1, TextureFormat.ARGB32, false);
+			RTexture2D RainbowTexture=RTexture2D.New(NumPixels, 1);
 			Color[] Pixels=new Color[NumPixels];
 			for(int i=0; i<NumPixels; i++) {
 				Color NewColor=Color.HSVToRGB((float)i/NumPixels, 1f, 1f);
@@ -100,12 +108,12 @@ public class RicherLabel : LinkedLabel
 
 		//Render information
 		private readonly Link L;
-		private readonly Texture2D RenderFrom, RenderEnd;
+		private readonly SafeTexture2D RenderFrom, RenderEnd;
 		private readonly RenderTexture RenderTo;
 		private readonly int OffsetDrawX, OffsetDrawY, RenderSizeX, RenderSizeY;
 		private readonly DateTime StartAt=DateTime.Now.AddSeconds(UnityEngine.Random.Range(0f, 10f/BaseSpeed)*-1); //Add some random time so different labels start at different places
 		private float TimeSpan() => (DateTime.Now.Ticks-StartAt.Ticks)%10000000000L/10000000f;
-		public ImportantLink(Link L, Texture2D FullRender)
+		public ImportantLink(Link L, RTexture2D FullRender)
 		{
 			//If material loading failed or there are no rects, we will not be creating the texture
 			this.L=L;
@@ -124,8 +132,8 @@ public class RicherLabel : LinkedLabel
 			OffsetDrawY=L.Rects.Min(static R => (int) R.y);
 			RenderSizeX=L.Rects.Max(static R => (int)(R.x+R.width ))-OffsetDrawX;
 			RenderSizeY=L.Rects.Max(static R => (int)(R.y+R.height))-OffsetDrawY;
-			RenderFrom=new Texture2D(RenderSizeX, RenderSizeY, TextureFormat.ARGB32, false);
-			RenderEnd =new Texture2D(RenderSizeX, RenderSizeY, TextureFormat.ARGB32, false);
+			RenderFrom=SafeTexture2D.New(RenderSizeX, RenderSizeY);
+			RenderEnd =SafeTexture2D.New(RenderSizeX, RenderSizeY);
 			RenderTo=new RenderTexture(RenderSizeX, RenderSizeY, 0, RenderTextureFormat.ARGB32);
 			Graphics.CopyTexture(
 				FullRender, 0, 0, OffsetDrawX, FullRender.height-OffsetDrawY-RenderSizeY, RenderSizeX, RenderSizeY,

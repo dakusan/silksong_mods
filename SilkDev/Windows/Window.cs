@@ -9,6 +9,12 @@ using System.Reflection;
 using UnityEngine;
 using OA=System.ObsoleteAttribute;
 
+#if DEBUG
+	using SafeTexture2D = SilkDev.Textures.SafeTexture2D;
+#else
+	using SafeTexture2D = UnityEngine.Texture2D;
+#endif
+
 //TODO: Catch events before UniverseLib so we can cancel events to their focused windows.
 //TODO: Catch all windows and insert them into the chain, even if they aren’t made as Windows.
 
@@ -109,7 +115,7 @@ public abstract class Window
 	public bool IsClosed { get; private set; } = false; //If the window is closed
 	public int CloseButtonSize=15, CloseButtonPadding=2;
 	public string Title;
-	public Texture2D? BGTex { //For now this is only kept here as an automatically disposable texture. It’s not used elsewise.
+	public SafeTexture2D? BGTex { //For now this is only kept here as an automatically disposable texture. It’s not used elsewise.
 		get;
 		set {
 			field?.TDestroy();
