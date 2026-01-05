@@ -1,6 +1,8 @@
 using BepInEx.Configuration;
 using SilkDev.Configs;
+#if DEBUG
 using System.Linq;
+#endif
 using UnityEngine;
 
 namespace SilkDev.Internal;

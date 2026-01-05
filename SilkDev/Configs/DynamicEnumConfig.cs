@@ -49,7 +49,7 @@ public class DynamicEnumConfig
 	private static EnumBuilder BuildEnum(Dictionary<string, string> Options, string Name)
 	{
 		//Create the enum through reflection
-		var EnumBuilder=AssemblyBuilder.DefineDynamicAssembly(
+		EnumBuilder EnumBuilder=AssemblyBuilder.DefineDynamicAssembly(
 			new AssemblyName("DynamicEnumAssembly"), AssemblyBuilderAccess.Run)
 			.DefineDynamicModule("DynamicEnumModule")
 			.DefineEnum(Name, TypeAttributes.Public, typeof(int));

@@ -128,7 +128,6 @@ public class RicherLabel() : LinkedLabel, IDisposable
 		{
 			//If material loading failed or there are no rects, we will not be creating the texture
 			this.L=L;
-			UnityEngine.Random.InitState(L.StringStartPos);
 			if(Material==null || !L.Rects.Any()) {
 				Log.Info("Creating Important Link Failed: "+(Material==null ? "No material" : "No rects"));
 				RenderFrom=RenderEnd=null!;

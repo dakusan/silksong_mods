@@ -68,7 +68,7 @@ public class ExtractSpritesWindow : Window
 
 	//Members
 	private readonly List<SpriteObject> SOList=[];
-	private readonly DrawGeometry.Rectangle ShowSelection=new(0, 0, 0, 0, new Color(0, 1, 0, 0.35f)) { Visible=false, Priority=-1 };
+	private readonly DrawGeometry.Rectangle ShowSelection=new(0, 0, 0, 0, new Color(0, 1, 0, 0.35f)) { Visible=false, Priority=-5 };
 	private Vector2 ScrollPosition=Vector2.zeroVector;
 	public int MinListWidth {
 		get;
@@ -124,6 +124,7 @@ public class ExtractSpritesWindow : Window
 		//Helper functions
 		public bool HasTexture		=> TexType is not (Type.None or Type.Failed);
 		public bool IsDisposable	=> TexType is not (Type.None or Type.FullTexture);
+		[SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "When going back to release mode it now gives this message! lol")]
 		[SuppressMessage("Style", "IDE0200:Remove unnecessary lambda expression", Justification = "In release mode TDestroy() takes a parameter")]
 		public void Destroy()		=> Misc.IFF(IsDisposable, () => Tex.TDestroy());
 
@@ -417,7 +418,7 @@ public class ExtractSpritesWindow : Window
 
 	//On mouse move, show boxes for all sprites we are over
 	private LiveRectangles? LR=null;
-	private class LiveRectangles(ExtractSpritesWindow Parent) : Window("Live ExtractSprite Rectangles", true, -300)
+	private class LiveRectangles(ExtractSpritesWindow Parent) : Window("Live ExtractSprite Rectangles", true, -3)
 	{
 		private readonly SafeTexture2D BoxTex=Color.red.MakeTexture(), SelectedTex=new Color(0, 0, 1, 0.35f).MakeTexture();
 		private record class MouseOverSprites(DrawGeometry.Rectangle R, SpriteObject SO, Misc.Ref<DateTime> LastUpdate);
@@ -442,7 +443,7 @@ public class ExtractSpritesWindow : Window
 				if(MOOList.TryGetValue(SO.GO, out MouseOverSprites AlreadyObj))
 					AlreadyObj.LastUpdate.Value=Now;
 				else
-					MOOList[SO.GO]=new MouseOverSprites(new DrawGeometry.Rectangle(SO.ScreenPos, BoxTex, 2) { Priority=Priority-1 }, SO, new(Now));
+					MOOList[SO.GO]=new MouseOverSprites(new DrawGeometry.Rectangle(SO.ScreenPos, BoxTex, 2) { Priority=-10 }, SO, new(Now));
 
 			//Swap the closest sprite to having a different background color
 			Vector2 MP=DevInput.Util.MousePos;

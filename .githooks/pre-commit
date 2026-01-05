@@ -2,7 +2,7 @@
 use strict; use warnings;
 use Encode qw(decode FB_CROAK);
 
-my @FileList=map({$_ =~ s/^\w\s+//; $_} grep({substr($_, 0, 1) ne 'D'} split(/\n/, `git diff --cached --name-status`)));
+my @FileList=map({$_ =~ s/^R\d*\t[^\t\n\x00]+\t/M\t/; $_ =~ s/^\w\s+//; $_} grep({substr($_, 0, 1) ne 'D'} split(/\n/, `git diff --cached --name-status`)));
 @FileList=@ARGV if @ARGV;
 my @Warnings;
 foreach my $File (@FileList)

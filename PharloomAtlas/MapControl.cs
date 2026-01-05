@@ -229,7 +229,7 @@ public class MapControl : SilkDev.Windows.Window
 		//Find the closest item
 		VItem<T> ClosestVec=default;
 		float ClosestVecDistance=9999f, CurDistance;
-		foreach(var VItem in VList) {
+		foreach(VItem<T> VItem in VList) {
 			if((CurDistance=(PosOnMap-VItem.Pos).magnitude)>=ClosestVecDistance)
 				continue;
 			ClosestVec=VItem;

@@ -48,7 +48,7 @@ public abstract class SpriteObject(string Name, string ParentTree, GameObject GO
 		//Create camera that only renders that layer
 		Bounds B=Bounds;
 		GameObject CamGO=new("SpriteRendererCaptureCam");
-		var Cam=CamGO.AddComponent<Camera>();
+		Camera Cam=CamGO.AddComponent<Camera>();
 		Cam.orthographic		=true;
 		Cam.clearFlags			=CameraClearFlags.Color;
 		Cam.backgroundColor		=new Color(0, 0, 0, 0);
