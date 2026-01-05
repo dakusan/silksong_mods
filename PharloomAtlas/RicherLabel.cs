@@ -2,6 +2,7 @@ using SilkDev;
 using SilkDev.Textures;
 using SilkDev.Windows;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Button = SilkDev.DevInput.Mouse.Button;
@@ -15,14 +16,11 @@ using RTexture2D = UnityEngine.Texture2D;
 
 namespace PharloomAtlas;
 
-public class RicherLabel : LinkedLabel, IDisposable
+public class RicherLabel() : LinkedLabel, IDisposable
 {
-	//Process important and found links
-	private const string ImportantAttr="Important";
-	public RicherLabel() => Window.OnNextFrame(InitAfterFrame, false);
-	private void InitAfterFrame()
+	//Process found/started links
+	protected override void ParseComplete()
 	{
-		//Strike found links
 		foreach(Link L in ActiveLinks)
 			if(
 				   int.TryParse(L.Attributes.Get("ItemID") ?? Misc.Empty, out int LID)
@@ -31,14 +29,27 @@ public class RicherLabel : LinkedLabel, IDisposable
 			)
 				L.StrikeColor=(I.IsFound ? Color.white : Color.gray);
 
-		//Extract important links
-		Extract(
-			(L, T2D) => ImportantLinks.Add(new ImportantLink(L, T2D)),
-			[.. ActiveLinks.Where(static L => L.Attributes.Get(ImportantAttr)!=null)]
-		);
+		base.ParseComplete();
 	}
 
-	public new void Dispose()
+	//Extract important links
+	private const string ImportantAttr="Important";
+	protected override IEnumerable<Link> RequiredRects(IEnumerable<Link> Links)
+	{
+		ImportantLinks.ForEach(static IL => IL.Dispose());
+		ImportantLinks.Clear();
+		return base.RequiredRects(ActiveLinks.Where(static L => L.Attributes.ContainsKey(ImportantAttr)).Union(Links));
+	}
+
+	//Process important links
+	protected override void RectsGenerated(Link L, RTexture2D Tex)
+	{
+		if(L.Attributes.ContainsKey(ImportantAttr))
+			ImportantLinks.Add(new ImportantLink(L, Tex));
+		base.RectsGenerated(L, Tex);
+	}
+
+	public override void Dispose()
 	{
 		base.Dispose();
 		ImportantLinks.ForEach(static IL => IL.Dispose());
@@ -69,7 +80,7 @@ public class RicherLabel : LinkedLabel, IDisposable
 	}
 
 	//Handle “Important” links
-	private readonly System.Collections.Generic.List<ImportantLink> ImportantLinks=[];
+	private readonly List<ImportantLink> ImportantLinks=[];
 	private class ImportantLink : IDisposable
 	{
 		//Initialize the shader
@@ -107,16 +118,17 @@ public class RicherLabel : LinkedLabel, IDisposable
 		}
 
 		//Render information
+		private const float TimeStateSeed=2.2941f;
 		private readonly Link L;
 		private readonly SafeTexture2D RenderFrom, RenderEnd;
 		private readonly RenderTexture RenderTo;
 		private readonly int OffsetDrawX, OffsetDrawY, RenderSizeX, RenderSizeY;
-		private readonly DateTime StartAt=DateTime.Now.AddSeconds(UnityEngine.Random.Range(0f, 10f/BaseSpeed)*-1); //Add some random time so different labels start at different places
-		private float TimeSpan() => (DateTime.Now.Ticks-StartAt.Ticks)%10000000000L/10000000f;
+		private float DrawTimeState() => DateTime.Now.Ticks%10000000000L/10000000f+(10f/BaseSpeed*L.StringStartPos*TimeStateSeed); //Make different labels start at different places
 		public ImportantLink(Link L, RTexture2D FullRender)
 		{
 			//If material loading failed or there are no rects, we will not be creating the texture
 			this.L=L;
+			UnityEngine.Random.InitState(L.StringStartPos);
 			if(Material==null || !L.Rects.Any()) {
 				Log.Info("Creating Important Link Failed: "+(Material==null ? "No material" : "No rects"));
 				RenderFrom=RenderEnd=null!;
@@ -147,12 +159,12 @@ public class RicherLabel : LinkedLabel, IDisposable
 		{
 			//Render through the shader
 			RenderTexture PrevRT=RenderTexture.active;
-			if(Material!=null)
+			if(Material!=null && RenderFrom!=null)
 				try {
 					//Set shader variables for the material render
 					float TexScale=RenderSizeX/255f;
 					Material.SetTextureScale("_OverlayTex", new Vector2(TexScale, 1));
-					Material.SetTextureOffset("_OverlayTex", new Vector2(Mathf.Repeat(TimeSpan()*BaseSpeed, 1f), 0));
+					Material.SetTextureOffset("_OverlayTex", new Vector2(Mathf.Repeat(DrawTimeState()*BaseSpeed, 1f), 0));
 					Material.SetVector("_LineOffsetScale", new Vector2(0.15f*TexScale, 1));
 
 					//Render from RenderFrom+Material->RenderTo->RenderEnd

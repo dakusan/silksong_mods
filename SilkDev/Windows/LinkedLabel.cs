@@ -30,9 +30,9 @@ namespace SilkDev.Windows;
 public class LinkedLabel : IDisposable
 {
 	//If any of the following are updated, the links have to be reextracted
-	public GUIStyle Style		{ get; set { if(field!=value) Clear(false); field=value; } } = null!;
-	public   string Text		{ get; set { if(field!=value) Clear(true ); field=value; } } = null!;
-	public  Vector2 RectSize	{ get; set { if(field!=value) Clear(false); field=value; } } = Vector2.zero;
+	public GUIStyle Style		{ get; set { if(field==value) return; Clear(false); field=value; } } = null!;
+	public   string Text		{ get; set { if(field==value) return; Clear(true ); field=value; } } = null!;
+	public  Vector2 RectSize	{ get; set { if(field==value) return; Clear(false); field=value; } } = Vector2.zero;
 
 	//These do not affect live styles so do not require reextraction when changed
 	public Vector2 Pos { get; internal set; }
@@ -89,14 +89,14 @@ public class LinkedLabel : IDisposable
 		} }
 		public Color? HoverColor { get; set => HoverColorHex=(field=value)?.Hex; } //Overwrite the default HoverColor
 		public Color? StrikeColor; //Add a strikethrough line
-		public bool SquiggleStrike=false;
+		public bool SquiggleStrike=false; //Make the strikethrough line a sqiuggle
 		internal string? NormalColorHex, HoverColorHex;
 
 		//Get the rectangles
 		public Rect[] Rects { get {
 			if(!IsLive || Boxes!=null)
 				return !IsLive ? [] : Boxes!;
-			if(Event.current.type!=EventType.Layout)
+			if(Event.current.type==EventType.Repaint)
 				Parent.Extract(this);
 			return Boxes ?? [];
 		} }
@@ -113,15 +113,15 @@ public class LinkedLabel : IDisposable
 	{
 		this.NeedsParsing|=NeedsParsing;
 
-		if(NeedsExtracting)
+		if(NeedsExtracting && GetRequiredRectsOnDraw)
 			return;
-		GetLinkRectsOnFrame=NeedsExtracting=true;
+		GetRequiredRectsOnDraw=NeedsExtracting=true;
 		foreach(Link L in LiveLinks)
 			L.Boxes=null;
 	}
 
 	//This keeps track of when parsing or link rects need to be refreshed.
-	private bool NeedsParsing=true, NeedsExtracting=true, GetLinkRectsOnFrame=true;
+	private bool NeedsParsing=true, NeedsExtracting=true, GetRequiredRectsOnDraw=true;
 
 	//Information needed for rendering
 	private string RenderString=null!;
@@ -129,6 +129,12 @@ public class LinkedLabel : IDisposable
 	//Renders the label. Full reextraction is only ever ran if the mouse is over the label. Does not return Link on layout phase
 	public Link? GUILabel(Rect Rect, string Content, GUIStyle? NewGUIStyle=null, params Link[] SelectedItems)
 	{
+		//Do not perform rendering operations on layout stage
+		if(Event.current.type==EventType.Layout) {
+			GUI.Label(Rect, RenderString, Style);
+			return null;
+		}
+
 		//Update fields to make sure we don’t need a reparse or rerender
 		RectSize=Rect.size;
 		Pos=Rect.position;
@@ -138,9 +144,8 @@ public class LinkedLabel : IDisposable
 			Parse();
 
 		//Check for hovered item
-		bool IsLayout=Event.current.type==EventType.Layout;
 		Link? HoveredLink=null;
-		if(!IsLayout && Rect.Contains(DevInput.Util.MousePos)) {
+		if(Rect.Contains(DevInput.Util.MousePos)) {
 			if(NeedsExtracting)
 				IExtract();
 			Vector2 LocalMPos=DevInput.Util.MousePos-Pos;
@@ -150,13 +155,12 @@ public class LinkedLabel : IDisposable
 		}
 
 		//Render the label
-		string RenderText=IsLayout ? RenderString : SelectedItems.Aggregate(RenderString, static (Str, L) => Str=L.UpdateColor(Str, true));
-		GUI.Label(Rect, RenderText, Style);
+		GUI.Label(Rect, SelectedItems.Aggregate(RenderString, static (Str, L) => Str=L.UpdateColor(Str, true)), Style);
 
 		//Get all the rects at once for any links that have a strike in them
-		if(!IsLayout && NeedsExtracting && GetLinkRectsOnFrame) {
-			GetLinkRectsOnFrame=false;
-			IExtract(LiveLinks.Where(static L => L.StrikeColor!=null));
+		if(NeedsExtracting && GetRequiredRectsOnDraw) {
+			GetRequiredRectsOnDraw=false;
+			IExtract(RequiredRects([]).Union(LiveLinks.Where(static L => L.StrikeColor!=null)));
 		}
 
 		//Draw strikes
@@ -193,7 +197,7 @@ public class LinkedLabel : IDisposable
 		GUI.color=PrevColor;
 
 		//Render again if not layout phase (when we actually know its positioning)
-		return Event.current.type!=EventType.Layout ? GUILabel(GUILayoutUtility.GetLastRect(), Content, NewGUIStyle, ExtraSelectedItems ?? []) : null;
+		return GUILabel(GUILayoutUtility.GetLastRect(), Content, NewGUIStyle, ExtraSelectedItems ?? []);
 	}
 
 	//Whenever the label’s string changes, this is needed
@@ -295,23 +299,22 @@ public class LinkedLabel : IDisposable
 					&& PAB.TrySetValue(L, StrValue)
 				)
 					_=L.Attributes.Remove(PAB.Name);
+
+		ParseComplete();
 	}
 
 	public void Extract(params IEnumerable<Link> WhichLinks) => IExtract(WhichLinks);
-	public void Extract(Action<Link, RTexture2D> GetRenderedTexture, params IEnumerable<Link> WhichLinks) => IExtract(WhichLinks, GetRenderedTexture);
 
 	//This extracts the rectangles for the links.
-	//If NeedsExtracting and WhichLinks=null (only ran when the label will render differently visually), it will extract all links and set NeedsExtracting=false.
-	private void IExtract(IEnumerable<Link>? WhichLinks=null, Action<Link, RTexture2D>? GetRenderedTexture=null)
+	private void IExtract(IEnumerable<Link>? WhichLinks=null)
 	{
-		//Make sure we need to extract
-		if(!(
-			   (GetRenderedTexture!=null || NeedsExtracting)
-			&& WhichLinks?.Any()!=false
-		))
+		//Find links which need to be extracted
+		if(!NeedsExtracting)
 			return;
-		if(WhichLinks==null) //Only mark as no longer needing extraction if we are processing all the live links
-			NeedsExtracting=false;
+		Link[] FinalLinkList=[..(WhichLinks ?? LiveLinks).Where(L => L.Boxes==null)];
+		if(FinalLinkList.Length==0)
+			return;
+
 		DateTime StartTime=DateTime.Now;
 		using GetStringRects GSR=new((int)RectSize.x, (int)RectSize.y);
 
@@ -333,17 +336,17 @@ public class LinkedLabel : IDisposable
 		int NumExtracted=0;
 		foreach((Link L, int StartPos, int EndPos) in CreateStrings) {
 			//Confirm that we need to render it
-			if(!(
-				   (L.Boxes==null || GetRenderedTexture!=null) //Either we need the uncalculated boxes or the rendered texture
-				&& (WhichLinks==null || WhichLinks.Contains(L)) //Only for requested links
-			))
+			if(!FinalLinkList.Contains(L))
 				continue;
 
 			//Render it and update the boxes
 			L.Boxes=GSR.Exec(FinalStr[..StartPos]+$"<color=black>{L.Text}</color>"+FinalStr[EndPos..], Style);
 			NumExtracted++;
-			GetRenderedTexture?.Invoke(L, GSR.Tex);
+			RectsGenerated(L, GSR.Tex);
 		}
+
+		//If all links now have rects, no longer need to Extract again
+		NeedsExtracting=LiveLinks.Any(L => L.Boxes==null);
 
 		//Output the time to complete the process
 		double RenderTime=(DateTime.Now-StartTime).TotalSeconds;
@@ -476,5 +479,17 @@ public class LinkedLabel : IDisposable
 		}
 		public void Dispose() => _Tex?.TDestroy();
 	}
-	public void Dispose() => SStrike.Dispose();
+
+	//----------Overridable functions----------
+	public virtual void Dispose() => SStrike.Dispose();
+
+	//Returns Links whose Rects need to be extracted for drawing. Overrides should pass through the links they receive when calling their base.
+	//Called after NeedsExtracting is set to true, during the first GUILabel (if NeedsExtracting is still true).
+	protected virtual IEnumerable<Link> RequiredRects(IEnumerable<Link> Links) { return Links; }
+
+	//Called when a Rect is generated for a Link. Includes the Texture used to determine the Rect.
+	protected virtual void RectsGenerated(Link L, RTexture2D Tex) { }
+
+	//Called after parsing has complete
+	protected virtual void ParseComplete() { }
 }
