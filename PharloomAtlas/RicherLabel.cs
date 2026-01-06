@@ -42,7 +42,7 @@ public class RicherLabel() : LinkedLabel, IDisposable
 	}
 
 	//Process important links
-	protected override void RectsGenerated(Link L, RTexture2D Tex)
+	protected override void RectsGenerated(Link L, SafeTexture2D Tex)
 	{
 		if(L.Attributes.ContainsKey(ImportantAttr))
 			ImportantLinks.Add(new ImportantLink(L, Tex));
@@ -120,7 +120,7 @@ public class RicherLabel() : LinkedLabel, IDisposable
 		//Render information
 		private const float TimeStateSeed=2.2941f;
 		private readonly Link L;
-		private readonly SafeTexture2D RenderFrom, RenderEnd;
+		private readonly SafeTexture2D RenderFrom;
 		private readonly RenderTexture RenderTo;
 		private readonly int OffsetDrawX, OffsetDrawY, RenderSizeX, RenderSizeY;
 		private float DrawTimeState() => DateTime.Now.Ticks%10000000000L/10000000f+(10f/BaseSpeed*L.StringStartPos*TimeStateSeed); //Make different labels start at different places
@@ -129,8 +129,8 @@ public class RicherLabel() : LinkedLabel, IDisposable
 			//If material loading failed or there are no rects, we will not be creating the texture
 			this.L=L;
 			if(Material==null || !L.Rects.Any()) {
-				Log.Info("Creating Important Link Failed: "+(Material==null ? "No material" : "No rects"));
-				RenderFrom=RenderEnd=null!;
+				Log.Error("Creating Important Link Failed: "+(Material==null ? "No material" : "No rects"));
+				RenderFrom=null!;
 				RenderTo=null!;
 				return;
 			}
@@ -144,7 +144,6 @@ public class RicherLabel() : LinkedLabel, IDisposable
 			RenderSizeX=L.Rects.Max(static R => (int)(R.x+R.width ))-OffsetDrawX;
 			RenderSizeY=L.Rects.Max(static R => (int)(R.y+R.height))-OffsetDrawY;
 			RenderFrom=SafeTexture2D.New(RenderSizeX, RenderSizeY);
-			RenderEnd =SafeTexture2D.New(RenderSizeX, RenderSizeY);
 			RenderTo=new RenderTexture(RenderSizeX, RenderSizeY, 0, RenderTextureFormat.ARGB32);
 			Graphics.CopyTexture(
 				FullRender, 0, 0, OffsetDrawX, FullRender.height-OffsetDrawY-RenderSizeY, RenderSizeX, RenderSizeY,
@@ -169,12 +168,10 @@ public class RicherLabel() : LinkedLabel, IDisposable
 					//Render from RenderFrom+Material->RenderTo->RenderEnd
 					RenderTexture.active=RenderTo;
 					Graphics.Blit(RenderFrom, Material);
-					RenderEnd.ReadPixels(new Rect(0, 0, RenderSizeX, RenderSizeY), 0, 0);
-					RenderEnd.Apply();
 					RenderTexture.active=PrevRT;
 
 					//Draw to the screen
-					GUI.DrawTexture(new Rect(OffsetDrawX+OffsetPos.x, OffsetDrawY+OffsetPos.y, RenderSizeX, RenderSizeY), RenderEnd);
+					GUI.DrawTexture(new Rect(OffsetDrawX+OffsetPos.x, OffsetDrawY+OffsetPos.y, RenderSizeX, RenderSizeY), RenderTo);
 
 					//Handle previous exceptions
 					if(LastOutputException!=null) //If there was an exception then we need to reset the link colors
@@ -199,7 +196,6 @@ public class RicherLabel() : LinkedLabel, IDisposable
 		{
 			RenderFrom?.TDestroy();
 			RenderTo?.Release();
-			RenderEnd?.TDestroy();
 		}
 	}
 }

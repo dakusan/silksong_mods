@@ -62,6 +62,7 @@ namespace SilkDev;
 
 //Make sure objects are properly disposed of during DEBUG
 public abstract class DisposalVerifier<T, ParentT> : IDisposable
+	where T : class
 	where ParentT :
 		DisposalVerifier<T, ParentT>,
 		DisposalVerifier<T, ParentT>.IHandleLeak
@@ -99,16 +100,27 @@ public abstract class DisposalVerifier<T, ParentT> : IDisposable
 	{
 		if(IsDisposed)
 			return;
-		IsDisposed=true;
 		BaseDispose();
+		Release("Destroyed");
+	}
+	private void Release(string Action)
+	{
+		IsDisposed=true;
 		SD.Remove(ID);
 		GC.SuppressFinalize(this); //Suppress the finalizer so as to not promote this object to Gen 2 GC collection
-		Log.Debug($"Destroyed {typeof(T).Name}: {CallerID}");
+		Log.Debug($"{Action} {typeof(T).Name}: {CallerID}");
 	}
 
 	//Pass through types that will be handled via TypedDisposer during !DEBUG
 	public ParentT Disposable => (ParentT)this;
 	public ParentT Target => (ParentT)this;
+	public T? Detach() //Handle detaching. This should generally be used after turning into a .Disposable
+	{
+		if(IsDisposed)
+			return null;
+		Release("Detached");
+		return Obj;
+	}
 
 	//Quick conversion to and from the base - Must be in base class
 	//public static implicit operator T(ParentT PT) => PT.Obj;

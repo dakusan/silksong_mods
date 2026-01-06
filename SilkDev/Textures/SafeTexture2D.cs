@@ -65,6 +65,7 @@ public class SafeTexture2D(Texture2D Tex, bool NonDisposable=false, int CallerSt
 	public byte[]	EncodeToPNG		(									) => Tex.EncodeToPNG();
 	public byte[]	EncodeToJPG		(int Quality						) => Tex.EncodeToJPG(Quality);
 	public bool		LoadImage		(byte[] Data						) => Tex.LoadImage(Data);
+	public Color32[]GetPixels32		(int Miplevel=0						) => Tex.GetPixels32(Miplevel);
 	public Unity.Collections.NativeArray<Color32> GetPixelData<T> (int MipLevel) where T : struct => Tex.GetPixelData<Color32>(MipLevel); //This is a hack that only supports Color32
 
 	public SafeTexture2D ToReadable(Rect? TexCoords=null, Vector2? ResizeDimensions=null) => Tex.ToReadable(TexCoords:TexCoords, ResizeDimensions:ResizeDimensions);

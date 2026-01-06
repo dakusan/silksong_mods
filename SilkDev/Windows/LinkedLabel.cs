@@ -149,7 +149,7 @@ public class LinkedLabel : IDisposable
 			if(NeedsExtracting)
 				IExtract();
 			Vector2 LocalMPos=DevInput.Util.MousePos-Pos;
-			HoveredLink=LiveLinks.FirstOrDefault(L => L.Boxes.Any(R => R.Contains(LocalMPos)));
+			HoveredLink=LiveLinks.FirstOrDefault(L => L.Boxes!=null && L.Boxes.Any(R => R.Contains(LocalMPos)));
 			if(HoveredLink!=null && !SelectedItems.Contains(HoveredLink))
 				SelectedItems=[..SelectedItems, HoveredLink];
 		}
@@ -309,7 +309,7 @@ public class LinkedLabel : IDisposable
 	private void IExtract(IEnumerable<Link>? WhichLinks=null)
 	{
 		//Find links which need to be extracted
-		if(!NeedsExtracting)
+		if(!NeedsExtracting || Event.current.type!=EventType.Repaint)
 			return;
 		Link[] FinalLinkList=[..(WhichLinks ?? LiveLinks).Where(L => L.Boxes==null)];
 		if(FinalLinkList.Length==0)
@@ -320,37 +320,38 @@ public class LinkedLabel : IDisposable
 
 		//Make a full render string with redetermined link placement for quick string rendering
 		const string MakeTransparent="<color=#00000000>";
-		var CreateStrings=new (Link L, int StartPos, int EndPos)[LiveLinks.Count];
+		List<(Link L, int StartPos, int EndPos)> CreateStrings=new(LiveLinks.Count);
 		StringBuilder SB=new(MakeTransparent.Length+RenderString.Length-LiveLinks.Sum(static L => L.StringEndPos-L.StringStartPos-L.Text.Length)); //Preallocate to the final length
 		_=SB.Append(MakeTransparent);
 		int PrevPos=0;
 		foreach((int Index, Link L) in LiveLinks.Entries) {
 			_=SB.Append(RenderString[PrevPos..L.StringStartPos]).Append(L.Text);
-			CreateStrings[Index]=(L, SB.Length-L.Text.Length, SB.Length);
+			if(FinalLinkList.Contains(L))
+				CreateStrings.Add((L, SB.Length-L.Text.Length, SB.Length));
 			PrevPos=L.StringEndPos;
 		}
 		_=SB.Append(RenderString[PrevPos..]);
 		string FinalStr=SB.ToString();
 
 		//Create the separate strings with colored text to measure boxes
-		int NumExtracted=0;
-		foreach((Link L, int StartPos, int EndPos) in CreateStrings) {
-			//Confirm that we need to render it
-			if(!FinalLinkList.Contains(L))
-				continue;
-
-			//Render it and update the boxes
-			L.Boxes=GSR.Exec(FinalStr[..StartPos]+$"<color=black>{L.Text}</color>"+FinalStr[EndPos..], Style);
-			NumExtracted++;
-			RectsGenerated(L, GSR.Tex);
-		}
+		SilkDev.Events.RunInParallel <(Link L, SafeTexture2D NewTex, Color32[] Pixels), Rect[]> Runner=new(
+			(T, _) => T.L.Boxes=GSR.ExecSearch(T.Pixels),
+			(StartObj, _, _, Ex) => RectsGenerated(StartObj.L, StartObj.NewTex)
+		);
+		Runner.Exec(
+			CreateStrings.Select(T => {
+				SafeTexture2D NewTex=GSR.GetStringAsTexture(FinalStr[..T.StartPos]+$"<color=black>{T.L.Text}</color>"+FinalStr[T.EndPos..], Style);
+				return (T.L, NewTex, NewTex.GetPixels32());
+			}),
+			-2
+		);
 
 		//If all links now have rects, no longer need to Extract again
 		NeedsExtracting=LiveLinks.Any(L => L.Boxes==null);
 
 		//Output the time to complete the process
 		double RenderTime=(DateTime.Now-StartTime).TotalSeconds;
-		Log.Info($"Time to extract {NumExtracted} ClickLabel Link Rects: {RenderTime:F4} seconds [{RenderTime/MathF.Max(NumExtracted, 1):F4}/link]");
+		Log.Info($"Time to extract {CreateStrings.Count} ClickLabel Link Rects: {RenderTime:F4} seconds [{RenderTime/CreateStrings.Count:F4}/link]");
 	}
 
 	//This class takes a string, renders it, and determines the rects of the visible sections
@@ -358,7 +359,6 @@ public class LinkedLabel : IDisposable
 	{
 		private readonly int Width, Height;
 		private readonly Rect DrawRect;
-		public SafeTexture2D Tex { get; }
 		private readonly RenderTexture RT, PrevRT;
 
 		public GetStringRects(int Width, int Height)
@@ -366,23 +366,26 @@ public class LinkedLabel : IDisposable
 			//Create/set render textures
 			(this.Width, this.Height)=(Width, Height);
 			DrawRect=new(0, 0, Width, Height);
-			Tex=SafeTexture2D.New(Width, Height);
 			RT=RenderTexture.GetTemporary(Screen.width, Screen.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear); //TODO: This might be doable with normal sized texture and a matrix scale
 			PrevRT=RenderTexture.active;
 			RenderTexture.active=RT;
 		}
 
 		//The StrText needs to ONLY show the text of the rectangle we are measuring. The alpha channel is used to determine the rectangles
-		public Rect[] Exec(string RenderStr, GUIStyle Style)
+		public SafeTexture2D GetStringAsTexture(string RenderStr, GUIStyle Style)
 		{
-			//Draw to RT
 			GL.Clear(true, true, Color.clear);
 			GUI.Label(DrawRect, RenderStr, Style);
+			SafeTexture2D Tex=SafeTexture2D.New(Width, Height);
 			Tex.ReadPixels(new Rect(0, Screen.height-Height, Width, Height), 0, 0);
 			Tex.Apply();
+			return Tex;
+		}
 
+		//Receives data from GetStringAsTexture().GetPixels32()
+		public Rect[] ExecSearch(Color32[] Pixels)
+		{
 			//Scan for pixel bounds, group into lines
-			Unity.Collections.NativeArray<Color32> Pixels=Tex.GetPixelData<Color32>(0);
 			List<Rect> Rects=[];
 			Dictionary<int, (int minX, int maxX)> LineData=[];
 			for(int y=0; y<Height; y++) {
@@ -435,7 +438,6 @@ public class LinkedLabel : IDisposable
 		public void Dispose()
 		{
 			RenderTexture.active=PrevRT;
-			Tex.TDestroy();
 			RenderTexture.ReleaseTemporary(RT);
 		}
 	}
@@ -488,7 +490,7 @@ public class LinkedLabel : IDisposable
 	protected virtual IEnumerable<Link> RequiredRects(IEnumerable<Link> Links) { return Links; }
 
 	//Called when a Rect is generated for a Link. Includes the Texture used to determine the Rect.
-	protected virtual void RectsGenerated(Link L, RTexture2D Tex) { }
+	protected virtual void RectsGenerated(Link L, SafeTexture2D Tex) { Tex.Dispose(); } //If you need to keep the texture, Detach() it in the derived call
 
 	//Called after parsing has complete
 	protected virtual void ParseComplete() { }
