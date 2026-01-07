@@ -24,7 +24,7 @@ public static class TextureExtensions
 
 	//Destroy the texture. Checks for improper use in debug mode
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void TDestroy(this Texture2D T, bool IsSafeDestroy=false)
+	public static void TDestroy(this Texture T, bool IsSafeDestroy=false)
 	{
 		Object.Destroy(T);
 		#if DEBUG

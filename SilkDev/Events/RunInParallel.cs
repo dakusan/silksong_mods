@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Mathf = UnityEngine.Mathf;
+using System.Threading;
 using Task = System.Threading.Tasks.Task;
 
 namespace SilkDev.Events;
@@ -11,7 +11,7 @@ namespace SilkDev.Events;
 //This is a bounded worker-pool with a single coordinator that:
 // - feeds work items into WorkQueue
 // - receives results from ThreadResultQueue
-public class RunInParallel<T, TResult>(Func<T, int, TResult> CallInThread, Action<T, int, TResult?, Exception?> CallOnComplete) where TResult: class
+public class RunListInParallel<T, TResult>(Func<T, int, TResult> CallInThread, Action<T, int, TResult?, Exception?> CallOnComplete) where TResult: class
 {
 	private readonly Func  <T, int, TResult				> CallInThread	= CallInThread	?? throw new ArgumentNullException(nameof(CallInThread));
 	private readonly Action<T, int, TResult?, Exception?> CallOnComplete= CallOnComplete?? throw new ArgumentNullException(nameof(CallOnComplete));
@@ -31,10 +31,12 @@ public class RunInParallel<T, TResult>(Func<T, int, TResult> CallInThread, Actio
 		//Normalize MaxThreads
 		//MaxThreads>0: take as-is
 		//MaxThreads<=0: interpret as (ProcessorCount-MaxThreads)
-		MaxThreads=Mathf.Min(
-			MaxThreads>0 ? MaxThreads : Mathf.Max(Environment.ProcessorCount-MaxThreads, 1),
-			Environment.ProcessorCount,
-			SourceCount>0 ? SourceCount : int.MaxValue
+		MaxThreads=Math.Clamp(
+			Math.Min(
+				MaxThreads>0 ? MaxThreads : Environment.ProcessorCount-MaxThreads,
+				SourceCount>0 ? SourceCount : int.MaxValue
+			),
+			1, Environment.ProcessorCount
 		);
 
 		//Start workers
@@ -59,7 +61,7 @@ public class RunInParallel<T, TResult>(Func<T, int, TResult> CallInThread, Actio
 			});
 
 		//Store results to be processed later
-		int NumThreadsWorking=0; //Number of in-flight work items currently being processed by workers
+		int NumThreadsWorking=0; //Number of processing work items currently being processed by workers
 		int NumThreadsTotal=MaxThreads; //Number of worker tasks that have not exited yet
 		Queue<ResultInfo> CurrentResults=[]; //Completed work results waiting to be passed to CallOnComplete
 		void StoreResult(ResultInfo RI)
@@ -117,5 +119,183 @@ public class RunInParallel<T, TResult>(Func<T, int, TResult> CallInThread, Actio
 		//At this point all completion signals have been observed and buffered results have been delivered.
 		//WaitAll is now cheap and protects against "worker outlives Exec" surprises (faulted workers, scheduler oddities, etc).
 		Task.WaitAll(Workers);
+	}
+}
+
+//Fixed-size background worker pool that processes queued jobs on dedicated threads and dispatches completion callbacks on the caller-controlled thread
+public class BackgroundJobRunner<T, TResult>(
+	Func<T, int, TResult>				CallInThread,
+	Action<T, int, TResult?, Exception?>CallOnComplete,
+	int									MaxThreads=-1	//If MaxThreads<1 then Environment.ProcessorCount-MaxThreads is used.
+) : IDisposable where TResult : class {
+	public readonly Func  <T, int, TResult				> CallInThread  = CallInThread  ?? throw new ArgumentNullException(nameof(CallInThread	));
+	public readonly Action<T, int, TResult?, Exception?	> CallOnComplete= CallOnComplete?? throw new ArgumentNullException(nameof(CallOnComplete));
+
+	private readonly ConcurrentQueue<WorkItem>				InputQueue	=[];
+	private readonly SemaphoreSlim							InputSignal	=new(0);
+	private readonly ConcurrentQueue<ResultInfo>			OutputQueue	=[];
+	private readonly List<Thread>							Workers		=[];
+	private readonly CancellationTokenSource				Cancellation=new();
+
+	private volatile bool Initialized, Disposed, AddingCompleted;
+	private readonly AtomicInt JobsCreated	 =new();
+	private readonly AtomicInt JobsCompleted =new();
+	private readonly AtomicInt JobsProcessing=new();
+	public int GetJobsCreated	=> JobsCreated.Value;
+	public int GetJobsCompleted => JobsCompleted.Value;
+	public int GetJobsProcessing=> JobsProcessing.Value;
+	public readonly int MaxThreads=Math.Clamp(MaxThreads>0 ? MaxThreads : Environment.ProcessorCount-MaxThreads, 0, Environment.ProcessorCount);
+
+	private record struct WorkItem(T ProcessObj, int Index);
+	private record struct ResultInfo(T ProcessObj, int Index, TResult? Result, Exception? Ex);
+
+	public void Init()
+	{
+		ThrowIfDisposed();
+		if(Initialized)
+			return;
+		Initialized=true;
+
+		for(int i=0; i<MaxThreads; i++)
+		{
+			Thread Thread = new(WorkerLoop) {
+				IsBackground=true,
+				Name=$"RunWorkers<{typeof(T).Name}, {typeof(TResult).Name}>[{i}]"
+			};
+			Workers.Add(Thread);
+			Thread.Start();
+		}
+	}
+
+	public void Add(T Item)
+	{
+		ThrowIfDisposed();
+		if(!Initialized)	throw new InvalidOperationException("Init() must be called before Add()");
+		if(AddingCompleted)	throw new InvalidOperationException("Cannot Add() after CompleteAdding()/Finish()");
+		InputQueue.Enqueue(new WorkItem(Item, JobsCreated.IncrementVal()-1));
+		_=InputSignal.Release();
+	}
+
+	public void CompleteAdding()
+	{
+		if(Disposed || AddingCompleted)
+			return;
+		AddingCompleted=true;
+		_=InputSignal.Release(Workers.Count); //Wake all workers so they can observe completion and exit when queue drains.
+	}
+
+	private void WorkerLoop()
+	{
+		while (true)
+		{
+			//Wait for an item to process
+			try { InputSignal.Wait(Cancellation.Token); }
+			catch (OperationCanceledException) { break; }
+
+			//If an item is not available
+			if(!InputQueue.TryDequeue(out WorkItem Item))
+				//Exit the worker when needed
+				if(
+					   Cancellation.IsCancellationRequested
+					|| (AddingCompleted && InputQueue.IsEmpty && JobsProcessing.Value==0)
+				)
+					break;
+				else //Otherwise go back to waiting for input
+					continue;
+
+			//Run the job
+			JobsProcessing.Increment();
+			ResultInfo RI=new(Item.ProcessObj, Item.Index, null, null);
+			try					{ RI.Result=CallInThread(Item.ProcessObj, Item.Index); }
+			catch(Exception e)	{ RI.Ex=e; }
+
+			//Mark the job as complete
+			OutputQueue.Enqueue(RI);
+			JobsCompleted.Increment();
+			JobsProcessing.Decrement();
+
+			//If adding is complete and we just finished the last work, wake others so they can exit promptly.
+			if(AddingCompleted && InputQueue.IsEmpty && JobsProcessing.Value==0)
+				_=InputSignal.Release(Workers.Count);
+		}
+	}
+
+	//Drain available results and invoke CallOnComplete for each. Intended to be called from the main thread
+	public void ProcessResults()
+	{
+		ThrowIfDisposed();
+		while(OutputQueue.TryDequeue(out var RI))
+			Catcher.Run("Processing CallOnComplete", () => CallOnComplete(RI.ProcessObj, RI.Index, RI.Result, RI.Ex));
+	}
+
+	//Stop accepting new work, wait for all work to finish, drain completions, then stop workers.
+	public void Finish()
+	{
+		//Mark as ready to finish jobs
+		ThrowIfDisposed();
+		if(!Initialized)
+			return;
+		CompleteAdding();
+
+		//Wait for jobs to complete
+		SpinWait Spin=new();
+		while(
+			   JobsCompleted.Value<JobsCreated.Value
+			|| JobsProcessing.Value>0
+			|| !OutputQueue.IsEmpty
+			|| !InputQueue.IsEmpty
+		) {
+			ProcessResults();
+			Spin.SpinOnce();
+		}
+		ProcessResults();
+
+		//Wait for workers to exit
+		try { _=InputSignal.Release(Workers.Count); } catch { }
+		foreach(Thread Thread in Workers)
+			try { Thread.Join(); } catch { }
+
+		Dispose();
+	}
+
+	public void Dispose()
+	{
+		if(Disposed)
+			return;
+		Disposed=true;
+		Cancellation.Cancel();
+
+		//Wait for workers to exit and process results that are available
+		try { _=InputSignal.Release(Workers.Count); } catch { }
+		foreach(Thread Thread in Workers)
+			try { Thread.Join(); } catch { }
+		//ProcessResults();
+
+		//Clear out the objects
+		InputQueue.Clear();
+		OutputQueue.Clear();
+		InputSignal.Dispose();
+		Cancellation.Dispose();
+	}
+
+	private void ThrowIfDisposed() => Misc.IFF(
+		Disposed,
+		() => throw new ObjectDisposedException(nameof(BackgroundJobRunner<,>))
+	);
+
+	public sealed class AtomicInt(int InitialValue=0)
+	{
+		private int ValueInternal = InitialValue;
+		public int Value					=> Volatile.Read(ref ValueInternal);
+		public int IncrementVal()			=> Interlocked.Increment(ref ValueInternal);
+		public int DecrementVal()			=> Interlocked.Decrement(ref ValueInternal);
+		public int AddVal(int Delta)		=> Interlocked.Add(ref ValueInternal, Delta);
+		public int Exchange(int NewValue)	=> Interlocked.Exchange(ref ValueInternal, NewValue);
+		public bool CompareExchange(int NewValue, int Comparand)
+		 									=> Interlocked.CompareExchange(ref ValueInternal, NewValue, Comparand) == Comparand;
+
+		public void Increment()				=> IncrementVal();
+		public void Decrement()				=> DecrementVal();
+		public void Add(int Delta)			=> AddVal(Delta);
 	}
 }

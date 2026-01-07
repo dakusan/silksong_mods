@@ -311,12 +311,12 @@ public class LinkedLabel : IDisposable
 		//Find links which need to be extracted
 		if(!NeedsExtracting || Event.current.type!=EventType.Repaint)
 			return;
-		Link[] FinalLinkList=[..(WhichLinks ?? LiveLinks).Where(L => L.Boxes==null)];
+		Link[] FinalLinkList=[..(WhichLinks ?? LiveLinks).Where(static L => L.Boxes==null)];
 		if(FinalLinkList.Length==0)
 			return;
 
 		DateTime StartTime=DateTime.Now;
-		using GetStringRects GSR=new((int)RectSize.x, (int)RectSize.y);
+		using GetStringTextures GST=new((int)RectSize.x, (int)RectSize.y);
 
 		//Make a full render string with redetermined link placement for quick string rendering
 		const string MakeTransparent="<color=#00000000>";
@@ -333,35 +333,36 @@ public class LinkedLabel : IDisposable
 		_=SB.Append(RenderString[PrevPos..]);
 		string FinalStr=SB.ToString();
 
-		//Create the separate strings with colored text to measure boxes
-		SilkDev.Events.RunInParallel <(Link L, SafeTexture2D NewTex, Color32[] Pixels), Rect[]> Runner=new(
-			(T, _) => T.L.Boxes=GSR.ExecSearch(T.Pixels),
-			(StartObj, _, _, Ex) => RectsGenerated(StartObj.L, StartObj.NewTex)
-		);
-		Runner.Exec(
-			CreateStrings.Select(T => {
-				SafeTexture2D NewTex=GSR.GetStringAsTexture(FinalStr[..T.StartPos]+$"<color=black>{T.L.Text}</color>"+FinalStr[T.EndPos..], Style);
-				return (T.L, NewTex, NewTex.GetPixels32());
-			}),
-			-2
-		);
+		//Create the separate strings as textures with just their text visible
+		List<GetStringRects> GSRs=new(CreateStrings.Count);
+		foreach((Link L, int StartPos, int EndPos) in CreateStrings)
+			GSRs.Add(new GetStringRects(
+				this, L, (int)RectSize.x, (int)RectSize.y,
+				GST.GetStringAsTexture(FinalStr[..StartPos]+$"<color=black>{L.Text}</color>"+FinalStr[EndPos..], Style)
+			));
+
+		//Get the boxes from the textures
+		foreach(GetStringRects GSR in GSRs)
+			GSR.StartProcess();
+		GetStringRects.Finish(this);
 
 		//If all links now have rects, no longer need to Extract again
-		NeedsExtracting=LiveLinks.Any(L => L.Boxes==null);
+		NeedsExtracting=LiveLinks.Any(static L => L.Boxes==null);
 
 		//Output the time to complete the process
 		double RenderTime=(DateTime.Now-StartTime).TotalSeconds;
-		Log.Info($"Time to extract {CreateStrings.Count} ClickLabel Link Rects: {RenderTime:F4} seconds [{RenderTime/CreateStrings.Count:F4}/link]");
+		Log.Debug($"Time to extract {CreateStrings.Count} ClickLabel Link Rects: {RenderTime:F4} seconds [{RenderTime/CreateStrings.Count:F4}/link]");
 	}
 
-	//This class takes a string, renders it, and determines the rects of the visible sections
-	private class GetStringRects : IDisposable
+	//This class takes a string and renders it to a texture
+	private class GetStringTextures : IDisposable
 	{
+		//Instance members
 		private readonly int Width, Height;
 		private readonly Rect DrawRect;
 		private readonly RenderTexture RT, PrevRT;
 
-		public GetStringRects(int Width, int Height)
+		public GetStringTextures(int Width, int Height)
 		{
 			//Create/set render textures
 			(this.Width, this.Height)=(Width, Height);
@@ -372,27 +373,149 @@ public class LinkedLabel : IDisposable
 		}
 
 		//The StrText needs to ONLY show the text of the rectangle we are measuring. The alpha channel is used to determine the rectangles
-		public SafeTexture2D GetStringAsTexture(string RenderStr, GUIStyle Style)
+		public RenderTexture GetStringAsTexture(string RenderStr, GUIStyle Style)
 		{
 			GL.Clear(true, true, Color.clear);
 			GUI.Label(DrawRect, RenderStr, Style);
-			SafeTexture2D Tex=SafeTexture2D.New(Width, Height);
-			Tex.ReadPixels(new Rect(0, Screen.height-Height, Width, Height), 0, 0);
-			Tex.Apply();
+			RenderTexture Tex=RenderTexture.GetTemporary(Width, Height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+			Tex.filterMode=FilterMode.Point;
+			Tex.wrapMode=TextureWrapMode.Clamp;
+			Graphics.CopyTexture(
+				RT, 0, 0, 0, Screen.height-Height, Width, Height,
+				Tex, 0, 0, 0, 0
+			);
 			return Tex;
 		}
 
-		//Receives data from GetStringAsTexture().GetPixels32()
-		public Rect[] ExecSearch(Color32[] Pixels)
+		public void Dispose()
 		{
-			//Scan for pixel bounds, group into lines
-			List<Rect> Rects=[];
+			RenderTexture.active=PrevRT;
+			RenderTexture.ReleaseTemporary(RT);
+		}
+	}
+
+	//This class determines the rects of the visible sections of the given texture (from GetStringTextures)
+	private class GetStringRects
+	{
+		//Static shader members
+		private const string BundleFile="SilkDev.bundle", ShaderFile="RowBounds.compute";
+		private static readonly ComputeShader RowBoundsCS;
+		private static readonly int KInitRows, KScanRows;
+		static GetStringRects()
+		{
+			try {
+				using TypedDisposer<AssetBundle> Bundle=new(
+					AssetBundle.LoadFromStream(FileOps.LoadLocalFileOrResource(BundleFile)),
+					static Target => Target.Unload(false)
+				);
+				RowBoundsCS=Bundle.Target.LoadAsset<ComputeShader>(ShaderFile);
+				KInitRows=RowBoundsCS.FindKernel("InitRows");
+				KScanRows=RowBoundsCS.FindKernel("ScanRows");
+			} catch(Exception e) {
+				UseShader=false;
+				RowBoundsCS=null!;
+				Log.Error($"Could not load shader: {e.Message}");
+				return;
+			}
+		}
+		public static bool HasShader => RowBoundsCS!=null;
+
+		//Normal members
+		private readonly LinkedLabel Parent;
+		private readonly Link L;
+		private readonly RenderTexture Tex;
+		private readonly int Width, Height;
+
+		//Members when using shader method
+		public static bool UseShader=true; //***DO NOT SET DURING DRAW PHASE***
+		private readonly ComputeBuffer RowMinBuf=null!, RowMaxBuf=null!;
+
+		//Members when using non-shader method
+		public static bool										UseParallel=false;
+		private readonly SafeTexture2D							TempTex=null!;
+		private readonly Unity.Collections.NativeArray<Color32>	PixelsNative;
+
+		//Executes a process over the texture to get the per-y-line x bounds
+		public GetStringRects(LinkedLabel Parent, Link L, int Width, int Height, RenderTexture Tex)
+		{
+			(this.Parent, this.L, this.Tex, this.Width, this.Height)=(Parent, L, Tex, Width, Height);
+
+			//Non shader method
+			if(!UseShader) {
+				TempTex=SafeTexture2D.New(Width, Height);
+				RenderTexture PrevRT=RenderTexture.active;
+				RenderTexture.active=Tex;
+				TempTex.ReadPixels(new Rect(0, 0, Width, Height), 0, 0);
+				RenderTexture.active=PrevRT;
+				PixelsNative=TempTex.GetPixelData<Color32>(0);
+				return;
+			}
+
+			//Shader method
+			RowMinBuf=new(Height, sizeof(int), ComputeBufferType.Structured);
+			RowMaxBuf=new(Height, sizeof(int), ComputeBufferType.Structured);
+			RowBoundsCS.SetBuffer(KInitRows, "_RowMinX", RowMinBuf);
+			RowBoundsCS.SetBuffer(KInitRows, "_RowMaxX", RowMaxBuf);
+			RowBoundsCS.SetBuffer(KScanRows, "_RowMinX", RowMinBuf);
+			RowBoundsCS.SetBuffer(KScanRows, "_RowMaxX", RowMaxBuf);
+
+			RowBoundsCS.SetInt("_Width", Width);
+			RowBoundsCS.SetInt("_Height", Height);
+			RowBoundsCS.SetTexture(KScanRows, "_Tex", Tex);
+
+			RowBoundsCS.Dispatch(KInitRows, (Height+255)/256, 1, 1);
+			RowBoundsCS.Dispatch(KScanRows, (Width +255)/256, Height, 1);
+		}
+
+		//Start the process (And finish for all but GetRects_Parallel())
+		public void StartProcess()
+		{
+			if(UseShader)
+				GetRects_Shader();
+			else if(UseParallel)
+				GetRects_Parallel();
+			else
+				GetRects_Serial();
+		}
+
+		//Executes a shader over the texture to get the per-y-line x bounds
+		private void GetRects_Shader()
+		{
+			//Pull in the data from the shader
+			int[] RowMinCpu=new int[Height];
+			int[] RowMaxCpu=new int[Height];
+			RowMinBuf.GetData(RowMinCpu);
+			RowMaxBuf.GetData(RowMaxCpu);
+			RowMinBuf.Dispose();
+			RowMaxBuf.Dispose();
+
+			//Organize the data from the shader
+			Dictionary<int, (int minX, int maxX)> LineData=[];
+			int Max;
+			for(int y=0; y<Height; y++)
+				if((Max=RowMaxCpu[y])>=0)
+					LineData[y]=(RowMinCpu[y], Max);
+
+			L.Boxes=CreateRects(LineData);
+			Parent.RectsGenerated(L, Tex);
+		}
+
+		private void GetRects_Serial()
+		{
+			L.Boxes=CreateRects(ProcessPixelRows());
+			TempTex.TDestroy();
+			Parent.RectsGenerated(L, Tex);
+		}
+
+		//Get per-y-line x bounds of the texture via cpu
+		private Dictionary<int, (int minX, int maxX)> ProcessPixelRows()
+		{
 			Dictionary<int, (int minX, int maxX)> LineData=[];
 			for(int y=0; y<Height; y++) {
 				int MinX=Width, MaxX=0;
 				bool HasPixels=false;
 				for(int x=0; x<Width; x++)
-					if(Pixels[y*Width+x].rgba>0) {
+					if(PixelsNative[y*Width+x].rgba>0) {
 						HasPixels=true;
 						MinX=Mathf.Min(MinX, x);
 						MaxX=Mathf.Max(MaxX, x);
@@ -400,12 +523,19 @@ public class LinkedLabel : IDisposable
 				if(HasPixels)
 					LineData[y]=(MinX, MaxX);
 			}
+			return LineData;
+		}
 
+		//Group pixel bounds into lines
+		private Rect[] CreateRects(Dictionary<int, (int minX, int maxX)> LineData)
+		{
 			if(LineData.Count<1)
 				return [];
 
 			//Group lines by consecutive y with small gaps
-			List<int> SortedYs=[.. LineData.Keys.OrderBy(static K => K)];
+			List<Rect> Rects=[];
+			List<int> SortedYs=[..LineData.Keys];
+			SortedYs.Sort();
 			List<int> CurrentGroup=[SortedYs[0]];
 			for(int i=1; i<SortedYs.Count; i++)
 				if(SortedYs[i]-SortedYs[i-1] <= 2) //Threshold
@@ -435,10 +565,33 @@ public class LinkedLabel : IDisposable
 			Rects.Add(new Rect(GroupMinX, RectY, GroupMaxX-GroupMinX+1, GroupMaxY-GroupMinY+1));
 		}
 
-		public void Dispose()
+		//-----------------Parallel--------------------
+		//Start a BackgroundJobRunner to process texture pixel bounds in the background
+		private static readonly Dictionary<LinkedLabel, Events.BackgroundJobRunner<GetStringRects, object>> LLRunner=[];
+		private void GetRects_Parallel()
 		{
-			RenderTexture.active=PrevRT;
-			RenderTexture.ReleaseTemporary(RT);
+			//Create the BackgroundJobRunner
+			if(!LLRunner.TryGetValue(Parent, out var Runner))
+				(Runner=LLRunner[Parent]=new(
+					(GSR, _) => GSR.L.Boxes=GSR.CreateRects(GSR.ProcessPixelRows()),
+					(GSR, _, _, Ex) => {
+						GSR.TempTex.TDestroy();
+						GSR.Parent.RectsGenerated(GSR.L, GSR.Tex);
+					}
+				)).Init();
+
+			//Add to the BackgroundJobRunner and process results if available
+			Runner.Add(this);
+			Runner.ProcessResults();
+		}
+
+		//Finish the processes (Only used fort GetRects_Parallel())
+		public static void Finish(LinkedLabel LL)
+		{
+			if(UseShader || !UseParallel || !LLRunner.TryGetValue(LL, out var Runner))
+				return;
+			_=LLRunner.Remove(LL);
+			Runner.Finish();
 		}
 	}
 
@@ -489,8 +642,8 @@ public class LinkedLabel : IDisposable
 	//Called after NeedsExtracting is set to true, during the first GUILabel (if NeedsExtracting is still true).
 	protected virtual IEnumerable<Link> RequiredRects(IEnumerable<Link> Links) { return Links; }
 
-	//Called when a Rect is generated for a Link. Includes the Texture used to determine the Rect.
-	protected virtual void RectsGenerated(Link L, SafeTexture2D Tex) { Tex.Dispose(); } //If you need to keep the texture, Detach() it in the derived call
+	//Called when a Rect is generated for a Link. Includes the temperary Texture used to determine the Rect.
+	protected virtual void RectsGenerated(Link L, RenderTexture Tex) { RenderTexture.ReleaseTemporary(Tex); }
 
 	//Called after parsing has complete
 	protected virtual void ParseComplete() { }

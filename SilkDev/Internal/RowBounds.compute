@@ -1,0 +1,39 @@
+//RowBounds.compute
+//Reads from a RenderTexture (Width x Height) you already copied into.
+#pragma kernel InitRows
+#pragma kernel ScanRows
+
+Texture2D<float4> _Tex; //Bound to your RenderTexture
+RWStructuredBuffer<int> _RowMinX; //Length=Height
+RWStructuredBuffer<int> _RowMaxX; //Length=Height
+
+cbuffer Params
+{
+	uint _Width;
+	uint _Height;
+};
+
+[numthreads(256, 1, 1)]
+void InitRows(uint3 id : SV_DispatchThreadID)
+{
+	uint y=id.x;
+	if (y>=_Height)
+		return;
+
+	_RowMinX[y]=(int)_Width;
+	_RowMaxX[y]=-1;
+}
+
+[numthreads(256, 1, 1)]
+void ScanRows(uint3 id : SV_DispatchThreadID)
+{
+	uint x=id.x;
+	uint y=id.y;
+	if(x>=_Width || y>=_Height)
+		return;
+
+	if(_Tex.Load(int3((int)x, (int)y, 0)).a>0.0) {
+		InterlockedMin(_RowMinX[y], (int)x);
+		InterlockedMax(_RowMaxX[y], (int)x);
+	}
+}
