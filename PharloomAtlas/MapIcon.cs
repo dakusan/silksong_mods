@@ -93,7 +93,7 @@ public class MapIcon
 			);
 			NewMaterial=new Material(Bundle.Target.LoadAsset<Shader>(ShaderFile));
 		} catch(System.Exception e) {
-			Log.Info($"Could not load icon shader: {e.Message}");
+			Log.Error($"Could not load icon shader: {e.Message}");
 		}
 
 		if(!HasMaterial)

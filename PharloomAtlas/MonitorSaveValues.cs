@@ -129,7 +129,7 @@ public class MonitorSaveValues
 		yield return new WaitForSecondsRealtime(1f);
 
 		CurSceneObjects=[.. EnumSaveData.FindPersistentObjectsInScene(scene)];
-		Log.Info($"Found {CurSceneObjects.Length} objects in scene {scene.name}");
+		Log.Debug($"Found {CurSceneObjects.Length} objects in scene {scene.name}");
 	}
 
 	//Thread to watch for updates
@@ -273,7 +273,7 @@ public class MonitorSaveValues
 		: a is bool		v		? v ==(bool)	b
 		: a is int		v1		? v1==(int)		b
 		: a is string	v2		? v2==(string)	b
-		: a is HashSet<string> v3 && v3.Count()==(b as HashSet<string>).Count(); //Since the hash sets are only ever added to, we can just check the count
+		: a is HashSet<string> v3 && v3.Count==(b as HashSet<string>)?.Count; //Since the hash sets are only ever added to, we can just check the count
 		//: false;
 
 	private static bool IsValueCompleted(object? a) =>

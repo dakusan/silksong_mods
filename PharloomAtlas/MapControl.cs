@@ -495,7 +495,11 @@ public class MapControl : SilkDev.Windows.Window
 		}
 
 		//Check for right mouse click for marker add/remove
-		if(Ev.type!=EventType.MouseUp || Button.CurrentButton!=Button.Enum.Right)
+		if(
+			   Ev.type!=EventType.MouseUp
+			|| Button.CurrentButton!=Button.Enum.Right
+			|| !AllGameMarkers.Any(static F => (bool)F.GetValue(PData))
+		)
 			return;
 
 		//Move the marker to the mouse position
@@ -562,10 +566,10 @@ public class MapControl : SilkDev.Windows.Window
 			System.Text.RegularExpressions.Regex.IsMatch(F.Name, @"^(Has\w+Map|hasPin(?!Flea)|HasSeenMapUpdated)")
 		)];
 
-	private FieldInfo[] AllGameMarkers =>
-		[.. PData.GetType().GetFields().Where(static F => F.Name.StartsWith("hasMarker"))];
+	private IEnumerable<FieldInfo> AllGameMarkers =>
+		PData.GetType().GetFields().Where(static F => F.Name.StartsWith("hasMarker_"));
 	public bool AreAllGameMarkersUnlocked() =>
-		AllGameMarkers.Count(static F => !(bool)F.GetValue(PData))==0;
+		!AllGameMarkers.Any(static F => !(bool)F.GetValue(PData));
 	public void UnlockAllGameMarkers()
 	{
 		AllGameMarkers.ForEach(static F => F.SetValue(PData, true));

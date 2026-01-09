@@ -225,7 +225,7 @@ public static class FindPins
 			//Process the scene items
 			List<FoundObj> RetObjects=[];
 			yield return LoadAllPersistentObjectsInScene(SceneFile, RetObjects, true);
-			PB_FoundItems+=RetObjects.Count();
+			PB_FoundItems+=RetObjects.Count;
 			LastUpdate.Value=DateTime.Now;
 
 			//Save the scene item

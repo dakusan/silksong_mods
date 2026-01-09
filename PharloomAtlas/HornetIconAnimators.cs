@@ -91,7 +91,7 @@ internal class HornetIconAnimators
 				);
 				MyMaterial=new Material(Bundle.Target.LoadAsset<Shader>(ShaderFile));
 			} catch(Exception e) {
-				Log.Info($"Could not load shader: {e.Message}");
+				Log.Error($"Could not load shader: {e.Message}");
 				return;
 			}
 

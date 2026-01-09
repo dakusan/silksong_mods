@@ -133,7 +133,7 @@ public class ExtractSpritesWindow : Window
 		{
 			if(!HasTexture)
 				return [];
-			else if(TexType!=Type.FullTexture || Tex.isReadable)
+			else if(TexType==Type.CroppedTexture && Tex.isReadable)
 				return Tex.EncodeToPNG();
 
 			using var CopiedTex=Tex.ToReadable().Disposable;

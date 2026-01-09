@@ -126,7 +126,6 @@ public class DataStorage
 		IconPicsTex=SafeTexture2D.New();
 		if(!IconPicsTex.LoadImage(FileOps.LoadLocalFileOrResource(Config.C.IconSet.Value).ReadAllAndCloseB()))
 			throw new Exception("Could not load icons texture, failing out");
-		IconPicsTex.Apply();
 		Config.C.IconSet.SettingChanged += (_, _) => Misc.IFF(
 			!IconPicsTex.LoadImage(FileOps.LoadLocalFileOrResource(Config.C.IconSet.Value).ReadAllAndCloseB()),
 			() => throw new Exception("Could not load icons texture, failing out")

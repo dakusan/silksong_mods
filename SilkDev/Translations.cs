@@ -44,7 +44,7 @@ public class Translations
 				FileOps.LoadEmbeddedResource("Languages.json", System.Reflection.Assembly.GetCallingAssembly())
 			);
 		} catch(Exception e) {
-			Log.Info($"Error loading languages: {e}");
+			Log.Error($"Error loading languages: {e}");
 			return new Translations();
 		}
 	}
