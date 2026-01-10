@@ -41,6 +41,9 @@ public class Category
 	public Sprite Sprite	{ get; internal set; } = null!;
 	public CategoryToggleState ToggleState=CategoryToggleState.Unknown;
 //		internal Category() {} //Not yet ready for other people to make these. Would need some work.
+
+	public const int MinID=101, MaxID=499;
+	public static bool IDInRange(int ID) => ID is >=MinID and <=MaxID;
 }
 
 //Items (icons)
@@ -60,7 +63,11 @@ public class Item
 	public Vector2 Pos => new(x, y);
 	private int UniqueLinkIndex=0;
 	private string GetLinkID => $"{ID}.{UniqueLinkIndex++}";
+	private static MapControl MC => field ??= MapControl.Self; //None of the items in this class would call this property until MapControl was already created
 //		internal Item() {} //Not yet ready for other people to make these. Would need some work.
+
+	public const int MinID=100001, MaxID=int.MaxValue;
+	public static bool IDInRange(int ID) => ID is >=MinID and <=MaxID;
 
 	//Render the description
 	public string Description => ToString();
@@ -77,19 +84,19 @@ public class Item
 		}).Where(static V => V!=null));
 
 	//Get the title from the item ID (cannot be ran until after all Items are loaded, which is why below objects have delayed string rendering)
-	private static string GetItemTitleFromID(string ID) =>
-		  !int.TryParse(ID, out int i) ? ID
-		: i<1000 ? (MapControl.Self?.DS.StaticLinks.Get(i)?.Name ?? ID)
-		: (MapControl.Self?.DS.Items.Get(i)?.Title ?? ID);
+	private static string? GetItemTitleFromID(string ID) =>
+		  !int.TryParse(ID, out int i) ? null
+		: StaticLink.IDInRange(i) ? (MC.DS.StaticLinks.Get(i)?.Name)
+		: MC.DS.Items.Get(i)?.Title;
 
 	//A full chain list for a single field
 	public class ChainList
 	{
 		public readonly Item Parent;
 		public readonly string StartString;
-		public string RenderedString => field ??= FinishInternalRender();
 		public readonly RenderedField? ExtraStr;
 		public readonly ChainItem[][]? Items;
+
 		internal ChainList(Item Parent, string ItemList)
 		{
 			(this.Parent, StartString)=(Parent, ItemList);
@@ -109,21 +116,60 @@ public class Item
 					).ToArray()
 				)];
 		}
-		private string FinishInternalRender()
+
+		//--------------------String rendering--------------------
+		//StaticLinkPart are created such that we can essentially do a `strings.Join(RenderParts.Select(RP => RP.StrBeforeCount+RP.SL.NumCollected)`
+		private static readonly Regex ExtractItemCounts=new($"{ChainItem.AmountChar}\\d+{ChainItem.AmountChar}"); //LinkIDs are inside a set of AmountChar characters
+		private readonly record struct StaticLinkPart(string StrBeforeCount, StaticLink? SL); //Only last item in RenderParts will have SL=null
+		private StaticLinkPart[] RenderParts=null!;
+		public string RenderedString => CompileRenderString();
+		private string CompileRenderString()
+		{
+			RenderParts ??= GetRenderParts();
+			string[] Parts=new string[RenderParts.Length*2-1];
+			foreach((int Index, StaticLinkPart Part) in RenderParts.Entries) {
+				Parts[Index*2]=Part.StrBeforeCount;
+				if(Part.SL!=null)
+					Parts[Index*2+1]=Part.SL.NumCollected.ToString();
+			}
+			return string.Join(Misc.Empty, Parts);
+		}
+		private StaticLinkPart[] GetRenderParts()
 		{
 			//If no list, just use the extra string
 			if(Items==null)
-				return ExtraStr?.ToString() ?? Misc.Empty;
+				return [new(ExtraStr?.ToString() ?? Misc.Empty, null)];
 
 			//Reformat the list
 			string Ret=string.Join(" <b><color=purple>OR</color></b> ", Items.Select(static ItemList =>
-				string.Join(", ", ItemList.Select(static I => I.RenderedString))
-			));
+				string.Join(", ", ItemList.Select(static I => I.RenderedStringInternal))
+			))+(ExtraStr==null ? null : $"; {ExtraStr}");
 
-			//Combine the list and the extra string
-			return
-				  ExtraStr==null ? Ret
-				: $"{Ret}; {ExtraStr}";
+			//Extract ExtractItemCounts sections as StaticLinkParts. Only static links are kept (items are just set as “1” since they cannot have a count)
+			var Parts=new List<StaticLinkPart>(Items.Sum(static ItemList => ItemList.Length));
+			var PendingStr=new System.Text.StringBuilder();
+			int CurPos=0;
+			foreach(Match m in ExtractItemCounts.Matches(Ret)) {
+				//Only add when non empty
+				if(m.Index>CurPos)
+					_=PendingStr.Append(Ret, CurPos, m.Index-CurPos);
+				CurPos=m.Index+m.Length;
+
+				//Add to pending string as Count=1 if not a static link
+				int ID=int.Parse(m.Value[1..^1]);
+				if(!StaticLink.IDInRange(ID)) {
+					_=PendingStr.Append("1");
+					continue;
+				}
+
+				//Create a new StaticLinkPart and reset for the next string part
+				Parts.Add(new StaticLinkPart(PendingStr.ToString(), MC.DS.StaticLinks[ID]));
+				_=PendingStr.Clear();
+			}
+			if(CurPos<Ret.Length)
+				_=PendingStr.Append(Ret, CurPos, Ret.Length-CurPos);
+			Parts.Add(new StaticLinkPart(PendingStr.ToString(), null));
+			return [.. Parts];
 		}
 
 		public string Render(string FieldTitle) => $"<b>{Misc.SanitizeRichString(FieldTitle)}</b>: "+RenderedString;
@@ -132,9 +178,14 @@ public class Item
 	//A single item in a ChainList
 	public class ChainItem
 	{
+		internal static string AmountChar=((char)1).ToString();
 		public readonly ChainList Parent;
 		public readonly string StartString;
-		public string RenderedString => field ??= FinishInternalRender();
+		private  string RenderedStringReal		=> field ??= FinishInternalRender(); //Contains AmountChar where the live collected count will need to be inserted
+		internal string RenderedStringInternal	=> GetProcessedRenderString(RenderedStringReal, $"{AmountChar}{LinkID}{AmountChar}"); //AmountChar becomes LinkID surround by AmountChar
+		public   string RenderedString			=> GetProcessedRenderString(RenderedStringReal, "?"); //Changes AmountChar to a question mark
+		private string GetProcessedRenderString(string Str, string Replacement) => LinkID==-1 ? Str : Str.Replace(AmountChar, Replacement);
+
 		public readonly bool FlagNot=false, FlagStarted=false, FlagRecommend=false, FlagUnlinked=false;
 		public readonly int FlagAmount=1, GroupID, GroupIndex;
 		public string Name { get; internal set; } //Not set until after FinishInternalRender()
@@ -165,34 +216,42 @@ public class Item
 				}
 			Name=Item[CharIndex..]; //Temporarily use name until final render happens
 		}
+		private static string MakeAttr(string AttrName, object AttrVal) => $"<ATTR={AttrName}>{AttrVal}</ATTR>";
 		private string FinishInternalRender()
 		{
 			//Add flags back
 			List<string> Parts=[];
-			if(FlagNot		) Parts.Add("<i>NOT</i> "			);
-			if(FlagStarted	) Parts.Add("<i>STARTED</i> "		);
-			if(FlagRecommend) Parts.Add("<i>RECOMMENDED</i> "	);
-			if(FlagAmount!=1) Parts.Add($"{FlagAmount}*"		);
-
-			//Render as a linked item if item is found
-			string ItemValue=Name, NewItemValue;
-			if(!FlagUnlinked && (NewItemValue=GetItemTitleFromID(ItemValue))!=ItemValue)
-			{
-				Name=NewItemValue;
-				LinkID=int.Parse(ItemValue);
-				string? ExtraColor=
-					  FlagNot		? "red"
-					: FlagStarted	? "teal"
-					: FlagRecommend	? "#dda0dd" //plum
-					: null;
-				ExtraColor=(ExtraColor!=null ? $"<Attr=NormalColor>{ExtraColor}</Attr>" : Misc.Empty);
-
-				return $"<LinkID={Parent.Parent.GetLinkID}><ATTR=GroupID>{GroupID}</ATTR><ATTR=GroupIndex>{GroupIndex}</ATTR><ATTR=ItemID>{LinkID}</ATTR>{ExtraColor}<u>"+string.Join(Misc.Empty, [.. Parts, NewItemValue])+"</u></LinkID>";
-			}
+			if(FlagNot		) Parts.Add("<i>NOT</i> "						);
+			if(FlagStarted	) Parts.Add("<i>STARTED</i> "					);
+			if(FlagRecommend) Parts.Add("<i>RECOMMENDED</i> "				);
+			if(FlagAmount!=1) Parts.Add($"{AmountChar}<b>{FlagAmount}</b>×"	);
 
 			//If unlinked or linking failed do do not make it a real link
-			Name=ItemValue;
-			return "<u>"+string.Join(Misc.Empty, [.. Parts, ItemValue])+"</u>";
+			string ItemValue=Name, NewItemValue;
+			if(FlagUnlinked || (NewItemValue=GetItemTitleFromID(ItemValue)!)==null) {
+				Name=ItemValue;
+				return "<u>"+string.Join(Misc.Empty, [.. Parts, ItemValue]).Replace(AmountChar, Misc.Empty)+"</u>";
+			}
+
+			//Prepare variables for rendered string
+			Name=NewItemValue;
+			LinkID=int.Parse(ItemValue);
+			string? ExtraColor=
+				  FlagNot		? "red"
+				: FlagStarted	? "teal"
+				: FlagRecommend	? "#dda0dd" //plum
+				: null;
+
+			//Render as a linked item
+			return string.Join(Misc.Empty, [
+				$"<LinkID={Parent.Parent.GetLinkID}>",
+//				MakeAttr("GroupID",		GroupID		),
+//				MakeAttr("GroupIndex",	GroupIndex	),
+				MakeAttr("ItemID",		LinkID		),
+				ExtraColor!=null ? MakeAttr("NormalColor", ExtraColor) : null,
+				"<u>"+string.Join(Misc.Empty, [.. Parts, NewItemValue]).Replace(AmountChar, $"<b>{AmountChar}</b>/")+"</u>",
+				"</LinkID>",
+			]);
 		}
 	}
 
@@ -215,8 +274,8 @@ public class Item
 					Match => {
 						string ID=Match.Groups[1].Value;
 						string Text=Match.Groups[2].Value;
-						Text=!string.IsNullOrEmpty(Text) ? Text[1..] : GetItemTitleFromID(ID);
-						return $"<LinkID={Parent.GetLinkID}><ATTR=RepIndx>{ReplaceIndex++}</ATTR><ATTR=ItemID>{ID}</ATTR><u>{Text}</u></LinkID>";
+						Text=!string.IsNullOrEmpty(Text) ? Text[1..] : (GetItemTitleFromID(ID) ?? ID);
+						return $"<LinkID={Parent.GetLinkID}>{(false ? $"<ATTR=RepIndx>{ReplaceIndex++}</ATTR>" : null)}<ATTR=ItemID>{ID}</ATTR><u>{Text}</u></LinkID>";
 					}
 				);
 		}
@@ -248,7 +307,7 @@ public class Item
 		set {
 			if(field==value)
 				return;
-			MapControl.Self.DS.Categories[CategoryID].CurrentCount+=(value ? 1 : -1);
+			MC.DS.Categories[CategoryID].CurrentCount+=(value ? 1 : -1);
 			field=value;
 			MapIcon?.SetIsFound(value);
 		}
@@ -336,7 +395,7 @@ public class Item
 	}
 	public class StoreItems(StoreItem[] Items)
 	{
-		public string RenderedString => field ??= FinishInternalRender();
+		public string RenderedString => FinishInternalRender(); //Cannot be cached due to changing item collection counts
 		public StoreItem[] Items=Items;
 		private string FinishInternalRender() =>
 			string.Join(Misc.Empty, Items.Select(static I =>
@@ -359,7 +418,7 @@ public class Item
 		ReplaceLinkIDs.Replace(RemoveAttrs.Replace(Str, Misc.Empty), $"<color=#{CurrentLinkColor}>$1</color>");
 
 	//Selected via a link
-	public void Selected() => MapControl.Self.SelectAndCenterItemI(ID);
+	public void Selected() => MC.SelectAndCenterItemI(ID);
 }
 
 public class StaticLink(string Name, int CategoryID, int[]? ItemIDs)
@@ -368,31 +427,51 @@ public class StaticLink(string Name, int CategoryID, int[]? ItemIDs)
 	public int CategoryID=CategoryID;
 	public int[]? ItemIDs=ItemIDs;
 
+	public const int MinID=501, MaxID=999;
+	public static bool IDInRange(int ID) => ID is >=MinID and <=MaxID;
+	private static DataStorage DS => field ??= MapControl.Self.DS;
+
+	public int NumCollected =>
+		  CategoryID!=-1									? DS.Categories[CategoryID].CurrentCount
+		: ItemIDs!=null										? ItemIDs.Count(static I => DS.Items[I].IsFound)
+		: Name is "North" or "South" or "East" or "West"	? 0
+		: Name=="Rosary"									? PlayerData.instance.geo
+		: Name=="Shard"										? PlayerData.instance.ShellShards
+		: /*Unlinked*/										  0;
+
 	//JSON type conversion
 	internal class CreateStaticLinks
 	{
 		public Dictionary<string, List<object>> StaticLinks=[];
-		public Dictionary<int, StaticLink> Process()
+		public Dictionary<int, StaticLink> Process(Dictionary<int, Item> Items, Dictionary<int, Category> Categories)
 		{
 			Dictionary<int, StaticLink> Out=[];
-			foreach((string ID, List<object> L) in StaticLinks)
-				try {
-					//Unlinked
-					if(L.Count==1) {
-						Out[int.Parse(ID)]=new StaticLink((string)L[0], -1, null);
-						continue;
-					}
+			string? CurName=null!, RemID;
+			int CatID;
+			void AddSL(int ID, int CategoryID=-1, int[]? ItemIDs=null) => Out[ID]=new StaticLink(CurName, CategoryID, ItemIDs);
+			void LineErr(string Err, bool CompleteFail=false) => Log.Error($"Error on Static Link #{RemID}{(CompleteFail ? " [Skipped]" : null)}: {Err}");
 
-					//Category or item lists
-					bool IsCategory=(L.Count==2 && (int)(long)L[1]<1000);
-					Out[int.Parse(ID)]=new StaticLink(
-						(string)L[0],
-						IsCategory ? (int)(long)L[1] : -1,
-						IsCategory ? null : [..L.Skip(1).Select(static I => (int)(long)I)]
-					);
-				} catch(System.Exception e) {
-					Log.Error($"Error parsing Static Link {ID}: {e.Message}", L, L[1].GetType().Name);
-				}
+			foreach((string ID, List<object> L) in StaticLinks)
+				if		(!int.TryParse(RemID=ID, out int MyID)	) LineErr("ID is not an int",					true);
+				else if	(!IDInRange(MyID)						) LineErr("ID is not valid for a Static Link",	true);
+				else if	(L.Count==0								) LineErr("Array is empty",						true);
+				else if	((CurName=L[0] as string)==null			){LineErr("Name is not a string"					); //Continued...
+																CurName="???";	AddSL(MyID);		//Invalid name
+				}else if(L.Count==1								)				AddSL(MyID);		//Unlinked
+				else if	(L.Count==2 && Category.IDInRange(CatID=(int)(L[1] is long CID ? CID : -1)))
+					if(Categories.ContainsKey(CatID))							AddSL(MyID, CatID); //Category
+					else										  LineErr($"Invalid Category ID {CatID}",		true);
+				else																				//Item list
+					AddSL(MyID, -1, [..
+						L.Skip(1)
+						.Select(I =>
+							   I is not			 long	IVal  ? Misc.PassThru(() => LineErr($"ItemID is not a long: {I}"			), -1)
+							: !Item.IDInRange	((int)	IVal) ? Misc.PassThru(() => LineErr($"ItemID is not a valid Item ID: {IVal}"), -1)
+							: !Items.ContainsKey((int)	IVal) ? Misc.PassThru(() => LineErr($"ItemID is not a valid Item: {IVal}"	), -1)
+							: (int)IVal
+						).Where(static I => I!=-1)
+					]);
+
 			return Out;
 		}
 	}

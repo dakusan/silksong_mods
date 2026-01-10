@@ -96,13 +96,6 @@ public class DataStorage
 			}
 		}
 
-		//Load the static links
-		try {
-			StaticLinks.AddRange(LoadJSON<StaticLink.CreateStaticLinks, string>("Misc.json")?.Process() ?? throw new Exception("Misc is null"));
-		} catch(Exception e) {
-			throw new Exception($"Could not load static links, failing out: {e.Message}");
-		}
-
 		//Load the items
 		try {
 			Items=(LoadJSON<Dictionary<int, Item.CreateItem>, Item.CreateItem>("items.json") ?? throw new Exception("Items is null"))
@@ -121,6 +114,14 @@ public class DataStorage
 		}
 		foreach(Item Item in Items.Values)
 			Categories[Item.CategoryID].TotalCount++;
+
+		//Load the static links
+		try {
+			StaticLinks.AddRange(LoadJSON<StaticLink.CreateStaticLinks, string>("Misc.json")?.Process(Items, Categories) ?? throw new Exception("Misc is null"));
+		} catch(Exception e) {
+			Catcher.OutputException("Loading static links", e);
+			throw new Exception($"Could not load static links, failing out: {e.Message}");
+		}
 
 		//Create and update the sprite texture
 		IconPicsTex=SafeTexture2D.New();
@@ -239,15 +240,18 @@ public class DataStorage
 
 	public void LinkSelected(int ID)
 	{
-		if(ID<1000)
+		if(StaticLink.IDInRange(ID))
 			if(StaticLinks.TryGetValue(ID, out StaticLink SL))
 				SL.Selected();
 			else
-				_=new PopupMessage("Invalid static link ID");
-		else if(Items.TryGetValue(ID, out Item I))
-			I.Selected();
+				_=new PopupMessage("Invalid Static Link ID");
+		else if(Item.IDInRange(ID))
+			if(Items.TryGetValue(ID, out Item I))
+				I.Selected();
+			else
+				_=new PopupMessage("Invalid Item ID");
 		else
-			_=new PopupMessage("Invalid Item ID");
+			_=new PopupMessage("Invalid ID");
 	}
 	public void LinkSelected(string StrID) =>
 		Misc.IFF(int.TryParse(StrID, out int ID), () => LinkSelected(ID));

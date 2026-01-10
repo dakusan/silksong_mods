@@ -62,6 +62,7 @@ public partial class SideBar
 		//Handle the clickable label
 		private RicherLabel? CLabel;
 		private Item? LastSelectedItem;
+		private string? CachedLabelDescription;
 		public ItemInfoSection(string Name, SideBar SB) : base(Name, SB)
 		{
 			Config.C.Color_Link.SettingChanged += (_, _) => CLabel?.LinkColor=Config.C.Color_Link;
@@ -76,6 +77,7 @@ public partial class SideBar
 				HoverColor=Config.C.Color_LinkHover
 			};
 			SelectedItem=-1; //Selection state is unknown until the next frame when we know if the ClickableLabel has any links
+			CachedLabelDescription=null;
 
 			//Handle if this SideBarSection was selected
 			if(!IsSectionSelected)
@@ -107,7 +109,7 @@ public partial class SideBar
 			List<string> Lines=[
 				MakeItemInfoLine("Title", CurSelectedItem.Title),
 				MakeItemInfoLine("Category", MapControl.Self.DS.Categories[CurSelectedItem.CategoryID].Title),
-				CurSelectedItem.Description,
+				CachedLabelDescription ??= CurSelectedItem.Description,
 				CurSelectedItem.IgnPageName==null ? Misc.Empty : MakeItemInfoLine("IGN Page", "https://www.ign.com/wikis/hollow-knight-silksong/"+CurSelectedItem.IgnPageName),
 			];
 			if(Config.C.ShowSideBarPictures)
