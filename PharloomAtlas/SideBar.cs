@@ -219,7 +219,7 @@ public partial class SideBar : Window
 	//Handle key presses
 	private static InControl.InputDevice AD => ActiveDevice;
 	public  enum KRType { X=0, Y, NUM_ENUMS }
-	private record struct KeyResults(KRType Type, int Value);
+	private readonly record struct KeyResults(KRType Type, int Value);
 	private readonly SilkDev.DevInput.InputRepeatDelay<KeyResults> KeysCheck=new(.075f,
 		(Conf			.Shortcut_SB_Down		, new(KRType.Y,		 1)),
 		(Conf			.Shortcut_SB_Up			, new(KRType.Y,		-1)),

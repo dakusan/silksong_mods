@@ -147,7 +147,7 @@ public abstract class DisposalVerifier<T, ParentT> : IDisposable
 	private class StaticDisposer
 	{
 		//Store info about the object until leaked
-		public record struct ObjData(string ClassName, string FuncName, string FileName, int LineNumber, DateTime CreationTime, int ID, T Obj) {
+		public readonly record struct ObjData(string ClassName, string FuncName, string FileName, int LineNumber, DateTime CreationTime, int ID, T Obj) {
 			public override readonly string ToString() => $"{ClassName}.{FuncName}@{FileName}:{LineNumber}~{CreationTime:HH.mm.ss.fff}-{ID}";
 		}
 		private readonly ConcurrentDictionary<int, ObjData> LiveObjects=[];

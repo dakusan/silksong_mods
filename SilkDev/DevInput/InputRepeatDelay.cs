@@ -24,7 +24,7 @@ public class InputRepeatDelay<EmbeddedType>(float RepeatDelay=0.5f)
 	//Joystick members
 	public float JoystickAngleDeviation=20, JoystickMinMagnitude=.4f; //See Joystick.GetOrdinalDirectionAndMagnitude
 	public bool JoystickMultiplyReturnValueByMagnitude=true; //Only for EmbeddedType=float/double/decimal
-	private record struct LastJoystickInfo(int WhichFrame, Direction Direction, float Magnitude);
+	private readonly record struct LastJoystickInfo(int WhichFrame, Direction Direction, float Magnitude);
 	private readonly LastJoystickInfo[] StickInfo=[new(-1, Direction.None, 0), new(-1, Direction.None, 0)]; //Cache the left[0]/right[1] stick info to only be calculated once per frame
 
 	//Base input type

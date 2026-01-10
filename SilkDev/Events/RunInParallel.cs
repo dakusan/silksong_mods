@@ -146,7 +146,7 @@ public class BackgroundJobRunner<T, TResult>(
 	public int GetJobsProcessing=> JobsProcessing.Value;
 	public readonly int MaxThreads=Math.Clamp(MaxThreads>0 ? MaxThreads : Environment.ProcessorCount-MaxThreads, 0, Environment.ProcessorCount);
 
-	private record struct WorkItem(T ProcessObj, int Index);
+	private readonly record struct WorkItem(T ProcessObj, int Index);
 	private record struct ResultInfo(T ProcessObj, int Index, TResult? Result, Exception? Ex);
 
 	public void Init()

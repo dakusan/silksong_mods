@@ -223,7 +223,7 @@ public class MapControl : SilkDev.Windows.Window
 		FindClosestVector(DS.Items.Values.Where(static I => I.Visible).Select(static I => new VItem<Item>(I.Pos, I)), PosOnMap, IconRadius, SelectionRadius);
 
 	//Find the closest vector to the map position within a radius, returning its item
-	public record struct VItem<T>(Vector2 Pos, T Item) where T: class;
+	public readonly record struct VItem<T>(Vector2 Pos, T Item) where T: class;
 	public T? FindClosestVector<T>(IEnumerable<VItem<T>> VList, Vector2 PosOnMap, float ItemRadius, float SelectionRadius) where T: class
 	{
 		//Find the closest item
