@@ -273,10 +273,10 @@ function GenerateMisc()
 	$StaticLinks=[];
 	foreach(Query('SELECT SL.*, SLI.ID AS SLIID, SLI.ItemID, SLI.CategoryID FROM StaticLinks AS SL LEFT JOIN StaticLinkItems AS SLI ON SLI.StaticLinkID=SL.ID ORDER BY SL.Name ASC, SLI.OrderNum') as $Row) {
 		//Handle special rows
-		if((int)$Row->Special) {
+		if($Row->Special!==null) {
 			if($Row->SLIID!==null)
 				ErrAndDie("StaticLink [#$Row->ID] special row cannot contain items");
-			$StaticLinks[$Row->ID]=[];
+			$StaticLinks[$Row->ID]=[$Row->Special];
 			$StaticLinkNames[$Row->ID]=$Row->Name;
 			continue;
 		}

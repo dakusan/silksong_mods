@@ -57,7 +57,7 @@ DROP TABLE IF EXISTS StaticLinks;
 CREATE TABLE StaticLinks (
   ID int UNSIGNED NOT NULL AUTO_INCREMENT,
   Name varchar(100) NOT NULL,
-  Special bool NOT NULL DEFAULT false,
+  Special varchar(100) NULL,
 
   PRIMARY KEY (ID),
   KEY (Name)

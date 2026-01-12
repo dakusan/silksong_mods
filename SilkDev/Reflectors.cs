@@ -8,9 +8,9 @@ public static class Reflectors
 {
 	public class RField<ObjType, FieldType>(ObjType? Obj, string Name) where ObjType : class //Do not use Get() and Set() unless Obj has been set
 	{
-		private readonly FieldInfo FI=
+		public readonly FieldInfo FI=
 			typeof(ObjType).GetField(Name, bindingAttr: BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static) ??
-				throw new MemberAccessException($"Could not get private field {typeof(ObjType).Name}.{Name}");
+				throw new MemberAccessException($"Could not get field {typeof(ObjType).Name}.{Name}");
 		public ObjType Obj=Obj!;
 		public FieldType Get() => (FieldType)FI.GetValue(Obj);
 		public void Set(FieldType Val) => FI.SetValue(Obj, Val);
@@ -18,7 +18,7 @@ public static class Reflectors
 	}
 	public class RProp<ObjType, PropType>(ObjType? Obj, string Name) where ObjType : class //Do not use Get() and Set() unless Obj has been set
 	{
-		private readonly PropertyInfo PI=
+		public readonly PropertyInfo PI=
 			typeof(ObjType).GetProperty(Name, bindingAttr: BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static) ??
 				throw new MemberAccessException($"Could not get property {typeof(ObjType).Name}.{Name}");
 		public ObjType Obj=Obj!;
@@ -28,7 +28,7 @@ public static class Reflectors
 	}
 	public class RMethod<ObjType, RetType>(ObjType? Obj, string Name) where ObjType : class //Do not use Invoke() or InvokeArr() unless Obj has been set
 	{
-		private readonly MethodInfo MI=
+		public readonly MethodInfo MI=
 			typeof(ObjType).GetMethod(Name, bindingAttr: BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static) ??
 				throw new MemberAccessException($"Could not get private method {typeof(ObjType).Name}.{Name}");
 		public ObjType Obj=Obj!;
