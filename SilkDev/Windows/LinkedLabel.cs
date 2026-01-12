@@ -36,6 +36,7 @@ public class LinkedLabel : IDisposable
 
 	//These do not affect live styles so do not require reextraction when changed
 	public Vector2 Pos { get; internal set; }
+	public Vector2 ScrollPosOffset; //If inside a GUILayout.BeginScrollView then give its ScrollPosition here
 	public Color LinkColor
 	{
 		get;
@@ -136,8 +137,10 @@ public class LinkedLabel : IDisposable
 		}
 
 		//Update fields to make sure we don’t need a reparse or rerender
-		RectSize=Rect.size;
-		Pos=Rect.position;
+		if(Event.current.type==EventType.Repaint) {
+			RectSize=Rect.size;
+			Pos=Rect.position;
+		}
 		Text=Content;
 		Style=NewGUIStyle ?? Style;
 		if(NeedsParsing)
@@ -145,10 +148,11 @@ public class LinkedLabel : IDisposable
 
 		//Check for hovered item
 		Link? HoveredLink=null;
-		if(Rect.Contains(DevInput.Util.MousePos)) {
+		Vector2 RelativeMousePos=Event.current.mousePosition;
+		if(Rect.Contains(RelativeMousePos)) {
 			if(NeedsExtracting)
 				IExtract();
-			Vector2 LocalMPos=DevInput.Util.MousePos-Pos;
+			Vector2 LocalMPos=RelativeMousePos-Pos;
 			HoveredLink=LiveLinks.FirstOrDefault(L => L.Boxes!=null && L.Boxes.Any(R => R.Contains(LocalMPos)));
 			if(HoveredLink!=null && !SelectedItems.Contains(HoveredLink))
 				SelectedItems=[..SelectedItems, HoveredLink];
@@ -316,7 +320,7 @@ public class LinkedLabel : IDisposable
 			return;
 
 		DateTime StartTime=DateTime.Now;
-		using GetStringTextures GST=new((int)RectSize.x, (int)RectSize.y);
+		using GetStringTextures GST=new((int)RectSize.x, (int)RectSize.y, ScrollPosOffset);
 
 		//Make a full render string with redetermined link placement for quick string rendering
 		const string MakeTransparent="<color=#00000000>";
@@ -340,6 +344,7 @@ public class LinkedLabel : IDisposable
 				this, L, (int)RectSize.x, (int)RectSize.y,
 				GST.GetStringAsTexture(FinalStr[..StartPos]+$"<color=black>{L.Text}</color>"+FinalStr[EndPos..], Style)
 			));
+		GST.Dispose(); //Disposing early so GUI.Matrix is reset
 
 		//Get the boxes from the textures
 		foreach(GetStringRects GSR in GSRs)
@@ -358,39 +363,41 @@ public class LinkedLabel : IDisposable
 	private class GetStringTextures : IDisposable
 	{
 		//Instance members
+		private readonly float X, Y;
 		private readonly int Width, Height;
-		private readonly Rect DrawRect;
-		private readonly RenderTexture RT, PrevRT;
+		private readonly RenderTexture PrevRT;
+		private Matrix4x4 PrevMatrix=GUI.matrix;
+		private bool IsDisposed=false;
 
-		public GetStringTextures(int Width, int Height)
+		public GetStringTextures(int Width, int Height, Vector2 ScrollPosOffset)
 		{
-			//Create/set render textures
-			(this.Width, this.Height)=(Width, Height);
-			DrawRect=new(0, 0, Width, Height);
-			RT=RenderTexture.GetTemporary(Screen.width, Screen.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear); //TODO: This might be doable with normal sized texture and a matrix scale
+			(this.Width, this.Height, X, Y)=(Width, Height, ScrollPosOffset.x, ScrollPosOffset.y);
 			PrevRT=RenderTexture.active;
-			RenderTexture.active=RT;
+			GUI.matrix=
+				//GUI expects to render to a texture of Screen Width*Height, so we need to scale to the render texture size
+				Matrix4x4.Scale(new Vector3((float)Screen.width/Width, (float)Screen.height/Height, 1f))*
+				//Offset render back to upper left corner as origin when GUI Clipped
+				Matrix4x4.Translate(GetClipPosition*-1);
 		}
+
+		public static Vector2 GetClipPosition => new Reflectors.RProp<GUIClip, Rect>(null, "topmostRect").Get().position;
 
 		//The StrText needs to ONLY show the text of the rectangle we are measuring. The alpha channel is used to determine the rectangles
 		public RenderTexture GetStringAsTexture(string RenderStr, GUIStyle Style)
 		{
-			GL.Clear(true, true, Color.clear);
-			GUI.Label(DrawRect, RenderStr, Style);
 			RenderTexture Tex=RenderTexture.GetTemporary(Width, Height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-			Tex.filterMode=FilterMode.Point;
-			Tex.wrapMode=TextureWrapMode.Clamp;
-			Graphics.CopyTexture(
-				RT, 0, 0, 0, Screen.height-Height, Width, Height,
-				Tex, 0, 0, 0, 0
-			);
+			RenderTexture.active=Tex;
+			GUI.Label(new(X, Y, Width, Height), RenderStr, Style);
 			return Tex;
 		}
 
 		public void Dispose()
 		{
+			if(IsDisposed)
+				return;
+			IsDisposed=true;
+			GUI.matrix=PrevMatrix;
 			RenderTexture.active=PrevRT;
-			RenderTexture.ReleaseTemporary(RT);
 		}
 	}
 

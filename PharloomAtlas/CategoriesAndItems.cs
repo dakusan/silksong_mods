@@ -406,18 +406,6 @@ public class Item
 		public string Render(string FieldTitle) => $"<b>{Misc.SanitizeRichString(FieldTitle)}</b>: "+RenderedString;
 	}
 
-	//TODO: Temporarily remove links until ClickableLabel class is ready
-	static Item()
-	{
-		CurrentLinkColor=Config.C.Color_Link.V.Hex;
-		Config.C.Color_Link.SettingChanged += (_, _) => CurrentLinkColor=Config.C.Color_Link.V.Hex;
-	}
-	private static string CurrentLinkColor=null!;
-	private static readonly Regex ReplaceLinkIDs=new(@"<LinkID=[^>]+>(.*?)</LinkID>", RegexOptions.IgnoreCase);
-	private static readonly Regex RemoveAttrs=new(@"<ATTR\s*=([^>\n]+)>(.*?)</ATTR>", RegexOptions.IgnoreCase);
-	public static string StripLinkIDTags(string Str) =>
-		ReplaceLinkIDs.Replace(RemoveAttrs.Replace(Str, Misc.Empty), $"<color=#{CurrentLinkColor}>$1</color>");
-
 	//Selected via a link
 	public void Selected() => MC.SelectAndCenterItemI(ID);
 }

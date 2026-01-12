@@ -122,7 +122,7 @@ public partial class SideBar
 				});
 
 			//Render text
-			CLabel!.Draw(
+			_=CLabel!.Draw(
 				string.Join(Misc.NewLine, Lines.Where(static I => I!=Misc.Empty)),
 				ItemInfoBoxStyle,
 				IsSectionSelected ? SelectedItem : -1

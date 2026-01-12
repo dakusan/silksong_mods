@@ -19,7 +19,7 @@ public class SearchWindow : SilkDev.Windows.Window
 	private readonly GUIStyle MouseOnlyStyle=new(GUI.skin.label) { fontSize=14, wordWrap=false, richText=false, alignment=TextAnchor.UpperCenter, normal={textColor=Color.red} };
 	private readonly GUIStyle SearchHereStyle=new(GUI.skin.label) { fontSize=13, richText=false, alignment=TextAnchor.MiddleCenter, fontStyle=FontStyle.Bold, normal={textColor=Color.grey} };
 	private readonly GUIStyle NumResults=new(GUI.skin.label) { fontSize=13, alignment=TextAnchor.MiddleRight, normal={textColor=Color.magenta} };
-	private readonly Color SelectCol=new(1, 1, 0, 0.5f);
+	private readonly Color SelectCol=new(70/255f, 120/255f, 200/255f, 0.5f); //Desaturated, mid-luminance blue goes well with: red, teal, plum, yellow, cyan, white, black, green
 	private const int MaxSearchResults=50, MaxLinesPerItem=7;
 	private const string TextHighlightColor="green";
 
@@ -27,7 +27,18 @@ public class SearchWindow : SilkDev.Windows.Window
 	private class SearchedItem(int ID, string RichText, int CutoffPoint)
 	{
 		public readonly int ID=ID, CutoffPoint=CutoffPoint;
+		public readonly RicherLabel RLabel=new();
 		public readonly string RichText=RichText;
+		public string CurrentText { get; private set; } = GetText(CutoffPoint!=-1, RichText, CutoffPoint);
+		public bool IsCurrentlyOver { get; set {
+			if(field==value)
+				return;
+			field=value;
+			if(CutoffPoint!=-1)
+				CurrentText=GetText(!value, RichText, CutoffPoint);
+		} } = false;
+		private static string GetText(bool CutTextOff, string RichText, int CutoffPoint) =>
+			!CutTextOff ? RichText : RichText[..CutoffPoint]+"<color=red>...</color>";
 	}
 
 	//Members
@@ -108,6 +119,7 @@ public class SearchWindow : SilkDev.Windows.Window
 	private void RunSearch(string SearchText)
 	{
 		//Empty search yields nothing
+		SearchedItems.ForEach(SI => SI.RLabel.Dispose()); //Dispose previous results
 		if(SearchText.Length==0) {
 			SearchedItems=[];
 			return;
@@ -134,7 +146,7 @@ public class SearchWindow : SilkDev.Windows.Window
 			MakeItemInfoLine("Title", I.Title, EscapedTerms),
 			MakeItemInfoLine("Category", Cats[I.CategoryID].Title, EscapedTerms),
 			I.IgnPageName==null ? Misc.Empty : MakeItemInfoLine("IGN Page", "https://www.ign.com/wikis/hollow-knight-silksong/"+I.IgnPageName, EscapedTerms),
-			I.Description==null ? Misc.Empty : MakeItemInfoLine("Description", Item.StripLinkIDTags(I.Description), EscapedTerms),
+			I.Description==null ? Misc.Empty : MakeItemInfoLine("Description", I.Description, EscapedTerms),
 		}.Where(static S => S!=Misc.Empty)
 		)))];
 	}
@@ -161,11 +173,9 @@ public class SearchWindow : SilkDev.Windows.Window
 	private void DrawItem(SearchedItem SI)
 	{
 		//Draw the label
-		GUILayout.Label(
-			  ItemOverID==SI.ID || SI.CutoffPoint==-1 ? SI.RichText
-			: SI.RichText[..SI.CutoffPoint]+"<color=red>...</color>",
-			TextStyle
-		);
+		SI.IsCurrentlyOver=(ItemOverID==SI.ID);
+		SI.RLabel.ScrollPosOffset=ScrollPosition;
+		bool LinkClicked=SI.RLabel.Draw(SI.CurrentText, TextStyle, -1);
 
 		//Set if over the item
 		Rect LabelRect=GUILayoutUtility.GetLastRect();
@@ -179,7 +189,7 @@ public class SearchWindow : SilkDev.Windows.Window
 		//Highlight the label if hovered and check for click
 		if(MouseOver) {
 			SelectCol.DrawRect(LabelRect);
-			if(Event.current.type==EventType.MouseUp && MButton.CurrentButton==MButton.Enum.Left)
+			if(!LinkClicked && Event.current.type==EventType.MouseUp && MButton.CurrentButton==MButton.Enum.Left)
 				MapControl.Self.SelectAndCenterItemI(SI.ID);
 		}
 

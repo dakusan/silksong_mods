@@ -49,7 +49,8 @@ public class RicherLabel() : LinkedLabel, IDisposable
 		ImportantLinks.Clear();
 	}
 
-	public void Draw(string LabelText, GUIStyle Style, int SelectedItem)
+	//Returns if a link was clicked
+	public bool Draw(string LabelText, GUIStyle Style, int SelectedItem)
 	{
 		//Render the label and important links
 		Link? L=GUILabelLayout(
@@ -59,8 +60,10 @@ public class RicherLabel() : LinkedLabel, IDisposable
 		ImportantLinks.ForEach(IL => IL.Render(Pos));
 
 		//Handle link click
-		if(Event.current.type==EventType.MouseDown && Button.CurrentButton==Button.Enum.Left)
+		bool IsLinkClicked=(L!=null && Event.current.type==EventType.MouseUp && Button.CurrentButton==Button.Enum.Left);
+		if(IsLinkClicked)
 			LinkClicked(L);
+		return IsLinkClicked;
 	}
 
 	public void LinkClicked(Link? L)
