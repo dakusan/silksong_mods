@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using StringWriter=System.IO.StringWriter;
 
@@ -15,6 +16,7 @@ public static class JsonUtils
 	) =>
 		Serialize_Conv(Obj, Compact:Compact, TabIndent:TabIndent, UnixNewLine:UnixNewLine, Sorted:Sorted, TrailingCommas:TrailingCommas);
 
+	private static readonly Regex AddTrailingCommasRegEx=new(@"([^,{\[])(\r?\n[ \t]*)(?=[}\]])", RegexOptions.Compiled);
 	public static string Serialize_Conv(
 		object Obj, bool Compact=false, bool TabIndent=true, bool UnixNewLine=true, bool Sorted=false, bool TrailingCommas=false,	//See Serialize()
 		params System.Collections.Generic.List<JsonConverter> Converters															//Extra converters to use
@@ -31,7 +33,7 @@ public static class JsonUtils
 		).Serialize(JTW, Obj);
 
 		return !Compact && TrailingCommas
-			? System.Text.RegularExpressions.Regex.Replace(SW.ToString(), @"([^,{\[])(\r?\n[ \t]*)(?=[}\]])", "$1,$2")
+			? AddTrailingCommasRegEx.Replace(SW.ToString(), "$1,$2")
 			: SW.ToString();
 	}
 

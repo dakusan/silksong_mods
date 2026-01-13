@@ -226,6 +226,9 @@ public class LinkedLabel : IDisposable
 	}
 	private record class ParseAttr<T>(string Name, T Value, Action<Link, T> SetValue) : ParseAttrBase(Name, Value!);
 
+	private static readonly Regex LinkRegEx		=new(@"<LinkID\s*=([^>]+)>(.*?)</LinkID>",				RegexOptions.IgnoreCase|RegexOptions.Compiled);
+	private static readonly Regex AttrRegEx		=new(@"^(<ATTR\s*=\s*([^>]+)\s*>\s*(.*?)\s*</ATTR>)*",	RegexOptions.IgnoreCase|RegexOptions.Compiled);
+	private static readonly Regex FixColorRegEx	=new(@"<(/color|color\s*=[^>]*)>",						RegexOptions.IgnoreCase|RegexOptions.Compiled);
 	private void Parse()
 	{
 		//Make sure we need to parse
@@ -247,8 +250,6 @@ public class LinkedLabel : IDisposable
 		];
 
 		//Extract all <color> blocks
-		Regex LinkRegEx=new(@"<LinkID\s*=([^>]+)>(.*?)</LinkID>", RegexOptions.IgnoreCase);
-		Regex AttrRegEx=new(@"^(<ATTR\s*=\s*([^>]+)\s*>\s*(.*?)\s*</ATTR>)*", RegexOptions.IgnoreCase);
 		StringBuilder Result=new();
 		string Contents=Text;
 		int CurIndex=0;
@@ -323,19 +324,26 @@ public class LinkedLabel : IDisposable
 		using GetStringTextures GST=new((int)RectSize.x, (int)RectSize.y, ScrollPosOffset);
 
 		//Make a full render string with redetermined link placement for quick string rendering
-		const string MakeTransparent="<color=#00000000>";
+		const string MakeTransparent="xcolor=transparent>"; //Faking one of the color characters so the color regex doesn’t pick it up
 		List<(Link L, int StartPos, int EndPos)> CreateStrings=new(LiveLinks.Count);
 		StringBuilder SB=new(MakeTransparent.Length+RenderString.Length-LiveLinks.Sum(static L => L.StringEndPos-L.StringStartPos-L.Text.Length)); //Preallocate to the final length
-		_=SB.Append(MakeTransparent);
 		int PrevPos=0;
+		_=SB.Append(MakeTransparent);
 		foreach((int Index, Link L) in LiveLinks.Entries) {
-			_=SB.Append(RenderString[PrevPos..L.StringStartPos]).Append(L.Text);
+			_=SB.Append(RenderString, PrevPos, L.StringStartPos-PrevPos).Append(L.Text);
 			if(FinalLinkList.Contains(L))
 				CreateStrings.Add((L, SB.Length-L.Text.Length, SB.Length));
 			PrevPos=L.StringEndPos;
 		}
-		_=SB.Append(RenderString[PrevPos..]);
-		string FinalStr=SB.ToString();
+		_=SB.Append(RenderString, PrevPos, RenderString.Length-PrevPos);
+
+		//Replace “<color=...>” and “</color>” tags with “<b=   ></b>” [keep the length the same as the tag] so they don’t interfere with the box measuring process
+		const string ColorReplPrefix="<b=", ColorReplSuffix="></b>";
+		string FinalStr=FixColorRegEx.Replace(
+			SB.ToString(),
+			static M => ColorReplPrefix+new string(' ', M.Length-ColorReplPrefix.Length-ColorReplSuffix.Length)+ColorReplSuffix
+		);
+		FinalStr='<'+FinalStr[1..]; //Replace the MakeTransparent first character
 
 		//Create the separate strings as textures with just their text visible
 		List<GetStringRects> GSRs=new(CreateStrings.Count);
@@ -387,6 +395,7 @@ public class LinkedLabel : IDisposable
 		{
 			RenderTexture Tex=RenderTexture.GetTemporary(Width, Height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 			RenderTexture.active=Tex;
+			GL.Clear(true, true, Color.clear);
 			GUI.Label(new(X, Y, Width, Height), RenderStr, Style);
 			return Tex;
 		}

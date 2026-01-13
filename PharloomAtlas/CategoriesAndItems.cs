@@ -120,7 +120,7 @@ public class Item
 
 		//--------------------String rendering--------------------
 		//StaticLinkPart are created such that we can essentially do a `strings.Join(RenderParts.Select(RP => RP.StrBeforeCount+RP.SL.NumCollected)`
-		private static readonly Regex ExtractItemCounts=new($"{ChainItem.AmountChar}\\d+{ChainItem.AmountChar}"); //LinkIDs are inside a set of AmountChar characters
+		private static readonly Regex ExtractItemCounts=new($"{ChainItem.AmountChar}\\d+{ChainItem.AmountChar}", RegexOptions.Compiled); //LinkIDs are inside a set of AmountChar characters
 		private readonly record struct StaticLinkPart(string StrBeforeCount, StaticLink? SL); //Only last item in RenderParts will have SL=null
 		private StaticLinkPart[] RenderParts=null!;
 		public string RenderedString => CompileRenderString();
@@ -260,7 +260,7 @@ public class Item
 	public class RenderedField
 	{
 		//Turn item links in a string into actual links
-		private static readonly Regex GetLinks=new(@"\[(\d+)(~[^^|`\]]+)?]");
+		private static readonly Regex GetLinks=new(@"\[(\d+)(~[^^|`\]]+)?]", RegexOptions.Compiled);
 
 		public readonly Item Parent;
 		public readonly string StartString;

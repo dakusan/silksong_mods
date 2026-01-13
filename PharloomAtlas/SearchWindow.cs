@@ -24,21 +24,39 @@ public class SearchWindow : SilkDev.Windows.Window
 	private const string TextHighlightColor="green";
 
 	//Information about a searched item
-	private class SearchedItem(int ID, string RichText, int CutoffPoint)
+	private class SearchedItem : System.IDisposable
 	{
-		public readonly int ID=ID, CutoffPoint=CutoffPoint;
-		public readonly RicherLabel RLabel=new();
-		public readonly string RichText=RichText;
-		public string CurrentText { get; private set; } = GetText(CutoffPoint!=-1, RichText, CutoffPoint);
+		//Public members
+		public readonly int ID, CutoffPoint;
+		public readonly string RichText;
+		public bool HasCutoff => CutoffPoint>0;
+		public RicherLabel RLabel { get; private set; } = null!;
+		public string CurrentText { get; private set; } = null!;
 		public bool IsCurrentlyOver { get; set {
 			if(field==value)
 				return;
 			field=value;
-			if(CutoffPoint!=-1)
-				CurrentText=GetText(!value, RichText, CutoffPoint);
-		} } = false;
-		private static string GetText(bool CutTextOff, string RichText, int CutoffPoint) =>
-			!CutTextOff ? RichText : RichText[..CutoffPoint]+"<color=red>...</color>";
+			RLabel		=(value ? RLabelFull: RLabelPartial  );
+			CurrentText	=(value ? RichText	: RichTextPartial);
+		} } = true; //Set to false in ctor
+
+		//Private members
+		private readonly RicherLabel RLabelFull=new(), RLabelPartial;
+		private readonly string RichTextPartial;
+		public SearchedItem(int ID, string RichText, int CutoffPoint=-1)
+		{
+			(this.ID, this.RichText, this.CutoffPoint)=(ID, RichText, CutoffPoint);
+			RichTextPartial	=(!HasCutoff ? RichText		: RichText[..CutoffPoint]+"<color=red>...</color>");
+			RLabelPartial	=(!HasCutoff ? RLabelFull	: new RicherLabel());
+			IsCurrentlyOver=false;
+		}
+
+		public void Dispose()
+		{
+			RLabelFull.Dispose();
+			if(HasCutoff)
+				RLabelPartial.Dispose();
+		}
 	}
 
 	//Members
@@ -116,20 +134,21 @@ public class SearchWindow : SilkDev.Windows.Window
 	}
 
 	//Split the search text into terms and find any item that has all search terms
+	private static readonly Regex RegEx_RemoveHTMLTags=new(@"</?\w[^>]+>", RegexOptions.Compiled), RegEx_SplitAroundSpaces=new(@"\s+", RegexOptions.Compiled);
 	private void RunSearch(string SearchText)
 	{
 		//Empty search yields nothing
-		SearchedItems.ForEach(SI => SI.RLabel.Dispose()); //Dispose previous results
+		SearchedItems.ForEach(static SI => SI.Dispose()); //Dispose previous results
 		if(SearchText.Length==0) {
 			SearchedItems=[];
 			return;
 		}
 
 		//Run the search
-		string[] Terms=Regex.Split(SearchText.ToLower(), @"\s+");
+		string[] Terms=RegEx_SplitAroundSpaces.Split(SearchText.ToLower());
 		Dictionary<int, Category> Cats=MapControl.Self.DS.Categories;
-		List<Item> NewItems=[.. MapControl.Self.DS.Items.Values.AsEnumerable().Where(I => {
-			string SearchItemInfo=$"{I.Title}{I.Description}{Cats[I.CategoryID].Title}".ToLower();
+		List<Item> NewItems=[.. MapControl.Self.DS.Items.Values.Where(I => {
+			string SearchItemInfo=RegEx_RemoveHTMLTags.Replace((I.Title+I.Description+Cats[I.CategoryID].Title).ToLower(), Misc.Empty);
 			foreach(string Term in Terms)
 				if(!SearchItemInfo.Contains(Term))
 					return false;
@@ -141,23 +160,39 @@ public class SearchWindow : SilkDev.Windows.Window
 			NewItems.RemoveAt(NewItems.Count-1);
 
 		//Transform the items into rich strings and store with their IDs
-		string[] EscapedTerms=[.. Terms.Select(static T => "("+Regex.Escape(Misc.SanitizeRichString(T))+")")]; //Create regular expressions to colorize the strings
+		Regex EscapedTermsRegEx=new("("+string.Join('|', Terms.Select(static T => Regex.Escape(Misc.SanitizeRichString(T))))+")", RegexOptions.IgnoreCase); //Create regular expression to colorize the strings
 		SearchedItems=[.. NewItems.Select(I => CreateSearchedItem(I.ID, string.Join(Misc.NewLine, new string[] {
-			MakeItemInfoLine("Title", I.Title, EscapedTerms),
-			MakeItemInfoLine("Category", Cats[I.CategoryID].Title, EscapedTerms),
-			I.IgnPageName==null ? Misc.Empty : MakeItemInfoLine("IGN Page", "https://www.ign.com/wikis/hollow-knight-silksong/"+I.IgnPageName, EscapedTerms),
-			I.Description==null ? Misc.Empty : MakeItemInfoLine("Description", I.Description, EscapedTerms),
+			MakeItemInfoLine("Title", I.Title, EscapedTermsRegEx),
+			MakeItemInfoLine("Category", Cats[I.CategoryID].Title, EscapedTermsRegEx),
+			I.IgnPageName==null ? Misc.Empty : MakeItemInfoLine("IGN Page", "https://www.ign.com/wikis/hollow-knight-silksong/"+I.IgnPageName, EscapedTermsRegEx),
+			I.Description==null ? Misc.Empty : MakeItemInfoLine("Description", I.Description, EscapedTermsRegEx),
 		}.Where(static S => S!=Misc.Empty)
 		)))];
 	}
 
 	//Create a string with sized down title and Info with highlighted search terms
-	private static string MakeItemInfoLine(string Title, string Info, string[] EscapedTerms)
+	private static string MakeItemInfoLine(string Title, string Info, Regex EscapedTerms)
 	{
-		foreach(string Term in EscapedTerms)
-			Info=Regex.Replace(Info, Term, (char)1+"$1"+(char)2, RegexOptions.IgnoreCase);
-		Info=Info.Replace((char)1+Misc.Empty, $"<color={TextHighlightColor}>").Replace((char)2+Misc.Empty, "</color>");
-		return $"<size=-2>{Tr.T(Title, "ItemFields", true)}</size>: <b>{Info}</b>";
+		IEnumerator<Match> TagEnum=(IEnumerator<Match>)RegEx_RemoveHTMLTags.Matches(Info).GetEnumerator();
+		bool HasTag=TagEnum.MoveNext();
+		Match? CurTag=(HasTag ? TagEnum.Current : null);
+
+		bool InTag(int Pos)
+		{
+			while(CurTag!=null) {
+				if(Pos<CurTag.Index)
+					return false;
+				if(Pos<CurTag.Index+CurTag.Length)
+					return true;
+				HasTag=TagEnum.MoveNext();
+				CurTag=HasTag ? TagEnum.Current : null;
+			}
+			return false;
+		}
+		string ColorTag=$"<b><color={TextHighlightColor}>", ColorEndTag="</color></b>";
+		return $"<size=-2>{Tr.T(Title, "ItemFields", true)}</size>: "+EscapedTerms.Replace(
+			Info, M => InTag(M.Index) ? M.Value : ColorTag+M.Value+ColorEndTag
+		);
 	}
 
 	//Compile a SearchedItem
