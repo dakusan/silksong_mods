@@ -22,13 +22,19 @@ internal class Plugin : BaseUnityPlugin
 	//Initialize the plugin
 	private void Init()
 	{
+		//Add loggers
 		#if DEBUG
-			Log.AdditionalLogFile=FileOps.PathCombine(FileOps.GetPluginPath, "PAtlasLog.txt");
+			Log.AddLogger(
+				"PAtlas-Debug",
+				new AsyncLogger(FileOps.PathCombine(FileOps.GetPluginPath, "PAtlas-Debug.log")) { DuplicateWindowSeconds=10 }
+			);
 		#endif
+		Log.AddLogger("PAtlas-Error", ErrorLog);
 
 		new HarmonyLib.Harmony(PluginInfo.PLUGIN_GUID).PatchAll();
+		Catcher.Run($"{PluginInfo.PLUGIN_NAME} Config Init", () => new Config(Config));
+		SetupErrorLog();
 		Catcher.Run($"{PluginInfo.PLUGIN_NAME} Init", () => {
-			_=new Config(Config);
 			_=new MonitorSaveValues();
 			_=new MoreMarkers();
 		});
@@ -38,4 +44,17 @@ internal class Plugin : BaseUnityPlugin
 			(Logger=base.Logger).LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded");
 		});
 	}
+
+	//Error log
+	private static readonly AsyncLogger ErrorLog=new(null, FilterErrorLog) { DuplicateWindowSeconds=10 };
+	internal const string PAtlasErrorLogName="PAtlas-Error.log";
+	private Config C => PharloomAtlas.Config.C;
+	private void SetupErrorLog()
+	{
+		void SetLogFilename() => ErrorLog.LogFilePath=(C.UseErrorLog ? FileOps.PathCombine(FileOps.GetPluginPath, PAtlasErrorLogName) : null);
+		C.UseErrorLog.SettingChanged += (_, _) => SetLogFilename();
+		SetLogFilename();
+	}
+	private static string? FilterErrorLog(string LogLine) =>
+		LogLine.StartsWith("[Error]") ? LogLine : null;
 }
