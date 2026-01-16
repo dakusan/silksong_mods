@@ -345,8 +345,8 @@ public class MarkerLabels : Window
 				Conf.Tr.TDef(
 					"MarkerLabels.LoadFailed", null, "<color=red>Your marker labels failed to load.</color> There are backups at <color=green>{0}</color>: {1}",
 					false,
-					Misc.SanitizeRichString($"{Conf.PSC.ConfigFileName}{SilkDev.Configs.PerSaveConfig.BackupExtension}*"),
-					Misc.SanitizeRichString(e.Message)
+					DevStrings.SanitizeRichString($"{Conf.PSC.ConfigFileName}{SilkDev.Configs.PerSaveConfig.BackupExtension}*"),
+					DevStrings.SanitizeRichString(e.Message)
 				)
 			);
 		}

@@ -88,7 +88,7 @@ public class MonitorSaveValues
 	private static readonly Translations Tr=Config.C.Tr;
 	private static string TSan(string Str, params object[] FormatList)	=> Tr.T(Str, nameof(MonitorSaveValues), true , FormatList);
 	private static string TrT (string Str, params object[] FormatList)	=> Tr.T(Str, nameof(MonitorSaveValues), false, FormatList);
-	private static string San (string Str)								=> Misc.SanitizeRichString(Str);
+	private static string San (string Str)								=> DevStrings.SanitizeRichString(Str);
 
 	//Initialize the monitoring
 	internal MonitorSaveValues()
@@ -437,7 +437,7 @@ public class MonitorSaveValues
 		static string UrlQuery() => string.Join('&', new List<(string Key, string Value)> {
 			("ItemID", MapControl.Self.SelectedItem!.ID.ToString()),
 			("ItemName", SaveValuesWindow.Self.SelectedItem!.FullName),
-			("Username", Config.C.AnonymousSubmissions ? Misc.UsernameErrorString : Misc.SteamUsername),
+			("Username", Config.C.AnonymousSubmissions ? DevStrings.UsernameErrorString : DevStrings.SteamUsername),
 		}.Select(static Tuple => HttpUtility.UrlEncode(Tuple.Key)+"="+HttpUtility.UrlEncode(Tuple.Value)));
 
 		//Send the web request and format returns

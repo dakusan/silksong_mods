@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using UnityEngine;
 
 namespace SilkDev;
@@ -13,26 +14,9 @@ public static class Misc
 	public static void InitSingleton<T>(T Self, ref T ObjProperty) =>
 		ObjProperty=(ObjProperty==null ? Self : throw new InvalidOperationException($"Can only instance class ‘{typeof(T).Name}’ once"));
 
-	//Sanitize a richText string
-	public static string SanitizeRichString(string Message) =>
-		Message.Replace("<", "<<i></i>"); //Yes, this is really the best way
-
 	//Save to clipboard
 	public static void SaveToClipboard(string Value) =>
 		GUIUtility.systemCopyBuffer=Value;
-
-	//Get steam username
-	public const string UsernameErrorString="*SILKDEV NO NAME*"; //Tells the server the user’s username couldn’t be looked up
-	public static string SteamUsername { get
-	{
-		try {
-			return
-				!Steamworks.SteamAPI.IsSteamRunning() ? throw new Exception("Steam not running") :
-				Steamworks.SteamFriends.GetPersonaName() ?? throw new Exception("Lookup failed");
-		} catch {
-			return UsernameErrorString;
-		}
-	} }
 
 	//Short circuiting and return type passthrough functions for cleaner code
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -105,6 +89,26 @@ public static class Misc
 	//Simple reference class
 	public class Ref<T>(T Value) {
 		public T Value { get; set; } = Value;
+	}
+
+	//Atomic int operations for thread safety
+	public sealed class AtomicInt(int InitialValue=0)
+	{
+		private int ValueInternal = InitialValue;
+		public int Value {
+			get								=> Volatile.Read(ref ValueInternal);
+			set								=> Volatile.Write(ref ValueInternal, value);
+		}
+		public int IncrementVal()			=> Interlocked.Increment(ref ValueInternal);
+		public int DecrementVal()			=> Interlocked.Decrement(ref ValueInternal);
+		public int AddVal(int Delta)		=> Interlocked.Add(ref ValueInternal, Delta);
+		public int Exchange(int NewValue)	=> Interlocked.Exchange(ref ValueInternal, NewValue);
+		public bool CompareExchange(int NewValue, int Comparand)
+		 									=> Interlocked.CompareExchange(ref ValueInternal, NewValue, Comparand) == Comparand;
+
+		public void Increment()				=> IncrementVal();
+		public void Decrement()				=> DecrementVal();
+		public void Add(int Delta)			=> AddVal(Delta);
 	}
 
 	public const char NewLine='\n';

@@ -1,5 +1,5 @@
 <?php
-function ErrAndDie($User, $Log=null, $ResponseCode=500)
+function ErrAndDie(string $User, ?string $Log=null, int $ResponseCode=500)
 {
 	global $argv;
 	file_put_contents(__DIR__.'/errors.log', date('Y-m-d H:i:s ').($Log!=null ? "$User: $Log" : $User)."\n", FILE_APPEND|LOCK_EX);
@@ -11,43 +11,22 @@ function ErrAndDie($User, $Log=null, $ResponseCode=500)
 	exit(1);
 }
 
-require_once(__DIR__.'/Config.php');
-try {
-	$Conn=@new mysqli($Config->Host, $Config->User, $Config->Password, $Config->DBName);
-	if($Conn->connect_errno)
-		throw $mysqli->connect_error;
-} catch(Exception $e) {
-	ErrAndDie('SQL Connection Failed', $e->getMessage());
-}
-$Escape=fn($Str) => "'".$Conn->real_escape_string($Str)."'";
-
-try {
-	$Conn->query("SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'");
-	$Conn->query('SET time_zone='.$Escape(date_default_timezone_get()));
-} catch(Exception $e) {
-	ErrAndDie('Mysql failed while initializing connection parameters', $e->getMessage());
-}
-
-class MysqliResultIterator implements Iterator {
-	private mysqli_result	$Result;
-	private mixed			$Current;
-	private int				$Key=0;
-	private bool			$Valid=false;
-	public function __construct(mysqli_result $Result)			{ $this->Result=$Result; $this->rewind(); }
-	public function current							(): mixed	{ return $this->Current;}
-	public function key								(): int		{ return $this->Key;	}
-	public function valid							(): bool	{ return $this->Valid;	}
-	public function next							(): void	{ $this->Key+=($this->Valid=($this->Current=$this->Result->fetch_object())!==null ? 1 : 0); }
-	public function rewind(): void {
-		if($this->Key!==0)
-			$this->Result->data_seek(0);
-		$this->next();
-	}
-}
-
-function Query($Str)
+function GetVariable(string $Name, string $Pattern, int $MaxFieldLen=100): string
 {
-	global $Conn;
-	return new MysqliResultIterator($Conn->query($Str));
+	return
+		 	!is_string($Val=($_REQUEST[$Name] ?? null))	? ErrAndDie("Missing variable: $Name", null, 400)
+		: (	!mb_check_encoding($Val, 'UTF-8')			? ErrAndDie("Improperly encoded variable: $Name", null, 400)
+		: (	mb_strlen($Val)>$MaxFieldLen				? ErrAndDie("Variable is too long: $Name", null, 400)
+		: (	!preg_match($Pattern, $Val)					? ErrAndDie("Variable is not in the proper format or is too long: $Name", null, 400)
+		:	$Val
+		)));
+}
+
+function GetSteamUsername(string $FieldName='Username'): string //SteamName=3-32 characters
+{
+	$Username=GetVariable($FieldName, '/^[^\x00-\x1F\s][^\x00-\x1F\r\n]{2,49}$/uD');
+	return
+		   $Username!='*SILKDEV NO NAME*' ? $Username
+		: 'IP='.substr($_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_REAL_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? 'No IP address', 0, 47);
 }
 ?>

@@ -268,7 +268,7 @@ public partial class SideBar
 
 		//Translations
 		private static string MakeItemInfoLine(string Title, string Info) =>
-			$"<size=-1>{Tr.T(Title, "ItemFields", true)}</size>: <b>{Misc.SanitizeRichString(Info)}</b>";
+			$"<size=-1>{Tr.T(Title, "ItemFields", true)}</size>: <b>{DevStrings.SanitizeRichString(Info)}</b>";
 		private static string TSan(string Message) => Tr.T(Message, nameof(ItemInfoSection), true);
 		private static readonly Translations Tr=Config.C.Tr;
 

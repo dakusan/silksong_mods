@@ -61,9 +61,9 @@ public class ProgressBarWithLogs() : Window(nameof(ProgressBarWithLogs), null, 1
 
 		//Draw the text
 		string NewMessageText=string.Join(Misc.Empty, [
-			$"<color=green>{(DoNotSanitizeMessage ? MessageText : Misc.SanitizeRichString(MessageText))}</color>{Misc.NewLine}",
-			ErrorLines.Count==0 ? Misc.Empty : "<color=red>"+Misc.SanitizeRichString(string.Join(Misc.NewLine, ErrorLines))+$"</color>{Misc.NewLine}",
-			Misc.SanitizeRichString(string.Join(Misc.NewLine, LogLines)),
+			$"<color=green>{(DoNotSanitizeMessage ? MessageText : DevStrings.SanitizeRichString(MessageText))}</color>{Misc.NewLine}",
+			ErrorLines.Count==0 ? Misc.Empty : "<color=red>"+DevStrings.SanitizeRichString(string.Join(Misc.NewLine, ErrorLines))+$"</color>{Misc.NewLine}",
+			DevStrings.SanitizeRichString(string.Join(Misc.NewLine, LogLines)),
 		]);
 		PercentTextStyle.fontSize=Mathf.CeilToInt(DefaultPercentFontSize-(DefaultBarHeight-BarHeight)/1.5f);
 		CalculateFontSize(PercentText, PercentTextStyle, PBRect.width);

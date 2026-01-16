@@ -120,7 +120,7 @@ public class PerSaveConfig
 		//Inform all configs that a save was loaded
 		protected override void OnGameLoaded(int SaveSlot)
 		{
-			if(Username==null && (Username=Misc.SteamUsername)==Misc.UsernameErrorString)
+			if(Username==null && (Username=DevStrings.SteamUsername)==DevStrings.UsernameErrorString)
 				Username="NoUsername";
 			CurSaveSlot=SaveSlot;
 			foreach(PerSaveConfig Config in ConfigsList)

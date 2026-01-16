@@ -160,7 +160,7 @@ public class SearchWindow : SilkDev.Windows.Window
 			NewItems.RemoveAt(NewItems.Count-1);
 
 		//Transform the items into rich strings and store with their IDs
-		Regex EscapedTermsRegEx=new("("+string.Join('|', Terms.Select(static T => Regex.Escape(Misc.SanitizeRichString(T))))+")", RegexOptions.IgnoreCase); //Create regular expression to colorize the strings
+		Regex EscapedTermsRegEx=new("("+string.Join('|', Terms.Select(static T => Regex.Escape(DevStrings.SanitizeRichString(T))))+")", RegexOptions.IgnoreCase); //Create regular expression to colorize the strings
 		SearchedItems=[.. NewItems.Select(I => CreateSearchedItem(I.ID, string.Join(Misc.NewLine, new string[] {
 			MakeItemInfoLine("Title", I.Title, EscapedTermsRegEx),
 			MakeItemInfoLine("Category", Cats[I.CategoryID].Title, EscapedTermsRegEx),

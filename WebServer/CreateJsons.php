@@ -1,5 +1,6 @@
 <?php
 require_once(__DIR__.'/Shared.php');
+require_once(__DIR__.'/SimpleSQL.php');
 
 //Check for request variables
 $CompactJSON=false;

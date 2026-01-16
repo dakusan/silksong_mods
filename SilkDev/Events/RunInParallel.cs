@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using Task = System.Threading.Tasks.Task;
+using AtomicInt = SilkDev.Misc.AtomicInt;
 
 namespace SilkDev.Events;
 
@@ -282,20 +283,4 @@ public class BackgroundJobRunner<T, TResult>(
 		Disposed,
 		() => throw new ObjectDisposedException(nameof(BackgroundJobRunner<,>))
 	);
-
-	public sealed class AtomicInt(int InitialValue=0)
-	{
-		private int ValueInternal = InitialValue;
-		public int Value					=> Volatile.Read(ref ValueInternal);
-		public int IncrementVal()			=> Interlocked.Increment(ref ValueInternal);
-		public int DecrementVal()			=> Interlocked.Decrement(ref ValueInternal);
-		public int AddVal(int Delta)		=> Interlocked.Add(ref ValueInternal, Delta);
-		public int Exchange(int NewValue)	=> Interlocked.Exchange(ref ValueInternal, NewValue);
-		public bool CompareExchange(int NewValue, int Comparand)
-		 									=> Interlocked.CompareExchange(ref ValueInternal, NewValue, Comparand) == Comparand;
-
-		public void Increment()				=> IncrementVal();
-		public void Decrement()				=> DecrementVal();
-		public void Add(int Delta)			=> AddVal(Delta);
-	}
 }

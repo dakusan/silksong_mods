@@ -89,7 +89,7 @@ public class Translations
 			: FormatParameters.TryGetValue(Section==ROOT ? Key : $"{Section}/{Key}", out object[] FPs) ? string.Format(Text, FPs)
 			: Text;
 
-		return Text!=null && RichSanitize ? Misc.SanitizeRichString(Ret!) : Ret!;
+		return Text!=null && RichSanitize ? DevStrings.SanitizeRichString(Ret!) : Ret!;
 	}
 	public void AddFormatParameters(string Key, string? Section=null, params object[] List) =>
 		FormatParameters[Section is null or ROOT ? Key : $"{Section}/{Key}"]=List;

@@ -24,7 +24,7 @@ public class PopupMessage
 	public int FullWidth=1200, FullHeight=800;
 	public bool IsShowing { get; private set; } = true; //Purely for reference. Does not affect anything.
 
-	//Warning: Message is in rich text so use Misc.SanitizeRichString if it could contain html tags
+	//Warning: Message is in rich text so use DevStrings.SanitizeRichString if it could contain html tags
 	public PopupMessage(string Message)
 	{
 		this.Message=Message;

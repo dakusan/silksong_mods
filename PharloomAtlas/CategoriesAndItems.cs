@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
-using Misc=SilkDev.Misc;
 using FieldInfo = System.Reflection.FieldInfo;
 
 namespace PharloomAtlas;
@@ -173,7 +172,7 @@ public class Item
 			return [.. Parts];
 		}
 
-		public string Render(string FieldTitle) => $"<b>{Misc.SanitizeRichString(FieldTitle)}</b>: "+RenderedString;
+		public string Render(string FieldTitle) => $"<b>{DevStrings.SanitizeRichString(FieldTitle)}</b>: "+RenderedString;
 	}
 
 	//A single item in a ChainList
@@ -281,7 +280,7 @@ public class Item
 				);
 		}
 		public override string ToString() => RenderedString;
-		public string Render(string FieldTitle) => $"<b>{Misc.SanitizeRichString(FieldTitle)}</b>: "+RenderedString;
+		public string Render(string FieldTitle) => $"<b>{DevStrings.SanitizeRichString(FieldTitle)}</b>: "+RenderedString;
 	}
 
 	public CategoryToggleState CurrentToggleState
@@ -403,7 +402,7 @@ public class Item
 				"\n- "+I.Rewards.RenderedString+" for "+I.Needs.RenderedString+
 				(I.Reqs!=null ? $" (Required: {I.Reqs.RenderedString})" : Misc.Empty)
 			));
-		public string Render(string FieldTitle) => $"<b>{Misc.SanitizeRichString(FieldTitle)}</b>: "+RenderedString;
+		public string Render(string FieldTitle) => $"<b>{DevStrings.SanitizeRichString(FieldTitle)}</b>: "+RenderedString;
 	}
 
 	//Selected via a link

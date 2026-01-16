@@ -14,7 +14,7 @@ public static class FileOps
 	public static Task		WriteFileAsync	(string FileName, string Data		) => File.WriteAllTextAsync		(FileName, Data);
 	public static void		AppendFile		(string Path, string Data			) => File.AppendAllText			(Path, Misc.NewLine+Data);
 	public static string	ReadFile		(string FileName					) => File.ReadAllText			(FileName);
-	public static byte[]	ReadFileBytes	(string FileName					) => File.ReadAllBytes			(FileName);
+	public static byte[]	ReadFileBytes	(string FileName, bool Shared=false	) => ReadAllBytes				(FileName, Shared);
 	public static string	PathCombine		(string P1, string P2				) => Path.Combine				(P1, P2);
 	public static string	PathCombine		(params string[] Parts				) => Parts.Aggregate			(Path.Combine);
 	public static char[]	InvalidNameChars(									) => Path.GetInvalidFileNameChars();
@@ -29,6 +29,14 @@ public static class FileOps
 	public static void		FileMove		(string Source, string Destination	) => File.Move					(Source, Destination);
 	public static void		FileDelete		(string Source						) => File.Delete				(Source);
 	public static string	GetPluginPath										  => GetDirectoryName			(Assembly.GetCallingAssembly().Location);
+	private static byte[]	ReadAllBytes	(string FileName, bool Shared		) {
+		if(!Shared)
+			return File.ReadAllBytes(FileName);
+		using MemoryStream MS=new();
+		new FileStream(FileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite).CopyTo(MS);
+		byte[] Bytes=MS.ToArray();
+		return Bytes;
+	}
 
 	//Shorthands to use during debugging
 	public static string	Ser				(params object[] Obj				) => JSON.JsonUtils.Serialize(Obj.Length==1 ? Obj[0] : Obj);
