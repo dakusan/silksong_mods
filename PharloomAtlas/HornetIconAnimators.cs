@@ -111,8 +111,11 @@ internal class HornetIconAnimators
 
 			//Set up config changes
 			static void UpdateScale() => MyMaterial!.SetTextureScale("_OverlayTex", new Vector2(1f, Conf.HornetRainbow1Scale));
+			static void UpdateAngle() => MyMaterial!.SetVector("_LineOffsetScale", new Vector2(0, 30f/255f*15/100*Conf.HornetRainbow1Angle));
 			Conf.HornetRainbow1Scale.SettingChanged += static (_, _) => UpdateScale();
+			Conf.HornetRainbow1Angle.SettingChanged += static (_, _) => UpdateAngle();
 			UpdateScale();
+			UpdateAngle();
 		}
 
 		public AnimatorRainbow1()

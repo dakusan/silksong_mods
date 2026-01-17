@@ -13,7 +13,7 @@ public class Config
 	public readonly PerSaveConfig PSC;
 	public readonly ConfigEntryT<string> CategoryToggleStates, MarkerLabels;
 	public readonly ConfigEntryT<bool> UnlockMap, UnlockMapBounds, ShowSidebarOnGameLoad, ShowSideBarPictures, ShowMouseWhenSBVisible, MarkerZoomDoesntMove, IconSizeScalesWithZoom, AutoMap, MoreMarkers, AlwaysShowMarkerLabels, ForceDisplayCompass, HornetSpinningClockwise, HornetRevolvingClockwise, MapInAbyss, MapInAbyssUnspoiled, AnonymousSubmissions, UseErrorLog, UseErrorLogSend;
-	public readonly ConfigEntryT<float> ZoomSpeed, PanSpeed, MarkerPanSpeed, IconSize, QueryTime_PersistentObj, QueryTime_PlayerData, HornetHighlightSpeed, HornetRainbow2WaitTime, HornetRainbow2RunTime, HornetGrowingMax, HornetRevolvingDist, HornetRainbow1Scale;
+	public readonly ConfigEntryT<float> ZoomSpeed, PanSpeed, MarkerPanSpeed, IconSize, QueryTime_PersistentObj, QueryTime_PlayerData, HornetHighlightSpeed, HornetRainbow2WaitTime, HornetRainbow2RunTime, HornetGrowingMax, HornetRevolvingDist, HornetRainbow1Scale, HornetRainbow1Angle;
 	public readonly ConfigEntryT<int> SideBarWidth;
 	public readonly ConfigEntryTKeyboardShortcut Shortcut_ZoomIn, Shortcut_ZoomOut, Shortcut_CenterOverChar, Shortcut_ToggleSideBar, Shortcut_EditMarkerLabel, Shortcut_SaveValueWindow, Shortcut_Val_ScrollUp, Shortcut_Val_ScrollDown;
 	public readonly ConfigEntryTKeyboardShortcut Shortcut_SB_Up, Shortcut_SB_Down, Shortcut_SB_Left, Shortcut_SB_Right, Shortcut_SB_ToggleItem, Shortcut_SelStack_Next, Shortcut_SelStack_Prev, Shortcut_SB_SelectIcon;
@@ -58,7 +58,8 @@ public class Config
 		HornetRevolvingClockwise=Con.Bind(Title, "Hornet marker: Revolving: Is Clockwise",	true, "The direction of the revolving", IsAdvanced);
 		HornetGrowingMax		=Con.Bind(Title, "Hornet marker: Growing: Max Size",		0.5f, AVR(0.2f, 5f, "The largest the growing effect gets", IsAdvanced));
 		HornetSpinningClockwise	=Con.Bind(Title, "Hornet marker: Spinning: Is Clockwise",	true, "The direction of the spinning", IsAdvanced);
-		HornetRainbow1Scale		=Con.Bind(Title, "Hornet marker: Rainbow 1: Scale",			.5f, AVR(.1f, 1f, "The zoom-scale of the 256 color gradient texture. This basically dictates how many color bands you can see at a time (higher=more).", IsAdvanced));
+		HornetRainbow1Scale		=Con.Bind(Title, "Hornet marker: Rainbow 1: Scale",			1f, AVR(.1f, 1f, "The zoom-scale of the 256 color gradient texture. This basically dictates how many color bands you can see at a time (higher=more).", IsAdvanced));
+		HornetRainbow1Angle		=Con.Bind(Title, "Hornet marker: Rainbow 1: Angle",			-40f, AVR(-100f, 100f, "How many pixels to offset each successive line", IsAdvanced));
 		HornetRainbow2WaitTime	=Con.Bind(Title, "Hornet marker: Rainbow 2: Wait time",		6f, AVR(0, 10f, "The time in between rainbow 2 effects", IsAdvanced));
 		HornetRainbow2RunTime	=Con.Bind(Title, "Hornet marker: Rainbow 2: Run time",		1.2f, AVR(0.5f, 5f, "The time the rainbow 2 effects run", IsAdvanced));
 		Shortcut_SelStack_Next	=Con.Bind(Title, "Next item in selection stack",			new KeyboardShortcut(KeyCode.Keypad7));
