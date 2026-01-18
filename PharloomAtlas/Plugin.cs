@@ -2,6 +2,7 @@ using BepInEx;
 using SilkDev;
 using SilkDev.Windows;
 using System;
+using static SilkDev.DevStrings;
 using Task = System.Threading.Tasks.Task;
 
 namespace PharloomAtlas;
@@ -60,6 +61,9 @@ internal class Plugin : BaseUnityPlugin
 		private  readonly object			LockIsSending=new();
 		private  static Config				C => PharloomAtlas.Config.C;
 
+		private static string TSan(string Message) => C.Tr.TDef(Message, nameof(ErrorLog), Message, true);
+		private static string TrT(string Message) => C.Tr.TDef(Message, nameof(ErrorLog), Message, false);
+
 		private class PopupWithCancel(string Message, Action OnClose) : PopupMessage(Message) {
 			protected override void OnClosing()
 			{
@@ -98,15 +102,20 @@ internal class Plugin : BaseUnityPlugin
 			});
 
 			//Handle popup message
-			const string BaseText="Sending Error Log\n\n";
+			string BaseText=TSan("Sending Error Log")+Misc.NewLine+Misc.NewLine;
 			HTTPPost CurrentSend=null!;
-			PopupWithCancel StatusPopup=new(BaseText+"Initializing", () => CurrentSend?.Cancel());
+			PopupWithCancel StatusPopup=new(Misc.Empty, () => CurrentSend?.Cancel());
+			SetPopupMessage(TSan("Initializing"));
 			void SetPopupMessage(string Message) => StatusPopup!.Message=BaseText+Message;
 			void ProgressCallback(long Sent, long Total, bool TotalIsEstimate)
 			{
 				lock(LockIsSending) Misc.IFF(
 					IsSending,
-					() => SetPopupMessage($"Progress: {(double)Sent/Total*100:0.00}% [{Sent:N0}/{(TotalIsEstimate ? "~" : "")}{Total:N0}]")
+					() => SetPopupMessage(C.Tr.TDef(
+						"ProgressReport", nameof(ErrorLog),
+						"Progress: {0:0.00}% [{1:N0}/{2}{3:N0}]", false,
+						(double)Sent/Total*100, Sent, TotalIsEstimate ? "~" : "", Total
+					))
 				);
 			}
 
@@ -115,11 +124,11 @@ internal class Plugin : BaseUnityPlugin
 			//TODO: We may also want to take the end of the log instead of the beginning on overruns.
 			string LogContents, ErrMsg;
 			try {
-				if((LogContents=DevStrings.UTF8Cut(FileOps.ReadFileBytes(FileOps.PathCombine(FileOps.GetPluginPath, PAtlasErrorLogName), true), MaxLogSize, LogCutStr)).Length<=0)
-					throw new("Log is empty");
+				if((LogContents=UTF8Cut(FileOps.ReadFileBytes(FileOps.PathCombine(FileOps.GetPluginPath, PAtlasErrorLogName), true), MaxLogSize, LogCutStr)).Length<=0)
+					throw new InvalidOperationException(TrT("Log is empty"));
 			} catch(Exception e) {
-				Catcher.OutputException(ErrMsg="Error reading log file", e);
-				SetPopupMessage($"{ErrMsg}: {e.Message}");
+				Catcher.OutputException(ErrMsg=TrT("Error reading log file"), e);
+				SetPopupMessage(SanitizeRichString(ErrMsg)+": "+SanitizeRichString(e.Message));
 				return;
 			}
 
@@ -130,15 +139,15 @@ internal class Plugin : BaseUnityPlugin
 				CurrentSend=new HTTPPost(ErrorLogWebAddress, ProgressCallback);
 				string? ReturnVal=await CurrentSend.Start(new() {
 					{ "ErrorLog", LogContents }, //This must be first so partial sends are not counted as full sends by php
-					{ "Username", DevStrings.SteamUsername },
+					{ "Username", SteamUsername },
 				}).ConfigureAwait(false);
 				FinalMessage=
-					  ReturnVal==null ? "Send was cancelled"
-					: (WasSuccess=(ReturnVal=="SUCCESS")) ? "Send was successful"
-					: "Error: "+ReturnVal;
+					  ReturnVal==null ? TrT("Send was cancelled")
+					: (WasSuccess=(ReturnVal=="SUCCESS")) ? TrT("Send was successful")
+					: C.Tr.T("Error: ", "")+ReturnVal;
 				SilkDev.Log.Info("ErrorLog send result: "+FinalMessage);
 			} catch(Exception e) {
-				Catcher.OutputException(ErrMsg="Error sending log file", e);
+				Catcher.OutputException(ErrMsg=TrT("Error sending log file"), e);
 				FinalMessage=$"{ErrMsg}: {e.Message}";
 			}
 
@@ -146,7 +155,7 @@ internal class Plugin : BaseUnityPlugin
 			lock(LockIsSending) {
 				AlreadyUnlocked=true;
 				IsSending=false;
-				SetPopupMessage($"<color={(WasSuccess ? "green" : "red")}>{FinalMessage}</color>");
+				SetPopupMessage($"<color={(WasSuccess ? "green" : "red")}>{SanitizeRichString(FinalMessage)}</color>");
 			}
 		}
 	}

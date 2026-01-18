@@ -63,11 +63,17 @@ public class Item
 	public Vector2 Pos => new(x, y);
 	private int UniqueLinkIndex=0;
 	private string GetLinkID => $"{ID}.{UniqueLinkIndex++}";
-	private static MapControl MC => field ??= MapControl.Self; //None of the items in this class would call this property until MapControl was already created
 //		internal Item() {} //Not yet ready for other people to make these. Would need some work.
 
 	public const int MinID=100001, MaxID=int.MaxValue;
+	private const char TrVarChar=(char)2; //Translation variable character - This is placed around any translation names in strings for quick variable fill-in
 	public static bool IDInRange(int ID) => ID is >=MinID and <=MaxID;
+	private static string TSan(string Message) => Tr.TDef(Message, "ItemFields", Message, true);
+	private static string TDef(string Message, string? Default) => Tr.TDef(Message, "ItemFields", Default!, true);
+	private static string TrVar(string Name) => TrVarChar+Name+TrVarChar;
+	private static readonly Dictionary<string, string> VarDefaults=new() { {"SEP_AND", ", "}, {"SEP_OR", "OR"}, {"FLAG_NOT", "NOT"}, {"FLAG_STARTED", "STARTED"}, {"FLAG_RECOMMENDED", "RECOMMENDED"} };
+	private static readonly Translations Tr=Config.C.Tr;
+	private static MapControl MC => field ??= MapControl.Self; //None of the items in this class would call this property until MapControl was already created
 
 	//Render the description
 	public string Description => ToString();
@@ -76,7 +82,7 @@ public class Item
 			WhereAt	?.Render("Where"		),
 			Notes	?.Render("Notes"		),
 			Effect	?.Render("Effect"		),
-			Tip		?.Render("Tip"			),
+			Tip		?.Render("Tips"			),
 			Reqs	?.Render("Requirements"	),
 			Needs	?.Render("Needs"		),
 			Rewards	?.Render("Rewards"		),
@@ -118,35 +124,59 @@ public class Item
 		}
 
 		//--------------------String rendering--------------------
-		//StaticLinkPart are created such that we can essentially do a `strings.Join(RenderParts.Select(RP => RP.StrBeforeCount+RP.SL.NumCollected)`
+		//StringCountPair are created such that we can essentially do a `strings.Join(RenderParts.Select(RP => RP.StrBeforeCount+RP.SL.NumCollected)`
 		private static readonly Regex ExtractItemCounts=new($"{ChainItem.AmountChar}\\d+{ChainItem.AmountChar}", RegexOptions.Compiled); //LinkIDs are inside a set of AmountChar characters
-		private readonly record struct StaticLinkPart(string StrBeforeCount, StaticLink? SL); //Only last item in RenderParts will have SL=null
-		private StaticLinkPart[] RenderParts=null!;
+		private static readonly Regex ReplaceLangVars=new($"{TrVarChar}\\w+{TrVarChar}", RegexOptions.Compiled);
+		private record struct StringCountPair(string StrBeforeCount, StaticLink? SL); //Only last item in RenderParts will have SL=null
+		private StringCountPair[] RenderParts=null!;
+		private string[] RenderPartsAgnostic=null!; //Original RenderParts strings before replacing language variables
 		public string RenderedString => CompileRenderString();
+		private string CurrentLang=Misc.Empty;
 		private string CompileRenderString()
 		{
-			RenderParts ??= GetRenderParts();
+			//Fill in RenderParts on language change
+			if(CurrentLang!=Config.C.Language.Value) {
+				CurrentLang=Config.C.Language.Value;
+
+				//Only need to render parts and fill in RenderPartsAgnostic once
+				if(RenderPartsAgnostic==null) {
+					RenderParts=GetRenderParts();
+					RenderPartsAgnostic=new string[RenderParts.Length];
+					foreach((int Index, StringCountPair SCP) in RenderParts.Entries)
+						RenderPartsAgnostic[Index]=SCP.StrBeforeCount;
+				}
+
+				//Translate strings from agnostic back into RenderParts
+				foreach((int Index, string AgStr) in RenderPartsAgnostic.Entries)
+					RenderParts[Index].StrBeforeCount=ReplaceLangVars.Replace(AgStr, M => TDef(M.Value[1..^1], null) ?? VarDefaults[M.Value[1..^1]]);
+			}
+
+			//Shortcut if no parts to fill in
+			if(RenderParts.Length==1)
+				return RenderParts[0].StrBeforeCount;
+
+			//Build string from RenderParts
 			string[] Parts=new string[RenderParts.Length*2-1];
-			foreach((int Index, StaticLinkPart Part) in RenderParts.Entries) {
+			foreach((int Index, StringCountPair Part) in RenderParts.Entries) {
 				Parts[Index*2]=Part.StrBeforeCount;
 				if(Part.SL!=null)
 					Parts[Index*2+1]=Part.SL.NumCollected.ToString();
 			}
 			return string.Join(Misc.Empty, Parts);
 		}
-		private StaticLinkPart[] GetRenderParts()
+		private StringCountPair[] GetRenderParts()
 		{
 			//If no list, just use the extra string
 			if(Items==null)
-				return [new(ExtraStr?.ToString() ?? Misc.Empty, null)];
+				return [new StringCountPair(ExtraStr?.ToString() ?? Misc.Empty, null)];
 
 			//Reformat the list
-			string Ret=string.Join(" <b><color=purple>OR</color></b> ", Items.Select(static ItemList =>
-				string.Join(", ", ItemList.Select(static I => I.RenderedStringInternal))
+			string Ret=string.Join($" <b><color=purple>{TrVar("SEP_OR")}</color></b> ", Items.Select(static ItemList =>
+				string.Join(TrVar("SEP_AND"), ItemList.Select(static I => I.RenderedStringInternal))
 			))+(ExtraStr==null ? null : $"; {ExtraStr}");
 
-			//Extract ExtractItemCounts sections as StaticLinkParts. Only static links are kept (items are just set as “1” since they cannot have a count)
-			var Parts=new List<StaticLinkPart>(Items.Sum(static ItemList => ItemList.Length));
+			//Extract ExtractItemCounts sections as StringCountPair. Only StaticLinks are used since items cannot have a count and are just set as “1”
+			var Parts=new List<StringCountPair>(Items.Sum(static ItemList => ItemList.Length));
 			var PendingStr=new System.Text.StringBuilder();
 			int CurPos=0;
 			foreach(Match m in ExtractItemCounts.Matches(Ret)) {
@@ -162,17 +192,17 @@ public class Item
 					continue;
 				}
 
-				//Create a new StaticLinkPart and reset for the next string part
-				Parts.Add(new StaticLinkPart(PendingStr.ToString(), MC.DS.StaticLinks[ID]));
+				//Create a new StringCountPair and reset for the next string part
+				Parts.Add(new StringCountPair(PendingStr.ToString(), MC.DS.StaticLinks[ID]));
 				_=PendingStr.Clear();
 			}
 			if(CurPos<Ret.Length)
 				_=PendingStr.Append(Ret, CurPos, Ret.Length-CurPos);
-			Parts.Add(new StaticLinkPart(PendingStr.ToString(), null));
+			Parts.Add(new StringCountPair(PendingStr.ToString(), null));
 			return [.. Parts];
 		}
 
-		public string Render(string FieldTitle) => $"<b>{DevStrings.SanitizeRichString(FieldTitle)}</b>: "+RenderedString;
+		public string Render(string FieldTitle) => $"<b>{TSan(FieldTitle)}</b>: "+RenderedString;
 	}
 
 	//A single item in a ChainList
@@ -221,10 +251,10 @@ public class Item
 		{
 			//Add flags back
 			List<string> Parts=[];
-			if(FlagNot		) Parts.Add("<i>NOT</i> "						);
-			if(FlagStarted	) Parts.Add("<i>STARTED</i> "					);
-			if(FlagRecommend) Parts.Add("<i>RECOMMENDED</i> "				);
-			if(FlagAmount!=1) Parts.Add($"{AmountChar}<b>{FlagAmount}</b>×"	);
+			if(FlagNot		) Parts.Add($"<i>{TrVar("FLAG_NOT")}</i> "			);
+			if(FlagStarted	) Parts.Add($"<i>{TrVar("FLAG_STARTED")}</i> "		);
+			if(FlagRecommend) Parts.Add($"<i>{TrVar("FLAG_RECOMMENDED")}</i> "	);
+			if(FlagAmount!=1) Parts.Add($"{AmountChar}<b>{FlagAmount}</b>×"		);
 
 			//If unlinked or linking failed do do not make it a real link
 			string ItemValue=Name, NewItemValue;
@@ -280,7 +310,7 @@ public class Item
 				);
 		}
 		public override string ToString() => RenderedString;
-		public string Render(string FieldTitle) => $"<b>{DevStrings.SanitizeRichString(FieldTitle)}</b>: "+RenderedString;
+		public string Render(string FieldTitle) => $"<b>{TSan(FieldTitle)}</b>: "+RenderedString;
 	}
 
 	public CategoryToggleState CurrentToggleState
@@ -399,10 +429,10 @@ public class Item
 		public StoreItem[] Items=Items;
 		private string FinishInternalRender() =>
 			string.Join(Misc.Empty, Items.Select(static I =>
-				"\n- "+I.Rewards.RenderedString+" for "+I.Needs.RenderedString+
-				(I.Reqs!=null ? $" (Required: {I.Reqs.RenderedString})" : Misc.Empty)
+				"\n- "+I.Rewards.RenderedString+TDef("STORE_FOR", " for ")+I.Needs.RenderedString+
+				(I.Reqs!=null ? Tr.TDef("STORE_REQ", "ItemFields", " (Required: {0})", false, I.Reqs.RenderedString) : Misc.Empty)
 			));
-		public string Render(string FieldTitle) => $"<b>{DevStrings.SanitizeRichString(FieldTitle)}</b>: "+RenderedString;
+		public string Render(string FieldTitle) => $"<b>{TSan(FieldTitle)}</b>: "+RenderedString;
 	}
 
 	//Selected via a link
@@ -478,5 +508,5 @@ public class StaticLink(string Name, int CategoryID, int[]? ItemIDs, int Special
 
 	//Selected via a link
 	public void Selected() =>
-		_=new SilkDev.Windows.PopupMessage("Category selection is not yet supported");
+		_=new SilkDev.Windows.PopupMessage(Config.C.Tr.Translate("Category selection is not yet supported", null, true));
 }

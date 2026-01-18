@@ -43,7 +43,7 @@ public class MonitorSaveValues
 		public readonly int		ID									=  ID;
 		public readonly bool	ForStarting							=  ForStarting;
 		public			string	ToKey								=> ID.ToString()+(ForStarting ? '~' : null);
-		public override string	ToString	()						=> ID.ToString()+(ForStarting ? " [STARTED]" : null);
+		public override string	ToString	()						=> ID.ToString()+(ForStarting ? $" [{Tr.TDef("FLAG_STARTED", "ItemFields", "STARTED", true)}]" : null);
 		public override int		GetHashCode	()						=> ID+(ForStarting ? AddForFlagForStarting : 0);
 		public override bool	Equals		(object Obj)			=> Obj is ItemFinderItem Other && Equals(Other);
 		public			bool	Equals		(ItemFinderItem Other)	=> ID==Other.ID && ForStarting==Other.ForStarting;
@@ -317,7 +317,7 @@ public class MonitorSaveValues
 		Task.Run(() => SaveIconValueThread(IsSendingToo));
 
 	//Thread for processing new saved value
-	private class SaveValuePopup() : PopupMessage("Initializing")
+	private class SaveValuePopup() : PopupMessage(Tr.T("Initializing", "ErrorLog", true))
 	{
 		public bool IsProcessing=true;
 		protected override string PressAnyKeyString => IsProcessing ? $"<color=red><size=20>{TSan("Waiting for process to finish")}</size></color>" : base.PressAnyKeyString;

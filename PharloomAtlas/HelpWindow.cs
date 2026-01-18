@@ -93,10 +93,18 @@ public partial class SideBar
 		}
 
 		/*!=double height, ~=double width.
-		Translation strings can start with 1-9 to dictate their vertical and horizontal alignment scheme. 1=upper left, 9=lower right. Default is 5 (middle center).
-		Translation strings can also have at the beginning (following the optional alignment scheme) a section in the format “!#!#!#” where # is a 1-2 digit number.
-			The sections dictate in sequential order: Font size, line height/spacing, and (optional) margin-top.
-			When using this format, the strings are always drawn from the top and ignore the style’s vertical alignment. */
+		The following uses translation strings to populate Assets/Embed/KeyMappings.png. All strings support rich text.
+		They may begin with an optional prefix that controls layout and rendering behavior. The prefix consists of ordered flags, all optional unless noted.
+		Prefix Order (must be preserved): [Alignment][!FontSize][!LineHeight][!MarginTop]
+		“#” denotes a 1–2 digit number. See ja.tr.json as an example.
+			1) [“Button_” only]			Number 1-9	: String alignment.	1=Upper left; 5=Middle center (default); 9=Lower right
+			2)							!#			: Font Size.		If omitted, inherits the previous line’s font size. First line=GUI.skin.label.fontSize.
+			3) [Required if 2) exists]	!#			: Line height.		If given, uses special rendering (see below). Otherwise, the string renders normally.
+			4)							!#			: Margin top.		Additional top margin in pixels. Default=0
+		Special rendering (if FontSize+LineHeight is specified):
+			The string is always rendered from the top and ignores the style’s vertical alignment.
+			Line breaks are calculated manually and each line is rendered individually with +LineHeight applied.
+		*/
 		private static readonly string?[] NumPadButtons=[
 			null, "/" , "*", "-",
 			"7"	, "8" , "9", "!+",
