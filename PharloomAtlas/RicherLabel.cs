@@ -16,7 +16,7 @@ public class RicherLabel() : LinkedLabel, IDisposable
 	{
 		foreach(Link L in ActiveLinks)
 			if(
-				   int.TryParse(L.Attributes.Get("ItemID") ?? Misc.Empty, out int LID)
+				   int.TryParse(L.Attributes.Get("ItemID"), out int LID)
 				&& MapControl.Self.DS.Items.TryGetValue(LID, out Item I)
 				&& (I.IsFound || I.IsStarted)
 			)

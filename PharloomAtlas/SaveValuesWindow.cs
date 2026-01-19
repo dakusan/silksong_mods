@@ -109,7 +109,7 @@ public class SaveValuesWindow : Window
 		//Main label section
 		TextStyle.padding.top=(int)((ScrollPosition-IntScrollPos)*-LineHeight);
 		GUILayout.Label(
-			string.Join(Misc.NewLine, SavedItems.AsEnumerable().Reverse().Skip(IntScrollPos).Take(NumLines+1)),
+			string.Join(DevStrings.NewLine, SavedItems.AsEnumerable().Reverse().Skip(IntScrollPos).Take(NumLines+1)),
 			TextStyle, GUILayout.ExpandWidth(true), GUILayout.Height(MainSectionHeight), GUILayout.MaxHeight(MainSectionHeight)
 		);
 		Rect MainLabelRect=GUILayoutUtility.GetLastRect();
@@ -196,7 +196,7 @@ public class SaveValuesWindow : Window
 	}
 
 	public void MoveToTopItem() => ScrollPosition=SelectedLine=0; //Move to the top of the list
-	public string AllAsString => string.Join(Misc.NewLine, SavedItems); //Return a copy of all the values in the window
+	public string AllAsString => string.Join(DevStrings.NewLine, SavedItems); //Return a copy of all the values in the window
 	protected override void CloseButton() => Visible=false;
 	protected override void OnGameLoaded(int _) => MonitorSaveValues.Self.UpdateAllUsedValuesOnLoad();
 }

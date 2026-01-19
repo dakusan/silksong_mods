@@ -16,7 +16,7 @@ public enum CategoryToggleState
 //Category groups (title and list of categories)
 public class CategoryGroup : Dictionary<int, Category>
 {
-	public string Title=Misc.Empty;
+	public string Title=string.Empty;
 	public int Order { get; internal set; }
 	public Category[] AsOrdered { get
 	{
@@ -37,7 +37,7 @@ public class Category
 	public int ID			{ get; internal set; }
 	public int TotalCount	{ get; internal set; }
 	public int CurrentCount { get; internal set; } = 0;
-	public string Title=Misc.Empty;
+	public string Title=string.Empty;
 	public Sprite Sprite	{ get; internal set; } = null!;
 	public CategoryToggleState ToggleState=CategoryToggleState.Unknown;
 //		internal Category() {} //Not yet ready for other people to make these. Would need some work.
@@ -53,7 +53,7 @@ public class Item
 	public int CategoryID	{ get; internal set; } //Locking down CategoryID to make sure only registered categories are used
 	public Sprite Sprite	{ get; internal set; } = null!;
 	public int IconID=-1;
-	public string Title=Misc.Empty;
+	public string Title=string.Empty;
 	public RenderedField? WhereAt, Notes, Effect, Tip;
 	public ChainList? Reqs, Needs, Rewards;
 	public string? IgnPageName;
@@ -78,7 +78,7 @@ public class Item
 	//Render the description
 	public string Description => ToString();
 	public override string ToString() =>
-		string.Join(Misc.NewLine, (new string?[] {
+		string.Join(DevStrings.NewLine, ((string?[])[
 			WhereAt	?.Render("Where"		),
 			Notes	?.Render("Notes"		),
 			Effect	?.Render("Effect"		),
@@ -87,7 +87,7 @@ public class Item
 			Needs	?.Render("Needs"		),
 			Rewards	?.Render("Rewards"		),
 			Store	?.Render("Store"		),
-		}).Where(static V => V!=null));
+		]).Where(static V => V!=null));
 
 	//Get the title from the item ID (cannot be ran until after all Items are loaded, which is why below objects have delayed string rendering)
 	private static string? GetItemTitleFromID(string ID) =>
@@ -115,7 +115,7 @@ public class Item
 			}
 
 			//Parse the list
-			if(ItemList!=Misc.Empty)
+			if(ItemList!=string.Empty)
 				Items=[..ItemList.Split('|').Select((OrStr, GroupIndex) =>
 					OrStr.Split('`').Select((ItemStr, ItemIndex) =>
 						new ChainItem(this, ItemStr, GroupIndex, ItemIndex)
@@ -131,7 +131,7 @@ public class Item
 		private StringCountPair[] RenderParts=null!;
 		private string[] RenderPartsAgnostic=null!; //Original RenderParts strings before replacing language variables
 		public string RenderedString => CompileRenderString();
-		private string CurrentLang=Misc.Empty;
+		private string CurrentLang=null!;
 		private string CompileRenderString()
 		{
 			//Fill in RenderParts on language change
@@ -162,13 +162,13 @@ public class Item
 				if(Part.SL!=null)
 					Parts[Index*2+1]=Part.SL.NumCollected.ToString();
 			}
-			return string.Join(Misc.Empty, Parts);
+			return string.Join(null, Parts);
 		}
 		private StringCountPair[] GetRenderParts()
 		{
 			//If no list, just use the extra string
 			if(Items==null)
-				return [new StringCountPair(ExtraStr?.ToString() ?? Misc.Empty, null)];
+				return [new StringCountPair(ExtraStr?.ToString() ?? string.Empty, null)];
 
 			//Reformat the list
 			string Ret=string.Join($" <b><color=purple>{TrVar("SEP_OR")}</color></b> ", Items.Select(static ItemList =>
@@ -260,7 +260,7 @@ public class Item
 			string ItemValue=Name, NewItemValue;
 			if(FlagUnlinked || (NewItemValue=GetItemTitleFromID(ItemValue)!)==null) {
 				Name=ItemValue;
-				return "<u>"+string.Join(Misc.Empty, [.. Parts, ItemValue]).Replace(AmountChar, Misc.Empty)+"</u>";
+				return "<u>"+string.Join(null, [.. Parts, ItemValue]).Replace(AmountChar, null)+"</u>";
 			}
 
 			//Prepare variables for rendered string
@@ -273,13 +273,13 @@ public class Item
 				: null;
 
 			//Render as a linked item
-			return string.Join(Misc.Empty, [
+			return string.Join(null, [
 				$"<LinkID={Parent.Parent.GetLinkID}>",
 //				MakeAttr("GroupID",		GroupID		),
 //				MakeAttr("GroupIndex",	GroupIndex	),
 				MakeAttr("ItemID",		LinkID		),
 				ExtraColor!=null ? MakeAttr("NormalColor", ExtraColor) : null,
-				"<u>"+string.Join(Misc.Empty, [.. Parts, NewItemValue]).Replace(AmountChar, $"<b>{AmountChar}</b>/")+"</u>",
+				"<u>"+string.Join(null, [.. Parts, NewItemValue]).Replace(AmountChar, $"<b>{AmountChar}</b>/")+"</u>",
 				"</LinkID>",
 			]);
 		}
@@ -428,9 +428,9 @@ public class Item
 		public string RenderedString => FinishInternalRender(); //Cannot be cached due to changing item collection counts
 		public StoreItem[] Items=Items;
 		private string FinishInternalRender() =>
-			string.Join(Misc.Empty, Items.Select(static I =>
+			string.Join(null, Items.Select(static I =>
 				"\n- "+I.Rewards.RenderedString+TDef("STORE_FOR", " for ")+I.Needs.RenderedString+
-				(I.Reqs!=null ? Tr.TDef("STORE_REQ", "ItemFields", " (Required: {0})", false, I.Reqs.RenderedString) : Misc.Empty)
+				(I.Reqs!=null ? Tr.TDef("STORE_REQ", "ItemFields", " (Required: {0})", false, I.Reqs.RenderedString) : null)
 			));
 		public string Render(string FieldTitle) => $"<b>{TSan(FieldTitle)}</b>: "+RenderedString;
 	}

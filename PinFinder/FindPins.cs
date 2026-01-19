@@ -69,14 +69,14 @@ public static class FindPins
 		PersistentBoolItem PBI=Obj.GetComponent<PersistentBoolItem>();
 		if(PBI!=null) {
 			var Data=new Reflectors.RField<PersistentBoolItem, PersistentItemData<bool>>(PBI, "itemData").Get();
-			return Data.ID is null or Misc.Empty ? null : new FoundObj(Data.SceneName, Data.ID, Data.Value, Obj.transform.position, FoundObj.FOType.PermBool); //{obj.scene.name}.{obj.name}
+			return string.IsNullOrEmpty(Data.ID) ? null : new FoundObj(Data.SceneName, Data.ID, Data.Value, Obj.transform.position, FoundObj.FOType.PermBool); //{obj.scene.name}.{obj.name}
 		}
 
 		//Test for PersistentIntItem
 		PersistentIntItem PII=Obj.GetComponent<PersistentIntItem>();
 		if(PII!=null) {
 			var Data=new Reflectors.RField<PersistentIntItem, PersistentItemData<int>>(PII, "itemData").Get();
-			return Data.ID is null or Misc.Empty ? null : new FoundObj(Data.SceneName, Data.ID, Data.Value, Obj.transform.position, FoundObj.FOType.PermInt); //{obj.scene.name}.{obj.name}
+			return string.IsNullOrEmpty(Data.ID) ? null : new FoundObj(Data.SceneName, Data.ID, Data.Value, Obj.transform.position, FoundObj.FOType.PermInt); //{obj.scene.name}.{obj.name}
 		}
 
 		//Test for RestBench
@@ -185,7 +185,7 @@ public static class FindPins
 
 		//Handle the progress bar
 		int PB_TotalFiles=1, PB_CurrentFile=0, PB_FoundItems=0, PB_RunTime=0;
-		string PB_FileName=Misc.Empty;
+		string PB_FileName=null!;
 		PBWL?.Close();
 		PBWL=new ProgressBarWithLogs();
 		Action PB_Update=() => {
@@ -296,7 +296,7 @@ public static class FindPins
 		//Skip the menu
 		string FileName=Path.GetFileName(SceneFile);
 		if(Array.Exists(
-			Config.C.SkipScenes.V.Split(Misc.NewLine).Select(static s => s.Trim()).ToArray(),
+			Config.C.SkipScenes.V.Split(DevStrings.NewLine).Select(static s => s.Trim()).ToArray(),
 			s => s==FileName
 		)) {
 			Log.Info($"Skipping (skip list): {FileName}");
@@ -340,7 +340,7 @@ public static class FindPins
 
 		//Find the persistent objects in the scene, transform them into map coordinates, and convert their data to a more readable form
 		try {
-			string[] SkipKeywordsList=[.. Config.C.SkipKeywords.V.Split(Misc.NewLine).Select(static s => s.Trim())];
+			string[] SkipKeywordsList=[.. Config.C.SkipKeywords.V.Split(DevStrings.NewLine).Select(static s => s.Trim())];
 			List<FoundObj> SceneItems=FindPersistentObjectsInScene(TheScene);
 			GetScenePinData GSPD=new(TheScene.name);
 			List<string> NewStrings=new(SceneItems.Count);
@@ -352,7 +352,7 @@ public static class FindPins
 				RetObjects.Add(CurItem);
 				NewStrings.Add($"[{CurItem.Type}]{CurItem.SceneName}.{CurItem.ObjName}={CurItem.Value} [{MapPos.x}, {MapPos.y}]");
 			}
-			Log.Info("Scene items:"+(NewStrings.Count!=0 ? Misc.NewLine+string.Join(Misc.NewLine, NewStrings) : " NONE FOUND"));
+			Log.Info("Scene items:"+(NewStrings.Count!=0 ? DevStrings.NewLine+string.Join(DevStrings.NewLine, NewStrings) : " NONE FOUND"));
 
 			//Operations that only need to happen when we are full processing
 			if(IsFullProcessing)

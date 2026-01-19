@@ -22,7 +22,7 @@ public partial class SideBar
 	{
 		private static int NumOpen=0;
 		private static SafeTexture2D? ControllerLayout;
-		private static string FullMessage=Misc.Empty;
+		private static string FullMessage=string.Empty;
 		private const string ControllerFileName="KeyMappings.png";
 		private const string HelpTextFile="Help.txt";
 		private const string HelpTextTranslateKey="HelpText";
@@ -35,7 +35,7 @@ public partial class SideBar
 
 		private const int TitleFontSize=45, SubTitleFontSize=30;
 
-		private static string GetQuotedConf => $"{Tr!.T("“", RichSanitize:true)}<i>$1</i>{Tr.T("”", RichSanitize:true)}";
+		private static string GetQuotedConf => $"{Tr!.T("“", SafeRich:true)}<i>$1</i>{Tr.T("”", SafeRich:true)}";
 		private static readonly (Regex, Func<(bool, string)>)[] Tags=[
 			(new Regex(@"<title>(.*)</title>"				), () => (false, $"<size=@{TitleFontSize}><u>$1</u></size>")),
 			(new Regex(@"<subtitle>(.*)</subtitle>"			), () => (false, $"<color=#999999><size={SubTitleFontSize}><u>$1</u></size></color>")),
@@ -85,7 +85,7 @@ public partial class SideBar
 				ControllerLayout=null;
 				string ErrMsg="Couldn’t load controller layout image: {0}";
 				Log.Error(string.Format(ErrMsg, e.Message));
-				Message=$"{Misc.NewLine}<color=red><size=30>{TSan(ErrMsg, e.Message)}</size></color>{Misc.NewLine}{Misc.NewLine}{Message}";
+				Message=$"{DevStrings.NewLine}<color=red><size=30>{TSan(ErrMsg, e.Message)}</size></color>{DevStrings.NewLine}{DevStrings.NewLine}{Message}";
 			}
 
 			//Store the full message for duplicate windows
@@ -139,8 +139,8 @@ public partial class SideBar
 						continue;
 
 					//Get the translation string
-					string TString=Tr.TDef("Button_"+(NPName[0] is '~' or '!' ? NPName[1..] : NPName), nameof(HelpWindow), Misc.Empty);
-					if(TString==Misc.Empty)
+					string? TString=Tr.TranslateNull("Button_"+(NPName[0] is '~' or '!' ? NPName[1..] : NPName), nameof(HelpWindow));
+					if(TString==null)
 						continue;
 
 					//Change the alignment if requested for the translation string
@@ -206,11 +206,11 @@ public partial class SideBar
 			//Get the custom spacing values
 			int FontSize=int.Parse(FontSizeMatch.Groups[1].Value);
 			int LineHeight=int.Parse(FontSizeMatch.Groups[2].Value);
-			int MarginTop=FontSizeMatch.Groups[3].Value==Misc.Empty ? 0 : int.Parse(FontSizeMatch.Groups[3].Value);
+			int MarginTop=FontSizeMatch.Groups[3].Value==string.Empty ? 0 : int.Parse(FontSizeMatch.Groups[3].Value);
 
 			//Get the lines by adding 1 character (or size block) at a time until a line overflows
 			System.Collections.Generic.List<string> Lines=[];
-			string CurrentLine=Misc.Empty, CurBlock, TestStr=Misc.Empty;
+			string CurrentLine=string.Empty, CurBlock, TestStr=string.Empty;
 			Match SizeBlock;
 			bool Overflow=false;
 			Style.fontSize=FontSize;
@@ -218,7 +218,11 @@ public partial class SideBar
 				CurBlock=(Str[i]=='<' && (SizeBlock=GetSizeBlock.Match(Str[i..])).Success ? SizeBlock.Value : Str[i].ToString());
 				if(CurBlock=="\n" || (Overflow=Style.CalcSize(new GUIContent(TestStr=CurrentLine+CurBlock)).x>Rect.width && CurrentLine.Length>0))
 					Lines.Add(CurrentLine);
-				CurrentLine=(CurBlock=="\n" ? Misc.Empty : Overflow ? CurBlock : TestStr);
+				CurrentLine=(
+					  CurBlock=="\n" ? string.Empty
+					: Overflow ? CurBlock
+					: TestStr
+				);
 			}
 			if(CurrentLine.Length>0)
 				Lines.Add(CurrentLine);

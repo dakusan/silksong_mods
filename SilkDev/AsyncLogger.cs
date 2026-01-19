@@ -212,11 +212,11 @@ public class AsyncLogger : ILoggerLog
 	}
 	private void LogDupLine(string LogLine, string Message)
 	{
-		Queue.Enqueue(LogLine+Misc.NewLine+"***"+Message+"***");
+		Queue.Enqueue(LogLine+DevStrings.NewLine+"***"+Message+"***");
 		SignalActionReady();
 	}
 	private void LogSupressedLine(string LogLine, DateTime CurTime, DuplicateState State, bool PlusOne) =>
-		LogDupLine(LogLine, $"This message was paused for {(CurTime-State.PauseStart).TotalSeconds:0.00} seconds and was repeated {State.DuplicateCount}{(PlusOne ? "+1" : Misc.Empty)} times");
+		LogDupLine(LogLine, $"This message was paused for {(CurTime-State.PauseStart).TotalSeconds:0.00} seconds and was repeated {State.DuplicateCount}{(PlusOne ? "+1" : null)} times");
 
 	//Call HandleDuplicateTimeouts every second
 	private async Task DuplicateMonitorAsync()

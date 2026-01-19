@@ -50,6 +50,8 @@ public partial class SideBar
 			this.ClientWidth=ClientWidth-InfoSectionHorPadding*2;
 			if(LastSelectedItem!=MapControl.Self.SelectedItem || (MapControl.Self.SelectedItem!=null && CLabel==null))
 				NewItemSelected(MapControl.Self.SelectedItem);
+			else if(CachedLabelDescription!=null && LastCachedLanguage!=Config.C.Language.Value) //Update label on language change
+				CachedLabelDescription=null;
 			if(MapControl.Self.SelectedItem!=null)
 				RenderSelectedItem(MapControl.Self.SelectedItem);
 
@@ -63,6 +65,7 @@ public partial class SideBar
 		private RicherLabel? CLabel;
 		private Item? LastSelectedItem;
 		private string? CachedLabelDescription;
+		private string LastCachedLanguage=null!;
 		public ItemInfoSection(string Name, SideBar SB) : base(Name, SB)
 		{
 			Config.C.Color_Link.SettingChanged += (_, _) => CLabel?.LinkColor=Config.C.Color_Link;
@@ -106,11 +109,13 @@ public partial class SideBar
 
 			//Get list of text and images
 			List<SafeTexture2D> Images=[];
+			if(CachedLabelDescription==null)
+				LastCachedLanguage=Config.C.Language.Value;
 			List<string> Lines=[
 				MakeItemInfoLine("Title", CurSelectedItem.Title),
 				MakeItemInfoLine("Category", MapControl.Self.DS.Categories[CurSelectedItem.CategoryID].Title),
 				CachedLabelDescription ??= CurSelectedItem.Description,
-				CurSelectedItem.IgnPageName==null ? Misc.Empty : MakeItemInfoLine("IGN Page", "https://www.ign.com/wikis/hollow-knight-silksong/"+CurSelectedItem.IgnPageName),
+				CurSelectedItem.IgnPageName==null ? null : MakeItemInfoLine("IGN Page", "https://www.ign.com/wikis/hollow-knight-silksong/"+CurSelectedItem.IgnPageName),
 			];
 			if(Config.C.ShowSideBarPictures)
 				CurSelectedItem.ImageURLs?.ForEach(ImageURL => {
@@ -123,7 +128,7 @@ public partial class SideBar
 
 			//Render text
 			_=CLabel!.Draw(
-				string.Join(Misc.NewLine, Lines.Where(static I => I!=Misc.Empty)),
+				string.Join(DevStrings.NewLine, Lines.Where(static I => !string.IsNullOrEmpty(I))),
 				ItemInfoBoxStyle,
 				IsSectionSelected ? SelectedItem : -1
 			);
@@ -268,7 +273,7 @@ public partial class SideBar
 
 		//Translations
 		private static string MakeItemInfoLine(string Title, string Info) =>
-			$"<size=-1>{Tr.T(Title, "ItemFields", true)}</size>: <b>{DevStrings.SanitizeRichString(Info)}</b>";
+			$"<size=-1>{Tr.T(Title, "ItemFields", true)}</size>: <b>{DevStrings.SafeRich(Info)}</b>";
 		private static string TSan(string Message) => Tr.T(Message, nameof(ItemInfoSection), true);
 		private static readonly Translations Tr=Config.C.Tr;
 

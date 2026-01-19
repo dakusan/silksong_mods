@@ -24,7 +24,7 @@ public class FieldPropConverter<MyClass> : JsonConverter<MyClass> where MyClass 
 		public object? ConvertValue(JToken? Val) =>
 			MyValueType switch {
 				ValueType.Int			=> Val?.ToObject<int>()		?? 0,
-				ValueType.String		=> Val?.ToObject<string>()	?? Misc.Empty,
+				ValueType.String		=> Val?.ToObject<string>()	?? string.Empty,
 				ValueType.Float			=> Val?.ToObject<float>()	?? 0f,
 				ValueType.StringArray	=> Val?.ToObject<string[]>()?? null,
 				_						=> Val?.ToObject(T)

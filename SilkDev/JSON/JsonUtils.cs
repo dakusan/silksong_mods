@@ -25,7 +25,7 @@ public static class JsonUtils
 		using JsonTextWriter JTW							=new(SW);
 		if(!Compact)		 JTW.Formatting					=Formatting.Indented;
 		if(TabIndent)		(JTW.IndentChar,JTW.Indentation)=('\t', 1);
-		if(UnixNewLine)		 SW.NewLine						=Misc.NewLine.ToString();
+		if(UnixNewLine)		 SW.NewLine						=DevStrings.NewLine.ToString();
 		if(Sorted)			 Converters.Add					(new SortedConverter(true));
 
 		JsonSerializer.CreateDefault(

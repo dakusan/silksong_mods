@@ -88,7 +88,7 @@ public static class Catcher
 		Log.Error(GetOutputException(Message, e));
 	public static string GetOutputException(string Message, Exception e) =>
 		$"{Message}: {e.Message}"+
-		(!OutputStack ? Misc.Empty : Misc.NewLine+e.StackTrace.ToString());
+		(!OutputStack ? null : DevStrings.NewLine+e.StackTrace.ToString());
 
 	//Outputs stack trace (if turned on in config) for exceptions
 	public static void Run(Func<string> ActionName, Action A) => Run(ActionName(), A);

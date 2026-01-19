@@ -102,9 +102,9 @@ internal class Plugin : BaseUnityPlugin
 			});
 
 			//Handle popup message
-			string BaseText=TSan("Sending Error Log")+Misc.NewLine+Misc.NewLine;
+			string BaseText=TSan("Sending Error Log")+NewLine+NewLine;
 			HTTPPost CurrentSend=null!;
-			PopupWithCancel StatusPopup=new(Misc.Empty, () => CurrentSend?.Cancel());
+			PopupWithCancel StatusPopup=new(string.Empty, () => CurrentSend?.Cancel());
 			SetPopupMessage(TSan("Initializing"));
 			void SetPopupMessage(string Message) => StatusPopup!.Message=BaseText+Message;
 			void ProgressCallback(long Sent, long Total, bool TotalIsEstimate)
@@ -128,7 +128,7 @@ internal class Plugin : BaseUnityPlugin
 					throw new InvalidOperationException(TrT("Log is empty"));
 			} catch(Exception e) {
 				Catcher.OutputException(ErrMsg=TrT("Error reading log file"), e);
-				SetPopupMessage(SanitizeRichString(ErrMsg)+": "+SanitizeRichString(e.Message));
+				SetPopupMessage(SafeRich(ErrMsg)+": "+SafeRich(e.Message));
 				return;
 			}
 
@@ -155,7 +155,7 @@ internal class Plugin : BaseUnityPlugin
 			lock(LockIsSending) {
 				AlreadyUnlocked=true;
 				IsSending=false;
-				SetPopupMessage($"<color={(WasSuccess ? "green" : "red")}>{SanitizeRichString(FinalMessage)}</color>");
+				SetPopupMessage($"<color={(WasSuccess ? "green" : "red")}>{SafeRich(FinalMessage)}</color>");
 			}
 		}
 	}

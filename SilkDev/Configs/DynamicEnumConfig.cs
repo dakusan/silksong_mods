@@ -18,9 +18,9 @@ public class DynamicEnumConfig
 	public bool HasKey(string Key) => Keys.Contains(Key);
 
 	//Initialize from different config file types
-	public DynamicEnumConfig(ConfigFile			CF, string SectionName, string KeyName, Dictionary<string, string> Options, string Description=Misc.Empty, string? Default=null) =>
+	public DynamicEnumConfig(ConfigFile			CF, string SectionName, string KeyName, Dictionary<string, string> Options, string Description=DevStrings.Empty, string? Default=null) =>
 		(MyDynamicEntry, Keys)=CreateConfig(CF, SectionName, KeyName, Description, Default, Options);
-	public DynamicEnumConfig(TranslatedConfig	CF, string SectionName, string KeyName, Dictionary<string, string> Options, string Description=Misc.Empty, string? Default=null) =>
+	public DynamicEnumConfig(TranslatedConfig	CF, string SectionName, string KeyName, Dictionary<string, string> Options, string Description=DevStrings.Empty, string? Default=null) =>
 		(MyDynamicEntry, Keys)=CreateConfig(CF, SectionName, KeyName, Description, Default, Options);
 
 	//The real initialization
@@ -37,7 +37,7 @@ public class DynamicEnumConfig
 		List<string> MyKeys=[.. Options.Select(static KVP => KVP.Key)];
 		object EntryObj=BindMethod.Invoke(CF, [
 			new ConfigDefinition(SectionName, KeyName),
-			Enum.ToObject(DynamicEnumType, MyKeys.IndexOf(Default ?? Misc.Empty) is int i && i!=-1 ? i : 0),
+			Enum.ToObject(DynamicEnumType, MyKeys.IndexOf(Default ?? string.Empty) is int i && i!=-1 ? i : 0),
 			new ConfigDescription(Description)
 		]);
 

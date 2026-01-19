@@ -35,7 +35,7 @@ public class TranslatedConfig(ConfigFile CF, Translations? Tr=null)
 	public ConfigEntry<T> Bind<T>(string SectionName, string Key, T DefaultValue, string Description) =>
 		InternalBind(SectionName, Key, DefaultValue, new ConfigDescription(Description));
 	public ConfigEntry<T> Bind<T>(string SectionName, string Key, T DefaultValue, string? Description, ConfigurationManagerAttributes Attr) => //Extra overload
-		InternalBind(SectionName, Key, DefaultValue, new ConfigDescription(Description ?? Misc.Empty, null, Attr));
+		InternalBind(SectionName, Key, DefaultValue, new ConfigDescription(Description ?? string.Empty, null, Attr));
 
 	private ConfigEntry<T> InternalBind<T>(string SectionName, string Key, T DefaultValue, ConfigDescription? ConfigDescription)
 	{
@@ -46,11 +46,11 @@ public class TranslatedConfig(ConfigFile CF, Translations? Tr=null)
 		ConfigSections[SectionName]=(SectionID, ++CurrentItemID);
 
 		//Make sure ConfigDescription exists and has a ConfigurationManagerAttributes
-		static string FixEmpty(string Str) => FixBlankDescriptions && Str==Misc.Empty ? "\u00A0" : Str;
+		static string FixEmpty(string? Str) => FixBlankDescriptions && string.IsNullOrEmpty(Str) ? "\u00A0" : Str!;
 		ConfigurationManagerAttributes CMA=ConfigDescription?.Tags?.OfType<ConfigurationManagerAttributes>().FirstOrDefault()!;
 		if(CMA==null)
 			ConfigDescription=new ConfigDescription(
-				FixEmpty(ConfigDescription?.Description ?? Misc.Empty),
+				FixEmpty(ConfigDescription?.Description),
 				ConfigDescription?.AcceptableValues,
 				[.. ConfigDescription?.Tags ?? [], CMA=new ConfigurationManagerAttributes()]
 			);
@@ -112,13 +112,13 @@ public class TranslatedConfig(ConfigFile CF, Translations? Tr=null)
 	//Update the displayed language
 	private void LanguageChanged(string? NewLanguage)
 	{
-		Tr.Language=NewLanguage ?? Misc.Empty;
+		Tr.Language=NewLanguage ?? string.Empty;
 
 		//Create the section titles
 		Dictionary<string, string> SectionTitles=new(ConfigSections.Count);
 		int SectionsStrLen=ConfigSections.Count.ToString().Length;
 		foreach(var (SectionName, SectionInfo) in ConfigSections)
-			SectionTitles[SectionName]=string.Join(Misc.Empty, [
+			SectionTitles[SectionName]=string.Join(null, [
 				SectionInfo.SectionID.ToString().PadLeft(SectionsStrLen, ZeroWidthSpace), ". ",
 				Tr.T(SectionName, SettingTranslationSections.Sections.TranslationName()),
 			]);

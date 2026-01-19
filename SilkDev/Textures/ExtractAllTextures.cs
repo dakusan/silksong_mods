@@ -83,11 +83,11 @@ internal class ExtractAllTextures : ProgressBarWithLogs
 		Tr.AddFormatParameters(SuccessMessage, null, IsClosed ? [Cur, Total] : [Total]);
 		Tr.AddFormatParameters(NumbersOutput, null, NumWritten, NumAlreadyExisted, NumFailed);
 		Log.Info($"{Tr.GetDefault(SuccessMessage)}: {Tr.GetDefault(NumbersOutput)}");
-		static string TSan(string Message) => Tr.T(Message, RichSanitize:true);
+		static string TSan(string Message) => Tr.T(Message, SafeRich:true);
 		if(IsClosed)
 			_=new PopupMessage($"<b>{TSan(SuccessMessage)}</b>\n{TSan(NumbersOutput)}");
 		else
-			(MessageText, DoNotSanitizeMessage)=($"<color=red>[{TSan("Press any key to close")}]</color> {TSan(NumbersOutput)}", true);
+			(MessageText, DoNotMakeMessageSafe)=($"<color=red>[{TSan("Press any key to close")}]</color> {TSan(NumbersOutput)}", true);
 		CurrentlyRunning=false;
 	}
 
@@ -132,7 +132,7 @@ internal class ExtractAllTextures : ProgressBarWithLogs
 			PNGBytes=TempTex.Target.EncodeToPNG();
 
 			//Get the filename
-			string FileMD5=BitConverter.ToString(PngMd5.ComputeHash(PNGBytes)).Replace("-", Misc.Empty).ToLowerInvariant();
+			string FileMD5=BitConverter.ToString(PngMd5.ComputeHash(PNGBytes)).Replace("-", null).ToLowerInvariant();
 			NewFileName=FileOps.PathCombine(DirName, CurName=$"{TexName}-{FileMD5}.png");
 		} catch(Exception e) {
 			LastError=e;

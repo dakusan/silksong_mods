@@ -38,7 +38,7 @@ public class ResizeDragControl(Func<float, float, Rect> GetResizeRect, Func<floa
 	{
 		//Draw the resizer
 		Rect ResizeHandle=GetResizeRect(WindowRect.width, WindowRect.height);
-		GUI.Box(ResizeHandle, Misc.Empty, GUI.skin.box);
+		GUI.Box(ResizeHandle, string.Empty, GUI.skin.box);
 
 		//Handle resize drag
 		switch(ResizeDrag.UpdateState(ResizeHandle)) {

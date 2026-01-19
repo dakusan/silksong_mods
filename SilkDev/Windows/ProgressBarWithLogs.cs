@@ -3,6 +3,7 @@ using SilkDev.Textures;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static SilkDev.DevStrings;
 
 namespace SilkDev.Windows;
 
@@ -18,7 +19,7 @@ public class ProgressBarWithLogs() : Window(nameof(ProgressBarWithLogs), null, 1
 
 	//Members
 	private readonly Queue<string> LogLines=new(), ErrorLines=new();
-	public  string PercentText=Misc.Empty, MessageText=Misc.Empty;
+	public  string PercentText=string.Empty, MessageText=string.Empty;
 	public  int NumLogLines		{ get; set => KeepBarHeight(() => { field=Mathf.Max(value, 1); while(LogLines  .Count>field) _=LogLines  .Dequeue(); }); } = 5;
 	public  int NumErrorLines	{ get; set => KeepBarHeight(() => { field=Mathf.Max(value, 1); while(ErrorLines.Count>field) _=ErrorLines.Dequeue(); }); } = 5;
 	public  float PercentAmount { get; set => field=Mathf.Clamp(value, 0, 1); }
@@ -30,7 +31,7 @@ public class ProgressBarWithLogs() : Window(nameof(ProgressBarWithLogs), null, 1
 	}
 	public int HeightWithoutBar => Margin*4+(int)((NumLogLines+ErrorLines.Count+1)*LineHeight/1.2f);
 	public Action? OnClose=null;
-	public bool DoNotSanitizeMessage=false;
+	public bool DoNotMakeMessageSafe=false;
 
 	protected override void OnInit()
 	{
@@ -60,10 +61,10 @@ public class ProgressBarWithLogs() : Window(nameof(ProgressBarWithLogs), null, 1
 		Color.grey.DrawRect(MessageTextRect); //Progress bar progress
 
 		//Draw the text
-		string NewMessageText=string.Join(Misc.Empty, [
-			$"<color=green>{(DoNotSanitizeMessage ? MessageText : DevStrings.SanitizeRichString(MessageText))}</color>{Misc.NewLine}",
-			ErrorLines.Count==0 ? Misc.Empty : "<color=red>"+DevStrings.SanitizeRichString(string.Join(Misc.NewLine, ErrorLines))+$"</color>{Misc.NewLine}",
-			DevStrings.SanitizeRichString(string.Join(Misc.NewLine, LogLines)),
+		string NewMessageText=string.Join(null, [
+			$"<color=green>{(DoNotMakeMessageSafe ? MessageText : SafeRich(MessageText))}</color>{NewLine}",
+			ErrorLines.Count==0 ? null : "<color=red>"+SafeRich(string.Join(NewLine, ErrorLines))+$"</color>{NewLine}",
+			SafeRich(string.Join(NewLine, LogLines)),
 		]);
 		PercentTextStyle.fontSize=Mathf.CeilToInt(DefaultPercentFontSize-(DefaultBarHeight-BarHeight)/1.5f);
 		CalculateFontSize(PercentText, PercentTextStyle, PBRect.width);

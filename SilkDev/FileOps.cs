@@ -12,7 +12,7 @@ public static class FileOps
 	public static void		WriteFile		(string FileName, string Data		) => File.WriteAllText			(FileName, Data);
 	public static Task		WriteFileAsync	(string FileName, byte[] Data		) => File.WriteAllBytesAsync	(FileName, Data);
 	public static Task		WriteFileAsync	(string FileName, string Data		) => File.WriteAllTextAsync		(FileName, Data);
-	public static void		AppendFile		(string Path, string Data			) => File.AppendAllText			(Path, Misc.NewLine+Data);
+	public static void		AppendFile		(string Path, string Data			) => File.AppendAllText			(Path, DevStrings.NewLine+Data);
 	public static string	ReadFile		(string FileName					) => File.ReadAllText			(FileName);
 	public static byte[]	ReadFileBytes	(string FileName, bool Shared=false	) => ReadAllBytes				(FileName, Shared);
 	public static string	PathCombine		(string P1, string P2				) => Path.Combine				(P1, P2);

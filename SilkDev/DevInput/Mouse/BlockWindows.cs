@@ -18,10 +18,10 @@ internal class BlockWindows_UniverseLib(string Title, string CanvasRootName, Con
 			return false;
 
 		Transform? PanelHolder=GameObject.Find("UniverseLibCanvas")?.transform;
-		foreach(string Name in new string[] { CanvasRootName, "PanelHolder", Misc.Empty })
+		foreach(string? Name in new string?[] { CanvasRootName, "PanelHolder", null })
 			if(!(PanelHolder?.gameObject.activeSelf ?? false))
 				return false;
-			else if(Name!=Misc.Empty)
+			else if(!string.IsNullOrEmpty(Name))
 				PanelHolder=PanelHolder.Find(Name)?.transform;
 
 		foreach(Transform Child in PanelHolder!) {

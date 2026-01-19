@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Web;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static SilkDev.DevStrings;
 
 namespace PharloomAtlas;
 
@@ -88,7 +89,7 @@ public class MonitorSaveValues
 	private static readonly Translations Tr=Config.C.Tr;
 	private static string TSan(string Str, params object[] FormatList)	=> Tr.T(Str, nameof(MonitorSaveValues), true , FormatList);
 	private static string TrT (string Str, params object[] FormatList)	=> Tr.T(Str, nameof(MonitorSaveValues), false, FormatList);
-	private static string San (string Str)								=> DevStrings.SanitizeRichString(Str);
+	private static string San (string Str)								=> SafeRich(Str);
 
 	//Initialize the monitoring
 	internal MonitorSaveValues()
@@ -99,7 +100,7 @@ public class MonitorSaveValues
 			foreach((ItemFinderItem MI_ID, string MI_Val) in IF.MatchedIcons)
 				IF.MatchedIconsReverse[MI_Val]=MI_ID;
 		} catch(Exception e) {
-			string DefaultMessage=$"Loading item finder json failed! Everything will be marked as not found and you’ll be getting excessive save value finds.{Misc.NewLine}{{0}}";
+			string DefaultMessage=$"Loading item finder json failed! Everything will be marked as not found and you’ll be getting excessive save value finds.{NewLine}{{0}}";
 			Log.Error(string.Format(DefaultMessage, Catcher.GetOutputException("Item finder loading", e)));
 			_=new PopupMessage(Tr.TDef("ItemFinderLoadFailed", nameof(MonitorSaveValues), DefaultMessage, true, Catcher.GetRelevantException(e).Message));
 			IF=new ItemFinder();
@@ -280,7 +281,7 @@ public class MonitorSaveValues
 		//a==null ? false
 		  a is bool v ? v
 		: a is int v1 ? v1==0
-		: a is string v2 && v2!=Misc.Empty;
+		: a is string v2 && v2!=string.Empty;
 		//: false;
 
 	//JSON converter for ItemFinder
@@ -324,10 +325,10 @@ public class MonitorSaveValues
 		protected override bool BlockClose => IsProcessing;
 		public string PopupMessage
 		{
-			get; set => Message=(field=value)+(SendingToServer ? $"{Misc.NewLine}<color=red>{TSan("Sending to server now")}</color>" : Misc.Empty);
-		} = Misc.Empty;
+			get; set => Message=(field=value)+(SendingToServer ? $"{NewLine}<color=red>{TSan("Sending to server now")}</color>" : null);
+		} = string.Empty;
 		public bool SendingToServer {
-			get; set { field=value; PopupMessage+=Misc.Empty; }
+			get; set { field=value; PopupMessage+=null; }
 		} = false;
 	}
 	private async Task SaveIconValueThread(bool IsSendingToo)
@@ -342,15 +343,15 @@ public class MonitorSaveValues
 				FileOps.WriteFile(JsonFilePath, JsonUtils.Serialize(new JsonConverter_ItemFinder(IF), Sorted:true, TrailingCommas:true));
 			} catch {
 				const string ErrMsg="Could not save to JSON file!";
-				SVP.PopupMessage+=$"{Misc.NewLine}{Misc.NewLine}<color=red>{TSan(ErrMsg)}</color>";
-				LogMessage+=Misc.NewLine+ErrMsg;
+				SVP.PopupMessage+=$"{NewLine}{NewLine}<color=red>{TSan(ErrMsg)}</color>";
+				LogMessage+=NewLine+ErrMsg;
 			}
 		} catch(MSException e) {
 			SVP.PopupMessage=TSan(e.Message);
 			LogMessage=e.Message;
 			NoValue=true;
 			if(IsSendingToo)
-				SVP.PopupMessage+=$"{Misc.NewLine}<color=red>{TSan("Send to server canceled")}</color>";
+				SVP.PopupMessage+=$"{NewLine}<color=red>{TSan("Send to server canceled")}</color>";
 		} catch(Exception e) {
 			const string ErrMsg="An unknown error occurred: {0}";
 			SVP.PopupMessage=TSan(ErrMsg, e.Message);
@@ -368,7 +369,7 @@ public class MonitorSaveValues
 
 		//Write message to the log
 		try {
-			LogMessage=Regex.Replace(LogMessage.Replace("\n\n", "\n"), @"</?(size|color|b)\b.*?>", Misc.Empty); //Remove double newlines and richText tags
+			LogMessage=Regex.Replace(LogMessage.Replace("\n\n", "\n"), @"</?(size|color|b)\b.*?>", string.Empty); //Remove double newlines and richText tags
 			Log.Info(LogMessage);
 			if(!FileOps.FileExists(LogFilePath))
 				FileOps.WriteFile(LogFilePath, "Initializing log file");
@@ -377,7 +378,7 @@ public class MonitorSaveValues
 				LogMessage
 			);
 		} catch(Exception e) {
-			SVP.PopupMessage+=$"{Misc.NewLine}{Misc.NewLine}<color=red><size=15>{TSan("Could not write to log file.")}</color>: {San(e.Message)}</size>";
+			SVP.PopupMessage+=$"{NewLine}{NewLine}<color=red><size=15>{TSan("Could not write to log file.")}</color>: {San(e.Message)}</size>";
 		}
 		SVP.IsProcessing=false;
 	}
@@ -391,12 +392,12 @@ public class MonitorSaveValues
 		SaveItem SelectedValue=SaveValuesWindow.Self.SelectedItem ?? throw new MSException("There are no save values in your window");
 
 		//See if the icon or item was already matched
-		string AddStringStatement=Misc.Empty;
+		string AddStringStatement=null!;
 		DataStorage DS=MapControl.Self.DS;
 		if(IF.MatchedIcons.TryGetValue(new(SelectedItem.ID, false), out string PreviousMatch))
-			AddStringStatement+=$"{Misc.NewLine}{Misc.NewLine}<size=-15>{TrT("Warning: Icon previously matched to “<b>{0}</b>”", San(PreviousMatch))}</size>";
+			AddStringStatement+=$"{NewLine}{NewLine}<size=-15>{TrT("Warning: Icon previously matched to “<b>{0}</b>”", San(PreviousMatch))}</size>";
 		if(IF.MatchedIconsReverse.TryGetValue(SelectedValue.FullName, out ItemFinderItem PreviousMatch2))
-			AddStringStatement+=$"{Misc.NewLine}{Misc.NewLine}<size=-15>{TrT("Warning: SaveValue was previously matched to #{0} “<b>{1}</b>”", PreviousMatch2, San(DS.Items.Get(PreviousMatch2.ID)?.Title ?? TrT("INVALID ITEM")))}</size>";
+			AddStringStatement+=$"{NewLine}{NewLine}<size=-15>{TrT("Warning: SaveValue was previously matched to #{0} “<b>{1}</b>”", PreviousMatch2, San(DS.Items.Get(PreviousMatch2.ID)?.Title ?? TrT("INVALID ITEM")))}</size>";
 
 		//Save the values and run icon updates
 		if(PreviousMatch2.ID!=0) {
@@ -437,17 +438,17 @@ public class MonitorSaveValues
 		static string UrlQuery() => string.Join('&', new List<(string Key, string Value)> {
 			("ItemID", MapControl.Self.SelectedItem!.ID.ToString()),
 			("ItemName", SaveValuesWindow.Self.SelectedItem!.FullName),
-			("Username", Config.C.AnonymousSubmissions ? DevStrings.UsernameErrorString : DevStrings.SteamUsername),
+			("Username", Config.C.AnonymousSubmissions ? UsernameErrorString : SteamUsername),
 		}.Select(static Tuple => HttpUtility.UrlEncode(Tuple.Key)+"="+HttpUtility.UrlEncode(Tuple.Value)));
 
 		//Send the web request and format returns
 		string WebSubmit;
 		return
 			!IsSendingToo
-				? (Misc.Empty, $"{Misc.NewLine}<color=green><size=15>{TSan("Please consider contributing by sending your data")}</size></color>")
+				? (null!, $"{NewLine}<color=green><size=15>{TSan("Please consider contributing by sending your data")}</size></color>")
 			: "SUCCESS"==(WebSubmit=await SendWebRequestReal($"{WebAddress}?{UrlQuery()}"))
-				? (Misc.Empty, $"{Misc.NewLine}<color=green><size=15>{TSan("Thank you for your submission!")}</size></color>")
-				: ($"{Misc.NewLine}Web submission failed: {WebSubmit}", $"{Misc.NewLine}<color=red>{TrT("Web submission failed: <b>{0}</b>", San(WebSubmit))}</color>");
+				? (null!, $"{NewLine}<color=green><size=15>{TSan("Thank you for your submission!")}</size></color>")
+				: ($"{NewLine}Web submission failed: {WebSubmit}", $"{NewLine}<color=red>{TrT("Web submission failed: <b>{0}</b>", San(WebSubmit))}</color>");
 	}
 
 	//Send the web request

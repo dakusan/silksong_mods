@@ -19,7 +19,7 @@ public class MarkerLabels : Window
 	private static Config Conf => Config.C;
 	private readonly Dictionary<string, string> Labels=[];
 	private readonly Dictionary<string, string> DeletedLabels=[];
-	private string LabelToRemove=Misc.Empty;
+	private string LabelToRemove=string.Empty;
 	private MarkerPos? LastMarkerOver
 	{
 		get;
@@ -55,7 +55,7 @@ public class MarkerLabels : Window
 	private BlockInput.CAResults BlockActions(BlockInput.CAParams P) => BlockInput.AllowAction(P, "Cancel");
 
 	//Inititialize
-	public string DefaultLabel=Misc.Empty;
+	public string DefaultLabel=null!;
 	internal MarkerLabels() : base("MarkerLabels", false, -250)
 	{
 		UnboundDraw=true;
@@ -127,7 +127,7 @@ public class MarkerLabels : Window
 		}
 		public override string ToString() => $"{Vec.x:F2},{Vec.y:F2}";
 		public static implicit operator string(MarkerPos MP) => MP.ToString();
-		public static bool operator ==(MarkerPos? MP1, MarkerPos? MP2) => (MP1?.ToString() ?? Misc.Empty)==(MP2?.ToString() ?? Misc.Empty);
+		public static bool operator ==(MarkerPos? MP1, MarkerPos? MP2) => (MP1?.ToString() ?? string.Empty)==(MP2?.ToString() ?? string.Empty);
 		public static bool operator !=(MarkerPos? MP1, MarkerPos? MP2) => !(MP1==MP2);
 		public override bool Equals(object? Obj2) => Obj2 is MarkerPos MP2 && this==MP2;
 		public override int GetHashCode() => ToString()?.GetHashCode() ?? 0;
@@ -215,7 +215,7 @@ public class MarkerLabels : Window
 		//If there is a label that needs removing, do it
 		if(LabelToRemove.Length!=0) {
 			_=Labels.Remove(LabelToRemove);
-			LabelToRemove=Misc.Empty;
+			LabelToRemove=string.Empty;
 			SaveConfig(false);
 		}
 
@@ -273,7 +273,7 @@ public class MarkerLabels : Window
 			return;
 
 		//If there is already a marker that is selected and we clicked on its label then keep it selected
-		if(TextHasFocus && GetMarkerLabelRect(SelectedMarker!, Labels.Get(SelectedMarker!) ?? Misc.Empty).Contains(Ev.mousePosition))
+		if(TextHasFocus && GetMarkerLabelRect(SelectedMarker!, Labels.Get(SelectedMarker!) ?? string.Empty).Contains(Ev.mousePosition))
 			return;
 
 		//See if we’ve clicked on a label
@@ -345,8 +345,8 @@ public class MarkerLabels : Window
 				Conf.Tr.TDef(
 					"MarkerLabels.LoadFailed", null, "<color=red>Your marker labels failed to load.</color> There are backups at <color=green>{0}</color>: {1}",
 					false,
-					DevStrings.SanitizeRichString($"{Conf.PSC.ConfigFileName}{SilkDev.Configs.PerSaveConfig.BackupExtension}*"),
-					DevStrings.SanitizeRichString(e.Message)
+					DevStrings.SafeRich($"{Conf.PSC.ConfigFileName}{SilkDev.Configs.PerSaveConfig.BackupExtension}*"),
+					DevStrings.SafeRich(e.Message)
 				)
 			);
 		}

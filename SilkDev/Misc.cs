@@ -110,7 +110,4 @@ public static class Misc
 		public void Decrement()				=> DecrementVal();
 		public void Add(int Delta)			=> AddVal(Delta);
 	}
-
-	public const char NewLine='\n';
-	public const string Empty="";
 }

@@ -24,7 +24,7 @@ public class Config
 	public readonly DynamicEnumConfig Language;
 	public readonly Translations Tr;
 
-	private static ConfigDescription AVR<T>(T min, T max, string Description=Misc.Empty, ConfigurationManagerAttributes? CMA=null) where T : System.IComparable => new(Description, new AcceptableValueRange<T>(min, max), CMA);
+	private static ConfigDescription AVR<T>(T min, T max, string Description=DevStrings.Empty, ConfigurationManagerAttributes? CMA=null) where T : System.IComparable => new(Description, new AcceptableValueRange<T>(min, max), CMA);
 	private static ConfigurationManagerAttributes NonBrowsable => new() { Browsable=false };
 	private static ConfigurationManagerAttributes IsAdvanced => new() { IsAdvanced=true };
 
@@ -111,7 +111,7 @@ public class Config
 		QueryTime_PlayerData	=Con.Bind(Title, "Player Data Query Time",					1.0f, AVR(.1f, 5f, "How often in seconds to query player data value changes (separate thread). There are over 1200 reflection lookups for this so query time is less often. Honestly, these could probably run every frame just fine."));
 		Rect_SaveValuesWindow	=Con.Bind(Title, "Window Position: Save Values",			Rect.zero, null, NonBrowsable);
 		Rect_SearchWindow		=Con.Bind(Title, "Window Position: Search",					Rect.zero, null, NonBrowsable);
-		CategoryToggleStates	=Con.Bind(Title, "Category States",							Misc.Empty, "DO NOT EDIT THIS. List of categories and their toggle states.", NonBrowsable);
+		CategoryToggleStates	=Con.Bind(Title, "Category States",							string.Empty, "DO NOT EDIT THIS. List of categories and their toggle states.", NonBrowsable);
 		MarkerLabels			=Con.Bind(Title, "Marker Labels",							"{}", "DO NOT EDIT THIS. List of marker labels", NonBrowsable);
 		Tr.AddFormatParameters("Write Atlas errors to error file", "SettingDescriptions", Plugin.CErrorLog.PAtlasErrorLogName);
 		Tr.AddFormatParameters("Check this to send Atlas errors to dev", "SettingDescriptions", Plugin.CErrorLog.PAtlasErrorLogName);

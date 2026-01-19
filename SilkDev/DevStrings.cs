@@ -4,9 +4,9 @@ namespace SilkDev;
 
 public static class DevStrings
 {
-	//Sanitize a richText string
-	public static string SanitizeRichString(string Message) =>
-		Message.Replace("<", "<<i></i>"); //Yes, this is really the best way
+	//Ensure richText markup is treated as literal text
+	public static string SafeRich(string Message) =>
+		Message.IndexOf('<')==-1 ? Message :  Message.Replace("<", "<<i></i>"); //Yes, this is really the best way
 
 	//Get steam username
 	public const string UsernameErrorString="*SILKDEV NO NAME*"; //Tells the server the user’s username couldn’t be looked up
@@ -38,7 +38,7 @@ public static class DevStrings
 
 		//Edge case if user passes invalid MaxBytesSize
 		if(MaxByteSize<=0)
-			return AsString ? Misc.Empty : (byte[])[];
+			return AsString ? string.Empty : (byte[])[];
 
 		//Determine if there is not enough space to display anything more than [all or part of] AppendOnOverrun
 		byte[] AppendBytes=AsString ? null! : UTF8.GetBytes(AppendOnOverrun);
@@ -47,7 +47,7 @@ public static class DevStrings
 		if(End<=0)
 			return UTF8CutReal(
 				AsString ? UTF8.GetBytes(AppendOnOverrun) : AppendBytes,
-				MaxByteSize, Misc.Empty, AsString
+				MaxByteSize, string.Empty, AsString
 			);
 
 		//Creates a byte[] or string with minimal amounts of copies
@@ -83,4 +83,7 @@ public static class DevStrings
 		};
 		return CreateReturn(Need!=0 && End-i>=Need ? End : i);
 	}
+
+	public const string Empty=""; //Used when a const is needed (string.Empty is a static readonly)
+	public const char NewLine='\n';
 }

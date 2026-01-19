@@ -54,7 +54,7 @@ public class PerSaveConfig
 
 		//Make backups
 		for(int i=NumBackupsToKeep;i>0;i--) {
-			string OldFileName=NewFilePath+(i==1 ? Misc.Empty : BackupExtension+(i-1));
+			string OldFileName=NewFilePath+(i==1 ? null : BackupExtension+(i-1));
 			//File does not exist to copy/move
 			if(!FileOps.FileExists(OldFileName))
 				continue;

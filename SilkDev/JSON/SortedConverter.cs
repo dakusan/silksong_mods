@@ -13,7 +13,7 @@ public class SortedConverter(bool AllowUse=false) : JsonConverter
 	//Block the rest of the engine from using this class
 	private readonly bool AllowUse=AllowUse;
 
-	private object? DefaultKeySelector(object? Key) => Key?.ToString() ?? Misc.Empty;
+	private object? DefaultKeySelector(object? Key) => Key?.ToString() ?? string.Empty;
 	private object? NumericKeySelector(object? Key) =>
 		  Key is int v ? v
 		: (Key != null && int.TryParse(Key.ToString(), out int parsed) ? parsed
@@ -41,7 +41,7 @@ public class SortedConverter(bool AllowUse=false) : JsonConverter
 		new(
 			GetDictKeyValuePairs(Dict, GetSorter(Dict.Keys.Cast<object>()))
 				.Select(KV => new JProperty(
-					KV.Key?.ToString() ?? Misc.Empty,
+					KV.Key?.ToString() ?? string.Empty,
 					KV.Value is null ? JValue.CreateNull() : JToken.FromObject(KV.Value, Serializer)
 				))
 		);

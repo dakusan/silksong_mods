@@ -110,7 +110,7 @@ public class ExtractSpritesWindow : Window
 				if(Tex!=null && IsDisposable) //This should not be possible
 					Tex.TDestroy();
 				(this.TexType, Tex)=(Type.Failed, Color.red.MakeTexture()); //Add a red color texture, just in case
-				_=new PopupMessage($"{Tr.T("Sprite load failed", "Errors", true)}:\n<size=25>{DevStrings.SanitizeRichString(e.Message)}</size>");
+				_=new PopupMessage($"{Tr.T("Sprite load failed", "Errors", true)}:\n<size=25>{DevStrings.SafeRich(e.Message)}</size>");
 			}
 		}
 
@@ -202,12 +202,12 @@ public class ExtractSpritesWindow : Window
 		List<SpriteObject> ObjList=[];
 		FindData FD=new(ObjList, Camera.allCameras[0], DevInput.Util.MousePos);
 		foreach(GameObject GO in SceneManager.GetActiveScene().GetRootGameObjects())
-			FindSpritesRecurse(FD, GO.transform, Misc.Empty);
+			FindSpritesRecurse(FD, GO.transform, string.Empty);
 
 		//Don’t forget our hero!
 		GameObject? HeroGO=HeroController.instance?.gameObject;
 		if(HeroGO!=null) {
-			SpriteObject HeroSO=new SpriteObject_tk2dBaseSprite(HeroGO.name, Misc.Empty, HeroGO.GetComponent<tk2dBaseSprite>());
+			SpriteObject HeroSO=new SpriteObject_tk2dBaseSprite(HeroGO.name, string.Empty, HeroGO.GetComponent<tk2dBaseSprite>());
 			if(HeroSO!=null && WorldBoundsToScreenRect(FD.Camera, HeroSO.Bounds).Contains(FD.MousePos))
 				FD.ObjList.Add(HeroSO);
 		}
@@ -364,9 +364,9 @@ public class ExtractSpritesWindow : Window
 						_=FileOps.CreateDirectory(DirName);
 					string FileName=$"{DateTime.Now:yyyy-MM-dd_HH_mm_ss} {FileOps.FixFileName(CurFoundObj.Name ?? "NO NAME")}.png";
 					FileOps.WriteFile(FileOps.PathCombine(DirName, FileName), CurFoundObj.EncodeToPNG());
-					_=new PopupMessage($"{Tr.T("File saved to", RichSanitize:true)}:\n<size=25>{DevStrings.SanitizeRichString(FileOps.PathCombine(DirName, " "))}\n<b>{DevStrings.SanitizeRichString(FileName)}</b></size>");
+					_=new PopupMessage($"{Tr.T("File saved to", SafeRich:true)}:\n<size=25>{DevStrings.SafeRich(FileOps.PathCombine(DirName, " "))}\n<b>{DevStrings.SafeRich(FileName)}</b></size>");
 				} catch(Exception e) {
-					_=new PopupMessage($"{Tr.T("Error saving file", "Errors", true)}:\n<size=25>{DevStrings.SanitizeRichString(e.Message)}</size>");
+					_=new PopupMessage($"{Tr.T("Error saving file", "Errors", true)}:\n<size=25>{DevStrings.SafeRich(e.Message)}</size>");
 				}
 			else if(IsMouseInteract && Button.CurrentButton==Button.Enum.Right) //Highlight the sprite on the sprite sheet
 				CurFoundObj.HighlightSpriteOnSheet=!CurFoundObj.HighlightSpriteOnSheet;
@@ -517,7 +517,7 @@ public class ExtractSpritesWindow : Window
 		});
 	}
 
-	private class HelpWindow() : PopupMessage(Misc.Empty)
+	private class HelpWindow() : PopupMessage(string.Empty)
 	{
 		private static HelpWindow? Self;
 		internal static void Init() =>
@@ -563,7 +563,7 @@ public class ExtractSpritesWindow : Window
 
 			//Substitute in the directory and path and get the window width
 			string LocalText=Tr.TDef("ExtractSpritesWindow.HelpWindow", Default:EnglishHelpText)
-				.Replace("<DIR>", DevStrings.SanitizeRichString(FileOps.PathCombine(FileOps.GetPluginPath, ExtractAllTextures.TextureDirectory, "\u00A0")))
+				.Replace("<DIR>", DevStrings.SafeRich(FileOps.PathCombine(FileOps.GetPluginPath, ExtractAllTextures.TextureDirectory, "\u00A0")))
 				.Replace("<PATH>", "<b><color=green>[YYYY-MM-DD_HH_mm_SS SPRITE_NAME].png</color></b>");
 
 			//Auto tab asterisks and dashes

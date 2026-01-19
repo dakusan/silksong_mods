@@ -62,7 +62,7 @@ public class SearchWindow : SilkDev.Windows.Window
 	//Members
 	private SearchedItem[] SearchedItems=[];
 	private Vector2 ScrollPosition=Vector2.zero;
-	private string SearchText=Misc.Empty;
+	private string SearchText=string.Empty;
 	private bool HadOverflow=false;
 	private int ItemOverID=-1;
 	private bool SearchTextHasFocus { set => Misc.IFF(
@@ -72,7 +72,7 @@ public class SearchWindow : SilkDev.Windows.Window
 
 	//Initialization
 	internal static void Init() => _=new SearchWindow();
-	private SearchWindow() : base(Misc.Empty, Config.C.Rect_SearchWindow, 0, 0)
+	private SearchWindow() : base(null!, Config.C.Rect_SearchWindow, 0, 0)
 	{
 		Misc.InitSingleton(this, ref _Self);
 		TextStyle.normal.background=BGTex?.Tex;
@@ -118,7 +118,7 @@ public class SearchWindow : SilkDev.Windows.Window
 		GUI.Label(
 			GUILayoutUtility.GetLastRect(),
 				  NoResults ? Tr.T("Type in here to search")
-				: NumFoundItems+(HadOverflow ? "+" : Misc.Empty),
+				: NumFoundItems+(HadOverflow ? "+" : null),
 			NoResults ? SearchHereStyle : NumResults
 		);
 		SearchTextHasFocus=GUI.GetNameOfFocusedControl()==SearchFieldName;
@@ -148,7 +148,7 @@ public class SearchWindow : SilkDev.Windows.Window
 		string[] Terms=RegEx_SplitAroundSpaces.Split(SearchText.ToLower());
 		Dictionary<int, Category> Cats=MapControl.Self.DS.Categories;
 		List<Item> NewItems=[.. MapControl.Self.DS.Items.Values.Where(I => {
-			string SearchItemInfo=RegEx_RemoveHTMLTags.Replace((I.Title+I.Description+Cats[I.CategoryID].Title).ToLower(), Misc.Empty);
+			string SearchItemInfo=RegEx_RemoveHTMLTags.Replace((I.Title+I.Description+Cats[I.CategoryID].Title).ToLower(), string.Empty);
 			foreach(string Term in Terms)
 				if(!SearchItemInfo.Contains(Term))
 					return false;
@@ -160,19 +160,22 @@ public class SearchWindow : SilkDev.Windows.Window
 			NewItems.RemoveAt(NewItems.Count-1);
 
 		//Transform the items into rich strings and store with their IDs
-		Regex EscapedTermsRegEx=new("("+string.Join('|', Terms.Select(static T => Regex.Escape(DevStrings.SanitizeRichString(T))))+")", RegexOptions.IgnoreCase); //Create regular expression to colorize the strings
-		SearchedItems=[.. NewItems.Select(I => CreateSearchedItem(I.ID, string.Join(Misc.NewLine, new string[] {
+		Regex EscapedTermsRegEx=new("("+string.Join('|', Terms.Select(static T => Regex.Escape(DevStrings.SafeRich(T))))+")", RegexOptions.IgnoreCase); //Create regular expression to colorize the strings
+		SearchedItems=[.. NewItems.Select(I => CreateSearchedItem(I.ID, string.Join(DevStrings.NewLine, new string?[] {
 			MakeItemInfoLine("Title", I.Title, EscapedTermsRegEx),
 			MakeItemInfoLine("Category", Cats[I.CategoryID].Title, EscapedTermsRegEx),
-			I.IgnPageName==null ? Misc.Empty : MakeItemInfoLine("IGN Page", "https://www.ign.com/wikis/hollow-knight-silksong/"+I.IgnPageName, EscapedTermsRegEx),
-			I.Description==null ? Misc.Empty : MakeItemInfoLine("Description", I.Description, EscapedTermsRegEx),
-		}.Where(static S => S!=Misc.Empty)
+			I.IgnPageName==null ? null : MakeItemInfoLine("IGN Page", "https://www.ign.com/wikis/hollow-knight-silksong/"+I.IgnPageName, EscapedTermsRegEx),
+			I.Description==null ? null : MakeItemInfoLine("Description", I.Description, EscapedTermsRegEx),
+		}.Where(static S => !string.IsNullOrEmpty(S))
 		)))];
 	}
 
 	//Create a string with sized down title and Info with highlighted search terms
 	private static string MakeItemInfoLine(string Title, string Info, Regex EscapedTerms)
 	{
+		if(string.IsNullOrEmpty(Info))
+			return null!;
+
 		IEnumerator<Match> TagEnum=(IEnumerator<Match>)RegEx_RemoveHTMLTags.Matches(Info).GetEnumerator();
 		bool HasTag=TagEnum.MoveNext();
 		Match? CurTag=(HasTag ? TagEnum.Current : null);
@@ -199,7 +202,7 @@ public class SearchWindow : SilkDev.Windows.Window
 	private SearchedItem CreateSearchedItem(int ID, string RichText)
 	{
 		int Count=0, Index=-1;
-		while(Count<MaxLinesPerItem && (Index=RichText.IndexOf(Misc.NewLine, Index+1))!=-1)
+		while(Count<MaxLinesPerItem && (Index=RichText.IndexOf(DevStrings.NewLine, Index+1))!=-1)
 			Count++;
 		return new SearchedItem(ID, RichText, Count==MaxLinesPerItem ? Index : -1);
 	}

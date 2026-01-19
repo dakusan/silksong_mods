@@ -47,10 +47,10 @@ public static class Log
 		string OutStr;
 		Logger!.Log(
 			LLevel,
-			OutStr=string.Join(Misc.NewLine, Objs.Select((Obj, Index) =>
-				(!TimeStamp			? Misc.Empty : System.DateTime.Now.ToString("HH:mm:ss.fff: ")	)+
-				(Objs.Length<=1		? Misc.Empty : $"{Index+1}. "									)+
-				(Obj is string Str	? Str		 : JSON.JsonUtils.Serialize(Obj)					)
+			OutStr=string.Join(DevStrings.NewLine, Objs.Select((Obj, Index) =>
+				(!TimeStamp			? null	: System.DateTime.Now.ToString("HH:mm:ss.fff: "))+
+				(Objs.Length<=1		? null	: $"{Index+1}. "								)+
+				(Obj is string Str	? Str	: JSON.JsonUtils.Serialize(Obj)					)
 			))
 		);
 

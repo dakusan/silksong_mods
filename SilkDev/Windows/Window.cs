@@ -176,7 +176,7 @@ public abstract class Window
 	//Do not call attributes and functions
 	private const string DN="Do not call base (do override though!)";
 	private const bool T=true;
-	private static bool DNC([System.Runtime.CompilerServices.CallerMemberName] string Caller=Misc.Empty) { throw new NotImplementedException($"Do not call the base implementation of {Caller}()"); }
+	private static bool DNC([System.Runtime.CompilerServices.CallerMemberName] string Caller=null!) { throw new NotImplementedException($"Do not call the base implementation of {Caller}()"); }
 
 	//Functions expected to be overwritten without calling a base. Comments are in format “WhichWindows.Events.Order: CallTime”.
 	[OA(DN,T)] protected virtual void OnUpdate()				  =>DNC(); //(AlwaysCallUpdate|Visible).Update.LastPaintOrder: When plugin receives the Update() event. You should take care of GUI changing events here when possible.
@@ -351,7 +351,7 @@ public abstract class Window
 				Win.ID,
 				!Win.Visible ? Rect.zero : Win.WindowRect,
 				Win.LayoutWrapper,
-				!Win.Visible || Win.HasNoStyling ? Misc.Empty : Win.Title,
+				!Win.Visible || Win.HasNoStyling ? string.Empty : Win.Title,
 				!Win.Visible ? GUIStyle.none : Win.GUIStyle ?? GUI.skin.window);
 	}
 

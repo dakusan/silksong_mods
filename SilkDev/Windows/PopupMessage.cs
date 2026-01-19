@@ -15,7 +15,7 @@ public class PopupMessage
 	private readonly DateTime InitTime=DateTime.Now;
 	private DateTime CloseTime=DateTime.MinValue;
 
-	protected virtual string PressAnyKeyString => $"<color=red><size=20>{Internal.Config.C.Tr.T("Press any key or click to close this message.", RichSanitize:true)}</size></color>";
+	protected virtual string PressAnyKeyString => $"<color=red><size=20>{Internal.Config.C.Tr.T("Press any key or click to close this message.", SafeRich:true)}</size></color>";
 	protected static readonly DrawPopups DW=new();
 
 	public static GUIStyle DefaultTextStyle=null!;
@@ -24,7 +24,7 @@ public class PopupMessage
 	public int FullWidth=1200, FullHeight=800;
 	public bool IsShowing { get; private set; } = true; //Purely for reference. Does not affect anything.
 
-	//Warning: Message is in rich text so use DevStrings.SanitizeRichString if it could contain html tags
+	//Warning: Message is in rich text so use DevStrings.SafeRich if it could contain html tags
 	public PopupMessage(string Message)
 	{
 		this.Message=Message;
@@ -106,7 +106,7 @@ public class PopupMessage
 		bool PopIfChar(char TestChar) => PeekChar()==TestChar && ++CharIndex!=0;
 
 		//Draw each line
-		foreach(string TLine in MessageText.Split(Misc.NewLine)) {
+		foreach(string TLine in MessageText.Split(DevStrings.NewLine)) {
 			//Handle toggles
 			Line=TLine;
 			CharIndex=0;

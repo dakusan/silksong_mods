@@ -8,7 +8,7 @@ namespace SilkDev;
 //Loads translations from $TranslationsPath/$LangIsoName$TranslationFileExtension.
 public class Translations
 {
-	public const string ROOT=Misc.Empty; //The default section all translations are under
+	public const string ROOT=DevStrings.Empty; //The default section all translations are under
 	public const string LanguageAsStr="Language";
 	public const string PickLanguageAsStr="Pick your language";
 	public const string TranslationFileExtension=".tr.json";
@@ -58,7 +58,7 @@ public class Translations
 	{
 		get;
 		set => Misc.IFF(value is not null && field!=value, () => LoadLanguage(field=value!));
-	} = Misc.Empty;
+	} = string.Empty;
 	private void LoadLanguage(string ISO)
 	{
 		try {
@@ -71,15 +71,15 @@ public class Translations
 	}
 
 	//Translation functions
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public string  T				(string Key, string? Section=null, bool RichSanitize=false, params object[] FormatList) => TranslateDef(Key, Section, Key  , RichSanitize, FormatList); //If not found, return Key
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public string  Translate		(string Key, string? Section=null, bool RichSanitize=false, params object[] FormatList) => TranslateDef(Key, Section, Key  , RichSanitize, FormatList); //If not found, return Key
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public string? TranslateNull	(string Key, string? Section=null, bool RichSanitize=false, params object[] FormatList) => TranslateDef(Key, Section, null!, RichSanitize, FormatList); //If not found, return null
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] public string  TDef			(string Key, string? Section=null, string Default=Misc.Empty, //Same as TranslateDef
-																													   bool RichSanitize=false, params object[] FormatList) => TranslateDef(Key, Section,Default,RichSanitize, FormatList); //If not found, return Default
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public string  T				(string Key, string? Section=null, bool SafeRich=false, params object[] FormatList) => TranslateDef(Key, Section, Key  , SafeRich, FormatList); //If not found, return Key
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public string  Translate		(string Key, string? Section=null, bool SafeRich=false, params object[] FormatList) => TranslateDef(Key, Section, Key  , SafeRich, FormatList); //If not found, return Key
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public string? TranslateNull	(string Key, string? Section=null, bool SafeRich=false, params object[] FormatList) => TranslateDef(Key, Section, null!, SafeRich, FormatList); //If not found, return null
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] public string  TDef			(string Key, string? Section=null, string Default=DevStrings.Empty, //Same as TranslateDef
+																													   bool SafeRich=false, params object[] FormatList) => TranslateDef(Key, Section,Default,SafeRich, FormatList); //If not found, return Default
 
 	//Replacement arguments for parameterized translation strings (e.g., {0} placeholders).
 	public Dictionary<string, object[]> FormatParameters=[]; //If SectionName is not ROOT or null, Expects "SectionName/" before the Key
-	public string TranslateDef(string Key, string? Section=null, string Default=Misc.Empty, bool RichSanitize=false, params object[] FormatList) //Return Default if not found. Section is ROOT if null.
+	public string TranslateDef(string Key, string? Section=null, string Default=DevStrings.Empty, bool SafeRich=false, params object[] FormatList) //Return Default if not found. Section is ROOT if null.
 	{
 		Section ??= ROOT;
 		string? Text=Sections?.GetValueOrDefault(Section)?.GetValueOrDefault(Key) ?? Default;
@@ -89,7 +89,7 @@ public class Translations
 			: FormatParameters.TryGetValue(Section==ROOT ? Key : $"{Section}/{Key}", out object[] FPs) ? string.Format(Text, FPs)
 			: Text;
 
-		return Text!=null && RichSanitize ? DevStrings.SanitizeRichString(Ret!) : Ret!;
+		return Text!=null && SafeRich ? DevStrings.SafeRich(Ret!) : Ret!;
 	}
 	public void AddFormatParameters(string Key, string? Section=null, params object[] List) =>
 		FormatParameters[Section is null or ROOT ? Key : $"{Section}/{Key}"]=List;

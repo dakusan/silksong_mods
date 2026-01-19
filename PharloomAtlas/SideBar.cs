@@ -79,7 +79,7 @@ public partial class SideBar : Window
 			new ButtonsRowSection.CreateButton("Goto Top",				  SaveValuesWindow.Self.MoveToTopItem),
 			new ButtonsRowSection.CreateButton("Save",		static	() => MonitorSaveValues.Self.SaveIconValue(false)),
 			new ButtonsRowSection.CreateButton("Save+Send",	static	() => MonitorSaveValues.Self.SaveIconValue(true)),
-			new ButtonsRowSection.CreateButton("Copy",		static	() => Copy(SaveValuesWindow.Self.SelectedItem?.ToString() ?? Misc.Empty)),
+			new ButtonsRowSection.CreateButton("Copy",		static	() => Copy(SaveValuesWindow.Self.SelectedItem?.ToString() ?? null)),
 			new ButtonsRowSection.CreateButton("Copy All",	static	() => Copy(SaveValuesWindow.Self.AllAsString))
 		]);
 		_=new ButtonsRowSection("Other", "Other", this, []);
@@ -322,15 +322,15 @@ public partial class SideBar : Window
 	} }
 
 	//Copy contents to the clipboard and let the user know how many lines were copied
-	private static void Copy(string Contents)
+	private static void Copy(string? Contents)
 	{
-		if(Contents==Misc.Empty) {
-			_=new PopupMessage(Conf.Tr.T("No values exist to copy", RichSanitize:true));
+		if(string.IsNullOrEmpty(Contents)) {
+			_=new PopupMessage(Conf.Tr.T("No values exist to copy", SafeRich:true));
 			return;
 		}
 
 		Misc.SaveToClipboard(Contents);
-		int NumLines=Contents.Count(static c => c==Misc.NewLine)+1;
+		int NumLines=Contents.Count(static C => C==DevStrings.NewLine)+1;
 		_=new PopupMessage(Conf.Tr.T(NumLines==1 ? "Copied 1 line" : "Copied {0} lines", null, true, NumLines));
 	}
 }
