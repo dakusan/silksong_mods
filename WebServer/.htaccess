@@ -1,0 +1,9 @@
+<Files "Config.php">
+	Require all denied
+</Files>
+
+RewriteEngine On
+RewriteRule ^items\.json$ CreateJsons.php?Build=Items [QSA,L]
+RewriteRule ^categories\.json$ CreateJsons.php?Build=Categories [QSA,L]
+RewriteRule ^Misc\.json$ CreateJsons.php?Build=Misc [QSA,L]
+RewriteRule ^ItemFinder\.json$ CreateJsons.php?Build=ItemFinder [QSA,L]

@@ -6,6 +6,7 @@
 <body>
 <?php
 require_once(__DIR__.'/Shared.php');
+require_once(__DIR__.'/SimpleSQL.php');
 $Items=[];
 foreach(Query('
 SELECT

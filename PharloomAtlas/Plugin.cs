@@ -11,7 +11,7 @@ internal static class PluginInfo
 {
 	public const string PLUGIN_GUID="com.dakusan.pharloomatlas";
 	public const string PLUGIN_NAME="Pharloom Atlas";
-	public const string PLUGIN_VERSION="1.0.0";
+	public const string PLUGIN_VERSION="1.1.0";
 }
 
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]

@@ -17,7 +17,7 @@
 
 [center][size=5]🛠️[size=1] [/size][b]Modder-Facing Power Tools[/b][size=1] [/size]🛠️[/size]
 [img=bottom]https://www.castledragmire.com/silksong/Line425.png[/img]
-Debugging &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Configurations &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Input &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Events &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Textures &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]&nbsp;&nbsp; Windows[/center]
+Debugging   [img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]   Configurations   [img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]   Input   [img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]   Events   [img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]   Textures   [img=middle]https://www.castledragmire.com/silksong/CoinSuperSmall.png[/img]   Windows[/center]
 
 [list]
 [*]Configurable log levels + full stack traces on errors
@@ -45,7 +45,6 @@ Debugging &nbsp;&nbsp;[img=middle]https://www.castledragmire.com/silksong/CoinSu
 [/list]
 [*]Reflection shortcuts, safe callbacks and coroutines, JSON utilities, translations & more
 [/list][/list]
-
 [size=3]Full source + detailed class docs in the GitHub repo (coming soon)[/size]
 
 [center][size=5]⚙️ [b]Installation[/b] ⚙️[/size]

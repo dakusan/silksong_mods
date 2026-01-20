@@ -9,7 +9,7 @@
 
 1. [Overview](#overview)
 1. [Core Highlights](#core-highlights)
-1. [Installation](#installation)
+1. [Installation and Compiling](#installation)
 1. [Usage](#usage)
 1. [Developer Notes](#developer-notes)
 1. [Contributing, Credits, and License](#contributing-credits-license)
@@ -74,6 +74,9 @@ Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework
 You should end up with paths like: `Hollow Knight Silksong/BepInEx/plugins/dakusan/SilkDev.dll`
 1. (Optional) If you use other *Dakusan* mods — such as [NoClip](https://www.nexusmods.com/hollowknightsilksong/mods/478) — place them in the same `dakusan` directory.
 1. Run the game
+
+## 🔨️ Compiling
+* See [root project README](../#compiling) for details
 
 <a id="usage"></a>
 ## 🧭️ Usage

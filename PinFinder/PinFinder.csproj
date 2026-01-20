@@ -49,4 +49,17 @@
       <LogicalName>%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
+
+  <Target Name="PostBuildCopy" AfterTargets="Build;Rebuild">
+    <PropertyGroup>
+      <PluginDir>$(MSBuildProjectDirectory)\..\Hollow Knight Silksong\BepInEx\plugins\dakusan\</PluginDir>
+    </PropertyGroup>
+
+    <MakeDir Directories="$(PluginDir)" Condition="!Exists('$(PluginDir)')" />
+
+    <Copy
+      SourceFiles="$(TargetPath)"
+      DestinationFiles="$(PluginDir)$(TargetFileName)"
+      SkipUnchangedFiles="true" />
+  </Target>
 </Project>

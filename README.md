@@ -10,6 +10,7 @@
    - [No Clip](#no-clip)
    - [Pin Finder](#pin-finder)
    - [Web Server](#web-server)
+1. [Compiling](#compiling)
 1. [Notes](#notes)
 1. [Contributing](#contributing)
 1. [Credits](#credits)
@@ -60,6 +61,38 @@ A lightweight web server for receiving and managing **Pharloom Atlas** user cont
   📂️ [Read more →](WebServer/README.md#readme)
 
 ---
+
+<a id="compiling"></a>
+## 🔨️ Compiling
+
+### Prerequisites
+- Windows
+- Visual Studio 2022 (or newer) with **.NET desktop development**
+- .NET SDK matching the solution (auto-restored by VS)
+
+### Steps
+
+1. Symlink the game directory into the repository root
+
+Run from an **elevated Command Prompt**:
+
+```bat
+   set STEAM_PATH="C:\Program Files (x86)\Steam" & REM Fill this in with your steam path that contains the `Hollow Knight Silksong` folder
+   mklink /J "Hollow Knight Silksong" "%STEAM_PATH%\steamapps\common\Hollow Knight Silksong"
+```
+The repository root should now contain a `Hollow Knight Silksong/` folder pointing to your Steam install.
+
+2. Open and build
+- Open `SilkSong.sln` in Visual Studio
+- Select `Release | x64` (recommended)
+- Build the solution
+
+#### Output
+The compiled DLL(s) will be placed in the appropriate `BepInEx/plugins/dakusan/` subdirectory under the symlinked
+`Hollow Knight Silksong` folder, ready to run in-game.
+
+---
+
 <a id="notes"></a>
 ## 🐞️ Notes
 - Each module can be built and used independently.
@@ -71,6 +104,13 @@ A lightweight web server for receiving and managing **Pharloom Atlas** user cont
 Contributions, suggestions, and feedback welcome!
 
 - Report issues or feature requests via GitHub.
+
+### Before opening a pull request
+Please ensure the following:
+- Run `.githooks/hook-setup.sh` once before making any commits.
+- Acknowledge that this project is licensed under the **BSD-3-Clause** license.
+- Follow the existing code style and conventions.
+   - The project includes a `.editorconfig` file that Visual Studio will respect, though not all styling rules can be fully expressed via EditorConfig.
 
 <a id="credits"></a>
 ## 📜️ Credits

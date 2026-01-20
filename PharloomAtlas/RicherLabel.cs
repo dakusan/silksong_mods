@@ -20,7 +20,7 @@ public class RicherLabel() : LinkedLabel, IDisposable
 				&& MapControl.Self.DS.Items.TryGetValue(LID, out Item I)
 				&& (I.IsFound || I.IsStarted)
 			)
-				L.StrikeColor=(I.IsFound ? Color.white : Color.gray);
+				(L.StrikeColor, L.SquiggleStrike)=(Color.white, !I.IsFound);
 
 		base.ParseComplete();
 	}
