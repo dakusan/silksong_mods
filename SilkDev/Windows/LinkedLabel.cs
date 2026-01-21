@@ -321,7 +321,6 @@ public class LinkedLabel : IDisposable
 			return;
 
 		DateTime StartTime=DateTime.Now;
-		using GetStringTextures GST=new((int)RectSize.x, (int)RectSize.y, ScrollPosOffset);
 
 		//Make a full render string with redetermined link placement for quick string rendering
 		const string MakeTransparent="xcolor=transparent>"; //Faking one of the color characters so the color regex doesn’t pick it up
@@ -346,6 +345,7 @@ public class LinkedLabel : IDisposable
 		FinalStr='<'+FinalStr[1..]; //Replace the MakeTransparent first character
 
 		//Create the separate strings as textures with just their text visible
+		using GetStringTextures GST=new((int)RectSize.x, (int)RectSize.y, ScrollPosOffset);
 		List<GetStringRects> GSRs=new(CreateStrings.Count);
 		foreach((Link L, int StartPos, int EndPos) in CreateStrings)
 			GSRs.Add(new GetStringRects(
@@ -373,14 +373,13 @@ public class LinkedLabel : IDisposable
 		//Instance members
 		private readonly float X, Y;
 		private readonly int Width, Height;
-		private readonly RenderTexture PrevRT;
+		private readonly RenderTexture PrevRT=RenderTexture.active;
 		private Matrix4x4 PrevMatrix=GUI.matrix;
 		private bool IsDisposed=false;
 
 		public GetStringTextures(int Width, int Height, Vector2 ScrollPosOffset)
 		{
 			(this.Width, this.Height, X, Y)=(Width, Height, ScrollPosOffset.x, ScrollPosOffset.y);
-			PrevRT=RenderTexture.active;
 			GUI.matrix=
 				//GUI expects to render to a texture of Screen Width*Height, so we need to scale to the render texture size
 				Matrix4x4.Scale(new Vector3((float)Screen.width/Width, (float)Screen.height/Height, 1f))*
@@ -400,13 +399,37 @@ public class LinkedLabel : IDisposable
 			return Tex;
 		}
 
+		//IMGUI can leave its internal GUIClip transform/cache desynced after temporarily changing GUI.matrix (especially when rendering to a RenderTexture).
+		//Force a GUIClip reapply to restore correct coordinates. If the internal API isn’t available, poke the clip stack as a best-effort fallback.
+		[System.Diagnostics.Conditional("FORCE_GUI_CLIP_REAPPLY")]
+		private static void RefreshGuiClip()
+		{
+			if(GUIClipReapply!=null)
+				try {
+					GUIClipReapply();
+					return;
+				} catch { }
+			GUI.BeginClip(new Rect(0, 0, 1, 1));
+			GUI.EndClip();
+		}
+		private static Action? TryGetGuiClipReapply() {
+			try {
+				return (Action?)
+					typeof(GUI).Assembly.GetType("UnityEngine.GUIClip")
+					?.GetMethod("Reapply", System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Static)
+					?.CreateDelegate(typeof(Action));
+			} catch { return null; }
+		}
+		private static readonly Action? GUIClipReapply=TryGetGuiClipReapply();
+
 		public void Dispose()
 		{
 			if(IsDisposed)
 				return;
 			IsDisposed=true;
+			RenderTexture.active=PrevRT; //Restore RT before GUI.matrix; reversing this can leave GUIClip with a stale transform.
 			GUI.matrix=PrevMatrix;
-			RenderTexture.active=PrevRT;
+			RefreshGuiClip();
 		}
 	}
 
