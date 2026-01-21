@@ -24,7 +24,7 @@ Enabled by default: [i]Sidebar &amp; map icons[/i] + [i]Highlight Hornet pin[/i]
 [/list]
 [*][b]Show None[/b]: No icons visible.
 [/list]
-[*]Detailed info with images for each icon on sidebar. Includes requirements to start/finish wishes and objectives—quickly switch selected icons to examine branching paths via description item links and next/previous keys. See [url=https://www.nexusmods.com/hollowknightsilksong/articles/141]here[/url] for more information.
+[*]Detailed info with images for each icon on the sidebar. Includes clickable/selectable item links, selected-item history, and requirements to start/finish wishes, objectives, store items, etc. See [url=https://www.nexusmods.com/hollowknightsilksong/articles/141]here[/url] for more information.
 [*]Multiple icon sets supported — add your own by placing “[b]Icons-*.png[/b]” files in the plugin directory.
 [*][img=middle]https://www.castledragmire.com/silksong/RingSmall.png[/img] [b]Search window[/b]: Find icons by name or description. Mouse+Keyboard only.
 [*][b]Saved Values Window[/b]: Watch live save data updates and link discoveries for crowdsourcing final data files.

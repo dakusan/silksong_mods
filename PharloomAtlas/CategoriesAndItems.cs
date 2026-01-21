@@ -67,6 +67,7 @@ public class Item
 
 	public const int MinID=100001, MaxID=int.MaxValue;
 	private const char TrVarChar=(char)2; //Translation variable character - This is placed around any translation names in strings for quick variable fill-in
+	public enum ChainType { Reqs, Needs, Rewards }
 	public static bool IDInRange(int ID) => ID is >=MinID and <=MaxID;
 	private static string TSan(string Message) => Tr.TDef(Message, "ItemFields", Message, true);
 	private static string TDef(string Message, string? Default) => Tr.TDef(Message, "ItemFields", Default!, true);
@@ -102,10 +103,11 @@ public class Item
 		public readonly string StartString;
 		public readonly RenderedField? ExtraStr;
 		public readonly ChainItem[][]? Items;
+		public readonly ChainType Type;
 
-		internal ChainList(Item Parent, string ItemList)
+		internal ChainList(Item Parent, string ItemList, ChainType Type)
 		{
-			(this.Parent, StartString)=(Parent, ItemList);
+			(this.Parent, StartString, this.Type)=(Parent, ItemList, Type);
 
 			//Get and remove the extra string part
 			int ExtraStrPos=ItemList.IndexOf('^');
@@ -254,13 +256,16 @@ public class Item
 			if(FlagNot		) Parts.Add($"<i>{TrVar("FLAG_NOT")}</i> "			);
 			if(FlagStarted	) Parts.Add($"<i>{TrVar("FLAG_STARTED")}</i> "		);
 			if(FlagRecommend) Parts.Add($"<i>{TrVar("FLAG_RECOMMENDED")}</i> "	);
-			if(FlagAmount!=1) Parts.Add($"{AmountChar}<b>{FlagAmount}</b>×"		);
+			string? Amounts=
+				  FlagAmount==1 ? null
+				: "<color=grey>"+(Parent.Type!=ChainType.Rewards ? AmountChar : null)
+				+ $"<b>{FlagAmount}</b>×</color>";
 
 			//If unlinked or linking failed do do not make it a real link
 			string ItemValue=Name, NewItemValue;
 			if(FlagUnlinked || (NewItemValue=GetItemTitleFromID(ItemValue)!)==null) {
 				Name=ItemValue;
-				return "<u>"+string.Join(null, [.. Parts, ItemValue]).Replace(AmountChar, null)+"</u>";
+				return Amounts?.Replace(AmountChar, null)+"<u>"+string.Join(null, [.. Parts, ItemValue])+"</u>";
 			}
 
 			//Prepare variables for rendered string
@@ -279,8 +284,11 @@ public class Item
 //				MakeAttr("GroupIndex",	GroupIndex	),
 				MakeAttr("ItemID",		LinkID		),
 				ExtraColor!=null ? MakeAttr("NormalColor", ExtraColor) : null,
-				"<u>"+string.Join(null, [.. Parts, NewItemValue]).Replace(AmountChar, $"<b>{AmountChar}</b>/")+"</u>",
-				"</LinkID>",
+				Amounts?.Replace(AmountChar, $"<b><size=-4>{AmountChar}</size></b><color=white>/</color>"),
+				"<u>",
+				.. Parts,
+				NewItemValue,
+				"</u></LinkID>",
 			]);
 		}
 	}
@@ -372,13 +380,13 @@ public class Item
 	//JSON type conversion
 	internal class CreateItem : Item
 	{
-		public new string? WhereAt	{ set => Misc.IFF(value!=null, () => base.WhereAt	=new RenderedField	(this, value!)); }
-		public new string? Notes	{ set => Misc.IFF(value!=null, () => base.Notes		=new RenderedField	(this, value!)); }
-		public new string? Effect	{ set => Misc.IFF(value!=null, () => base.Effect	=new RenderedField	(this, value!)); }
-		public new string? Tip		{ set => Misc.IFF(value!=null, () => base.Tip		=new RenderedField	(this, value!)); }
-		public new string? Reqs		{ set => Misc.IFF(value!=null, () => base.Reqs		=new ChainList		(this, value!)); }
-		public new string? Needs	{ set => Misc.IFF(value!=null, () => base.Needs		=new ChainList		(this, value!)); }
-		public new string? Rewards	{ set => Misc.IFF(value!=null, () => base.Rewards	=new ChainList		(this, value!)); }
+		public new string? WhereAt	{ set => Misc.IFF(value!=null, () => base.WhereAt	=new RenderedField	(this, value!					)); }
+		public new string? Notes	{ set => Misc.IFF(value!=null, () => base.Notes		=new RenderedField	(this, value!					)); }
+		public new string? Effect	{ set => Misc.IFF(value!=null, () => base.Effect	=new RenderedField	(this, value!					)); }
+		public new string? Tip		{ set => Misc.IFF(value!=null, () => base.Tip		=new RenderedField	(this, value!					)); }
+		public new string? Reqs		{ set => Misc.IFF(value!=null, () => base.Reqs		=new ChainList		(this, value!, ChainType.Reqs	)); }
+		public new string? Needs	{ set => Misc.IFF(value!=null, () => base.Needs		=new ChainList		(this, value!, ChainType.Needs	)); }
+		public new string? Rewards	{ set => Misc.IFF(value!=null, () => base.Rewards	=new ChainList		(this, value!, ChainType.Rewards)); }
 
 		//Store needs to be created separately since it is nested
 		private new CreateStoreItems[]? Store=null; //Set via JSON
@@ -394,9 +402,9 @@ public class Item
 			foreach((int Index, CreateStoreItems Item) in Store.Entries)
 				Items[Index]=new StoreItem(
 					  Item.Reqs==null ? null
-					: new ChainList(this, Item.Reqs		),
-					  new ChainList(this, Item.Needs	),
-					  new ChainList(this, Item.Rewards	)
+					: new ChainList(this, Item.Reqs		, ChainType.Reqs	),
+					  new ChainList(this, Item.Needs	, ChainType.Needs	),
+					  new ChainList(this, Item.Rewards	, ChainType.Rewards	)
 				);
 			base.Store=new StoreItems(Items);
 			return this;

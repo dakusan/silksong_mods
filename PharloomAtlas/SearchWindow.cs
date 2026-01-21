@@ -148,7 +148,11 @@ public class SearchWindow : SilkDev.Windows.Window
 		string[] Terms=RegEx_SplitAroundSpaces.Split(SearchText.ToLower());
 		Dictionary<int, Category> Cats=MapControl.Self.DS.Categories;
 		List<Item> NewItems=[.. MapControl.Self.DS.Items.Values.Where(I => {
-			string SearchItemInfo=RegEx_RemoveHTMLTags.Replace((I.Title+I.Description+Cats[I.CategoryID].Title).ToLower(), string.Empty);
+			string SearchItemInfo=RegEx_RemoveHTMLTags.Replace(string.Join((char)1, [
+				I.ID, I.Description,
+				DevStrings.SafeRich(I.Title),
+				DevStrings.SafeRich(Cats[I.CategoryID].Title),
+			]).ToLower(), string.Empty);
 			foreach(string Term in Terms)
 				if(!SearchItemInfo.Contains(Term))
 					return false;
@@ -162,10 +166,10 @@ public class SearchWindow : SilkDev.Windows.Window
 		//Transform the items into rich strings and store with their IDs
 		Regex EscapedTermsRegEx=new("("+string.Join('|', Terms.Select(static T => Regex.Escape(DevStrings.SafeRich(T))))+")", RegexOptions.IgnoreCase); //Create regular expression to colorize the strings
 		SearchedItems=[.. NewItems.Select(I => CreateSearchedItem(I.ID, string.Join(DevStrings.NewLine, new string?[] {
-			MakeItemInfoLine("Title", I.Title, EscapedTermsRegEx),
-			MakeItemInfoLine("Category", Cats[I.CategoryID].Title, EscapedTermsRegEx),
-			I.IgnPageName==null ? null : MakeItemInfoLine("IGN Page", "https://www.ign.com/wikis/hollow-knight-silksong/"+I.IgnPageName, EscapedTermsRegEx),
-			I.Description==null ? null : MakeItemInfoLine("Description", I.Description, EscapedTermsRegEx),
+			 	MakeItemInfoLine(			"Title",		DevStrings.SafeRich(I.Title)+$" <size=11>[{I.ID}]</size>",	EscapedTermsRegEx),
+				MakeItemInfoLine(			"Category",		DevStrings.SafeRich(Cats[I.CategoryID].Title),				EscapedTermsRegEx),
+			I.Description==null ? null :
+				MakeItemInfoLine(			"Description",	I.Description,												EscapedTermsRegEx),
 		}.Where(static S => !string.IsNullOrEmpty(S))
 		)))];
 	}

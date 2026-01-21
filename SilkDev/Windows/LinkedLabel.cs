@@ -429,7 +429,7 @@ public class LinkedLabel : IDisposable
 			IsDisposed=true;
 			RenderTexture.active=PrevRT; //Restore RT before GUI.matrix; reversing this can leave GUIClip with a stale transform.
 			GUI.matrix=PrevMatrix;
-			RefreshGuiClip();
+			RefreshGuiClip(); //This is turned off for now
 		}
 	}
 

@@ -19,7 +19,7 @@ public static class Catcher
 
 		//Anything caught by unity will have already
 		Application.logMessageReceived += static (condition, stackTrace, type) => Misc.IFF(
-			OutputStack && type==LogType.Exception,
+			OutputStack && type==LogType.Exception && !stackTrace.Contains("UnityExplorer.CSConsole.LexerBuilder.IndentCharacter"), //Ignore a common unity explorer bug
 			() => Log.Error($"EXCEPTION: {condition}\nStack trace:\n{stackTrace}")
 		);
 	}

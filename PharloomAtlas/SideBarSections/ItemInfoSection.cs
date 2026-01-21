@@ -112,7 +112,7 @@ public partial class SideBar
 			if(CachedLabelDescription==null)
 				LastCachedLanguage=Config.C.Language.Value;
 			List<string> Lines=[
-				MakeItemInfoLine("Title", CurSelectedItem.Title),
+				MakeItemInfoLine("Title", DevStrings.SafeRich(CurSelectedItem.Title)+$" <size=11>[{CurSelectedItem.ID}]</size>", false),
 				MakeItemInfoLine("Category", MapControl.Self.DS.Categories[CurSelectedItem.CategoryID].Title),
 				CachedLabelDescription ??= CurSelectedItem.Description,
 				CurSelectedItem.IgnPageName==null ? null : MakeItemInfoLine("IGN Page", "https://www.ign.com/wikis/hollow-knight-silksong/"+CurSelectedItem.IgnPageName),
@@ -272,8 +272,8 @@ public partial class SideBar
 		}
 
 		//Translations
-		private static string MakeItemInfoLine(string Title, string Info) =>
-			$"<size=-1>{Tr.T(Title, "ItemFields", true)}</size>: <b>{DevStrings.SafeRich(Info)}</b>";
+		private static string MakeItemInfoLine(string Title, string Info, bool SafeRich=true) =>
+			$"<size=-1>{Tr.T(Title, "ItemFields", true)}</size>: <b>{(!SafeRich ? Info : DevStrings.SafeRich(Info))}</b>";
 		private static string TSan(string Message) => Tr.T(Message, nameof(ItemInfoSection), true);
 		private static readonly Translations Tr=Config.C.Tr;
 
