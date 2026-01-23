@@ -27,6 +27,7 @@ public partial class SideBar
 		private SafeTexture2D FakeTex=null!;
 		private readonly GUIStyle ItemInfoBoxStyle=new(GUI.skin.label) { fontSize=16, normal={textColor=Color.white}, richText=true };
 		private readonly Dictionary<string, SafeTexture2D?> LoadedImages=[];
+		private static readonly MapControl MC=MapControl.Self;
 		protected override void ExecDraw(int ClientWidth)
 		{
 			//Make sure FakeTex has been created
@@ -43,17 +44,17 @@ public partial class SideBar
 			ItemInfoBoxStyle.alignment=TextAnchor.UpperLeft;
 
 			//Add hover item information
-			if(MapControl.Self.HoverItem is Item HI)
+			if(MC.HoverItem is Item HI)
 				GUILayout.Label(MakeItemInfoLine("Currently Over", $"{HI.Title} [#{HI.ID}]"), ItemInfoBoxStyle);
 
 			//Render the selected item
 			this.ClientWidth=ClientWidth-InfoSectionHorPadding*2;
-			if(LastSelectedItem!=MapControl.Self.SelectedItem || (MapControl.Self.SelectedItem!=null && CLabel==null))
-				NewItemSelected(MapControl.Self.SelectedItem);
+			if(LastSelectedItem!=MC.SelectedItem || (MC.SelectedItem!=null && CLabel==null))
+				NewItemSelected(MC.SelectedItem);
 			else if(CachedLabelDescription!=null && LastCachedLanguage!=Config.C.Language.Value) //Update label on language change
 				CachedLabelDescription=null;
-			if(MapControl.Self.SelectedItem!=null)
-				RenderSelectedItem(MapControl.Self.SelectedItem);
+			if(MC.SelectedItem!=null)
+				RenderSelectedItem(MC.SelectedItem);
 
 			//End the margin
 			GUILayout.EndVertical();
@@ -68,16 +69,16 @@ public partial class SideBar
 		private string LastCachedLanguage=null!;
 		public ItemInfoSection(string Name, SideBar SB) : base(Name, SB)
 		{
-			Config.C.Color_Link.SettingChanged += (_, _) => CLabel?.LinkColor=Config.C.Color_Link;
-			Config.C.Color_LinkHover.SettingChanged += (_, _) => CLabel?.HoverColor=Config.C.Color_LinkHover;
+			MC.DS.LinkColors.AddCallback(nameof(MC.DS.LinkColors.Default  ), (_, NewColor, _, _, _) => CLabel?.LinkColor =NewColor);
+			MC.DS.LinkColors.AddCallback(nameof(MC.DS.LinkColors.LinkHover), (_, NewColor, _, _, _) => CLabel?.HoverColor=NewColor);
 		}
 		private void NewItemSelected(Item? CurrentSelectedItem)
 		{
 			//Select the new item
 			LastSelectedItem=CurrentSelectedItem;
 			CLabel=CurrentSelectedItem==null ? null : new RicherLabel() {
-				LinkColor=Config.C.Color_Link,
-				HoverColor=Config.C.Color_LinkHover
+				LinkColor =MC.DS.LinkColors.FromName(nameof(MC.DS.LinkColors.Default  )),
+				HoverColor=MC.DS.LinkColors.FromName(nameof(MC.DS.LinkColors.LinkHover)),
 			};
 			SelectedItem=-1; //Selection state is unknown until the next frame when we know if the ClickableLabel has any links
 			CachedLabelDescription=null;
@@ -113,7 +114,7 @@ public partial class SideBar
 				LastCachedLanguage=Config.C.Language.Value;
 			List<string> Lines=[
 				MakeItemInfoLine("Title", DevStrings.SafeRich(CurSelectedItem.Title)+$" <size=11>[{CurSelectedItem.ID}]</size>", false),
-				MakeItemInfoLine("Category", MapControl.Self.DS.Categories[CurSelectedItem.CategoryID].Title),
+				MakeItemInfoLine("Category", MC.DS.Categories[CurSelectedItem.CategoryID].Title),
 				CachedLabelDescription ??= CurSelectedItem.Description,
 				CurSelectedItem.IgnPageName==null ? null : MakeItemInfoLine("IGN Page", "https://www.ign.com/wikis/hollow-knight-silksong/"+CurSelectedItem.IgnPageName),
 			];

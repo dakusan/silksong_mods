@@ -15,13 +15,12 @@ public class SearchWindow : SilkDev.Windows.Window
 
 	//Constants
 	private static readonly Translations Tr=Config.C.Tr;
+	private static DataStorage DS=null!;
 	private readonly GUIStyle TextStyle=new(GUI.skin.label) { fontSize=14, wordWrap=true };
 	private readonly GUIStyle MouseOnlyStyle=new(GUI.skin.label) { fontSize=14, wordWrap=false, richText=false, alignment=TextAnchor.UpperCenter, normal={textColor=Color.red} };
 	private readonly GUIStyle SearchHereStyle=new(GUI.skin.label) { fontSize=13, richText=false, alignment=TextAnchor.MiddleCenter, fontStyle=FontStyle.Bold, normal={textColor=Color.grey} };
 	private readonly GUIStyle NumResults=new(GUI.skin.label) { fontSize=13, alignment=TextAnchor.MiddleRight, normal={textColor=Color.magenta} };
-	private readonly Color SelectCol=new(70/255f, 120/255f, 200/255f, 0.5f); //Desaturated, mid-luminance blue goes well with: red, teal, plum, yellow, cyan, white, black, green
 	private const int MaxSearchResults=50, MaxLinesPerItem=7;
-	private const string TextHighlightColor="green";
 
 	//Information about a searched item
 	private class SearchedItem : System.IDisposable
@@ -137,6 +136,9 @@ public class SearchWindow : SilkDev.Windows.Window
 	private static readonly Regex RegEx_RemoveHTMLTags=new(@"</?\w[^>]+>", RegexOptions.Compiled), RegEx_SplitAroundSpaces=new(@"\s+", RegexOptions.Compiled);
 	private void RunSearch(string SearchText)
 	{
+		//Make sure DS is initialized
+		DS ??= MapControl.Self.DS;
+
 		//Empty search yields nothing
 		SearchedItems.ForEach(static SI => SI.Dispose()); //Dispose previous results
 		if(SearchText.Length==0) {
@@ -146,8 +148,8 @@ public class SearchWindow : SilkDev.Windows.Window
 
 		//Run the search
 		string[] Terms=RegEx_SplitAroundSpaces.Split(SearchText.ToLower());
-		Dictionary<int, Category> Cats=MapControl.Self.DS.Categories;
-		List<Item> NewItems=[.. MapControl.Self.DS.Items.Values.Where(I => {
+		Dictionary<int, Category> Cats=DS.Categories;
+		List<Item> NewItems=[.. DS.Items.Values.Where(I => {
 			string SearchItemInfo=RegEx_RemoveHTMLTags.Replace(string.Join((char)1, [
 				I.ID, I.Description,
 				DevStrings.SafeRich(I.Title),
@@ -196,7 +198,7 @@ public class SearchWindow : SilkDev.Windows.Window
 			}
 			return false;
 		}
-		string ColorTag=$"<b><color={TextHighlightColor}>", ColorEndTag="</color></b>";
+		string ColorTag=$"<b><color={DS.LinkColors.Search_Highlight}>", ColorEndTag="</color></b>";
 		return $"<size=-2>{Tr.T(Title, "ItemFields", true)}</size>: "+EscapedTerms.Replace(
 			Info, M => InTag(M.Index) ? M.Value : ColorTag+M.Value+ColorEndTag
 		);
@@ -230,7 +232,7 @@ public class SearchWindow : SilkDev.Windows.Window
 
 		//Highlight the label if hovered and check for click
 		if(MouseOver) {
-			SelectCol.DrawRect(LabelRect);
+			DS.LinkColors.FromName(nameof(DS.LinkColors.LabelHover)).DrawRect(LabelRect);
 			if(!LinkClicked && Event.current.type==EventType.MouseUp && MButton.CurrentButton==MButton.Enum.Left)
 				MapControl.Self.SelectAndCenterItemI(SI.ID);
 		}

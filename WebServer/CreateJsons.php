@@ -303,13 +303,18 @@ function GenerateMisc()
 			$StaticLinks[$Row->ID]=(int)$Row->CategoryID;
 	}
 
-	//Combine into output object
+	//Combine StaticLinks into output object
 	$StaticLinksFinal=[];
 	foreach($StaticLinkNames as $SLID => $SLName)
 		$StaticLinksFinal[$SLID]=[$SLName, ...(is_array($StaticLinks[$SLID]) ? $StaticLinks[$SLID] : [$StaticLinks[$SLID]])];
+	$Out=['StaticLinks'=>$StaticLinksFinal];
+
+	//Import Misc table
+	foreach(Query('SELECT Section, Name, Value FROM Misc ORDER BY Section ASC, Name ASC') as $Row)
+		$Out[$Row->Section][$Row->Name]=$Row->Value;
 
 	//Create JSON
-	$Out=GenerateJson(['StaticLinks'=>$StaticLinksFinal]);
+	$Out=GenerateJson($Out);
 	$Replacements=[
 		'/,(\s+\])/'=> '\1', //Remove trailing commas on item list
 		'/\n\t\t\t/'=> ' ' , //Combine item lists into 1 row

@@ -14,13 +14,19 @@ public class RicherLabel() : LinkedLabel, IDisposable
 	//Process found/started links
 	protected override void ParseComplete()
 	{
+		DataStorage DS=MapControl.Self.DS;
 		foreach(Link L in ActiveLinks)
 			if(
 				   int.TryParse(L.Attributes.Get("ItemID"), out int LID)
-				&& MapControl.Self.DS.Items.TryGetValue(LID, out Item I)
+				&& DS.Items.TryGetValue(LID, out Item I)
 				&& (I.IsFound || I.IsStarted)
-			)
-				(L.StrikeColor, L.SquiggleStrike)=(Color.white, !I.IsFound);
+			) {
+				L.StrikeColor=DS.LinkColors.FromName(I.IsFound
+					? nameof(DS.LinkColors.Strike_Found)
+					: nameof(DS.LinkColors.Strike_Started)
+				);
+				L.SquiggleStrike=!I.IsFound;
+			}
 
 		base.ParseComplete();
 	}

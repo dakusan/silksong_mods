@@ -117,7 +117,7 @@ public class DataStorage
 
 		//Load the static links
 		try {
-			StaticLinks.AddRange(LoadJSON<StaticLink.CreateStaticLinks, string>("Misc.json")?.Process(Items, Categories) ?? throw new Exception("Misc is null"));
+			(LoadJSON<LoadMisc, LoadMisc>("Misc.json") ?? throw new Exception("Misc is null")).Process(this);
 		} catch(Exception e) {
 			Catcher.OutputException("Loading static links", e);
 			throw new Exception($"Could not load static links, failing out: {e.Message}");
@@ -138,6 +138,90 @@ public class DataStorage
 			Category.Sprite=MyIconSprites[Category.IconID];
 
 		LoadCategoryToggleStates(true);
+	}
+
+	//Link colors. Do not add any other public properties unless they are colors
+	public sealed class LinkColorsT : ColorsSet
+	{
+		//The following of these are set statically so realtime changing is not supported (for now): Flag_{NOT,STARTED,RECOMMENDED}, Sep_{OR,AND}
+		public string Default			{ get; set => field=SetLinkColor(value, field, "cyan"		); } = null!; //Default link color
+		public string LinkHover			{ get; set => field=SetLinkColor(value, field, "yellow"		); } = null!; //Color when a link has the mouse over it
+		public string LabelHover		{ get; set => field=SetLinkColor(value, field, "#4678C880"	); } = null!; //Box color for the entire label when mouse over (in the search box); Desaturated, mid-luminance blue goes well with: red, teal, plum, yellow, cyan, white, black, green
+		public string Flag_NOT			{ get; set => field=SetLinkColor(value, field, "red"		); } = null!; //Flag color (precedence=0) for NOT
+		public string Flag_STARTED		{ get; set => field=SetLinkColor(value, field, "teal"		); } = null!; //Flag color (precedence=1) for STARTED
+		public string Flag_RECOMMENDED	{ get; set => field=SetLinkColor(value, field, "#dda0dd"	); } = null!; //Flag color (precedence=2) for RECOMMENDED [#=plum]
+		public string Sep_OR			{ get; set => field=SetLinkColor(value, field, "purple"		); } = null!; //Separator for boolean OR “ OR ”
+		public string Sep_AND			{ get; set => field=SetLinkColor(value, field, "white"		); } = null!; //Separator for boolean AND “, ”
+		public string Strike_Found		{ get; set => field=SetLinkColor(value, field, "white"		); } = null!; //Straight line through link when item has been found
+		public string Strike_Started	{ get; set => field=SetLinkColor(value, field, "silver"		); } = null!; //Wavy line through link when item has been started (and not found)
+		public string Search_Highlight	{ get; set => field=SetLinkColor(value, field, "green"		); } = null!; //Highlighting searched string
+	}
+
+	//In case I decide to store more colors like this, I decided to make it an abstract class
+	//Note: Do not add public properties to subclass unless they are colors
+	public abstract class ColorsSet
+	{
+		//Set the colors
+		public readonly string[] ColorNames;
+		private readonly Dictionary<string, Color> ColorsFromName;
+		protected string SetLinkColor(string RequestedValue, string PreviousValue, string Default, [System.Runtime.CompilerServices.CallerMemberName] string? ColorName=null)
+		{
+			//Store new values
+			bool IsValid=ColorUtility.TryParseHtmlString(RequestedValue, out Color NewColor);
+			string SetVal=IsValid ? RequestedValue : Default;
+			ColorsFromName[ColorName!]=
+				  IsValid ? NewColor
+				: ColorUtility.TryParseHtmlString(Default, out Color DefaultColor) ? NewColor=DefaultColor
+				: throw new InvalidOperationException("Could not parse default color: "+Default);
+
+			//Run callbacks and set new value
+			_=ColorSetCallbacks.Run(
+				ColorName!,
+				CB => CB(SetVal, NewColor, ColorName!, PreviousValue, RequestedValue)
+			);
+			return SetVal;
+		}
+		public ColorsSet()
+		{
+			Type SubclassType=GetType();
+			ColorNames=[.. SubclassType.GetProperties().Where(P => P.DeclaringType==SubclassType).Select(static P => P.Name)];
+			ColorsFromName=new(ColorNames.Length);
+			ColorNames.ForEach(CName => {
+				ColorsFromName[CName]=Color.black; //This will be immediately overwritten
+				SubclassType.GetProperty(CName).SetValue(this, string.Empty);
+			});
+		}
+
+		//Callbacks
+		public delegate void ColorCallback(string NewValue, Color NewValueColor, string ColorName, string PreviousValue, string RequestedValue);
+		private readonly SilkDev.Events.EventRegister<string, ColorCallback> ColorSetCallbacks=new("Set color callback");
+		public void AddCallback(string ColorName, ColorCallback CB) => Misc.IFF(
+			ColorsFromName.ContainsKey(ColorName),
+			() => ColorSetCallbacks.Add(ColorName, CB)
+		);
+		public void RemoveCallback(string ColorName, ColorCallback CB) => Misc.IFF(
+			ColorsFromName.ContainsKey(ColorName),
+			() => ColorSetCallbacks.Remove(ColorName, CB)
+		);
+
+		//Get as Color
+		public Color FromName(string LinkColorName) =>
+			ColorsFromName.TryGetValue(LinkColorName, out Color C) ? C : throw new ArgumentException("Invalid link color name", nameof(LinkColorName));
+	}
+	public LinkColorsT LinkColors=new();
+
+	private class LoadMisc
+	{
+		private readonly Dictionary<string, List<object>> StaticLinks=[];
+		private readonly Dictionary<string, string> LinkColors=[];
+
+		public void Process(DataStorage DS)
+		{
+			DS.StaticLinks.AddRange(StaticLink.Process(StaticLinks, DS.Items, DS.Categories));
+			foreach(string ColorName in DS.LinkColors.ColorNames)
+				if(LinkColors.TryGetValue(ColorName, out string ColorValue))
+					DS.LinkColors.GetType().GetProperty(ColorName).SetValue(DS.LinkColors, ColorValue);
+		}
 	}
 
 	//Load the category toggle states

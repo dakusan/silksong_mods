@@ -173,8 +173,8 @@ public class Item
 				return [new StringCountPair(ExtraStr?.ToString() ?? string.Empty, null)];
 
 			//Reformat the list
-			string Ret=string.Join($" <b><color=purple>{TrVar("SEP_OR")}</color></b> ", Items.Select(static ItemList =>
-				string.Join(TrVar("SEP_AND"), ItemList.Select(static I => I.RenderedStringInternal))
+			string Ret=string.Join($" <b><color={MC.DS.LinkColors.Sep_OR}>{TrVar("SEP_OR")}</color></b> ", Items.Select(static ItemList =>
+				string.Join($"<color={MC.DS.LinkColors.Sep_AND}>{TrVar("SEP_AND")}</color>", ItemList.Select(static I => I.RenderedStringInternal))
 			))+(ExtraStr==null ? null : $"; {ExtraStr}");
 
 			//Extract ExtractItemCounts sections as StringCountPair. Only StaticLinks are used since items cannot have a count and are just set as “1”
@@ -272,9 +272,9 @@ public class Item
 			Name=NewItemValue;
 			LinkID=int.Parse(ItemValue);
 			string? ExtraColor=
-				  FlagNot		? "red"
-				: FlagStarted	? "teal"
-				: FlagRecommend	? "#dda0dd" //plum
+				  FlagNot		? MC.DS.LinkColors.Flag_NOT
+				: FlagStarted	? MC.DS.LinkColors.Flag_STARTED
+				: FlagRecommend	? MC.DS.LinkColors.Flag_RECOMMENDED
 				: null;
 
 			//Render as a linked item
@@ -465,53 +465,49 @@ public class StaticLink(string Name, int CategoryID, int[]? ItemIDs, int Special
 		:						SpecialCount;
 
 	//JSON type conversion
-	internal class CreateStaticLinks
+	public static Dictionary<int, StaticLink> Process(Dictionary<string, List<object>> StaticLinks, Dictionary<int, Item> Items, Dictionary<int, Category> Categories)
 	{
-		public Dictionary<string, List<object>> StaticLinks=[];
-		public Dictionary<int, StaticLink> Process(Dictionary<int, Item> Items, Dictionary<int, Category> Categories)
+		//Shortcut functions
+		Dictionary<int, StaticLink> Out=[];
+		string? CurName=null!, RemID;
+		int CatID;
+		void AddSL(int ID, int CategoryID=-1, int[]? ItemIDs=null, int SpecialCount=0, FieldInfo? FI=null, string? OverwriteName=null, string? ErrStr=null)
 		{
-			//Shortcut functions
-			Dictionary<int, StaticLink> Out=[];
-			string? CurName=null!, RemID;
-			int CatID;
-			void AddSL(int ID, int CategoryID=-1, int[]? ItemIDs=null, int SpecialCount=0, FieldInfo? FI=null, string? OverwriteName=null, string? ErrStr=null)
-			{
-				Out[ID]=new StaticLink(OverwriteName ?? CurName!, CategoryID, ItemIDs, SpecialCount, FI);
-				if(ErrStr!=null)
-					LineErr(ErrStr);
-			}
-			void LineErr(string Err, bool CompleteFail=false) => Log.Error($"Error on Static Link #{RemID}{(CompleteFail ? " [Skipped]" : null)}: {Err}");
-
-			//Process the static links
-			foreach((string ID, List<object> L) in StaticLinks)
-				if     (!int.TryParse(RemID=ID, out int MyID)	)	LineErr("ID is not an int",					true);
-				else if(!IDInRange(MyID)						)	LineErr("ID is not valid for a Static Link",true);
-				else if(L.Count==0								)	LineErr("Array is empty",					true);
-				else if((CurName=L[0] as string)==null			)	AddSL(MyID, OverwriteName:"???", ErrStr:"Name is not a string");//Invalid name
-				else if(L.Count==1								)	AddSL(MyID, SpecialCount:1);									//Unlinked
-				else if(L.Count==2 && (L[1] is string Special))																		//Special check
-					if(int.TryParse(Special, out int SpecialInt))	AddSL(MyID, SpecialCount:SpecialInt);							//Special Count Success
-					else try {																										//Special FieldInfo Check
-						FieldInfo FI=new Reflectors.RField<PlayerData, int>(null, Special).FI;
-						if(FI.FieldType!=typeof(int))				AddSL(MyID, ErrStr:"PlayerData field is not an int");			//Special FieldInfo failed (not int)
-						else										AddSL(MyID, FI:FI);												//Special FieldInfo success
-					} catch {										AddSL(MyID, ErrStr:$"Invalid value for special: {Special}"); }  //Special FieldInfo failed (doesn’t exist)
-				else if(L.Count==2 && Category.IDInRange(CatID=(int)(L[1] is long CID ? CID : -1)))									//Category check
-					if(Categories.ContainsKey(CatID))				AddSL(MyID, CategoryID:CatID);									//Category success
-					else											AddSL(MyID, ErrStr:$"Invalid Category ID {CatID}");				//Category failed
-				else
-					AddSL(MyID, ItemIDs:[..																							//Item list
-						L.Skip(1)
-						.Select(I =>
-							   I is not			 long	IVal  ? Misc.PassThru(() => LineErr($"ItemID is not a long: {I}"			), -1)
-							: !Item.IDInRange	((int)	IVal) ? Misc.PassThru(() => LineErr($"ItemID is not a valid Item ID: {IVal}"), -1)
-							: !Items.ContainsKey((int)	IVal) ? Misc.PassThru(() => LineErr($"ItemID is not a valid Item: {IVal}"	), -1)
-							: (int)IVal
-						).Where(static I => I!=-1)
-					]);
-
-			return Out;
+			Out[ID]=new StaticLink(OverwriteName ?? CurName!, CategoryID, ItemIDs, SpecialCount, FI);
+			if(ErrStr!=null)
+				LineErr(ErrStr);
 		}
+		void LineErr(string Err, bool CompleteFail=false) => Log.Error($"Error on Static Link #{RemID}{(CompleteFail ? " [Skipped]" : null)}: {Err}");
+
+		//Process the static links
+		foreach((string ID, List<object> L) in StaticLinks)
+			if     (!int.TryParse(RemID=ID, out int MyID)	)	LineErr("ID is not an int",					true);
+			else if(!IDInRange(MyID)						)	LineErr("ID is not valid for a Static Link",true);
+			else if(L.Count==0								)	LineErr("Array is empty",					true);
+			else if((CurName=L[0] as string)==null			)	AddSL(MyID, OverwriteName:"???", ErrStr:"Name is not a string");//Invalid name
+			else if(L.Count==1								)	AddSL(MyID, SpecialCount:1);									//Unlinked
+			else if(L.Count==2 && (L[1] is string Special))																		//Special check
+				if(int.TryParse(Special, out int SpecialInt))	AddSL(MyID, SpecialCount:SpecialInt);							//Special Count Success
+				else try {																										//Special FieldInfo Check
+					FieldInfo FI=new Reflectors.RField<PlayerData, int>(null, Special).FI;
+					if(FI.FieldType!=typeof(int))				AddSL(MyID, ErrStr:"PlayerData field is not an int");			//Special FieldInfo failed (not int)
+					else										AddSL(MyID, FI:FI);												//Special FieldInfo success
+				} catch {										AddSL(MyID, ErrStr:$"Invalid value for special: {Special}"); }  //Special FieldInfo failed (doesn’t exist)
+			else if(L.Count==2 && Category.IDInRange(CatID=(int)(L[1] is long CID ? CID : -1)))									//Category check
+				if(Categories.ContainsKey(CatID))				AddSL(MyID, CategoryID:CatID);									//Category success
+				else											AddSL(MyID, ErrStr:$"Invalid Category ID {CatID}");				//Category failed
+			else
+				AddSL(MyID, ItemIDs:[..																							//Item list
+					L.Skip(1)
+					.Select(I =>
+						   I is not			 long	IVal  ? Misc.PassThru(() => LineErr($"ItemID is not a long: {I}"			), -1)
+						: !Item.IDInRange	((int)	IVal) ? Misc.PassThru(() => LineErr($"ItemID is not a valid Item ID: {IVal}"), -1)
+						: !Items.ContainsKey((int)	IVal) ? Misc.PassThru(() => LineErr($"ItemID is not a valid Item: {IVal}"	), -1)
+						: (int)IVal
+					).Where(static I => I!=-1)
+				]);
+
+		return Out;
 	}
 
 	//Selected via a link

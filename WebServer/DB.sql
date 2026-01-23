@@ -167,4 +167,27 @@ CREATE TABLE ErrorLogs (
   KEY (Username, ID)
 ) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS Misc;
+CREATE TABLE Misc (
+  Section varchar(40) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+  Name varchar(40) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+  Value MEDIUMTEXT NOT NULL,
+  Notes TINYTEXT NULL,
+
+  PRIMARY KEY (Section, Name)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO Misc VALUES
+('LinkColors', 'Default',			'cyan',		'Default link color'),
+('LinkColors', 'LinkHover',			'yellow',	'Color when a link has the mouse over it'),
+('LinkColors', 'LabelHover',		'#4678C880','Box color for the entire label when mouse over (in the search box); Desaturated, mid-luminance blue goes well with: red, teal, plum, yellow, cyan, white, black, green'),
+('LinkColors', 'Flag_NOT',			'red',		'Flag color (precedence=0) for NOT'),
+('LinkColors', 'Flag_STARTED',		'teal',		'Flag color (precedence=1) for STARTED'),
+('LinkColors', 'Flag_RECOMMENDED',	'#dda0dd',	'Flag color (precedence=2) for RECOMMENDED [#=plum]'),
+('LinkColors', 'Sep_OR',			'purple',	'Separator for boolean OR “ OR ”'),
+('LinkColors', 'Sep_AND',			'white',	'Separator for boolean AND “, ”'),
+('LinkColors', 'Strike_Found',		'white',	'Straight line through link when item has been found'),
+('LinkColors', 'Strike_Started',	'silver',	'Wavy line through link when item has been started (and not found)'),
+('LinkColors', 'Search_Highlight',	'green',	'Highlighting searched string');
+
 SET FOREIGN_KEY_CHECKS=1;
