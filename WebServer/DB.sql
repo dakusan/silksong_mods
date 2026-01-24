@@ -1,6 +1,17 @@
 SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci';
 SET FOREIGN_KEY_CHECKS=0;
 
+#Set the comment (c) on a table (t). The comment has newlines trimmed.
+CREATE PROCEDURE TempSetTableComment(t VARCHAR(255), c TEXT)
+BEGIN
+  SET @sql := CONCAT(
+    'ALTER TABLE `', t, '` COMMENT = ', QUOTE(TRIM(BOTH '\n' FROM c))
+  );
+  PREPARE s FROM @sql;
+  EXECUTE s;
+  DEALLOCATE PREPARE s;
+END;
+
 DROP TABLE IF EXISTS SilkSongItems;
 CREATE TABLE SilkSongItems (
   ID int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -43,7 +54,6 @@ CREATE TABLE Items (
   Notes varchar(550) NULL,
   Effect varchar(255) NULL,
   Tip varchar(255) NULL,
-  IgnPageName varchar(100) CHARACTER SET ascii COLLATE ascii_general_ci NULL,
 
   PRIMARY KEY (ID),
   FOREIGN KEY (CategoryID) REFERENCES Categories (ID),
@@ -132,6 +142,31 @@ CREATE TABLE ImageURLs (
   UNIQUE KEY (ItemID, OrderNum),
   FOREIGN KEY (ItemID) REFERENCES Items (ID)
 ) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CALL TempSetTableComment('ImageURLs', '
+Fills in ImageURLs for Items.
+URL must be properly URL escaped.
+Also See ImagePrefix section in Misc table comment.
+');
+
+DROP TABLE IF EXISTS OtherLinks;
+CREATE TABLE OtherLinks (
+  ID int UNSIGNED NOT NULL AUTO_INCREMENT,
+  ItemID int UNSIGNED NOT NULL,
+  OrderNum tinyint UNSIGNED NOT NULL,
+  URL varchar(384) NOT NULL,
+
+  PRIMARY KEY (ID),
+  UNIQUE KEY (ItemID, OrderNum),
+  FOREIGN KEY (ItemID) REFERENCES Items (ID)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CALL TempSetTableComment('OtherLinks', '
+Fills in OtherLinks for Items.
+URL:
+  1) Must be properly URL escaped.
+  2) Can be followed by an optional link name (URL escape not necessary) prefixed with a pipe “|”. If not given, the URL will be the link name.
+  3) The Link name will have System.Net.WebUtility.UrlDecode() ran on it for display.
+Also See OtherLinkPrefix section in Misc table comment.
+');
 
 DROP TABLE IF EXISTS IgnorePlayerNamedValues;
 CREATE TABLE IgnorePlayerNamedValues (
@@ -176,6 +211,14 @@ CREATE TABLE Misc (
 
   PRIMARY KEY (Section, Name)
 ) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CALL TempSetTableComment('Misc', '
+LinkColors section: Items directly tie to PharloomAtlas.DataStorage.LinkColorsT, so adding Names under that section that LinkColorsT does not have are ignored. They must be parsable by ColorUtility.TryParseHtmlString().
+
+ImagePrefix and OtherLinkPrefix sections: These directly tie to PharloomAtlas.Item.{ImageURLs and Links} respectively. For entries in these lists:
+- If it starts with a rule’s PrefixSymbol (.Name), remove the prefix and apply the rule’s regex rewrite.
+- The rewrite specification is in .Value in the form: <D><SEARCH><D><REPLACE> (e.g., “~SEARCH~REPLACE”) where <D> is a single UTF-16 code unit delimiter.
+- The delimiter must appear exactly twice (at the start and between SEARCH and REPLACE) and must not appear inside SEARCH or REPLACE.
+');
 
 INSERT INTO Misc VALUES
 ('LinkColors', 'Default',			'cyan',		'Default link color'),
@@ -188,6 +231,12 @@ INSERT INTO Misc VALUES
 ('LinkColors', 'Sep_AND',			'white',	'Separator for boolean AND “, ”'),
 ('LinkColors', 'Strike_Found',		'white',	'Straight line through link when item has been found'),
 ('LinkColors', 'Strike_Started',	'silver',	'Wavy line through link when item has been started (and not found)'),
-('LinkColors', 'Search_Highlight',	'green',	'Highlighting searched string');
+('LinkColors', 'Search_Highlight',	'green',	'Highlighting searched string'),
+('ImagePrefix',		'!',			'~^~https://ex.com/',
+												'Replaces ! at the beginning of an ImageURL with: https://ex.com/'),
+('OtherLinkPrefix',	'!',			'~^(.*)$~https://ex.com/Articles/$1|MySiteName $1',
+												'Changes “!NAME” to “https://ex.com/Articles/NAME|MySiteName: NAME”');
+
+DROP PROCEDURE TempSetTableComment;
 
 SET FOREIGN_KEY_CHECKS=1;

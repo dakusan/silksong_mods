@@ -116,7 +116,7 @@ public partial class SideBar
 				MakeItemInfoLine("Title", DevStrings.SafeRich(CurSelectedItem.Title)+$" <size=11>[{CurSelectedItem.ID}]</size>", false),
 				MakeItemInfoLine("Category", MC.DS.Categories[CurSelectedItem.CategoryID].Title),
 				CachedLabelDescription ??= CurSelectedItem.Description,
-				CurSelectedItem.IgnPageName==null ? null : MakeItemInfoLine("IGN Page", "https://www.ign.com/wikis/hollow-knight-silksong/"+CurSelectedItem.IgnPageName),
+				CurSelectedItem.OtherLinks==null ? null : MakeItemInfoLine("Links", string.Join(DevStrings.NewLine, CurSelectedItem.OtherLinks), false, false),
 			];
 			if(Config.C.ShowSideBarPictures)
 				CurSelectedItem.ImageURLs?.ForEach(ImageURL => {
@@ -154,10 +154,6 @@ public partial class SideBar
 		//Return the image to render or a text string explaining its state
 		private (string?, SafeTexture2D?) RenderImage(string ImageURL)
 		{
-			//If URL starts with an exclamation mark then prepend the const URL path
-			if(ImageURL.Length>0 && ImageURL[0]=='!')
-				ImageURL="https://media.mapgenie.io/storage/media/"+ImageURL[1..];
-
 			//See if the picture is already loaded
 			string ImageFileName=FileOps.GetFileName(ImageURL);
 			if(LoadedImages.TryGetValue(ImageFileName, out SafeTexture2D? Image))
@@ -273,8 +269,11 @@ public partial class SideBar
 		}
 
 		//Translations
-		private static string MakeItemInfoLine(string Title, string Info, bool SafeRich=true) =>
-			$"<size=-1>{Tr.T(Title, "ItemFields", true)}</size>: <b>{(!SafeRich ? Info : DevStrings.SafeRich(Info))}</b>";
+		private static string MakeItemInfoLine(string Title, string Info, bool SafeRich=true, bool InfoBolded=true) =>
+			$"<size=-1>{Tr.T(Title, "ItemFields", true)}</size>: "
+			+(InfoBolded ? "<b>" : null)
+			+(!SafeRich ? Info : DevStrings.SafeRich(Info))
+			+(InfoBolded ? "</b>" : null);
 		private static string TSan(string Message) => Tr.T(Message, nameof(ItemInfoSection), true);
 		private static readonly Translations Tr=Config.C.Tr;
 

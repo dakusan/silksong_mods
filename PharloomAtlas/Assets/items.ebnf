@@ -8,7 +8,7 @@
 ;;				- For most items, this state is met by the appropriate save-file value being set, which is most often just collecting the in-game item.
 ;;					- These links are set up in ItemFinder.json.
 ;;		- The only required item fields are: [int]ID, [int]CategoryID, [string]Title, [double]x, [double]y
-;;		- Self explanatory fields: [int]IconID, [string]WhereAt, [string]Effect, [string]Tips, [string]*Notes, [string]IgnPageName, [string array]ImageURLs
+;;		- Self explanatory fields: [int]IconID, [string]WhereAt, [string]Effect, [string]Tips, [string]*Notes, [string array]ImageURLs, [string array]OtherLinks
 ;;	Requirements (*Reqs) field:
 ;;		- Things required for the item to become available/visible.
 ;;		- *Reqs are made up of items. Items are separated by <strike>pluses “+”</strike> backticks “`” and pipes “|”. a`b`c|b`d means (a AND b AND c) OR (b OR d).
@@ -53,7 +53,7 @@
 
 ;; ----------------------------items.ebnf JSON format---------------------------
 <FullList>		::=	"{" <Item>* "}"
-<Item>			::=	<QuoteChar> <UInt> <QuoteChar> ":" "{" <ICategoryID> <ITitle> <Ix> <Iy> <IIconID>? <IReqs>? <IWhereAt>? <INeeds>? <IRewards>? <IEffect>? <ITip>? <INotes>? <IIgnPageName>? <IStore>? <IImageURLs>? "}" <Comma>
+<Item>			::=	<QuoteChar> <UInt> <QuoteChar> ":" "{" <ICategoryID> <ITitle> <Ix> <Iy> <IIconID>? <IReqs>? <IWhereAt>? <INeeds>? <IRewards>? <IEffect>? <ITip>? <INotes>? <IStore>? <IImageURLs>? <OtherLinks>? "}" <Comma>
 <ICategoryID>	::=	<QuoteChar> "CategoryID" <QuoteChar> ":" <UInt>			<Comma>
 <ITitle>		::=	<QuoteChar> "Title"		 <QuoteChar> ":" <JSString>		<Comma>
 <Ix>			::=	<QuoteChar> "x"			 <QuoteChar> ":" <Float>		<Comma>
@@ -66,13 +66,13 @@
 <IEffect>		::=	<QuoteChar> "Effect"	 <QuoteChar> ":" <JSString>		<Comma>
 <ITip>			::=	<QuoteChar> "Tip"		 <QuoteChar> ":" <JSString>		<Comma>
 <INotes>		::=	<QuoteChar> "Notes"		 <QuoteChar> ":" <JSString>		<Comma>
-<IIgnPageName>	::=	<QuoteChar> "IgnPageName"<QuoteChar> ":" <JSString>		<Comma>
 <IStore>		::=	<QuoteChar> "Store"		 <QuoteChar> ":" "[" <StoreItem>+   "]" <Comma>
 <IImageURLs>	::=	<QuoteChar> "ImageURLs"	 <QuoteChar> ":" "[" <ImageURLItem>+"]" <Comma>
+<OtherLinks>	::=	<QuoteChar> "OtherLinks" <QuoteChar> ":" "[" <OtherLinkItm>+"]" <Comma>
 
 ;; -------------------------Other standardized sections-------------------------
-;;For “Arena Battle”s the *Notes is in the format <ABRows>:
-;;	^((- \d+ .+?)( \+ \d+ .+?)*(\n|$))+$
+;; For “Arena Battle”s the *Notes is in the format <ABRows>:
+;;    ^((- \d+ .+?)( \+ \d+ .+?)*(\n|$))+$
 <ABRows>		::=	<ABRow> { "\n" <ABRow> }*
 <ABRow>			::=	"- " <ABItem> { " + " <ABItem> }*
 <ABItem>		::=	<UInt> " " { character }+
@@ -81,9 +81,12 @@
 ;; *Rewards Note: Same as “*Need Note” except the <FlagNot> and <FlagStarted> flags are not supported
 <NeedStr>		::=	<QuoteChar> <AndExpr>? <StrExtra>? <QuoteChar>
 
-;;Array parts
+;; Array parts
 <StoreItem>	::=	"{" <IReqs> <INeeds> <IRewards> "}" <Comma>
+;; IImageURLItem and OtherLinkItm both expect properly escaped URLs. URLs strings are directly sent in https requests as-is
 <IImageURLItem>	::=	<QuoteChar> "https://" <JSStringChar>+ <QuoteChar> <Comma>
+;; URL can be followed by an optional link name (URL escape not necessary) prefixed with a pipe “|”. If not given, the URL will be the link name. The Link name will have UrlDecode() ran on it for display
+<OtherLinkItm>	::=	<QuoteChar> "https://" <JSStringChar>+ { "|" <JSStringChar>+ }? <QuoteChar> <Comma>
 
 ;; ----------------------“Requirements” *Reqs string format---------------------
 ;;															ReqStr: *Reqs and information on where to be found. Note: Will be a <JSString>.

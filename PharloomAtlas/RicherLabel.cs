@@ -74,11 +74,12 @@ public class RicherLabel() : LinkedLabel, IDisposable
 
 	public void LinkClicked(Link? L)
 	{
-		//Ignore important links
-		if(L?.Attributes.ContainsKey("Important")!=false)
+		if(L?.Attributes.ContainsKey("Important")!=false)						//Ignore important links
 			return;
-
-		MapControl.Self.DS.LinkSelected(L.Attributes.Get("ItemID") ?? "1");
+		else if(L.Attributes.TryGetValue("href", out string Href))				//Handle links with href first
+			Application.OpenURL(Href);
+		else																	//Assume there is an ItemID
+			MapControl.Self.DS.LinkSelected(L.Attributes.Get("ItemID") ?? "1");
 	}
 
 	//Handle “Important” links

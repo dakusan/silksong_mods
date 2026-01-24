@@ -56,9 +56,8 @@ public class Item
 	public string Title=string.Empty;
 	public RenderedField? WhereAt, Notes, Effect, Tip;
 	public ChainList? Reqs, Needs, Rewards;
-	public string? IgnPageName;
 	public float x, y;
-	public string[]? ImageURLs;
+	public string[]? ImageURLs, OtherLinks;
 	public StoreItems? Store;
 	public Vector2 Pos => new(x, y);
 	private int UniqueLinkIndex=0;
@@ -421,7 +420,7 @@ public class Item
 		private string?				E	{ set => Effect		=value; }
 		private string?				P	{ set => Tip		=value; }
 		private string?				O	{ set => Notes		=value; }
-		private string?				IGN { set => IgnPageName=value; }
+		private string[]?			L	{ set => OtherLinks	=value; }
 		private CreateStoreItems[]? S	{ set => Store		=value; }
 		private string[]?			U	{ set => ImageURLs	=value; }
 	}

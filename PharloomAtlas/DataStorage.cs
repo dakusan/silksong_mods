@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using System.Text.RegularExpressions;
 
 #if DEBUG
 	using SafeTexture2D = SilkDev.Textures.SafeTexture2D;
@@ -77,7 +78,7 @@ public class DataStorage
 		//Load the categories
 		Dictionary<string, CategoryGroup> CategoryGroupsDict;
 		try {
-			CategoryGroupsDict=LoadJSON<Dictionary<string, CategoryGroup>, Category>("categories.json") ?? //RegEx adds ID
+			CategoryGroupsDict=LoadJSON<Dictionary<string, CategoryGroup>, Category>("categories.json") ??
 				throw new Exception("Categories is null");
 		} catch(Exception e) {
 			throw new Exception($"Could not load categories, failing out: {e.Message}");
@@ -213,14 +214,76 @@ public class DataStorage
 	private class LoadMisc
 	{
 		private readonly Dictionary<string, List<object>> StaticLinks=[];
-		private readonly Dictionary<string, string> LinkColors=[];
+		private readonly Dictionary<string, string> LinkColors=[], ImagePrefix=[], OtherLinkPrefix=[];
+
+		/*
+		Goal: Rewrite Item’s ImageURLs/OtherLinks entries based on per-prefix regex rules.
+
+		For each string in ModifyList:
+		- If it starts with a rule’s PrefixSymbol (PrefixList.Key), remove the prefix and apply the rule’s regex rewrite.
+		- The rewrite specification is PrefixList.Value in the form: <D><SEARCH><D><REPLACE> (e.g., “~SEARCH~REPLACE”) where <D> is a single UTF-16 code unit delimiter.
+		- The delimiter must appear exactly twice (at the start and between SEARCH and REPLACE) and must not appear inside SEARCH or REPLACE.
+
+		If FinishProcessing is provided, it is run on every final value after all rewrites have been applied.
+		*/
+		private static void RewriteList(Dictionary<string, string> PrefixList, IEnumerable<(Item, string[])> ModifyList, FinishProcessingFunc? FinishProcessing=null)
+		{
+			//Get the regular expression rewrites
+			List<(Regex SearchRegEx, string PrefixSymbol, string ReplaceWith)> Rewrites=new(PrefixList.Count);
+			foreach((string PrefixSymbol, string RegExStr) in PrefixList)
+				try {
+					if(PrefixSymbol.Length==0)
+						throw new("PrefixSymbol cannot be blank");
+					else if(RegExStr.Length<4)
+						throw new("RegEx must have at least 4 characters");
+					else if(char.IsSurrogate(RegExStr[0]))
+						throw new("RegEx split character must fit within a UTF16 code unit");
+					string[] RegExParts=RegExStr[1..].Split(RegExStr[0]);
+					if(RegExParts.Length!=2)
+						throw new($"Must contain first ({RegExStr[0]}) character exactly once more to split SEARCH and REPLACE");
+					else if(RegExParts[0].Length==0)
+						throw new($"SEARCH cannot be blank");
+					else if(RegExParts[1].Length==0)
+						throw new($"REPLACE cannot be blank");
+					Rewrites.Add((new(RegExParts[0], RegexOptions.CultureInvariant|RegexOptions.Compiled), PrefixSymbol, RegExParts[1]));
+				} catch(Exception e) {
+					Log.Error($"Error parsing Rewrite RegEx “{RegExStr}” for “{PrefixSymbol}”: {e.Message}");
+				}
+
+			//Rewrite entries
+			foreach((Item I, string[] ItemList) in ModifyList)
+				foreach((int Index, string ModifyItem) in ItemList.Entries) {
+					string FinalVal=ModifyItem ?? string.Empty;
+					foreach((Regex SearchRegEx, string PrefixSymbol, string ReplaceWith) in Rewrites)
+						if(FinalVal.StartsWith(PrefixSymbol, StringComparison.Ordinal))
+							FinalVal=SearchRegEx.Replace(FinalVal[PrefixSymbol.Length..], ReplaceWith);
+					if(FinishProcessing!=null)
+						FinalVal=FinishProcessing(FinalVal, I.ID, Index);
+					ItemList[Index]=FinalVal;
+				}
+		}
+		private delegate string FinishProcessingFunc(string Str, int ItemID, int Index);
 
 		public void Process(DataStorage DS)
 		{
+			//StaticLinks
 			DS.StaticLinks.AddRange(StaticLink.Process(StaticLinks, DS.Items, DS.Categories));
+
+			//LinkColors
 			foreach(string ColorName in DS.LinkColors.ColorNames)
 				if(LinkColors.TryGetValue(ColorName, out string ColorValue))
 					DS.LinkColors.GetType().GetProperty(ColorName).SetValue(DS.LinkColors, ColorValue);
+
+			//Rewrite from Image and OtherLink prefixes
+			RewriteList(ImagePrefix		, DS.Items.Values.Where(static I => I.ImageURLs ?.Length>0).Select(static I => (I, I.ImageURLs !)));
+			RewriteList(OtherLinkPrefix	, DS.Items.Values.Where(static I => I.OtherLinks?.Length>0).Select(static I => (I, I.OtherLinks!)),
+				//URL can be followed by an optional link name (URL escape not necessary) prefixed with a pipe “|”. If not given, the URL will be the link name. The Link name will have UrlDecode() ran on it for display.
+				static (Str, ItemID, Index) => {
+					string[] Parts=Str.Split('|', 2);
+					(string URL, string Name)=(Parts.Length==2 ? (Parts[0], Parts[1]) : (Str, Str));
+					return $"<LinkID=OL-{ItemID}-{Index}><ATTR=href>{URL.Replace("<", "%3C")}</ATTR>{DevStrings.SafeRich(System.Net.WebUtility.UrlDecode(Name))}</LinkID>";
+				}
+			);
 		}
 	}
 

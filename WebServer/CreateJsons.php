@@ -113,15 +113,17 @@ function GenerateItems()
 	unset($StoreSets, $UnsetAndReturn);
 
 	//Get other table data to be integrated below
-	$ImageURLs=[];
-	foreach(Query('SELECT ItemID, URL FROM ImageURLs ORDER BY ItemID ASC, OrderNum ASC') as $Row)
-		$ImageURLs[$Row->ItemID][]=$Row->URL;
+	$ImageURLs=$OtherLinks=[];
+	foreach(['ImageURLs'=>&$ImageURLs, 'OtherLinks'=>&$OtherLinks] as $VarName => &$Arr)
+		foreach(Query("SELECT ItemID, URL FROM $VarName ORDER BY ItemID ASC, OrderNum ASC") as $Row)
+			$Arr[$Row->ItemID][]=$Row->URL;
+	unset($Arr);
 
 	//Fill in the items
 	global $CompactJSON;
 	$Items=[];
 	$Required=['C'=>'CategoryID', 'T'=>'Title', 'x'=>'x', 'y'=>'y'];
-	$Optional=['I'=>'IconID', 'R'=>'!Reqs', 'A'=>'WhereAt', 'N'=>'!Needs', 'W'=>'!Rewards', 'E'=>'Effect', 'P'=>'Tip', 'O'=>'Notes', 'IGN'=>'IgnPageName', 'S'=>'!Store', 'U'=>'!ImageURLs'];
+	$Optional=['I'=>'IconID', 'R'=>'!Reqs', 'A'=>'WhereAt', 'N'=>'!Needs', 'W'=>'!Rewards', 'E'=>'Effect', 'P'=>'Tip', 'O'=>'Notes', 'S'=>'!Store', 'U'=>'!ImageURLs', 'L'=>'!OtherLinks'];
 	$Combined=[...array_flip($Required), ...array_flip(array_map(fn($Str) => substr($Str, $Str[0]==='!' ? 1 : 0), $Optional))];
 	foreach(Query('SELECT * FROM Items ORDER BY ID ASC') as $Row) {
 		//Create item, only adding required and non-null optional members
@@ -157,10 +159,12 @@ function GenerateItems()
 			$NewItem->Store=$Stores[$Row->ID];
 		else
 			unset($NewItem->Store);
-		if(isset($ImageURLs[$Row->ID]))
-			$NewItem->ImageURLs=$ImageURLs[$Row->ID];
-		else
-			unset($NewItem->ImageURLs);
+		foreach(['ImageURLs'=>&$ImageURLs, 'OtherLinks'=>&$OtherLinks] as $VarName => &$Arr)
+			if(isset($Arr[$Row->ID]))
+				$NewItem->$VarName=$Arr[$Row->ID];
+			else
+				unset($NewItem->$VarName);
+		unset($Arr);
 
 		//Compact JSON
 		if(!$CompactJSON)
