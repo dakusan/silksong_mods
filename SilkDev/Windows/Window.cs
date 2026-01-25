@@ -1,4 +1,5 @@
 using BepInEx.Configuration;
+using HarmonyLib;
 using SilkDev.DevInput.Mouse;
 using SilkDev.Events;
 using SilkDev.Textures;
@@ -307,6 +308,10 @@ public abstract class Window
 					GUI.BringWindowToFront(Win.ID);
 			}
 
+		//On Layout, update FocusedWindowID
+		if(CurEv.type==EventType.Layout)
+			CheckForFocusWindowReset();
+
 		//Call OnGUI for all (Visible|AlwaysCallPreOnGUI) windows
 		foreach(Window Win in WinOrderList)
 			if(Win._Visible || Win.AlwaysCallPreOnGUI)
@@ -468,5 +473,33 @@ public abstract class Window
 	private void OFCall<T>(OFuncs OF, T Val) {
 		if(OverriddenFuncs[(int)OF] is Action<T> A)
 			Catcher.Run(() => $"“{Title}”.{OF}.{Val}", () => A(Val));
+	}
+
+	//Keep track of the currently focused window. On the frame of the click before Repaint this is invalid. Call GUI.FocusWindow() before GUI.FocusControl() or it can get out of sync.
+	public static int FocusedWindowID
+	{
+		get;
+		private set { field=value; LastFocusedWindowFrame=Time.frameCount; }
+	} = -1;
+	private static int LastFocusedWindowFrame=-1, LastFocusWindowCall=-1;
+	private static void CheckForFocusWindowReset() => Misc.IFF(
+		Input.GetMouseButtonDown(0) && LastFocusedWindowFrame<Time.frameCount,
+		() => FocusedWindowID=-1
+	);
+	[HarmonyPatch(typeof(GUI))]
+	private static class Patch_GUI_Focusers
+	{
+		[HarmonyPrefix][HarmonyPatch(nameof(GUI.UnfocusWindow	))]	private static void UnfocusWindow_Prefix() =>
+			FocusedWindowID=-1;
+		[HarmonyPrefix][HarmonyPatch(nameof(GUI.FocusWindow		))]	private static void FocusWindow_Prefix(int windowID) =>
+			(FocusedWindowID, LastFocusWindowCall)=(windowID, Time.frameCount);
+		[HarmonyPrefix][HarmonyPatch(nameof(GUI.FocusControl	))]	private static void FocusControl_Prefix() => Misc.IFF(
+			LastFocusWindowCall!=Time.frameCount,
+			() => Log.Error("Make sure to call FocusWindow() before FocusControl() on the same frame")
+		);
+		[HarmonyPrefix][HarmonyPatch("CallWindowDelegate"		)]	private static void CallWindowDelegate_Prefix(int id) => Misc.IFF(
+			Event.current?.type==EventType.MouseDown,
+			() => FocusedWindowID=id
+		);
 	}
 }

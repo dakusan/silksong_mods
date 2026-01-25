@@ -217,6 +217,7 @@ LinkColors section: Items directly tie to PharloomAtlas.DataStorage.LinkColorsT,
 ImagePrefix and OtherLinkPrefix sections: These directly tie to PharloomAtlas.Item.{ImageURLs and Links} respectively. For entries in these lists:
 - If it starts with a rule’s PrefixSymbol (.Name), remove the prefix and apply the rule’s regex rewrite.
 - The rewrite specification is in .Value in the form: <D><SEARCH><D><REPLACE> (e.g., “~SEARCH~REPLACE”) where <D> is a single UTF-16 code unit delimiter.
+- The SEARCH regex has no flags inherently. This means RegexOptions.CultureInvariant IS NOT turned on. Meaning \d matches more than [0-9].
 - The delimiter must appear exactly twice (at the start and between SEARCH and REPLACE) and must not appear inside SEARCH or REPLACE.
 ');
 

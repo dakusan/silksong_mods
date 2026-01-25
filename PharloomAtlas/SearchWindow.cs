@@ -66,7 +66,11 @@ public class SearchWindow : SilkDev.Windows.Window
 	private int ItemOverID=-1;
 	private bool SearchTextHasFocus { set => Misc.IFF(
 		field!=value,
-		() => Check_Actions.Toggle(BlockActions, field=value)
+		() => {
+			_=Check_Actions.Toggle(BlockActions, field=value);
+			GUI.FocusWindow(FocusedWindowID);
+			GUI.FocusControl(value ? SearchFieldName : null);
+		}
 	); } = false;
 
 	//Initialization
@@ -94,6 +98,7 @@ public class SearchWindow : SilkDev.Windows.Window
 	);
 
 	//Draw the window contents
+	private const string SearchFieldName="SearchWindowSearchField";
 	protected override void DoLayout(int ID, Event CurEv)
 	{
 		GUILayout.BeginVertical();
@@ -106,7 +111,6 @@ public class SearchWindow : SilkDev.Windows.Window
 		);
 
 		//Search text
-		const string SearchFieldName="SearchWindowSearchField";
 		string OldSearchText=SearchText.Trim();
 		GUI.SetNextControlName(SearchFieldName);
 		SearchText=GUILayout.TextField(SearchText);
@@ -120,7 +124,8 @@ public class SearchWindow : SilkDev.Windows.Window
 				: NumFoundItems+(HadOverflow ? "+" : null),
 			NoResults ? SearchHereStyle : NumResults
 		);
-		SearchTextHasFocus=GUI.GetNameOfFocusedControl()==SearchFieldName;
+		if(Event.current.type==EventType.Repaint)
+			SearchTextHasFocus=(FocusedWindowID==ID);
 
 		//Draw the found items
 		ScrollPosition=GUILayout.BeginScrollView(ScrollPosition, GUILayout.ExpandHeight(true));
@@ -245,10 +250,12 @@ public class SearchWindow : SilkDev.Windows.Window
 	protected override void CloseButton() => Visible=false;
 	public override bool Visible {
 		get => base.Visible;
-		set => Misc.IFF(
-			!(base.Visible=value),
-			() => SearchTextHasFocus=false
-		);
+		set {
+			if(!value)
+				SearchTextHasFocus=false;
+			if(base.Visible!=value && (base.Visible=value))
+				OnNextFrame(() => GUI.FocusWindow(ID), false);
+		}
 	}
 
 	//Allow only cancel action while search field is focused

@@ -112,7 +112,8 @@ public partial class SideBar
 			"1"	, "2" , "3", "!Enter",
 			"~0", null, ".", null,
 		];
-		private static readonly Regex GetFontHeights=new(@"^!(\d\d?)!(\d\d?)(?:!(\d\d?))?"), GetSizeBlock=new(@"^<size\s*=\s*\d+>.*?</size>");
+		private static readonly Regex GetFontHeights=new(@"^!(\d\d?)!(\d\d?)(?:!(\d\d?))?"	, RegexOptions.CultureInvariant|RegexOptions.Compiled);
+		private static readonly Regex GetSizeBlock	=new(@"^<size\s*=\s*\d+>.*?</size>"		, RegexOptions.CultureInvariant|RegexOptions.Compiled);
 
 		protected override void DrawContents(Vector2 AreaSize)
 		{

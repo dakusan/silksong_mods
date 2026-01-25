@@ -226,6 +226,7 @@ public class DataStorage
 		For each string in ModifyList:
 		- If it starts with a rule’s PrefixSymbol (PrefixList.Key), remove the prefix and apply the rule’s regex rewrite.
 		- The rewrite specification is PrefixList.Value in the form: <D><SEARCH><D><REPLACE> (e.g., “~SEARCH~REPLACE”) where <D> is a single UTF-16 code unit delimiter.
+		- The SEARCH regex has no flags inherently. This means RegexOptions.CultureInvariant IS NOT turned on. Meaning \d matches more than [0-9].
 		- The delimiter must appear exactly twice (at the start and between SEARCH and REPLACE) and must not appear inside SEARCH or REPLACE.
 
 		If FinishProcessing is provided, it is run on every final value after all rewrites have been applied.
@@ -249,7 +250,7 @@ public class DataStorage
 						throw new($"SEARCH cannot be blank");
 					else if(RegExParts[1].Length==0)
 						throw new($"REPLACE cannot be blank");
-					Rewrites.Add((new(RegExParts[0], RegexOptions.CultureInvariant|RegexOptions.Compiled, TimeSpan.FromSeconds(1)), PrefixSymbol, RegExParts[1]));
+					Rewrites.Add((new(RegExParts[0], RegexOptions.Compiled, TimeSpan.FromSeconds(1)), PrefixSymbol, RegExParts[1]));
 				} catch(Exception e) {
 					Log.Error($"Error parsing Rewrite RegEx “{RegExStr}” for “{PrefixSymbol}”: {e.Message}");
 				}

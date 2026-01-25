@@ -126,7 +126,7 @@ public class Item
 
 		//--------------------String rendering--------------------
 		//StringCountPair are created such that we can essentially do a `strings.Join(RenderParts.Select(RP => RP.StrBeforeCount+RP.SL.NumCollected)`
-		private static readonly Regex ExtractItemCounts=new($"{ChainItem.AmountChar}\\d+{ChainItem.AmountChar}", RegexOptions.Compiled); //LinkIDs are inside a set of AmountChar characters
+		private static readonly Regex ExtractItemCounts=new($"{ChainItem.AmountChar}\\d+{ChainItem.AmountChar}", RegexOptions.CultureInvariant|RegexOptions.Compiled); //LinkIDs are inside a set of AmountChar characters
 		private static readonly Regex ReplaceLangVars=new($"{TrVarChar}\\w+{TrVarChar}", RegexOptions.Compiled);
 		private record struct StringCountPair(string StrBeforeCount, StaticLink? SL); //Only last item in RenderParts will have SL=null
 		private StringCountPair[] RenderParts=null!;
@@ -296,7 +296,7 @@ public class Item
 	public class RenderedField
 	{
 		//Turn item links in a string into actual links
-		private static readonly Regex GetLinks=new(@"\[(\d+)(~[^^|`\]]+)?]", RegexOptions.Compiled);
+		private static readonly Regex GetLinks=new(@"\[(\d+)(~[^^|`\]]+)?]", RegexOptions.CultureInvariant|RegexOptions.Compiled);
 
 		public readonly Item Parent;
 		public readonly string StartString;
