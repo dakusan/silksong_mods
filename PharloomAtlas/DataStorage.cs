@@ -145,40 +145,52 @@ public class DataStorage
 	public sealed class LinkColorsT : ColorsSet
 	{
 		//The following of these are set statically so realtime changing is not supported (for now): Flag_{NOT,STARTED,RECOMMENDED}, Sep_{OR,AND}
-		public string Default			{ get; set => field=SetLinkColor(value, field, "cyan"		); } = null!; //Default link color
-		public string LinkHover			{ get; set => field=SetLinkColor(value, field, "yellow"		); } = null!; //Color when a link has the mouse over it
-		public string LabelHover		{ get; set => field=SetLinkColor(value, field, "#4678C880"	); } = null!; //Box color for the entire label when mouse over (in the search box); Desaturated, mid-luminance blue goes well with: red, teal, plum, yellow, cyan, white, black, green
-		public string Flag_NOT			{ get; set => field=SetLinkColor(value, field, "red"		); } = null!; //Flag color (precedence=0) for NOT
-		public string Flag_STARTED		{ get; set => field=SetLinkColor(value, field, "teal"		); } = null!; //Flag color (precedence=1) for STARTED
-		public string Flag_RECOMMENDED	{ get; set => field=SetLinkColor(value, field, "#dda0dd"	); } = null!; //Flag color (precedence=2) for RECOMMENDED [#=plum]
-		public string Sep_OR			{ get; set => field=SetLinkColor(value, field, "purple"		); } = null!; //Separator for boolean OR “ OR ”
-		public string Sep_AND			{ get; set => field=SetLinkColor(value, field, "white"		); } = null!; //Separator for boolean AND “, ”
-		public string Strike_Found		{ get; set => field=SetLinkColor(value, field, "white"		); } = null!; //Straight line through link when item has been found
-		public string Strike_Started	{ get; set => field=SetLinkColor(value, field, "silver"		); } = null!; //Wavy line through link when item has been started (and not found)
-		public string Search_Highlight	{ get; set => field=SetLinkColor(value, field, "green"		); } = null!; //Highlighting searched string
+		public StringColor Default			{ get; set => field=SetLinkColor(value, field, "cyan"		); } //Default link color
+		public StringColor LinkHover		{ get; set => field=SetLinkColor(value, field, "yellow"		); } //Color when a link has the mouse over it
+		public StringColor LabelHover		{ get; set => field=SetLinkColor(value, field, "#4678C880"	); } //Box color for the entire label when mouse over (in the search box); Desaturated, mid-luminance blue goes well with: red, teal, plum, yellow, cyan, white, black, green
+		public StringColor Flag_NOT			{ get; set => field=SetLinkColor(value, field, "red"		); } //Flag color (precedence=0) for NOT
+		public StringColor Flag_STARTED		{ get; set => field=SetLinkColor(value, field, "teal"		); } //Flag color (precedence=1) for STARTED
+		public StringColor Flag_RECOMMENDED	{ get; set => field=SetLinkColor(value, field, "#dda0dd"	); } //Flag color (precedence=2) for RECOMMENDED [#=plum]
+		public StringColor Sep_OR			{ get; set => field=SetLinkColor(value, field, "purple"		); } //Separator for boolean OR “ OR ”
+		public StringColor Sep_AND			{ get; set => field=SetLinkColor(value, field, "white"		); } //Separator for boolean AND “, ”
+		public StringColor Strike_Found		{ get; set => field=SetLinkColor(value, field, "white"		); } //Straight line through link when item has been found
+		public StringColor Strike_Started	{ get; set => field=SetLinkColor(value, field, "silver"		); } //Wavy line through link when item has been started (and not found)
+		public StringColor Search_Highlight	{ get; set => field=SetLinkColor(value, field, "green"		); } //Highlighting searched string
 	}
 
 	//In case I decide to store more colors like this, I decided to make it an abstract class
 	//Note: Do not add public properties to subclass unless they are colors
 	public abstract class ColorsSet
 	{
+		//Color type that stores it HTML string and UnityEngine.Color
+		public readonly record struct StringColor(string AsString, Color AsColor)
+		{
+			public readonly string AsString=AsString;
+			public readonly Color AsColor=AsColor;
+			public StringColor(string Value) : this(Value, Color.black) { }			//This is only used as a pass through and is not considered a legitimate value
+			public static implicit operator StringColor(string Value) => new(Value);//This is only used as a pass through and is not considered a legitimate value
+			public static implicit operator string(StringColor Value) => Value.AsString;
+			public static implicit operator Color (StringColor Value) => Value.AsColor;
+			public override string ToString() => AsString;
+		}
+
 		//Set the colors
 		public readonly string[] ColorNames;
-		private readonly Dictionary<string, Color> ColorsFromName;
-		protected string SetLinkColor(string RequestedValue, string PreviousValue, string Default, [System.Runtime.CompilerServices.CallerMemberName] string? ColorName=null)
+		protected StringColor SetLinkColor(string RequestedValue, StringColor PreviousValue, string Default, [System.Runtime.CompilerServices.CallerMemberName] string? ColorName=null)
 		{
 			//Store new values
 			bool IsValid=ColorUtility.TryParseHtmlString(RequestedValue, out Color NewColor);
-			string SetVal=IsValid ? RequestedValue : Default;
-			ColorsFromName[ColorName!]=
+			StringColor SetVal=new(
+				IsValid ? RequestedValue : Default,
 				  IsValid ? NewColor
 				: ColorUtility.TryParseHtmlString(Default, out Color DefaultColor) ? NewColor=DefaultColor
-				: throw new InvalidOperationException("Could not parse default color: "+Default);
+				: throw new InvalidOperationException("Could not parse default color: "+Default)
+			);
 
 			//Run callbacks and set new value
 			_=ColorSetCallbacks.Run(
 				ColorName!,
-				CB => CB(SetVal, NewColor, ColorName!, PreviousValue, RequestedValue)
+				CB => CB(SetVal, ColorName!, PreviousValue, RequestedValue)
 			);
 			return SetVal;
 		}
@@ -186,28 +198,20 @@ public class DataStorage
 		{
 			Type SubclassType=GetType();
 			ColorNames=[.. SubclassType.GetProperties().Where(P => P.DeclaringType==SubclassType).Select(static P => P.Name)];
-			ColorsFromName=new(ColorNames.Length);
-			ColorNames.ForEach(CName => {
-				ColorsFromName[CName]=Color.black; //This will be immediately overwritten
-				SubclassType.GetProperty(CName).SetValue(this, string.Empty);
-			});
+			ColorNames.ForEach(CName => SubclassType.GetProperty(CName).SetValue(this, new StringColor(string.Empty)));
 		}
 
 		//Callbacks
-		public delegate void ColorCallback(string NewValue, Color NewValueColor, string ColorName, string PreviousValue, string RequestedValue);
+		public delegate void ColorCallback(StringColor NewValue, string ColorName, StringColor PreviousValue, string RequestedValue);
 		private readonly SilkDev.Events.EventRegister<string, ColorCallback> ColorSetCallbacks=new("Set color callback");
 		public void AddCallback(string ColorName, ColorCallback CB) => Misc.IFF(
-			ColorsFromName.ContainsKey(ColorName),
+			ColorNames.Contains(ColorName),
 			() => ColorSetCallbacks.Add(ColorName, CB)
 		);
 		public void RemoveCallback(string ColorName, ColorCallback CB) => Misc.IFF(
-			ColorsFromName.ContainsKey(ColorName),
+			ColorNames.Contains(ColorName),
 			() => ColorSetCallbacks.Remove(ColorName, CB)
 		);
-
-		//Get as Color
-		public Color FromName(string LinkColorName) =>
-			ColorsFromName.TryGetValue(LinkColorName, out Color C) ? C : throw new ArgumentException("Invalid link color name", nameof(LinkColorName));
 	}
 	public LinkColorsT LinkColors=new();
 
@@ -245,22 +249,26 @@ public class DataStorage
 						throw new($"SEARCH cannot be blank");
 					else if(RegExParts[1].Length==0)
 						throw new($"REPLACE cannot be blank");
-					Rewrites.Add((new(RegExParts[0], RegexOptions.CultureInvariant|RegexOptions.Compiled), PrefixSymbol, RegExParts[1]));
+					Rewrites.Add((new(RegExParts[0], RegexOptions.CultureInvariant|RegexOptions.Compiled, TimeSpan.FromSeconds(1)), PrefixSymbol, RegExParts[1]));
 				} catch(Exception e) {
 					Log.Error($"Error parsing Rewrite RegEx “{RegExStr}” for “{PrefixSymbol}”: {e.Message}");
 				}
 
 			//Rewrite entries
-			foreach((Item I, string[] ItemList) in ModifyList)
-				foreach((int Index, string ModifyItem) in ItemList.Entries) {
-					string FinalVal=ModifyItem ?? string.Empty;
-					foreach((Regex SearchRegEx, string PrefixSymbol, string ReplaceWith) in Rewrites)
-						if(FinalVal.StartsWith(PrefixSymbol, StringComparison.Ordinal))
-							FinalVal=SearchRegEx.Replace(FinalVal[PrefixSymbol.Length..], ReplaceWith);
-					if(FinishProcessing!=null)
-						FinalVal=FinishProcessing(FinalVal, I.ID, Index);
-					ItemList[Index]=FinalVal;
-				}
+			try {
+				foreach((Item I, string[] ItemList) in ModifyList)
+					foreach((int Index, string ModifyItem) in ItemList.Entries) {
+						string FinalVal=ModifyItem ?? string.Empty;
+						foreach((Regex SearchRegEx, string PrefixSymbol, string ReplaceWith) in Rewrites)
+							if(FinalVal.StartsWith(PrefixSymbol, StringComparison.Ordinal))
+								FinalVal=SearchRegEx.Replace(FinalVal[PrefixSymbol.Length..], ReplaceWith);
+						if(FinishProcessing!=null)
+							FinalVal=FinishProcessing(FinalVal, I.ID, Index);
+						ItemList[Index]=FinalVal;
+					}
+			} catch(Exception e) { //This should only happen with a RegexMatchTimeoutException
+				Log.Error($"Aborted RewriteList: {e.Message}");
+			}
 		}
 		private delegate string FinishProcessingFunc(string Str, int ItemID, int Index);
 
@@ -272,7 +280,7 @@ public class DataStorage
 			//LinkColors
 			foreach(string ColorName in DS.LinkColors.ColorNames)
 				if(LinkColors.TryGetValue(ColorName, out string ColorValue))
-					DS.LinkColors.GetType().GetProperty(ColorName).SetValue(DS.LinkColors, ColorValue);
+					DS.LinkColors.GetType().GetProperty(ColorName).SetValue(DS.LinkColors, new ColorsSet.StringColor(ColorValue));
 
 			//Rewrite from Image and OtherLink prefixes
 			RewriteList(ImagePrefix		, DS.Items.Values.Where(static I => I.ImageURLs ?.Length>0).Select(static I => (I, I.ImageURLs !)));

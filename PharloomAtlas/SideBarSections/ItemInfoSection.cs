@@ -69,16 +69,16 @@ public partial class SideBar
 		private string LastCachedLanguage=null!;
 		public ItemInfoSection(string Name, SideBar SB) : base(Name, SB)
 		{
-			MC.DS.LinkColors.AddCallback(nameof(MC.DS.LinkColors.Default  ), (_, NewColor, _, _, _) => CLabel?.LinkColor =NewColor);
-			MC.DS.LinkColors.AddCallback(nameof(MC.DS.LinkColors.LinkHover), (_, NewColor, _, _, _) => CLabel?.HoverColor=NewColor);
+			MC.DS.LinkColors.AddCallback(nameof(MC.DS.LinkColors.Default  ), (NewColor, _, _, _) => CLabel?.LinkColor =NewColor);
+			MC.DS.LinkColors.AddCallback(nameof(MC.DS.LinkColors.LinkHover), (NewColor, _, _, _) => CLabel?.HoverColor=NewColor);
 		}
 		private void NewItemSelected(Item? CurrentSelectedItem)
 		{
 			//Select the new item
 			LastSelectedItem=CurrentSelectedItem;
 			CLabel=CurrentSelectedItem==null ? null : new RicherLabel() {
-				LinkColor =MC.DS.LinkColors.FromName(nameof(MC.DS.LinkColors.Default  )),
-				HoverColor=MC.DS.LinkColors.FromName(nameof(MC.DS.LinkColors.LinkHover)),
+				LinkColor =MC.DS.LinkColors.Default  .AsColor,
+				HoverColor=MC.DS.LinkColors.LinkHover.AsColor,
 			};
 			SelectedItem=-1; //Selection state is unknown until the next frame when we know if the ClickableLabel has any links
 			CachedLabelDescription=null;

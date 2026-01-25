@@ -232,7 +232,7 @@ public class SearchWindow : SilkDev.Windows.Window
 
 		//Highlight the label if hovered and check for click
 		if(MouseOver) {
-			DS.LinkColors.FromName(nameof(DS.LinkColors.LabelHover)).DrawRect(LabelRect);
+			DS.LinkColors.LabelHover.AsColor.DrawRect(LabelRect);
 			if(!LinkClicked && Event.current.type==EventType.MouseUp && MButton.CurrentButton==MButton.Enum.Left)
 				MapControl.Self.SelectAndCenterItemI(SI.ID);
 		}

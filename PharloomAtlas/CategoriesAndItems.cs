@@ -274,7 +274,7 @@ public class Item
 				  FlagNot		? MC.DS.LinkColors.Flag_NOT
 				: FlagStarted	? MC.DS.LinkColors.Flag_STARTED
 				: FlagRecommend	? MC.DS.LinkColors.Flag_RECOMMENDED
-				: null;
+				: new(null!);
 
 			//Render as a linked item
 			return string.Join(null, [

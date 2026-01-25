@@ -21,10 +21,9 @@ public class RicherLabel() : LinkedLabel, IDisposable
 				&& DS.Items.TryGetValue(LID, out Item I)
 				&& (I.IsFound || I.IsStarted)
 			) {
-				L.StrikeColor=DS.LinkColors.FromName(I.IsFound
-					? nameof(DS.LinkColors.Strike_Found)
-					: nameof(DS.LinkColors.Strike_Started)
-				);
+				L.StrikeColor=
+					  I.IsFound ? DS.LinkColors.Strike_Found
+					: DS.LinkColors.Strike_Started;
 				L.SquiggleStrike=!I.IsFound;
 			}
 
