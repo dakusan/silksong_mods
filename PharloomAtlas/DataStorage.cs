@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System.Text.RegularExpressions;
+using static PharloomAtlas.Item;
 
 #if DEBUG
 	using SafeTexture2D = SilkDev.Textures.SafeTexture2D;
@@ -99,7 +100,7 @@ public class DataStorage
 
 		//Load the items
 		try {
-			Items=(LoadJSON<Dictionary<int, Item.CreateItem>, Item.CreateItem>("items.json") ?? throw new Exception("Items is null"))
+			Items=(LoadJSON<Dictionary<int, CreateItem>, CreateItem>("items.json") ?? throw new Exception("Items is null"))
 				.ToDictionary(static Pair => Pair.Key, static Pair => Pair.Value.GetItem());
 		} catch(Exception e) {
 			throw new Exception($"Could not load items, failing out: "+FileOps.Ser(e)); //The exceptions in this can get pretty deep, so just output the entire exception chain
@@ -139,6 +140,54 @@ public class DataStorage
 			Category.Sprite=MyIconSprites[Category.IconID];
 
 		LoadCategoryToggleStates(true);
+	}
+	private static bool ItemIDInRange(int ID) => IDInRange(ID); //Alleviate some naming confusion
+	internal void CompleteInit()
+	{
+		//Static helpers
+		static IEnumerable<ChainList> GetNonEmptyLists(params ChainList?[] CL) => CL.Where(static CLi => CLi?.Items?.Length>0)!;
+		static IEnumerable<ChainItem> GetListItems				(ChainList CL) => CL.Items.SelectMany(static Arr => Arr);
+		static bool					  IsChainItemAnItem			(ChainItem CI) => ItemIDInRange(CI.SetIDAndName()); //Also runs SetIDAndName on the ChainItem, which MUST be run on EVERY chain item.
+		static void AddReqOrNeedToReward(Item RewardItem, ChainList ReqOrNeedList, StoreItem SI, Dictionary<int, Item> Items)
+		{
+			//Add the Req/Need ChainList to the Reward
+			string? Error=RewardItem.AddStoreChainList(SI, ReqOrNeedList.Type);
+			if(Error!=null)
+				Log.Error($"Error adding {ReqOrNeedList.Parent.ID}.Store.{ReqOrNeedList.Type} to reward {RewardItem.ID}: {Error}");
+
+			//For Req/Needs items sets “Unlocks” to the reward
+			foreach(ChainItem CI in GetListItems(ReqOrNeedList))
+				if(ItemIDInRange(CI.LinkID))
+					Items[CI.LinkID].Unlocks.Add(RewardItem);
+		}
+
+		//Distribute chain system items and set all ChainItem.{LinkIDs, Names}
+		foreach((int ItemID, Item ItemData) in Items) {
+			//Fill in Item.{Unlocks, AQFrom} from an item
+			foreach(ChainList CL in GetNonEmptyLists(ItemData.Reqs, ItemData.Needs, ItemData.Rewards))
+				foreach(ChainItem CI in GetListItems(CL))
+					if(IsChainItemAnItem(CI))
+						(CL==ItemData.Rewards ? Items[CI.LinkID].AQFrom : Items[CI.LinkID].Unlocks).Add(ItemData);
+
+			//Fill in Item.{Unlocks, AQFrom, Reqs, Needs} from stores
+			foreach(StoreItem SI in ItemData.Store?.Items ?? []) {
+				//Set ChainItem.{LinkIDs, Names} for Requirements and Needs [Since they may not get processed in the below loop)
+				foreach(ChainList CL in GetNonEmptyLists(SI.Reqs, SI.Needs))
+					foreach(ChainItem CI in GetListItems(CL))
+						_=CI.SetIDAndName();
+
+				//Distribute store reward related items
+				if(SI.Rewards.Items==null)
+					continue;
+				foreach(ChainItem RWCI in GetListItems(SI.Rewards)) {
+					if(!IsChainItemAnItem(RWCI))
+						continue;
+					Items[RWCI.LinkID].AQFrom.Add(ItemData); //Set reward’s AQFrom to the vendor
+					foreach(ChainList CL in GetNonEmptyLists(SI.Reqs, SI.Needs))
+						AddReqOrNeedToReward(Items[RWCI.LinkID], CL, SI, Items);
+				}
+			}
+		}
 	}
 
 	//Link colors. Do not add any other public properties unless they are colors
@@ -401,7 +450,7 @@ public class DataStorage
 				SL.Selected();
 			else
 				_=new PopupMessage("Invalid Static Link ID");
-		else if(Item.IDInRange(ID))
+		else if(ItemIDInRange(ID))
 			if(Items.TryGetValue(ID, out Item I))
 				I.Selected();
 			else

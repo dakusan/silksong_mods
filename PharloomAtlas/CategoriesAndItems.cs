@@ -1,5 +1,6 @@
 using SilkDev;
 using SilkDev.Textures;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -40,7 +41,7 @@ public class Category
 	public string Title=string.Empty;
 	public Sprite Sprite	{ get; internal set; } = null!;
 	public CategoryToggleState ToggleState=CategoryToggleState.Unknown;
-//		internal Category() {} //Not yet ready for other people to make these. Would need some work.
+	internal Category() { } //Created through JSON processing
 
 	public const int MinID=101, MaxID=499;
 	public static bool IDInRange(int ID) => ID is >=MinID and <=MaxID;
@@ -56,13 +57,14 @@ public class Item
 	public string Title=string.Empty;
 	public RenderedField? WhereAt, Notes, Effect, Tip;
 	public ChainList? Reqs, Needs, Rewards;
+	public ItemSet Unlocks=null!, AQFrom=null!; //AQFrom=Acquired From
 	public float x, y;
 	public string[]? ImageURLs, OtherLinks;
 	public StoreItems? Store;
 	public Vector2 Pos => new(x, y);
 	private int UniqueLinkIndex=0;
 	private string GetLinkID => $"{ID}.{UniqueLinkIndex++}";
-//		internal Item() {} //Not yet ready for other people to make these. Would need some work.
+	internal Item() { } //Must be created through CreateItem
 
 	public const int MinID=100001, MaxID=int.MaxValue;
 	private const char TrVarChar=(char)2; //Translation variable character - This is placed around any translation names in strings for quick variable fill-in
@@ -86,6 +88,8 @@ public class Item
 			Reqs	?.Render("Requirements"	),
 			Needs	?.Render("Needs"		),
 			Rewards	?.Render("Rewards"		),
+			Unlocks	 .Render("Unlocks"		),
+			AQFrom	 .Render("Acq. From"	),
 			Store	?.Render("Store"		),
 		]).Where(static V => V!=null));
 
@@ -94,6 +98,46 @@ public class Item
 		  !int.TryParse(ID, out int i) ? null
 		: StaticLink.IDInRange(i) ? (MC.DS.StaticLinks.Get(i)?.Name)
 		: MC.DS.Items.Get(i)?.Title;
+
+	internal string? AddStoreChainList(StoreItem SI, ChainType CType) //Returns error or null on success
+	{
+		if(CType is not (ChainType.Reqs or ChainType.Needs))
+			return "Combined chain lists must be for either Reqs or Needs: "+CType;
+
+		//Clone the new list
+		ChainList ChainListToCopy=(CType==ChainType.Reqs ? SI.Reqs : SI.Needs)!;
+		if(!(ChainListToCopy?.Items?.Length>0))
+			return "List cannot be empty";
+		ChainList ClonedChainList=new(this, ChainListToCopy.StartString, CType);
+
+		//Create the new ChainItem list
+		ChainList ChainListToStartWith=(CType==ChainType.Reqs ? Reqs : Needs)!;
+		ChainItem[][] ListToStartWith=ChainListToStartWith?.Items ?? [];
+		ChainItem[][] NewList=new ChainItem[ListToStartWith.Length+ClonedChainList.Items!.Length][];
+		ListToStartWith.AsSpan().CopyTo(NewList);
+		ClonedChainList.Items.AsSpan().CopyTo(NewList.AsSpan(ListToStartWith.Length));
+
+		//Create the combined chain list
+		string CombinedExtraString=string.Join("; ",
+			((string?[])[
+				ChainListToStartWith?.ExtraStr?.StartString,
+				ChainListToCopy.ExtraStr?.StartString,
+			])
+			.Where(S => !string.IsNullOrEmpty(S))
+		);
+		ChainList FinalList=new(
+			this, NewList, CType,
+			(ListToStartWith.Length>0 ? ChainListToStartWith!.StartString+'|' : null)+ChainListToCopy.StartString,
+			string.IsNullOrEmpty(CombinedExtraString) ? null : new RenderedField(this, CombinedExtraString)
+		);
+
+		//Set the new chain list and return success
+		_=CType==ChainType.Reqs
+			? Reqs=FinalList
+			: Needs=FinalList;
+
+		return null;
+	}
 
 	//A full chain list for a single field
 	public class ChainList
@@ -119,10 +163,14 @@ public class Item
 			if(ItemList!=string.Empty)
 				Items=[..ItemList.Split('|').Select((OrStr, GroupIndex) =>
 					OrStr.Split('`').Select((ItemStr, ItemIndex) =>
-						new ChainItem(this, ItemStr, GroupIndex, ItemIndex)
+						new ChainItem(this, ItemStr)
 					).ToArray()
 				)];
 		}
+
+		//Used in AddStoreChainList
+		internal ChainList(Item Parent, ChainItem[][] Items, ChainType Type, string StartString, RenderedField? ExtraStr) =>
+			(this.Parent, this.Items, this.Type, this.StartString, this.ExtraStr)=(Parent, Items, Type, StartString, ExtraStr);
 
 		//--------------------String rendering--------------------
 		//StringCountPair are created such that we can essentially do a `strings.Join(RenderParts.Select(RP => RP.StrBeforeCount+RP.SL.NumCollected)`
@@ -218,12 +266,12 @@ public class Item
 		private string GetProcessedRenderString(string Str, string Replacement) => LinkID==-1 ? Str : Str.Replace(AmountChar, Replacement);
 
 		public readonly bool FlagNot=false, FlagStarted=false, FlagRecommend=false, FlagUnlinked=false;
-		public readonly int FlagAmount=1, GroupID, GroupIndex;
+		public readonly int FlagAmount=1;
 		public string Name { get; internal set; } //Not set until after FinishInternalRender()
 		public int LinkID { get; internal set; } = -1; //Not set until after FinishInternalRender()
-		internal ChainItem(ChainList Parent, string Item, int GroupID, int GroupIndex)
+		internal ChainItem(ChainList Parent, string Item)
 		{
-			(this.Parent, this.GroupID, this.GroupIndex, StartString)=(Parent, GroupID, GroupIndex, Item);
+			(this.Parent, StartString)=(Parent, Item);
 
 			//Find flags
 			bool LoopDone=false;
@@ -247,6 +295,21 @@ public class Item
 				}
 			Name=Item[CharIndex..]; //Temporarily use name until final render happens
 		}
+		internal int SetIDAndName() //This is run on every ChainItem after all the Items and StaticLinks are loaded
+		{
+			if(FlagUnlinked || !int.TryParse(Name, out int TestID))
+				return LinkID;
+
+			void RetErr(string Type) => Log.Error($"Invalid {Type} ID Found in {Parent.Parent.ID}.{Parent.Type}: {TestID}");
+			if(StaticLink.IDInRange(TestID))
+				if(!MC.DS.StaticLinks.TryGetValue(TestID, out StaticLink SL))	RetErr("Static Link");
+				else															(LinkID, Name)=(TestID, SL.Name);
+			else if(!IDInRange(TestID))											RetErr("Unranged");
+			else if(MC.DS.Items.TryGetValue(TestID, out Item LinkedItem))		(LinkID, Name)=(TestID, LinkedItem.Title);
+			else																RetErr("Item");
+
+			return LinkID;
+		}
 		private static string MakeAttr(string AttrName, object AttrVal) => $"<ATTR={AttrName}>{AttrVal}</ATTR>";
 		private string FinishInternalRender()
 		{
@@ -261,15 +324,10 @@ public class Item
 				+ $"<b>{FlagAmount}</b>×</color>";
 
 			//If unlinked or linking failed do do not make it a real link
-			string ItemValue=Name, NewItemValue;
-			if(FlagUnlinked || (NewItemValue=GetItemTitleFromID(ItemValue)!)==null) {
-				Name=ItemValue;
-				return Amounts?.Replace(AmountChar, null)+"<u>"+string.Join(null, [.. Parts, ItemValue])+"</u>";
-			}
+			if(LinkID==-1)
+				return Amounts?.Replace(AmountChar, null)+"<u>"+string.Join(null, [.. Parts, Name])+"</u>";
 
 			//Prepare variables for rendered string
-			Name=NewItemValue;
-			LinkID=int.Parse(ItemValue);
 			string? ExtraColor=
 				  FlagNot		? MC.DS.LinkColors.Flag_NOT
 				: FlagStarted	? MC.DS.LinkColors.Flag_STARTED
@@ -279,14 +337,12 @@ public class Item
 			//Render as a linked item
 			return string.Join(null, [
 				$"<LinkID={Parent.Parent.GetLinkID}>",
-//				MakeAttr("GroupID",		GroupID		),
-//				MakeAttr("GroupIndex",	GroupIndex	),
-				MakeAttr("ItemID",		LinkID		),
+				MakeAttr("ItemID", LinkID),
 				ExtraColor!=null ? MakeAttr("NormalColor", ExtraColor) : null,
 				Amounts?.Replace(AmountChar, $"<b><size=-4>{AmountChar}</size></b><color=white>/</color>"),
 				"<u>",
 				.. Parts,
-				NewItemValue,
+				Name,
 				"</u></LinkID>",
 			]);
 		}
@@ -318,6 +374,25 @@ public class Item
 		}
 		public override string ToString() => RenderedString;
 		public string Render(string FieldTitle) => $"<b>{TSan(FieldTitle)}</b>: "+RenderedString;
+	}
+
+	public class ItemSet(Item Parent)
+	{
+		public readonly Item Parent=Parent;
+		private readonly HashSet<Item> ItemList=[];
+		public int Count => ItemList.Count;
+		public IEnumerable<Item> GetItems => ItemList;
+
+		public string? RenderedString	{ get => field ??= FinishInternalRender(); private set;	}
+		public void Add		(Item Item)	{ RenderedString=null!;		_=	ItemList.Add	(Item); }
+		public bool Remove	(Item Item)	{ RenderedString=null!; return	ItemList.Remove	(Item); }
+		public string? FinishInternalRender() =>
+			  ItemList.Count==0 ? null
+			: string.Join(
+				$"<color={MC.DS.LinkColors.Sep_AND}>{TDef("SEP_AND", VarDefaults["SEP_AND"])}</color>",
+				ItemList.Select(Item => $"<LinkID=UL-{Item.ID}-{Parent.GetLinkID}><ATTR=ItemID>{Item.ID}</ATTR><u>{Item.Title}</u></LinkID>")
+			  );
+		public string? Render(string FieldTitle) => ItemList.Count==0 ? null : $"<b>{TSan(FieldTitle)}</b>: "+RenderedString;
 	}
 
 	public CategoryToggleState CurrentToggleState
@@ -392,6 +467,9 @@ public class Item
 		private class CreateStoreItems { public string? Reqs=null; public string Needs=null!, Rewards=null!; }
 		internal Item GetItem()
 		{
+			Unlocks=new ItemSet(this);
+			AQFrom =new ItemSet(this);
+
 			//If store is not set, nothing to do but return self
 			if(Store==null)
 				return this;

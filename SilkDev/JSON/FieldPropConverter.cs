@@ -65,7 +65,7 @@ public class FieldPropConverter<MyClass> : JsonConverter<MyClass> where MyClass 
 	//For any value that has an accessor, set it
 	public override MyClass? ReadJson(JsonReader Reader, Type ObjectType, MyClass? ExistingValue, bool HasExistingValue, JsonSerializer Serializer)
 	{
-		MyClass Instance=(MyClass)Activator.CreateInstance(typeof(MyClass));
+		MyClass Instance=(MyClass)Activator.CreateInstance(typeof(MyClass), true);
 		foreach((string Key, JToken? Value) in JObject.Load(Reader))
 			Accessors.Get(Key)?.Set(Instance, Value);
 		return Instance;

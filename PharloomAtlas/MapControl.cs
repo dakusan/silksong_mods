@@ -127,6 +127,7 @@ public class MapControl : SilkDev.Windows.Window
 			return;
 		}
 		DS=new DataStorage();
+		DS.CompleteInit();
 		DS.LoadIcons();
 		SetIconSize(Conf.IconSize);
 
