@@ -123,7 +123,7 @@ public class Item
 				ChainListToStartWith?.ExtraStr?.StartString,
 				ChainListToCopy.ExtraStr?.StartString,
 			])
-			.Where(S => !string.IsNullOrEmpty(S))
+			.Where(static S => !string.IsNullOrEmpty(S))
 		);
 		ChainList FinalList=new(
 			this, NewList, CType,
@@ -267,8 +267,8 @@ public class Item
 
 		public readonly bool FlagNot=false, FlagStarted=false, FlagRecommend=false, FlagUnlinked=false;
 		public readonly int FlagAmount=1;
-		public string Name { get; internal set; } //Not set until after FinishInternalRender()
-		public int LinkID { get; internal set; } = -1; //Not set until after FinishInternalRender()
+		public string Name	{ get; internal set; }		//Set after DataStorage load complete (usually during DataStorage.CompleteInit)
+		public int LinkID	{ get; internal set; } = -1;//Set after DataStorage load complete (usually during DataStorage.CompleteInit)
 		internal ChainItem(ChainList Parent, string Item)
 		{
 			(this.Parent, StartString)=(Parent, Item);
@@ -293,22 +293,13 @@ public class Item
 							CharIndex--;
 						break;
 				}
-			Name=Item[CharIndex..]; //Temporarily use name until final render happens
-		}
-		internal int SetIDAndName() //This is run on every ChainItem after all the Items and StaticLinks are loaded
-		{
-			if(FlagUnlinked || !int.TryParse(Name, out int TestID))
-				return LinkID;
 
-			void RetErr(string Type) => Log.Error($"Invalid {Type} ID Found in {Parent.Parent.ID}.{Parent.Type}: {TestID}");
-			if(StaticLink.IDInRange(TestID))
-				if(!MC.DS.StaticLinks.TryGetValue(TestID, out StaticLink SL))	RetErr("Static Link");
-				else															(LinkID, Name)=(TestID, SL.Name);
-			else if(!IDInRange(TestID))											RetErr("Unranged");
-			else if(MC.DS.Items.TryGetValue(TestID, out Item LinkedItem))		(LinkID, Name)=(TestID, LinkedItem.Title);
-			else																RetErr("Item");
-
-			return LinkID;
+			//Temporarily use name until SetIDAndName
+			Name=Item[CharIndex..];
+			if(MC.DS==null)
+				NeedsIDAndName.Add(this);
+			else
+				SetIDAndName();
 		}
 		private static string MakeAttr(string AttrName, object AttrVal) => $"<ATTR={AttrName}>{AttrVal}</ATTR>";
 		private string FinishInternalRender()
@@ -346,6 +337,28 @@ public class Item
 				"</u></LinkID>",
 			]);
 		}
+
+		//Set LinkID and Name (Set after DataStorage loading is complete [immediate if that is already done])
+		private static readonly List<ChainItem> NeedsIDAndName=[];
+		internal static void Process_NeedsIDAndName()
+		{
+			foreach(ChainItem CI in NeedsIDAndName)
+				CI.SetIDAndName();
+			NeedsIDAndName.Clear();
+		}
+		private void SetIDAndName() //This is run on every ChainItem after all the Items and StaticLinks are loaded
+		{
+			if(FlagUnlinked || !int.TryParse(Name, out int TestID))
+				return;
+
+			void RetErr(string Type) => Log.Error($"Invalid {Type} ID Found in {Parent.Parent.ID}.{Parent.Type}: {TestID}");
+			if(StaticLink.IDInRange(TestID))
+				if(!MC.DS.StaticLinks.TryGetValue(TestID, out StaticLink SL))	RetErr("Static Link");
+				else															(LinkID, Name)=(TestID, SL.Name);
+			else if(!IDInRange(TestID))											RetErr("Unranged");
+			else if(MC.DS.Items.TryGetValue(TestID, out Item LinkedItem))		(LinkID, Name)=(TestID, LinkedItem.Title);
+			else																RetErr("Item");
+		}
 	}
 
 	//A string with item links inside square brackets rendered as actual links
@@ -380,8 +393,7 @@ public class Item
 	{
 		public readonly Item Parent=Parent;
 		private readonly HashSet<Item> ItemList=[];
-		public int Count => ItemList.Count;
-		public IEnumerable<Item> GetItems => ItemList;
+		public IReadOnlyCollection<Item> GetItems => ItemList;
 
 		public string? RenderedString	{ get => field ??= FinishInternalRender(); private set;	}
 		public void Add		(Item Item)	{ RenderedString=null!;		_=	ItemList.Add	(Item); }

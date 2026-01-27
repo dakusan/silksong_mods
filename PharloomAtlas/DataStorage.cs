@@ -142,12 +142,13 @@ public class DataStorage
 		LoadCategoryToggleStates(true);
 	}
 	private static bool ItemIDInRange(int ID) => IDInRange(ID); //Alleviate some naming confusion
+
+	//Distribute chain system items
 	internal void CompleteInit()
 	{
 		//Static helpers
 		static IEnumerable<ChainList> GetNonEmptyLists(params ChainList?[] CL) => CL.Where(static CLi => CLi?.Items?.Length>0)!;
 		static IEnumerable<ChainItem> GetListItems				(ChainList CL) => CL.Items.SelectMany(static Arr => Arr);
-		static bool					  IsChainItemAnItem			(ChainItem CI) => ItemIDInRange(CI.SetIDAndName()); //Also runs SetIDAndName on the ChainItem, which MUST be run on EVERY chain item.
 		static void AddReqOrNeedToReward(Item RewardItem, ChainList ReqOrNeedList, StoreItem SI, Dictionary<int, Item> Items)
 		{
 			//Add the Req/Need ChainList to the Reward
@@ -161,32 +162,25 @@ public class DataStorage
 					Items[CI.LinkID].Unlocks.Add(RewardItem);
 		}
 
-		//Distribute chain system items and set all ChainItem.{LinkIDs, Names}
+		ChainItem.Process_NeedsIDAndName();
+
+		//Distribute links from each item
 		foreach((int ItemID, Item ItemData) in Items) {
-			//Fill in Item.{Unlocks, AQFrom} from an item
+			//Fills in Item.{Unlocks, AQFrom} for items linked from this item
 			foreach(ChainList CL in GetNonEmptyLists(ItemData.Reqs, ItemData.Needs, ItemData.Rewards))
 				foreach(ChainItem CI in GetListItems(CL))
-					if(IsChainItemAnItem(CI))
+					if(ItemIDInRange(CI.LinkID))
 						(CL==ItemData.Rewards ? Items[CI.LinkID].AQFrom : Items[CI.LinkID].Unlocks).Add(ItemData);
 
-			//Fill in Item.{Unlocks, AQFrom, Reqs, Needs} from stores
-			foreach(StoreItem SI in ItemData.Store?.Items ?? []) {
-				//Set ChainItem.{LinkIDs, Names} for Requirements and Needs [Since they may not get processed in the below loop)
-				foreach(ChainList CL in GetNonEmptyLists(SI.Reqs, SI.Needs))
-					foreach(ChainItem CI in GetListItems(CL))
-						_=CI.SetIDAndName();
-
-				//Distribute store reward related items
-				if(SI.Rewards.Items==null)
-					continue;
-				foreach(ChainItem RWCI in GetListItems(SI.Rewards)) {
-					if(!IsChainItemAnItem(RWCI))
-						continue;
-					Items[RWCI.LinkID].AQFrom.Add(ItemData); //Set reward’s AQFrom to the vendor
-					foreach(ChainList CL in GetNonEmptyLists(SI.Reqs, SI.Needs))
-						AddReqOrNeedToReward(Items[RWCI.LinkID], CL, SI, Items);
-				}
-			}
+			//Distribute store reward related items: Fills in Item.{Unlocks, AQFrom, Reqs, Needs} for items linked from this item’s store
+			foreach(StoreItem SI in ItemData.Store?.Items ?? [])
+				if(SI.Rewards.Items!=null)
+					foreach(ChainItem RWCI in GetListItems(SI.Rewards))
+						if(ItemIDInRange(RWCI.LinkID)) {
+							Items[RWCI.LinkID].AQFrom.Add(ItemData); //Set reward’s AQFrom to the vendor
+							foreach(ChainList CL in GetNonEmptyLists(SI.Reqs, SI.Needs))
+								AddReqOrNeedToReward(Items[RWCI.LinkID], CL, SI, Items);
+						}
 		}
 	}
 
