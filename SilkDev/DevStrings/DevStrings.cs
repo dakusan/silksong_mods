@@ -2,11 +2,42 @@ using System;
 
 namespace SilkDev;
 
-public static class DevStrings
+public static partial class DevStrings
 {
-	//Ensure richText markup is treated as literal text
-	public static string SafeRich(string Message) =>
-		Message.IndexOf('<')==-1 ? Message :  Message.Replace("<", "<<i></i>"); //Yes, this is really the best way
+	//Ensure richText markup is treated as literal text. Add ZWSP after and before characters “<” and “>” respectively
+	private static readonly char[] AngleTargets = ['<', '>'];
+	public static string SafeRich(string Str)
+	{
+		if(string.IsNullOrEmpty(Str))
+			return Str;
+
+		//Gather number of hits using IndexOfAny.
+		//It is Impossible to use CreateString() with stack allocated objects so its faster to do a 2 pass with a count and then the replacements.
+		int HitsCount=0;
+		for(int Hit=Str.IndexOfAny(AngleTargets); Hit>-1; Hit=Str.IndexOfAny(AngleTargets, Hit+1))
+			HitsCount++;
+		if(HitsCount==0)
+			return Str;
+
+		//Run the replacements
+		static void CreateString(Span<char> Dst, string Src)
+		{
+			int SrcPos=0, DstPos=0;
+			for(int Hit=Src.IndexOfAny(AngleTargets); Hit>-1; Hit=Src.IndexOfAny(AngleTargets, Hit+1)) {
+				if(SrcPos!=Hit) {
+					Src.AsSpan(SrcPos, Hit-SrcPos).CopyTo(Dst[DstPos..]);
+					DstPos+=Hit-SrcPos;
+				}
+				bool IsLessThan=(Src[Hit]=='<');
+				Dst[DstPos++]=(IsLessThan ? '<' : '\u200B');
+				Dst[DstPos++]=(IsLessThan ? '\u200B' : '>');
+				SrcPos=Hit+1;
+			}
+			Src.AsSpan(SrcPos).CopyTo(Dst[DstPos..]);
+		}
+
+		return string.Create(Str.Length+HitsCount, Str, CreateString);
+	}
 
 	//Get steam username
 	public const string UsernameErrorString="*SILKDEV NO NAME*"; //Tells the server the user’s username couldn’t be looked up

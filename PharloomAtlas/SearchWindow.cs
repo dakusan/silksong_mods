@@ -138,7 +138,6 @@ public class SearchWindow : SilkDev.Windows.Window
 	}
 
 	//Split the search text into terms and find any item that has all search terms
-	private static readonly Regex RegEx_RemoveHTMLTags=new(@"</?\w[^>]+>", RegexOptions.Compiled), RegEx_SplitAroundSpaces=new(@"\s+", RegexOptions.Compiled);
 	private void RunSearch(string SearchText)
 	{
 		//Make sure DS is initialized
@@ -146,48 +145,57 @@ public class SearchWindow : SilkDev.Windows.Window
 
 		//Empty search yields nothing
 		SearchedItems.ForEach(static SI => SI.Dispose()); //Dispose previous results
-		if(SearchText.Length==0) {
+		if(SearchText.Trim().Length==0) {
 			SearchedItems=[];
 			return;
 		}
 
-		//Run the search
-		string[] Terms=RegEx_SplitAroundSpaces.Split(SearchText.ToLower());
+		//Search item string transformer
+		HashSet<int> YieldedMatchedIds=[], MatchingIDs=[];
 		Dictionary<int, Category> Cats=DS.Categories;
-		List<Item> NewItems=[.. DS.Items.Values.Where(I => {
-			string SearchItemInfo=RegEx_RemoveHTMLTags.Replace(string.Join((char)1, [
-				I.ID, I.Description,
+		string? SearchTransformer(Item I) =>
+			  MatchingIDs.Contains(I.ID) && !YieldedMatchedIds.Add(I.ID) ? null //Only process matching IDs once
+			: string.Join((char)1, [
+				I.ID.ToString(), I.Description,
 				DevStrings.SafeRich(I.Title),
 				DevStrings.SafeRich(Cats[I.CategoryID].Title),
-			]).ToLower(), string.Empty);
-			foreach(string Term in Terms)
-				if(!SearchItemInfo.Contains(Term))
-					return false;
-			return true;
-		}).Take(MaxSearchResults+1)];
+			]);
+
+		//Get a list of items with exact ID matches
+		DevStrings.I18NSearch<Item> DoSearch=new(SearchText, SearchTransformer);
+		DoSearch.OriginalTerms
+			.Select	(static Str => int.TryParse(Str, out int ID) && DS.Items.ContainsKey(ID) ? ID : -1)
+			.Where	(static ID  => ID!=-1)
+			.ForEach(		ID  => MatchingIDs.Add(ID));
+
+		//Run the search
+		List<Item> NewItems=[.. DoSearch.Execute(
+			MatchingIDs.Select(static ItemID => DS.Items[ItemID])
+			.Concat(DS.Items.Values))
+			.Take(MaxSearchResults+1)
+		];
 
 		//Account for overflow
 		if(HadOverflow=(NewItems.Count>MaxSearchResults))
 			NewItems.RemoveAt(NewItems.Count-1);
 
 		//Transform the items into rich strings and store with their IDs
-		Regex EscapedTermsRegEx=new("("+string.Join('|', Terms.Select(static T => Regex.Escape(DevStrings.SafeRich(T))))+")", RegexOptions.IgnoreCase); //Create regular expression to colorize the strings
 		SearchedItems=[.. NewItems.Select(I => CreateSearchedItem(I.ID, string.Join(DevStrings.NewLine, new string?[] {
-			 	MakeItemInfoLine(			"Title",		DevStrings.SafeRich(I.Title)+$" <size=11>[{I.ID}]</size>",	EscapedTermsRegEx),
-				MakeItemInfoLine(			"Category",		DevStrings.SafeRich(Cats[I.CategoryID].Title),				EscapedTermsRegEx),
+			 	MakeItemInfoLine(			"Title",		DevStrings.SafeRich(I.Title)+$" <size=11>[{I.ID}]</size>",	DoSearch),
+				MakeItemInfoLine(			"Category",		DevStrings.SafeRich(Cats[I.CategoryID].Title),				DoSearch),
 			I.Description==null ? null :
-				MakeItemInfoLine(			"Description",	I.Description,												EscapedTermsRegEx),
+				MakeItemInfoLine(			"Description",	I.Description,												DoSearch),
 		}.Where(static S => !string.IsNullOrEmpty(S))
 		)))];
 	}
 
 	//Create a string with sized down title and Info with highlighted search terms
-	private static string MakeItemInfoLine(string Title, string Info, Regex EscapedTerms)
+	private static string MakeItemInfoLine(string Title, string Info, DevStrings.I18NSearch<Item> DoSearch)
 	{
 		if(string.IsNullOrEmpty(Info))
 			return null!;
 
-		IEnumerator<Match> TagEnum=(IEnumerator<Match>)RegEx_RemoveHTMLTags.Matches(Info).GetEnumerator();
+		IEnumerator<Match> TagEnum=(IEnumerator<Match>)DevStrings.I18NSearch<int>.RegEx_RemoveHTMLTags.Matches(Info).GetEnumerator();
 		bool HasTag=TagEnum.MoveNext();
 		Match? CurTag=(HasTag ? TagEnum.Current : null);
 
@@ -204,8 +212,8 @@ public class SearchWindow : SilkDev.Windows.Window
 			return false;
 		}
 		string ColorTag=$"<b><color={DS.LinkColors.Search_Highlight}>", ColorEndTag="</color></b>";
-		return $"<size=-2>{Tr.T(Title, "ItemFields", true)}</size>: "+EscapedTerms.Replace(
-			Info, M => InTag(M.Index) ? M.Value : ColorTag+M.Value+ColorEndTag
+		return $"<size=-2>{Tr.T(Title, "ItemFields", true)}</size>: "+DoSearch.ReplaceSearchTerms(
+			Info, (FindIndex, FindValue) => InTag(FindIndex) ? FindValue : ColorTag+FindValue+ColorEndTag
 		);
 	}
 
