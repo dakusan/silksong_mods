@@ -56,7 +56,7 @@ Enabled by default: [i]Sidebar &amp; map icons[/i] + [i]Highlight Hornet pin[/i]
 [*][b]Other Features[/b][list]
 [*][img=middle]https://www.castledragmire.com/silksong/PaintSmall.png[/img] Interface color customization.
 [*][img=middle]https://www.castledragmire.com/silksong/DeathCacoonSmall.png[/img] Per-user-saveslot configs with automatic backups (required for marker labels).
-[*][img=middle]https://www.castledragmire.com/silksong/Phonograph.png[/img] User interfaces translated [via LLM] into 20 languages.
+[*][img=middle]https://www.castledragmire.com/silksong/Phonograph.png[/img] User interfaces translated [via LLM] into 21 languages.
 [*][img=middle]https://www.castledragmire.com/silksong/Fireball.png[/img] Error log upload support. See [url=https://www.nexusmods.com/hollowknightsilksong/articles/141]here[/url] for more information.
 [/list]
 [/list]
@@ -158,16 +158,16 @@ This is the only window that persists without the map open.
 Some values are hard to identify — e.g., some secrets are hidden behind “*Remasker*” flags.
 
 [b]Icon accessibility requirements and fulfillment needs [color=cyan](the chain system)[/color] also need additions and confirmation.[/b] For now that’s only possible via json editing and submission. This feature is also currently experimental.
-Here is the current dependency graph of data I’ve been able to compile.
+Here is a small part of the current dependency graph of data I’ve been able to compile.
 [img]https://www.castledragmire.com/silksong/ChainSystem.jpg?v=2[/img]
 
 [b]If anyone is interested in helping get the database in this project complete, [color=green][i]PLEASE contact me[/i][/color][/b]. If there is enough interest I’ll put up a discord.
 
 [u]Up-to-date JSON files:[/u][list]
-[*]Icon data and relationships:                                  [url=https://www.castledragmire.com/silksong/items.json]items.json[/url]         [url=https://www.castledragmire.com/silksong/items.json?CompactJSON=1]Compact[/url]
-[*]Icon categories (used for hiding/filtering):           [url=https://www.castledragmire.com/silksong/categories.json]categories.json[/url] [url=https://www.castledragmire.com/silksong/categories.json?CompactJSON=1]Compact[/url]
-[*]Item → save-value bindings (progress tracking): [url=https://www.castledragmire.com/silksong/ItemFinder.json]ItemFinder.json[/url] [url=https://www.castledragmire.com/silksong/ItemFinder.json?CompactJSON=1]Compact[/url]
-[*]Category groupings and misc progress data:       [url=https://www.castledragmire.com/silksong/Misc.json]Misc.json[/url]          [url=https://www.castledragmire.com/silksong/Misc.json?CompactJSON=1]Compact[/url]
+[*] Icon data and relationships:                                  [url=https://www.castledragmire.com/silksong/items.json]items.json[/url]         [size=1]  [/size][url=https://www.castledragmire.com/silksong/items.json?CompactJSON=1]Compact[/url]
+[*] Icon categories (used for hiding/filtering):          [size=1]  [/size][url=https://www.castledragmire.com/silksong/categories.json]categories.json[/url]  [url=https://www.castledragmire.com/silksong/categories.json?CompactJSON=1]Compact[/url]
+[*] Item → save-value bindings (progress tracking): [url=https://www.castledragmire.com/silksong/ItemFinder.json]ItemFinder.json[/url]  [url=https://www.castledragmire.com/silksong/ItemFinder.json?CompactJSON=1]Compact[/url]
+[*] Category groupings and misc progress data:     [size=1]  [/size][url=https://www.castledragmire.com/silksong/Misc.json]Misc.json[/url]            [url=https://www.castledragmire.com/silksong/Misc.json?CompactJSON=1]Compact[/url]
 [/list]
 
 [center][size=5][img=middle]https://www.castledragmire.com/silksong/FireSmall.png[/img]                   [b]Bonus Rant[/b]                   [img=middle]https://www.castledragmire.com/silksong/FireSmallRev.png[/img][/size]

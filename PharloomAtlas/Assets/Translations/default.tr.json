@@ -133,7 +133,6 @@
 		//Titles for item’s primary properties
 		"Title": "Title",
 		"Category": "Category",
-		"IGN Page": "IGN Page",
 		"Description": "Description",
 		"Currently Over": "Currently Over",
 		//Titles for parts of an Item’s description
@@ -145,6 +144,9 @@
 		"Needs": "Needs",
 		"Rewards": "Rewards",
 		"Store": "Store",
+		"Unlocks": "Unlocks", //This is set for an item (Target) when another item (Dependency) requires it
+		"Acq. From": "Acq. From", //Acquired from. The dependency in which the item is received from is usually a store or monster. The whole word can be spelled out in other languages, it was just too long for English
+		"Links": "Links", //External URL links for this item. For example, a page describing how to get the item
 		//Requirements/Needs/Rewards are “Chain Lists” which contain a list of “Chain Items”. The list’s items are separated by boolean ANDs and ORs, translations as SEP_AND and SEP_OR
 		"SEP_AND": ", ",
 		"SEP_OR": "OR",

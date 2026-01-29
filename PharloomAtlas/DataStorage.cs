@@ -199,6 +199,7 @@ public class DataStorage
 		public StringColor Strike_Found		{ get; set => field=SetLinkColor(value, field, "white"		); } //Straight line through link when item has been found
 		public StringColor Strike_Started	{ get; set => field=SetLinkColor(value, field, "silver"		); } //Wavy line through link when item has been started (and not found)
 		public StringColor Search_Highlight	{ get; set => field=SetLinkColor(value, field, "green"		); } //Highlighting searched string
+		public StringColor CollectedCounts	{ get; set => field=SetLinkColor(value, field, "grey"		); } //Amounts the player has and needs to finish an item
 	}
 
 	//In case I decide to store more colors like this, I decided to make it an abstract class

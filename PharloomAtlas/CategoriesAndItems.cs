@@ -311,7 +311,7 @@ public class Item
 			if(FlagRecommend) Parts.Add($"<i>{TrVar("FLAG_RECOMMENDED")}</i> "	);
 			string? Amounts=
 				  FlagAmount==1 ? null
-				: "<color=grey>"+(Parent.Type!=ChainType.Rewards ? AmountChar : null)
+				: $"<color={MC.DS.LinkColors.CollectedCounts}>"+(Parent.Type!=ChainType.Rewards ? AmountChar : null)
 				+ $"<b>{FlagAmount}</b>×</color>";
 
 			//If unlinked or linking failed do do not make it a real link

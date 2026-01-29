@@ -55,7 +55,7 @@ You should end up with paths like: `Hollow Knight Silksong/BepInEx/plugins/dakus
 - 💡️ *Tip: Hide **advanced** and **shortcut** options in configuration window to declutter the UI.*
 - Sidebar and map options visible when entering map.
 - All features support controller, keyboard, and mouse.
-- User interfaces translated [via LLM] into 20 languages.
+- User interfaces translated [via LLM] into 21 languages.
 
 <a id="web-integration"></a>
 ## 🌐️ Web Integration

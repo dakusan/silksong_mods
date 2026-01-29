@@ -233,6 +233,7 @@ INSERT INTO Misc VALUES
 ('LinkColors', 'Strike_Found',		'white',	'Straight line through link when item has been found'),
 ('LinkColors', 'Strike_Started',	'silver',	'Wavy line through link when item has been started (and not found)'),
 ('LinkColors', 'Search_Highlight',	'green',	'Highlighting searched string'),
+('LinkColors', 'CollectedCounts',	'grey',		'Amounts the player has and needs to finish an item'),
 ('ImagePrefix',		'!',			'~^~https://ex.com/',
 												'Replaces ! at the beginning of an ImageURL with: https://ex.com/'),
 ('OtherLinkPrefix',	'!',			'~^(.*)$~https://ex.com/Articles/$1|MySiteName $1',

@@ -29,8 +29,8 @@ public static partial class DevStrings
 					DstPos+=Hit-SrcPos;
 				}
 				bool IsLessThan=(Src[Hit]=='<');
-				Dst[DstPos++]=(IsLessThan ? '<' : '\u200B');
-				Dst[DstPos++]=(IsLessThan ? '\u200B' : '>');
+				Dst[DstPos++]=(IsLessThan ? '<' : ZWSP);
+				Dst[DstPos++]=(IsLessThan ? ZWSP : '>');
 				SrcPos=Hit+1;
 			}
 			Src.AsSpan(SrcPos).CopyTo(Dst[DstPos..]);
@@ -117,4 +117,5 @@ public static partial class DevStrings
 
 	public const string Empty=""; //Used when a const is needed (string.Empty is a static readonly)
 	public const char NewLine='\n';
+	public const char ZWSP='\u200B'; //Zero width space
 }
