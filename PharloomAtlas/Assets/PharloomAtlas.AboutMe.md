@@ -1,7 +1,6 @@
-<br class=Hide>
+<!-- NOTE: HTML rendered via /Compile/MdToHtml.sh with pandoc and .md is viewable in Microsoft Visual Studio --><br class=Hide>
 
 <style>
-/* NOTE: HTML RENDERED VIA Microsoft Visual Studio */
 html, body { width:100%; margin:0; padding:0; background-color:black; }
 @font-face { font-family: "Inter"; font-style: italic; font-weight: 100 900; font-display: swap; src:url(https://fonts.gstatic.com/s/inter/v20/UcCm3FwrK3iLTcvnUwkT9nA2.woff2) format("woff2"); unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
 @font-face { font-family: 'Noto Color Emoji'; font-style: normal; font-weight: 400; src: url(https://fonts.gstatic.com/s/notocoloremoji/v38/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFabsE4tq3luCC7p-aXxcn.4.woff2) format('woff2'); unicode-range: U+265f, U+26bd-26be, U+26f3, U+26f8, U+fe0f, U+1f004, U+1f0cf, U+1f380-1f384, U+1f386-1f38b, U+1f38d-1f391, U+1f396-1f397, U+1f399-1f39b, U+1f39e-1f39f, U+1f3a3-1f3a5, U+1f3a7-1f3a9, U+1f3ab-1f3b4, U+1f3b7-1f3bb, U+1f3bd-1f3c0, U+1f3c5-1f3c6, U+1f3c8-1f3c9, U+1f3cf-1f3d3, U+1f3f8-1f3f9, U+1f47e, U+1f4e2, U+1f4f7-1f4fd, U+1f52b, U+1f579, U+1f58c-1f58d, U+1f5bc, U+1f6f7, U+1f6f9, U+1f6fc, U+1f93f, U+1f941, U+1f945, U+1f947-1f94f, U+1f9e7-1f9e9, U+1f9f5-1f9f6, U+1fa70-1fa71, U+1fa80-1fa81, U+1fa83-1fa85, U+1fa87-1fa8a, U+1fa94-1fa95, U+1fa97-1fa98, U+1faa1, U+1faa9, U+1fadf; }
@@ -19,8 +18,8 @@ body #___markdown-content___ { line-height:1.2; }
 body #___markdown-content___ li + li { margin-top:1px; }
 body #___markdown-content___ img { background-color:transparent; }
 img.SmallIcon { position:relative; top:-5px; }
-body #___markdown-content___ a { color:rgb(217, 143, 64); font-weight:500; transition:color .5s; }
-body #___markdown-content___ a:hover { color:white; text-decoration:none; }
+body #___markdown-content___ a { color:rgb(217, 143, 64) !important; font-weight:500; text-decoration:none !important; transition:color .5s; }
+body #___markdown-content___ a:hover { color:white !important; }
 .Hide { display:none; } /* Used to remove sucessive line breaks when they are the wrong line height */
 </style>
 <meta/><center>![Decore Top](https://images.castledragmire.com/silksong/DecorTop.png)</center>
@@ -198,5 +197,5 @@ Nexus re-encoded my GIFs into WebP and butchered the quality 😅️
 * Finish the chain system:
     * Hide icons until an area is mapped
     * Hide icons until accessible
-    * ~Cross off requirements/needs in sidebar descriptions~
-* ~Fix link clicking in the search window~
+    * ~~Cross off requirements/needs in sidebar descriptions~~
+* ~~Fix link clicking in the search window~~

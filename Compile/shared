@@ -21,10 +21,6 @@ exit_error() {
 ensure_link() {
 	local target="$1"
 	local source="$2"
-	#Conditional substitution for SilkDev Assets -> Internal in source
-	if [[ "$source" == *"SilkDev/Assets"* ]]; then
-		source="${source/SilkDev\/Assets/SilkDev\/Internal}"
-	fi
 
 	[ -e "$target" ] && [ ! -L "$target" ] && { report_error "$target exists but is not a symlink"; return 1; }
 	[ -L "$target" ] || ln -s "$source" "$target" || report_error "$target failed creation"
@@ -49,7 +45,6 @@ ESCAPE_LINKS="../.."
 #Ensure file symlinks
 for project in NoClip PharloomAtlas PinFinder SilkDev; do
 	ensure_link "$project.dll" "$ESCAPE_LINKS/$project/bin/Release/netstandard2.1/$project.dll"
-	ensure_link "$project.NexusMods.txt" "$ESCAPE_LINKS/$project/Assets/$project.NexusMods.txt"
 	ensure_link "$project.README.md" "$ESCAPE_LINKS/$project/README.md"
 done
 ensure_link "Root.README.md" "$ESCAPE_LINKS/README.md"
@@ -101,5 +96,8 @@ MakeZip() {
 	exit 0
 }
 AddProject() {
-	echo "$plugin_dir/$1.dll" "$plugin_dir/$1.README.md" "$plugin_dir/$trans_dir/$1"
+	#Compile *.AboutMe.html. Make HTML title the name of the project with spaces before capital letters
+	cat ../$1/Assets/$1.AboutMe.md | ./MdToHtml.sh "About: `echo $1 | perl -pe 's/\..*//; s/(?<!^)([A-Z])/ $1/g'`" > "$plugin_dir/$1.AboutMe.html"
+
+	echo "$plugin_dir/$1.dll" "$plugin_dir/$1.README.md" "$plugin_dir/$1.AboutMe.html" "$plugin_dir/$trans_dir/$1"
 }

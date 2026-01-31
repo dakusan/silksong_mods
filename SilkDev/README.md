@@ -5,7 +5,7 @@
 *Help develop your plugins*
 </div>
 
-<img src=Internal/LogoSmall.jpg alt="SilkDev Logo" align=right>
+<img src=Assets/LogoSmall.jpg alt="SilkDev Logo" align=right>
 
 1. [Overview](#overview)
 1. [Core Highlights](#core-highlights)
@@ -271,7 +271,7 @@ See [root project README](../#contributing) for details
 		* 💡️ Attached object can be changed via `public ObjType Obj`.
 * 📦️ `Translations`
 	* 🗒️ Loads translations from `TranslationsPath`/`LangIsoName` `TranslationFileExtension`.
-	* 🗒️ Constructor receives a list of languages. See file `SilkDev/Internal/Embed/Languages.json`.
+	* 🗒️ Constructor receives a list of languages. See file `SilkDev/Assets/Embed/Languages.json`.
 	* 💡️ Only the currently selected language is stored in memory.
 	* 💡️ Translations can use C# string formatting with the parameters stored in `FormatParameters`.
 * 📦️ `TypedDisposer<T>(T Target, Action<T> Disposal) : IDisposable`
