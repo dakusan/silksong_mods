@@ -14,6 +14,7 @@ internal class HornetIconAnimators
 	private static MapControl MC => MapControl.Self;
 	private static float HighlightSpeed => Conf.HornetHighlightSpeed;
 	private static Config Conf => Config.C;
+	private static bool LastLoadSucceeded=true;
 	public enum HornetHighlightTypes { None, Revolve, Growing, Spin, Rainbow1, Rainbow2 }
 	private HornetIconAnimator Current {
 		get;
@@ -36,9 +37,11 @@ internal class HornetIconAnimators
 				: HHT.None
 		);
 
-	private void SetAnimator(HHT NewType) => Misc.IFF(
-		Current.Type!=NewType,
-		() => Current=NewType switch {
+	private void SetAnimator(HHT NewType)
+	{
+		if(Current.Type==NewType)
+			return;
+		Current=NewType switch {
 			HHT.None	=> new AnimatorNone			(),
 			HHT.Revolve	=> new AnimatorRevolution	(),
 			HHT.Growing	=> new AnimatorScaling		(),
@@ -46,8 +49,15 @@ internal class HornetIconAnimators
 			HHT.Rainbow1=> new AnimatorRainbow1		(),
 			HHT.Rainbow2=> new AnimatorRainbow2		(),
 			_			=> throw new NotImplementedException(),
-		}
-	);
+		};
+		bool StoreLastLoadSucceeded=LastLoadSucceeded;
+		if(LastLoadSucceeded=Current.LoadSucceeded)
+			return;
+		if(StoreLastLoadSucceeded)
+			Log.Error($"Loading of animator {NewType} failed [Supressing repeat messages]");
+		Current=new AnimatorNone();
+		SilkDev.Windows.Window.OnNextFrame(SettingUpdate);
+	}
 
 	public void Init()	=> SetAnimator(Conf.HornetHighlights);
 	public void Run()	=> Current.Run();
@@ -59,9 +69,10 @@ internal class HornetIconAnimators
 		public abstract HHT Type { get; }
 		public abstract void Run();
 		public abstract void Close();
+		public virtual bool LoadSucceeded => true;
 
 		protected GameObject? OSprite =>
-			field!.NullSafe ?? (field=MC.GameMap.transform.Find("Compass Icon").gameObject);
+			field!.NullSafe ?? (field=MC.GameMap.NullSafe?.transform.Find("Compass Icon").gameObject);
 		protected DateTime StartAt=DateTime.Now;
 		protected float TimeSpan() => (DateTime.Now.Ticks-StartAt.Ticks)%10000000000L/10000000f;
 	}
@@ -80,6 +91,7 @@ internal class HornetIconAnimators
 		private const string BundleFile="PharloomAtlas.bundle", ShaderFile="tk2d_OverlayBlend.shader";
 
 		public override HHT Type => HHT.Rainbow1;
+		public override bool LoadSucceeded => PrevMaterial!=null;
 
 		static AnimatorRainbow1()
 		{
@@ -121,6 +133,10 @@ internal class HornetIconAnimators
 		public AnimatorRainbow1()
 		{
 			//Store the old material
+			if(OSprite==null) {
+				PrevMaterial=null!;
+				return;
+			}
 			Renderer SRend=OSprite!.GetComponent<Renderer>();
 			PrevMaterial=SRend.material;
 
@@ -131,8 +147,10 @@ internal class HornetIconAnimators
 			SRend.material=MyMaterial;
 		}
 
-		public override void Close() =>
-			OSprite!.GetComponent<Renderer>().material=PrevMaterial;
+		public override void Close() => Misc.IFF(
+			OSprite!=null && PrevMaterial!=null,
+			() => OSprite!.GetComponent<Renderer>().material=PrevMaterial
+		);
 		public override void Run() =>
 			MyMaterial?.SetTextureOffset("_OverlayTex", new Vector2(0f, -Mathf.Repeat(TimeSpan()*BaseSpeed*HighlightSpeed, 1f)));
 	}

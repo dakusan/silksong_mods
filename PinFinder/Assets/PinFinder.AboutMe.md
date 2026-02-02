@@ -1,5 +1,4 @@
-<!-- NOTE: HTML rendered via /Compile/MdToHtml.sh with pandoc and .md is viewable in Microsoft Visual Studio --><br class=Hide>
-
+<div class=Delete>NOTE: HTML rendered via /Compile/MdToHtml.sh with pandoc and .md is viewable in Microsoft Visual Studio. This will not look correct on Github.<details><summary class=Hide></summary>
 <style>
 html, body { width:100%; margin:0; padding:0; background-color:black; }
 @font-face { font-family: "Inter"; font-style: italic; font-weight: 100 900; font-display: swap; src:url(https://fonts.gstatic.com/s/inter/v20/UcCm3FwrK3iLTcvnUwkT9nA2.woff2) format("woff2"); unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
@@ -17,14 +16,14 @@ body #___markdown-content___ p, #___markdown-content___ blockquote, #___markdown
 body #___markdown-content___ { line-height:1.2; }
 body #___markdown-content___ li + li { margin-top:1px; }
 body #___markdown-content___ img { background-color:transparent; }
-img.SmallIcon { position:relative; top:-5px; }
 body #___markdown-content___ a { color:rgb(217, 143, 64) !important; font-weight:500; text-decoration:none !important; transition:color .5s; }
 body #___markdown-content___ a:hover { color:white !important; }
-.Hide { display:none; } /* Used to remove sucessive line breaks when they are the wrong line height */
-</style>
+.Hide, .Delete { display:none; }
+</style></details></div>
+
 <meta/><center>![Decor Top](https://images.castledragmire.com/silksong/DecorTop.png)</center>
 
-<meta/><center><font size=6>**Hollow Knight Silksong: Pin Finder**</font></center>
+<br><center><font size=6>**Hollow Knight Silksong: Pin Finder**</font></center>
 <center><font size=4>Automatically scans every scene and dumps the exact position + save-flag of every collectible, bench, switch, lore tablet, etc.</font></center>
 
 <br class=Hide><br><center><font size=5>📖️ **Overview** 📖️</font></center>
