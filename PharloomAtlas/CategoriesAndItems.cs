@@ -536,12 +536,14 @@ public class Item
 	public void Selected() => MC.SelectAndCenterItemI(ID);
 }
 
-public class StaticLink(string Name, int CategoryID, int[]? ItemIDs, int SpecialCount, FieldInfo? FI)
+public class StaticLink(string Name, int CategoryID, int[]? ItemIDs, int SpecialCount, FieldInfo? FI, StaticLink.GetCount? CountFunc)
 {
 	public readonly string Name=Name;
 	public readonly int CategoryID=CategoryID, SpecialCount=SpecialCount;
 	public readonly int[]? ItemIDs=ItemIDs;
 	public readonly FieldInfo? FI=FI; //Not kept as a Reflectors.RField as PlayerData.instance may change
+	public readonly GetCount? CountFunc=CountFunc;
+	public delegate int GetCount();
 
 	public const int MinID=501, MaxID=999;
 	public static bool IDInRange(int ID) => ID is >=MinID and <=MaxID;
@@ -551,6 +553,7 @@ public class StaticLink(string Name, int CategoryID, int[]? ItemIDs, int Special
 		  CategoryID!=-1		? DS.Categories[CategoryID].CurrentCount
 		: ItemIDs!=null			? ItemIDs.Count(static I => DS.Items[I].IsFound)
 		: FI!=null				? (int)FI.GetValue(PlayerData.instance)
+		: CountFunc!=null		? CountFunc()
 		:						SpecialCount;
 
 	//JSON type conversion
@@ -560,9 +563,9 @@ public class StaticLink(string Name, int CategoryID, int[]? ItemIDs, int Special
 		Dictionary<int, StaticLink> Out=[];
 		string? CurName=null!, RemID;
 		int CatID;
-		void AddSL(int ID, int CategoryID=-1, int[]? ItemIDs=null, int SpecialCount=0, FieldInfo? FI=null, string? OverwriteName=null, string? ErrStr=null)
+		void AddSL(int ID, int CategoryID=-1, int[]? ItemIDs=null, int SpecialCount=0, FieldInfo? FI=null, GetCount? CountFunc=null, string? OverwriteName=null, string? ErrStr=null)
 		{
-			Out[ID]=new StaticLink(OverwriteName ?? CurName!, CategoryID, ItemIDs, SpecialCount, FI);
+			Out[ID]=new StaticLink(OverwriteName ?? CurName!, CategoryID, ItemIDs, SpecialCount, FI, CountFunc);
 			if(ErrStr!=null)
 				LineErr(ErrStr);
 		}
@@ -577,6 +580,7 @@ public class StaticLink(string Name, int CategoryID, int[]? ItemIDs, int Special
 			else if(L.Count==1								)	AddSL(MyID, SpecialCount:1);									//Unlinked
 			else if(L.Count==2 && (L[1] is string Special))																		//Special check
 				if(int.TryParse(Special, out int SpecialInt))	AddSL(MyID, SpecialCount:SpecialInt);							//Special Count Success
+				else if(SpecialFuncs.ContainsKey(Special))		AddSL(MyID, CountFunc: SpecialFuncs[Special]);					//Special GetCount func
 				else try {																										//Special FieldInfo Check
 					FieldInfo FI=new Reflectors.RField<PlayerData, int>(null, Special).FI;
 					if(FI.FieldType!=typeof(int))				AddSL(MyID, ErrStr:"PlayerData field is not an int");			//Special FieldInfo failed (not int)
@@ -599,7 +603,41 @@ public class StaticLink(string Name, int CategoryID, int[]? ItemIDs, int Special
 		return Out;
 	}
 
+	//Other special types for use with CountFunc
+	private static readonly Dictionary<string, GetCount> SpecialFuncs=new() {
+		{"ToolSlots", GetToolSlots },
+	};
+	private static int GetToolSlots()
+	{
+		int UnlockedSlotCount=0;
+		foreach((string CrestName, ToolCrestsData.Data CrestData) in PlayerData.instance.ToolEquips.Enumerate()) {
+			//Hunter crests do not count towards unlocked slot count
+			if(CrestName.StartsWith("Hunter"))
+				continue;
+
+			//Count the unlocked slots for the current crest
+			int CurrentToolUnlockedSlotCount=0;
+			foreach(ToolCrestsData.SlotData Slot in CrestData.Slots)
+				if(Slot.IsUnlocked)
+					CurrentToolUnlockedSlotCount++;
+
+			//All crests but the Toolmaster have a Silk Skills slot we need to subtract
+			if(CrestName!="Toolmaster" && CurrentToolUnlockedSlotCount>1)
+				CurrentToolUnlockedSlotCount--;
+
+			//Add to the total
+			UnlockedSlotCount+=CurrentToolUnlockedSlotCount;
+		}
+
+		return UnlockedSlotCount;
+	}
+
 	//Selected via a link
-	public void Selected() =>
-		_=new SilkDev.Windows.PopupMessage(Config.C.Tr.Translate("Category selection is not yet supported", null, true));
+	public void Selected()
+	{
+		if(ItemIDs?.Length==1 && Item.IDInRange(ItemIDs[0]))
+			DS.Items[ItemIDs[0]].Selected();
+		else
+			_=new SilkDev.Windows.PopupMessage(Config.C.Tr.Translate("Category selection is not yet supported", null, true));
+	}
 }

@@ -31,10 +31,11 @@
 ;;		- When viewing an item’s information, *Reqs are listed under “Requirements”, and the required items list it under “Unlocks”.
 ;;	*Needs field:
 ;;		- Things needed to complete the item. When these things have been completed, the save-file value should generally be set (item becomes true).
-;;		- Same format as *Reqs but without the pipe “|” clause, <FlagRecommend> “@”, and certain <StaticID>s (Cardinal Directions).
+;;		- Same format as *Reqs but without <FlagRecommend> “@”, and certain <StaticID>s (Cardinal Directions).
 ;;	*Rewards:
 ;;		- *Rewards are what the player receives for finishing an item, generally a quest or an objective.
 ;;		- This field follows the same rules as the *Needs field, except:
+;;			- The pipe “|” clause
 ;;			- The <FlagNot> “!” and <FlagStarted> “~” flags are not supported
 ;;	Stores:
 ;;		- An item (generally of “Vendor” category type) can have stores where they buy and sell things.

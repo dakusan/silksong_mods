@@ -21,7 +21,7 @@ body #___markdown-content___ a:hover { color:white !important; }
 .Hide, .Delete { display:none; }
 </style></details></div>
 
-<meta/><center>![Decor Top](https://images.castledragmire.com/silksong/DecorTop.png)</center>
+<meta/><center>![Decor Top](https://static.castledragmire.com/silksong/DecorTop.png)</center>
 
 <br><center><font size=6>**Hollow Knight Silksong: No Clip**</font></center>
 <center><font size=4>Freely fly through Pharloom – perfect for exploration, debugging, or just breaking the game in glorious god mode.</font></center>
@@ -45,5 +45,5 @@ Press **F3** (configurable) to toggle noclip + invincibility.
 
 Includes my shared library: [Plugin Developer Tools (SilkDev)](https://www.nexusmods.com/hollowknightsilksong/mods/510)
 
-<br><br><br><center>![No Clip Logo](https://images.castledragmire.com/silksong/NoClipLogoSmall.jpg)</center>
-<meta/><center>![Decor Bottom](https://images.castledragmire.com/silksong/DecorBottom.png)</center>
+<br><br><br><center>![No Clip Logo](https://static.castledragmire.com/silksong/NoClipLogoSmall.jpg)</center>
+<meta/><center>![Decor Bottom](https://static.castledragmire.com/silksong/DecorBottom.png)</center>

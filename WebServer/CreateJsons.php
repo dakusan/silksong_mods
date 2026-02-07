@@ -258,7 +258,7 @@ function CompileSet($Set, $StaticLinks, $FieldName)
 			$Groups[$GroupIndex]=implode('`', $Items);
 	}
 
-	if(count($Groups)>1 &&  in_array($FieldName, ['Needs', 'Rewards']))
+	if(count($Groups)>1 &&  in_array($FieldName, ['Rewards']))
 		throw new Exception('cannot have multiple set groups');
 
 	return implode('|', $Groups).$ExtraEnd;

@@ -21,7 +21,7 @@ body #___markdown-content___ a:hover { color:white !important; }
 .Hide, .Delete { display:none; }
 </style></details></div>
 
-<meta/><center>![Decor Top](https://images.castledragmire.com/silksong/DecorTop.png)</center>
+<meta/><center>![Decor Top](https://static.castledragmire.com/silksong/DecorTop.png)</center>
 
 <br><center><font size=6>**Hollow Knight Silksong: Plugin Developer Tools (SilkDev)**</font></center>
 <center><font size=4>The backbone of all my Silksong mods — with handy player utilities and a massive quality-of-life toolkit for modders.</font></center>
@@ -39,7 +39,7 @@ body #___markdown-content___ a:hover { color:white !important; }
 
 <br class=Hide><br><center><font size=5>🛠️<font size=1> </font>**Modder-Facing Power Tools**<font size=1> </font>🛠️</font></center>
  ---
-<meta/><center>Debugging   ![•](https://images.castledragmire.com/silksong/CoinSuperSmall.png)   Configurations   ![•](https://images.castledragmire.com/silksong/CoinSuperSmall.png)   Input   ![•](https://images.castledragmire.com/silksong/CoinSuperSmall.png)   Events   ![•](https://images.castledragmire.com/silksong/CoinSuperSmall.png)   Textures   ![•](https://images.castledragmire.com/silksong/CoinSuperSmall.png)   Windows</center>
+<meta/><center>Debugging   ![•](https://static.castledragmire.com/silksong/CoinSuperSmall.png)   Configurations   ![•](https://static.castledragmire.com/silksong/CoinSuperSmall.png)   Input   ![•](https://static.castledragmire.com/silksong/CoinSuperSmall.png)   Events   ![•](https://static.castledragmire.com/silksong/CoinSuperSmall.png)   Textures   ![•](https://static.castledragmire.com/silksong/CoinSuperSmall.png)   Windows</center><br><meta/>
 
 * Configurable log levels + full stack traces on errors
 * Tons of classes and functions to make development easier. Most useful include:
@@ -90,7 +90,7 @@ You may also want to check out my [NoClip mod](https://www.nexusmods.com/hollowk
 * Left click image to save to: _**<font color=green>PLUGIN\_PATH</font>**/Textures/**<font color=green>DATE</font>**\_**<font color=green>TIME</font>**·**<font color=green>NAME</font>**.png_
 * Right click sheet to toggle highlight
 
-<br>![Silksong Sprites](https://images.castledragmire.com/silksong/SilksongSprites.webp)
+<br>![Silksong Sprites](https://static.castledragmire.com/silksong/SilksongSprites.webp)
 
-<br class=Hide><br><br><center>![SilkDev Logo](https://images.castledragmire.com/silksong/SilkDevLogoSmall.jpg)</center>
-<meta/><center>![Decor Bottom](https://images.castledragmire.com/silksong/DecorBottom.png)</center>
+<br class=Hide><br><br><center>![SilkDev Logo](https://static.castledragmire.com/silksong/SilkDevLogoSmall.jpg)</center>
+<meta/><center>![Decor Bottom](https://static.castledragmire.com/silksong/DecorBottom.png)</center>

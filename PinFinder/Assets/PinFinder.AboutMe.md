@@ -21,7 +21,7 @@ body #___markdown-content___ a:hover { color:white !important; }
 .Hide, .Delete { display:none; }
 </style></details></div>
 
-<meta/><center>![Decor Top](https://images.castledragmire.com/silksong/DecorTop.png)</center>
+<meta/><center>![Decor Top](https://static.castledragmire.com/silksong/DecorTop.png)</center>
 
 <br><center><font size=6>**Hollow Knight Silksong: Pin Finder**</font></center>
 <center><font size=4>Automatically scans every scene and dumps the exact position + save-flag of every collectible, bench, switch, lore tablet, etc.</font></center>
@@ -50,5 +50,5 @@ This was my first attempt (from back in September) at matching save values to ma
 
 <br>While this won’t be useful to most people, the basis behind it could be useful for other projects (like if and when I backport Pharloom Atlas to Hollow Knight). Source code coming soon (when I release the source for Pharloom Atlas).
 
-<br class=Hide><br><br><center>![Pin Finder Logo](https://images.castledragmire.com/silksong/PinFinderLogoSmall.jpg)</center>
-<meta/><center>![Decor Bottom](https://images.castledragmire.com/silksong/DecorBottom.png)</center>
+<br class=Hide><br><br><center>![Pin Finder Logo](https://static.castledragmire.com/silksong/PinFinderLogoSmall.jpg)</center>
+<meta/><center>![Decor Bottom](https://static.castledragmire.com/silksong/DecorBottom.png)</center>
