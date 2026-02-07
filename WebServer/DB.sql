@@ -26,16 +26,28 @@ CREATE TABLE SilkSongItems (
   KEY (Username)
 ) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS CategoryGroups;
+CREATE TABLE CategoryGroups (
+  ID mediumint UNSIGNED NOT NULL AUTO_INCREMENT,
+  OrderNum int UNSIGNED NOT NULL,
+  Title varchar(50) NOT NULL,
+
+  PRIMARY KEY (ID),
+  UNIQUE KEY (OrderNum),
+  UNIQUE KEY (Title)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 DROP TABLE IF EXISTS Categories;
 CREATE TABLE Categories (
   ID int UNSIGNED NOT NULL AUTO_INCREMENT,
-  CategoryGroup enum("Points of Interest", "Locations", "Collectibles", "Items", "Equipment", "Enemies", "Quests", "Other") CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+  CategoryGroupID mediumint UNSIGNED NOT NULL,
   OrderNum tinyint UNSIGNED NOT NULL,
   IconID tinyint UNSIGNED NOT NULL,
   Title varchar(50) NOT NULL,
 
   PRIMARY KEY (ID),
-  UNIQUE KEY (CategoryGroup, OrderNum),
+  UNIQUE KEY (CategoryGroupID, OrderNum),
+  FOREIGN KEY (CategoryGroupID) REFERENCES CategoryGroups (ID),
   KEY (Title)
 ) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -68,6 +80,7 @@ CREATE TABLE StaticLinks (
   ID int UNSIGNED NOT NULL AUTO_INCREMENT,
   Name varchar(100) NOT NULL,
   Special varchar(100) NULL,
+  AllowOn enum("All", "ReqOnly", "NeedOnly") CHARACTER SET ascii COLLATE ascii_bin NOT NULL DEFAULT "All",
 
   PRIMARY KEY (ID),
   KEY (Name)

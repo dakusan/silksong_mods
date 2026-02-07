@@ -34,7 +34,7 @@ class MysqliResultIterator implements Iterator {
 	}
 }
 
-function Query(string $Query, mixed ...$Vars): MysqliResultIterator|int|null
+function BaseQuery(string $Query, mixed ...$Vars): mysqli_result
 {
 	global $Conn;
 	$QuerySections=explode('?', $Query);
@@ -44,11 +44,15 @@ function Query(string $Query, mixed ...$Vars): MysqliResultIterator|int|null
 			throw new Exception('Invalid number of vars');
 		foreach($QuerySections as $Index => $QueryPart)
 			$EndQuery.=FormatQueryItem($Conn, $Vars[$Index]).$QueryPart;
-		$Result=$Conn->query($EndQuery);
+		return $Conn->query($EndQuery);
 	} catch(Exception $e) {
 		ErrAndDie('Query error', "$Query\n$EndQuery\n$e\n".var_export($Vars, true));
 	}
+}
 
+function Query(string $Query, mixed ...$Vars): MysqliResultIterator|int|null
+{
+	$Result=BaseQuery($Query, ...$Vars);
 	if(preg_match('/^\s*(?:SELECT|SHOW)/i', $Query))
 		return new MysqliResultIterator($Result);
 	else if(preg_match('/^\s*INSERT/i', $Query))
@@ -74,5 +78,22 @@ function SQLEscape(string $Str): string
 {
 	global $Conn;
 	return "'".$Conn->real_escape_string($Str)."'";
+}
+
+//Returns an array where KVP is $Row.FirstField => $Row. If there are only 2 fields in a row, the value becomes the second field instead of the entire row.
+function QueryKVP(string $Query, mixed ...$Vars): array
+{
+	$Ret=[];
+	$Result=BaseQuery($Query, ...$Vars);
+	$FieldNames=$Result->fetch_fields();
+	$IDKey=$FieldNames[0]->name;
+	if(count($FieldNames)==2)
+		while(($Row=$Result->fetch_row())!==null)
+			$Ret[$Row[0]]=$Row[1];
+	else
+		while(($Row=$Result->fetch_object())!==null)
+			$Ret[$Row->$IDKey]=$Row;
+
+	return $Ret;
 }
 ?>

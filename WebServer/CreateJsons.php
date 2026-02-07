@@ -46,20 +46,19 @@ function GenerateJson($Data)
 
 function GenerateCategories()
 {
-	//Get the category groups from the Category’s table CategoryGroup enum
-	if(!preg_match('/CategoryGroup.*enum\(\'(.*?)\'\)/', Query('SHOW CREATE TABLE Categories')->current()->{'Create Table'}, $Matches))
-		ErrAndDie('Could not find category groups');
-	$CatGroups=array_fill_keys(explode("','", $Matches[1]), []);
+	//Get the category groups
+	$CatGroupTitlesByID=QueryKVP('SELECT ID, Title FROM CategoryGroups ORDER BY OrderNum ASC');
+	$CatGroups=array_fill_keys(array_values($CatGroupTitlesByID), []);
 
 	//Fill in the categories
 	$CatOrder=['Order', 'IconID', 'Title'];
-	foreach(Query('SELECT ID, CategoryGroup, OrderNum, IconID, Title FROM Categories ORDER BY ID ASC') as $Row) {
+	foreach(Query('SELECT ID, CategoryGroupID, OrderNum, IconID, Title FROM Categories ORDER BY ID ASC') as $Row) {
 		$NewItem=(object)[
 			'Order'=>(int)$Row->OrderNum,
 			'IconID'=>(int)$Row->IconID,
 			'Title'=>$Row->Title,
 		];
-		$CatGroups[$Row->CategoryGroup][$Row->ID]=$NewItem;
+		$CatGroups[$CatGroupTitlesByID[$Row->CategoryGroupID]][$Row->ID]=$NewItem;
 	}
 
 	return GenerateJson($CatGroups);
@@ -67,12 +66,8 @@ function GenerateCategories()
 
 function GenerateItems()
 {
-	//Get the static links
-	$StaticLinks=[];
-	foreach(Query('SELECT ID, Name FROM StaticLinks') as $Row)
-		$StaticLinks[$Row->ID]=$Row->Name;
-
 	//Put together the structured item links by set, group, and order
+	$StaticLinks=QueryKVP('SELECT ID, Name, Special, AllowOn FROM StaticLinks');
 	$Links=[];
 	foreach(Query('SELECT * FROM ItemLinkDefs ORDER BY SetID ASC, GroupNum ASC, OrderNum ASC') as $Row)
 		$Links[$Row->SetID][$Row->GroupNum][$Row->OrderNum]=$Row;
@@ -212,9 +207,14 @@ function CompileSet($Set, $StaticLinks, $FieldName)
 			//Get the value
 			if($Item->StaticLinkID!==null) {
 				$ItemVals[]=$Item->StaticLinkID;
-				$Name=$StaticLinks[$Item->StaticLinkID];
-				if(in_array($Name, ['North', 'South', 'East', 'West']) && in_array($FieldName, ['Needs', 'Rewards']))
-					throw new Exception('cannot use directions');
+				$SL=$StaticLinks[$Item->StaticLinkID];
+				if($FieldName=='Rewards' && $SL->Special===null)
+					throw new Exception("“{$SL->Name}”: Non-special static links not allowed on Rewards");
+				if(
+					   ($FieldName=='Needs' && $SL->AllowOn==='ReqOnly' )
+					|| ($FieldName=='Reqs'  && $SL->AllowOn==='NeedOnly')
+				)
+					throw new Exception("“{$SL->Name}” is $SL->AllowOn");
 			}
 			if($Item->ItemID!==null)
 				$ItemVals[]=$Item->ItemID.'';
