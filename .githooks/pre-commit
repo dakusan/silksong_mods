@@ -25,7 +25,7 @@ foreach my $File (@FileList)
 	}
 
 	#Fix trailing newline
-	if($FileContents =~ s/\n\z//) {
+	if($File !~ /(package-lock\.json|package\.json)$/ && $FileContents =~ s/\n\z//) {
 		$FileContentsChanged=1;
 		push(@Warnings, "$File had trailing newline removed");
 	}
@@ -58,7 +58,7 @@ foreach my $File (@FileList)
 	}
 
 	#Check for missing trailing commas in json
-	if($File =~ /(?:\.json)$/ && $FileContents =~ s/([^,{\[])(\r?\n[ \t]*)(?=[}\]])/$1,$2/g) {
+	if($File =~ /(?:\.json)$/ && $File !~ /(package-lock\.json|package\.json)$/ && $FileContents =~ s/([^,{\[])(\r?\n[ \t]*)(?=[}\]])/$1,$2/g) {
 		$FileContentsChanged=1;
 		push(@Warnings, "$File trailing commas added");
 	}

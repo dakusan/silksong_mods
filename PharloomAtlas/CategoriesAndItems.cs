@@ -552,9 +552,14 @@ public class StaticLink(string Name, int CategoryID, int[]? ItemIDs, int Special
 	public int NumCollected =>
 		  CategoryID!=-1		? DS.Categories[CategoryID].CurrentCount
 		: ItemIDs!=null			? ItemIDs.Count(static I => DS.Items[I].IsFound)
-		: FI!=null				? (int)FI.GetValue(PlayerData.instance)
 		: CountFunc!=null		? CountFunc()
-		:						SpecialCount;
+		: FI==null				? SpecialCount
+		:						  FI.GetValue(PlayerData.instance) switch {
+			int i => i,
+			bool b => b ? 1 : 0,
+			Enum e => Convert.ToInt32(e),
+			_ => 0
+		};
 
 	//JSON type conversion
 	public static Dictionary<int, StaticLink> Process(Dictionary<string, List<object>> StaticLinks, Dictionary<int, Item> Items, Dictionary<int, Category> Categories)
@@ -570,6 +575,7 @@ public class StaticLink(string Name, int CategoryID, int[]? ItemIDs, int Special
 				LineErr(ErrStr);
 		}
 		void LineErr(string Err, bool CompleteFail=false) => Log.Error($"Error on Static Link #{RemID}{(CompleteFail ? " [Skipped]" : null)}: {Err}");
+		static bool IsValidSpecialFieldType(Type T) => T==typeof(int) || T==typeof(bool) || T.IsEnum;
 
 		//Process the static links
 		foreach((string ID, List<object> L) in StaticLinks)
@@ -578,12 +584,12 @@ public class StaticLink(string Name, int CategoryID, int[]? ItemIDs, int Special
 			else if(L.Count==0								)	LineErr("Array is empty",					true);
 			else if((CurName=L[0] as string)==null			)	AddSL(MyID, OverwriteName:"???", ErrStr:"Name is not a string");//Invalid name
 			else if(L.Count==1								)	AddSL(MyID, SpecialCount:1);									//Unlinked
-			else if(L.Count==2 && (L[1] is string Special))																		//Special check
+			else if(L.Count==2 && (L[1] is string Special)	)																	//Special check
 				if(int.TryParse(Special, out int SpecialInt))	AddSL(MyID, SpecialCount:SpecialInt);							//Special Count Success
-				else if(SpecialFuncs.ContainsKey(Special))		AddSL(MyID, CountFunc: SpecialFuncs[Special]);					//Special GetCount func
+				else if(SpecialFuncs.ContainsKey(Special)	)	AddSL(MyID, CountFunc: SpecialFuncs[Special]);					//Special GetCount func
 				else try {																										//Special FieldInfo Check
 					FieldInfo FI=new Reflectors.RField<PlayerData, int>(null, Special).FI;
-					if(FI.FieldType!=typeof(int))				AddSL(MyID, ErrStr:"PlayerData field is not an int");			//Special FieldInfo failed (not int)
+					if(!IsValidSpecialFieldType(FI.FieldType))	AddSL(MyID, ErrStr:$"PlayerData.{Special} ≠ bool/int/enum");	//Special FieldInfo failed (not int)
 					else										AddSL(MyID, FI:FI);												//Special FieldInfo success
 				} catch {										AddSL(MyID, ErrStr:$"Invalid value for special: {Special}"); }  //Special FieldInfo failed (doesn’t exist)
 			else if(L.Count==2 && Category.IDInRange(CatID=(int)(L[1] is long CID ? CID : -1)))									//Category check
