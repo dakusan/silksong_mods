@@ -1,8 +1,5 @@
-$bg: #111;
-$fg: #eee;
+body { margin:0; width:100%; height:100%; overflow:hidden; color:white; font-family:system-ui, sans-serif; }
+#app { position:fixed; inset:0; overflow:hidden; background-color:black; }
 
-body {
-	background:$bg;
-	color:$fg;
-	font-family:system-ui, sans-serif;
-}
+/* Stops pinch-zoom/pan from being handled by the page */
+canvas { touch-action:none; overscroll-behavior:none; }
