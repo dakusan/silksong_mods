@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+		"target": "ES2020",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"sourceMap": true,
+		"inlineSources": true,
+		"noEmit": true,
+		"skipLibCheck": true,
+
+		//Type checking
+		"strict": true,
+		"alwaysStrict": true,
+		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+
+		//Interop/Emit
+		//"importHelpers": true, //Turned on only in release mode as the import "tslib" does not resolve in browsers and needs to be rewritten
+		//"removeComments": true,
+		"newLine": "LF",
+	},
+	"include": ["src"],
+}

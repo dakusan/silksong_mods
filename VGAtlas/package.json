@@ -1,0 +1,30 @@
+{
+	"name": "VGAtlas",
+	"author": "Dakusan",
+	"license": "BSD-3-Clause",
+	"version": "1.0.0",
+	"description": "Live video game map viewing and editing of curios",
+	"main": "index.js",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview"
+	},
+	"keywords": [
+		"Video Game",
+		"VG",
+		"Map",
+		"Atlas"
+	],
+	"devDependencies": {
+		"@types/jquery": "^3.5.33",
+		"sass": "^1.97.3",
+		"typescript": "^5.9.3",
+		"vite": "^7.3.1"
+	},
+	"dependencies": {
+		"jquery": "^4.0.0"
+	}
+}
