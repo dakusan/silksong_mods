@@ -6,17 +6,23 @@ export class MapControl {
 	private Ctx!:CanvasRenderingContext2D;
 	private Image:ImageBitmap=null!;
 	private DRP=1;
-	private X=0; private Y=0;
+	private x=0; private y=0;
 	private Scale=1; private MinScale=0.1; private MaxScale=8;
 	private MinVisiblePx=32; //Pan clamp config: ensure at least some of the image remains visible
+	private NeedsRedraw=true;
 
+	//Critical error handling
 	private _ErrorMessage?:string;
 	private _CanRender=false;
 	public get ErrorMessage(): string|undefined { return this._ErrorMessage; }
 	public set ErrorMessage(msg:string) { this._ErrorMessage=msg; this.NeedsRedraw=true; }
 	public get CanRender() { return this._CanRender; }
 
-	private NeedsRedraw=true;
+	public get Width() { return this.Canvas.clientWidth; }
+	public get Height() { return this.Canvas.clientHeight; }
+
+	public DrawCallbacks:((Ctx:CanvasRenderingContext2D) => void)[]=[];
+	public MouseMoveCallbacks:((x:number, y:number) => void)[]=[];
 
 	public async Init(ImageURL:string)
 	{
@@ -67,8 +73,8 @@ export class MapControl {
 		if(this.Image===null)
 			return;
 		const FitScale=Math.min(
-			this.Canvas.clientWidth /this.Image.width,
-			this.Canvas.clientHeight/this.Image.height
+			this.Width /this.Image.width,
+			this.Height/this.Image.height
 		);
 		this.MinScale=FitScale*0.75;
 		this.Scale=Math.min(Math.max(this.Scale, this.MinScale), this.MaxScale); //Ensure current scale respects new bounds
@@ -114,11 +120,14 @@ export class MapControl {
 				IsDragging=false
 			)
 			.on("mousemove", e => {
+				for(const Cb of this.MouseMoveCallbacks)
+					Cb(e.clientX, e.clientY);
+
 				if(!IsDragging)
 					return;
 
-				this.X+=e.clientX-LastX;
-				this.Y+=e.clientY-LastY;
+				this.x+=e.clientX-LastX;
+				this.y+=e.clientY-LastY;
 				LastX  =e.clientX;
 				LastY  =e.clientY;
 
@@ -134,7 +143,7 @@ export class MapControl {
 		const Pointers=new Map<number, Vector2>();
 
 		const GetDist	=(A:Vector2, B:Vector2) => Math.hypot(A.x-B.x, A.y-B.y);
-		const GetCenter	=(A:Vector2, B:Vector2) => ({X:(A.x+B.x)/2, Y:(A.y+B.y)/2});
+		const GetCenter	=(A:Vector2, B:Vector2) => new Vector2((A.x+B.x)/2, (A.y+B.y)/2);
 		const BeginPinch=() => {
 			if(Pointers.size!==2)
 				return;
@@ -144,8 +153,8 @@ export class MapControl {
 			PinchStartScale=this.Scale;
 
 			const C=GetCenter(It[0], It[1]);
-			PinchMapX=(C.X-this.X)/this.Scale;
-			PinchMapY=(C.Y-this.Y)/this.Scale;
+			PinchMapX=(C.x-this.x)/this.Scale;
+			PinchMapY=(C.y-this.y)/this.Scale;
 		};
 		const UpdatePinch=() => {
 			if(!IsPinching || Pointers.size!==2)
@@ -154,8 +163,8 @@ export class MapControl {
 			const Dist=GetDist(It[0], It[1]);
 			this.Scale=Math.min(Math.max(PinchStartScale*(Dist/PinchStartDist), this.MinScale), this.MaxScale);
 			const C=GetCenter(It[0], It[1]);
-			this.X=C.X-PinchMapX*this.Scale;
-			this.Y=C.Y-PinchMapY*this.Scale;
+			this.x=C.x-PinchMapX*this.Scale;
+			this.y=C.y-PinchMapY*this.Scale;
 			this.ClampPan();
 			this.NeedsRedraw=true;
 		};
@@ -182,6 +191,9 @@ export class MapControl {
 			.on("pointermove", e => {
 				const Pe=e.originalEvent as PointerEvent;
 				const P=Pointers.get(Pe.pointerId);
+				for(const Cb of this.MouseMoveCallbacks)
+					Cb(Pe.clientX, Pe.clientY);
+
 				if(P)
 					[P.x, P.y]=[Pe.clientX, Pe.clientY];
 				if(IsPinching)
@@ -191,8 +203,8 @@ export class MapControl {
 				else if((Pe.buttons&1)===0)
 					return void(IsDragging=false);
 
-				this.X+=Pe.clientX-LastX;
-				this.Y+=Pe.clientY-LastY;
+				this.x+=Pe.clientX-LastX;
+				this.y+=Pe.clientY-LastY;
 				LastX=Pe.clientX;
 				LastY=Pe.clientY;
 
@@ -227,8 +239,8 @@ export class MapControl {
 			return;
 
 		const Ratio=NewScale/this.Scale;
-		this.X=PosX-(PosX-this.X)*Ratio;
-		this.Y=PosY-(PosY-this.Y)*Ratio;
+		this.x=PosX-(PosX-this.x)*Ratio;
+		this.y=PosY-(PosY-this.y)*Ratio;
 		this.Scale=NewScale;
 		this.ClampPan();
 		this.NeedsRedraw=true;
@@ -236,16 +248,16 @@ export class MapControl {
 
 	public CenterOnPoint(PosX:number, PosY:number): void
 	{
-		const W=this.Canvas.clientWidth;
-		const H=this.Canvas.clientHeight;
+		const W=this.Width;
+		const H=this.Height;
 		this.Scale=Math.max(
 			this.MinScale, Math.min(
 				W/this.Image.width, H/this.Image.height, this.MaxScale
 			)
 		);
 
-		this.X=W/2-PosX*this.Scale;
-		this.Y=H/2-PosY*this.Scale;
+		this.x=W/2-PosX*this.Scale;
+		this.y=H/2-PosY*this.Scale;
 		this.ClampPan();
 		this.NeedsRedraw=true;
 	}
@@ -256,8 +268,8 @@ export class MapControl {
 		if(this.Image===null)
 			return;
 		const Pad=this.MinVisiblePx;
-		this.X=Math.min(Math.max(this.X, Pad-this.Image.width *this.Scale), this.Canvas.clientWidth -Pad);
-		this.Y=Math.min(Math.max(this.Y, Pad-this.Image.height*this.Scale), this.Canvas.clientHeight-Pad);
+		this.x=Math.min(Math.max(this.x, Pad-this.Image.width *this.Scale), this.Width -Pad);
+		this.y=Math.min(Math.max(this.y, Pad-this.Image.height*this.Scale), this.Height-Pad);
 	}
 
 	private BindLoop=this.Loop.bind(this);
@@ -274,7 +286,7 @@ export class MapControl {
 	{
 		this.Ctx.resetTransform();
 		this.Ctx.scale(this.DRP, this.DRP);
-		this.Ctx.clearRect(0, 0, this.Canvas.clientWidth, this.Canvas.clientHeight);
+		this.Ctx.clearRect(0, 0, this.Width, this.Height);
 
 		//Draw image load status indicators
 		if(this.ErrorMessage!==undefined)
@@ -284,16 +296,16 @@ export class MapControl {
 
 		this.Ctx.imageSmoothingEnabled=true;
 		this.Ctx.drawImage(
-			this.Image, this.X, this.Y,
+			this.Image, this.x, this.y,
 			this.Image.width*this.Scale,
 			this.Image.height*this.Scale
 		);
+		for(const CB of this.DrawCallbacks)
+			CB(this.Ctx);
 	}
 
 	private DrawCenteredAutoFitText(Text:string): void
 	{
-		const W=this.Canvas.clientWidth;
-		const H=this.Canvas.clientHeight;
 		const MaxFont=80, MinFont=10, Pad=24;
 		const Lines=Text.split(/\r?\n/);
 
@@ -317,6 +329,7 @@ export class MapControl {
 			return { MaxW, LineH, TotalH };
 		};
 
+		const W=this.Width; const H=this.Height;
 		for(let Size=MaxFont; Size>=MinFont; Size--) {
 			const { MaxW, LineH, TotalH }=MeasureMultiline(Size);
 			if(Size>MinFont && (MaxW>W-Pad*2 || TotalH>H-Pad*2))
@@ -328,4 +341,10 @@ export class MapControl {
 			break;
 		}
 	}
+
+	private MulX=87.7487; private MulY=-87.5855; private AddX=2090; private AddY=1569;
+	private MapToCanvasCoord(MapV:number, InV:number, Mul:number, Add:number) { return MapV+(InV*Mul+Add)*this.Scale; }
+	private CanvasToMapCoord(MapV:number, InV:number, Mul:number, Add:number) { return ((InV-MapV)/this.Scale-Add)/Mul; }
+	public MapToCanvas(x:number, y:number) { return new Vector2(this.MapToCanvasCoord(this.x, x, this.MulX, this.AddX), this.MapToCanvasCoord(this.y, y, this.MulY, this.AddY)); }
+	public CanvasToMap(x:number, y:number) { return new Vector2(this.CanvasToMapCoord(this.x, x, this.MulX, this.AddX), this.CanvasToMapCoord(this.y, y, this.MulY, this.AddY)); }
 }

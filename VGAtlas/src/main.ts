@@ -2,18 +2,20 @@ import "./style.scss";
 import $ from "jquery";
 import { MapControl } from "./MapControl"
 import { Util } from "./SharedClasses";
+import { InitFuncs } from "./Misc"
 
-export class Shared
+class Shared
 {
 	public MC!:MapControl;
 }
 export const Share=new Shared();
-(window as any).Atlas=Share;
 
 async function Main()
 {
 	try {
 		Share.MC=new MapControl();
+		for(const Fn of InitFuncs)
+			Fn();
 		await Share.MC.Init("Assets/PAtlasMap.png");
 	} catch(e) {
 		const Message=Util.GetErrorMessage(e);
