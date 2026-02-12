@@ -1,22 +1,27 @@
 import $ from "jquery";
+import { Util, Vector2 } from "./SharedClasses"
 
-type Vector2={X:number, Y:number};
 export class MapControl {
 	private Canvas!:HTMLCanvasElement;
 	private Ctx!:CanvasRenderingContext2D;
-	private Image=new Image();
-	private ImageFailed=false;
-
+	private Image:ImageBitmap=null!;
 	private DRP=1;
-	private X=0; Y=0;
-	private Scale=1; MinScale=0.1; MaxScale=8;
+	private X=0; private Y=0;
+	private Scale=1; private MinScale=0.1; private MaxScale=8;
+	private MinVisiblePx=32; //Pan clamp config: ensure at least some of the image remains visible
+
+	private _ErrorMessage?:string;
+	private _CanRender=false;
+	public get ErrorMessage(): string|undefined { return this._ErrorMessage; }
+	public set ErrorMessage(msg:string) { this._ErrorMessage=msg; this.NeedsRedraw=true; }
+	public get CanRender() { return this._CanRender; }
 
 	private NeedsRedraw=true;
 
-	public Init(ImageURL:string): void
+	public async Init(ImageURL:string)
 	{
 		//Initialize the canvas
-		$("#app").empty().append(
+		$("#map").empty().append(
 			this.Canvas=document.createElement("canvas")
 		);
 
@@ -26,21 +31,21 @@ export class MapControl {
 			throw new Error("2D context unavailable");
 		this.Ctx=Ctx;
 
-		//Set up window->canvas resizing
 		this.ResizeToWindow();
 		$(window).on("resize", this.ResizeToWindow.bind(this));
+		this.Loop();
+		this._CanRender=true;
 
 		this.BindInput();
 
-		this.Image.onload=() =>
-			this.CenterOnPoint(
-				(this.Image.naturalWidth ||this.Image.width )/2,
-				(this.Image.naturalHeight||this.Image.height)/2
-			);
-		this.Image.onerror=() => this.ImageFailed=this.NeedsRedraw=true;
-		this.Image.src=ImageURL;
-
-		this.Loop();
+		try {
+			const ImgLoader=Util.LoadImage(ImageURL);
+			this.Image=await ImgLoader;
+			this.ResizeToWindow();
+			this.CenterOnPoint(this.Image.width/2, this.Image.height/2);
+		} catch(e) {
+			throw new Error("Failed to load map:\n"+Util.GetErrorMessage(e));
+		}
 	}
 
 	private ResizeToWindow(): void
@@ -55,7 +60,18 @@ export class MapControl {
 		this.Ctx.resetTransform();
 		this.Ctx.scale(this.DRP, this.DRP);
 
+		this.ClampPan();
 		this.NeedsRedraw=true;
+
+		//Adjust MinScale to not allow zooming out more than 25% past full-fit
+		if(this.Image===null)
+			return;
+		const FitScale=Math.min(
+			this.Canvas.clientWidth /this.Image.width,
+			this.Canvas.clientHeight/this.Image.height
+		);
+		this.MinScale=FitScale*0.75;
+		this.Scale=Math.min(Math.max(this.Scale, this.MinScale), this.MaxScale); //Ensure current scale respects new bounds
 	}
 
 	private BindInput(): void
@@ -106,6 +122,7 @@ export class MapControl {
 				LastX  =e.clientX;
 				LastY  =e.clientY;
 
+				this.ClampPan();
 				this.NeedsRedraw=true;
 			});
 	}
@@ -116,8 +133,8 @@ export class MapControl {
 		let LastX=0, LastY=0, PinchMapX=0, PinchMapY=0, PinchStartDist=0, PinchStartScale=1;
 		const Pointers=new Map<number, Vector2>();
 
-		const GetDist	=(A:Vector2, B:Vector2) => Math.hypot(A.X-B.X, A.Y-B.Y);
-		const GetCenter	=(A:Vector2, B:Vector2) => ({X:(A.X+B.X)/2, Y:(A.Y+B.Y)/2});
+		const GetDist	=(A:Vector2, B:Vector2) => Math.hypot(A.x-B.x, A.y-B.y);
+		const GetCenter	=(A:Vector2, B:Vector2) => ({X:(A.x+B.x)/2, Y:(A.y+B.y)/2});
 		const BeginPinch=() => {
 			if(Pointers.size!==2)
 				return;
@@ -139,6 +156,7 @@ export class MapControl {
 			const C=GetCenter(It[0], It[1]);
 			this.X=C.X-PinchMapX*this.Scale;
 			this.Y=C.Y-PinchMapY*this.Scale;
+			this.ClampPan();
 			this.NeedsRedraw=true;
 		};
 		const EndPinch= () => IsPinching=false;
@@ -146,7 +164,7 @@ export class MapControl {
 		$(this.Canvas)
 			.on("pointerdown", e => {
 				const Pe=e.originalEvent as PointerEvent;
-				Pointers.set(Pe.pointerId, {X:Pe.clientX, Y:Pe.clientY});
+				Pointers.set(Pe.pointerId, new Vector2(Pe.clientX, Pe.clientY));
 				try { this.Canvas.setPointerCapture(Pe.pointerId); } catch {}
 				if(Pointers.size===2)
 					return void(BeginPinch());
@@ -165,7 +183,7 @@ export class MapControl {
 				const Pe=e.originalEvent as PointerEvent;
 				const P=Pointers.get(Pe.pointerId);
 				if(P)
-					[P.X, P.Y]=[Pe.clientX, Pe.clientY];
+					[P.x, P.y]=[Pe.clientX, Pe.clientY];
 				if(IsPinching)
 					return void(UpdatePinch());
 				else if(!IsDragging)
@@ -178,6 +196,7 @@ export class MapControl {
 				LastX=Pe.clientX;
 				LastY=Pe.clientY;
 
+				this.ClampPan();
 				this.NeedsRedraw=true;
 			})
 			.on("pointerup pointercancel", e => {
@@ -191,8 +210,8 @@ export class MapControl {
 
 				if(Pointers.size===1) {
 					const It=[...Pointers.values()];
-					LastX=It[0].X;
-					LastY=It[0].Y;
+					LastX=It[0].x;
+					LastY=It[0].y;
 					IsDragging=true;
 				}
 			});
@@ -211,27 +230,40 @@ export class MapControl {
 		this.X=PosX-(PosX-this.X)*Ratio;
 		this.Y=PosY-(PosY-this.Y)*Ratio;
 		this.Scale=NewScale;
+		this.ClampPan();
 		this.NeedsRedraw=true;
 	}
 
 	public CenterOnPoint(PosX:number, PosY:number): void
 	{
-		const W=window.innerWidth;
-		const H=window.innerHeight;
-		this.Scale=Math.max(this.MinScale, Math.min(
-			W/(this.Image.naturalWidth ||this.Image.width ),
-			H/(this.Image.naturalHeight||this.Image.height),
-			this.MaxScale
-		));
+		const W=this.Canvas.clientWidth;
+		const H=this.Canvas.clientHeight;
+		this.Scale=Math.max(
+			this.MinScale, Math.min(
+				W/this.Image.width, H/this.Image.height, this.MaxScale
+			)
+		);
 
 		this.X=W/2-PosX*this.Scale;
 		this.Y=H/2-PosY*this.Scale;
+		this.ClampPan();
 		this.NeedsRedraw=true;
 	}
 
+	//Clamp pan so the map can’t fully disappear off-screen
+	private ClampPan(): void
+	{
+		if(this.Image===null)
+			return;
+		const Pad=this.MinVisiblePx;
+		this.X=Math.min(Math.max(this.X, Pad-this.Image.width *this.Scale), this.Canvas.clientWidth -Pad);
+		this.Y=Math.min(Math.max(this.Y, Pad-this.Image.height*this.Scale), this.Canvas.clientHeight-Pad);
+	}
+
+	private BindLoop=this.Loop.bind(this);
 	private Loop(): void
 	{
-		requestAnimationFrame(this.Loop.bind(this));
+		requestAnimationFrame(this.BindLoop);
 		if(!this.NeedsRedraw)
 			return;
 		this.NeedsRedraw=false;
@@ -242,40 +274,58 @@ export class MapControl {
 	{
 		this.Ctx.resetTransform();
 		this.Ctx.scale(this.DRP, this.DRP);
-		this.Ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+		this.Ctx.clearRect(0, 0, this.Canvas.clientWidth, this.Canvas.clientHeight);
 
 		//Draw image load status indicators
-		if(this.ImageFailed)
-			return void(this.DrawCenteredAutoFitText("Failed to load map"));
-		else if(!this.Image.complete || this.Image.naturalWidth<=0)
+		if(this.ErrorMessage!==undefined)
+			return void(this.DrawCenteredAutoFitText(this.ErrorMessage));
+		else if(this.Image===null)
 			return void(this.DrawCenteredAutoFitText("Loading map..."));
 
 		this.Ctx.imageSmoothingEnabled=true;
-		this.Ctx.translate(this.X, this.Y);
-		this.Ctx.scale(this.Scale, this.Scale);
-		this.Ctx.drawImage(this.Image, 0, 0);
+		this.Ctx.drawImage(
+			this.Image, this.X, this.Y,
+			this.Image.width*this.Scale,
+			this.Image.height*this.Scale
+		);
 	}
 
 	private DrawCenteredAutoFitText(Text:string): void
 	{
-		const W=window.innerWidth;
-		const H=window.innerHeight;
+		const W=this.Canvas.clientWidth;
+		const H=this.Canvas.clientHeight;
 		const MaxFont=80, MinFont=10, Pad=24;
+		const Lines=Text.split(/\r?\n/);
+
 		this.Ctx.textAlign="center";
 		this.Ctx.textBaseline="middle";
 		this.Ctx.fillStyle="#fff";
-		for(let Size=MaxFont; Size>=MinFont; Size--)
-		{
-			this.Ctx.font=`${Size}px sans-serif`;
-			const Metrics=this.Ctx.measureText(Text);
-			const TextW=Metrics.width;
-			const TextH=(Metrics.actualBoundingBoxAscent||Size*0.8)+(Metrics.actualBoundingBoxDescent||Size*0.2);
-			if(TextW<=W-Pad*2 && TextH<=H-Pad*2)
-				return void(this.Ctx.fillText(Text, W/2, H/2));
-		}
 
-		//Fallback: smallest size even if it still doesn’t fit perfectly
-		this.Ctx.font=`${MinFont}px sans-serif`;
-		this.Ctx.fillText(Text, W/2, H/2);
+		const MeasureMultiline=(Size:number) => {
+			this.Ctx.font=`${Size}px sans-serif`;
+			let MaxW=0;
+			let LineH=Size;
+			for(const Line of Lines) {
+				const M=this.Ctx.measureText(Line);
+				MaxW=Math.max(MaxW, M.width);
+				const Ascent =M.actualBoundingBoxAscent  || Size*0.8;
+				const Descent=M.actualBoundingBoxDescent || Size*0.2;
+				LineH=Math.max(LineH, Ascent+Descent);
+			}
+
+			const TotalH=LineH*Lines.length;
+			return { MaxW, LineH, TotalH };
+		};
+
+		for(let Size=MaxFont; Size>=MinFont; Size--) {
+			const { MaxW, LineH, TotalH }=MeasureMultiline(Size);
+			if(Size>MinFont && (MaxW>W-Pad*2 || TotalH>H-Pad*2))
+				continue;
+
+			const StartY=H/2-TotalH/2+LineH/2;
+			for(let i=0; i<Lines.length; i++)
+				this.Ctx.fillText(Lines[i], W/2, StartY+i*LineH);
+			break;
+		}
 	}
 }
