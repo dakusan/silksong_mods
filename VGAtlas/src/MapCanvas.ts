@@ -1,22 +1,25 @@
 import $ from "jquery";
-import { Util, Vector2 } from "./SharedClasses"
+import { Util, Vector2, WillBeSet } from "./SharedClasses"
 
-export class MapControl {
-	private Canvas!:HTMLCanvasElement;
-	private Ctx!:CanvasRenderingContext2D;
+export class MapCanvas
+{
+	private Canvas:HTMLCanvasElement=WillBeSet;
+	private Ctx:CanvasRenderingContext2D=WillBeSet;
 	private Image:ImageBitmap=null!;
 	private DRP=1;
 	private x=0; private y=0;
 	private Scale=1; private MinScale=0.1; private MaxScale=8;
 	private MinVisiblePx=32; //Pan clamp config: ensure at least some of the image remains visible
 	private NeedsRedraw=true;
+	public Refresh() { this.NeedsRedraw=true; }
 
-	//Critical error handling
-	private _ErrorMessage?:string;
+	//Critical error handling and extra messages
+	private _ErrorMessage?:string=undefined;
 	private _CanRender=false;
 	public get ErrorMessage(): string|undefined { return this._ErrorMessage; }
 	public set ErrorMessage(msg:string) { this._ErrorMessage=msg; this.NeedsRedraw=true; }
 	public get CanRender() { return this._CanRender; }
+	public ExtraMessage?="Loading icons...";
 
 	public get Width() { return this.Canvas.clientWidth; }
 	public get Height() { return this.Canvas.clientHeight; }
@@ -54,7 +57,7 @@ export class MapControl {
 		}
 	}
 
-	private ResizeToWindow(): void
+	private ResizeToWindow()
 	{
 		this.Canvas.style.width =window.innerWidth +"px";
 		this.Canvas.style.height=window.innerHeight+"px";
@@ -80,7 +83,7 @@ export class MapControl {
 		this.Scale=Math.min(Math.max(this.Scale, this.MinScale), this.MaxScale); //Ensure current scale respects new bounds
 	}
 
-	private BindInput(): void
+	private BindInput()
 	{
 		$(this.Canvas)
 			.on("dragstart"	 , e => e.preventDefault())
@@ -103,7 +106,7 @@ export class MapControl {
 		}, {passive:false});
 	}
 
-	private BindInputMouse(): void
+	private BindInputMouse()
 	{
 		let IsDragging=false;
 		let LastX=0, LastY=0;
@@ -121,7 +124,8 @@ export class MapControl {
 			)
 			.on("mousemove", e => {
 				for(const Cb of this.MouseMoveCallbacks)
-					Cb(e.clientX, e.clientY);
+					try { Cb(e.clientX, e.clientY); }
+					catch(e) { Util.OutputException("Mouse move callback", e); }
 
 				if(!IsDragging)
 					return;
@@ -136,7 +140,7 @@ export class MapControl {
 			});
 	}
 
-	private BindInputPointer(): void
+	private BindInputPointer()
 	{
 		let IsDragging=false, IsPinching=false;
 		let LastX=0, LastY=0, PinchMapX=0, PinchMapY=0, PinchStartDist=0, PinchStartScale=1;
@@ -192,7 +196,8 @@ export class MapControl {
 				const Pe=e.originalEvent as PointerEvent;
 				const P=Pointers.get(Pe.pointerId);
 				for(const Cb of this.MouseMoveCallbacks)
-					Cb(Pe.clientX, Pe.clientY);
+					try { Cb(Pe.clientX, Pe.clientY); }
+					catch(e) { Util.OutputException("Pointer move callback", e); }
 
 				if(P)
 					[P.x, P.y]=[Pe.clientX, Pe.clientY];
@@ -232,7 +237,7 @@ export class MapControl {
 		this.Canvas.addEventListener("touchstart", e => e.preventDefault(), {passive:false});
 	}
 
-	private ZoomAt(PosX:number, PosY:number, ScaleAmount:number): void
+	private ZoomAt(PosX:number, PosY:number, ScaleAmount:number)
 	{
 		const NewScale=Math.min(Math.max(this.Scale*ScaleAmount, this.MinScale), this.MaxScale);
 		if(NewScale===this.Scale)
@@ -246,7 +251,7 @@ export class MapControl {
 		this.NeedsRedraw=true;
 	}
 
-	public CenterOnPoint(PosX:number, PosY:number): void
+	public CenterOnPoint(PosX:number, PosY:number)
 	{
 		const W=this.Width;
 		const H=this.Height;
@@ -263,7 +268,7 @@ export class MapControl {
 	}
 
 	//Clamp pan so the map can’t fully disappear off-screen
-	private ClampPan(): void
+	private ClampPan()
 	{
 		if(this.Image===null)
 			return;
@@ -273,7 +278,7 @@ export class MapControl {
 	}
 
 	private BindLoop=this.Loop.bind(this);
-	private Loop(): void
+	private Loop()
 	{
 		requestAnimationFrame(this.BindLoop);
 		if(!this.NeedsRedraw)
@@ -301,10 +306,14 @@ export class MapControl {
 			this.Image.height*this.Scale
 		);
 		for(const CB of this.DrawCallbacks)
-			CB(this.Ctx);
+			try { CB(this.Ctx); }
+			catch(e) { Util.OutputException("Draw callback", e); }
+
+		if(this.ExtraMessage!==undefined)
+			this.DrawCenteredAutoFitText(this.ExtraMessage);
 	}
 
-	private DrawCenteredAutoFitText(Text:string): void
+	private DrawCenteredAutoFitText(Text:string)
 	{
 		const MaxFont=80, MinFont=10, Pad=24;
 		const Lines=Text.split(/\r?\n/);

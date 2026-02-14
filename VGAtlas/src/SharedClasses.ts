@@ -30,9 +30,9 @@ export class ColorRGBA
 	public static CreateByteClamp(r:number, g:number, b:number, a:number) { return new ColorRGBA(ColorRGBA.CBy(r), ColorRGBA.CBy(g), ColorRGBA.CBy(b), ColorRGBA.CBy(a)); }
 }
 
-export class Util
+export namespace Util
 {
-	static async LoadImage(ImageURL:string): Promise<ImageBitmap>
+	export async function LoadImage(ImageURL:string)
 	{
 		const LoadImage=new Image();
 		await new Promise<void>((Resolve, Reject) => {
@@ -43,15 +43,15 @@ export class Util
 		return await createImageBitmap(LoadImage);
 	}
 
-	public static SameType(a:any, b:any): boolean
+	export function SameType(a:unknown, b:unknown)
 	{
-		return	a===null || b===null	? a===b
-			:	typeof(a)!==typeof(b)	? false
-			:	typeof(a)!=="object"	? true
-			:							  a.constructor===b.constructor
+		return	a===null || b===null || a===undefined || b===undefined	? a===b
+			:	typeof(a)!==typeof(b)									? false
+			:	typeof(a)!=="object"									? true
+			:							  								a.constructor===(b as object).constructor
 	}
 
-	public static TypeName(Val:any): string
+	export function TypeName(Val:unknown)
 	{
 		return	Val===undefined			? "undefined"
 			:	Val===null				? "null"
@@ -61,46 +61,61 @@ export class Util
 			:							  "object";
 	}
 
-	public static GetErrorMessage(e:any): string {
+	export function GetErrorMessage(e:unknown) {
 		return	e instanceof Error		? e.message
 			:	typeof(e)!=='object'	? String(e)
 			:							  JSON.stringify(e);
 	}
 
-	public static readonly MaxInt=(1<<30)*2-1;
-}
+	export const MaxInt=(1<<30)*2-1;
+	export type Primitive=string|number|bigint|boolean|symbol|null|undefined;
 
-export class Log
-{
-	public static Info(... Objs:any) { console.log(...Objs); }
-	public static Error(... Objs:any) { console.log("ERROR", ...Objs); }
-}
-
-export class DevStrings
-{
-	public static readonly Empty="";
-	public static readonly NewLine="\n";
-
-	private static ConvertEl=document.createElement('div');
-	public static SafeRich(Str:string): string
+	export function OutputException(Name:string, e:unknown)
 	{
-		DevStrings.ConvertEl.innerText=Str;
-		return DevStrings.ConvertEl.innerHTML;
+		Log.Error(`${Name} failed: ${Util.GetErrorMessage(e)}`, e);
 	}
+
+	//Sets a member if Obj is not null (used to facilitate C# foo?.bar=baz)
+	export function SetNullable<TObj extends object, K extends keyof TObj>(Obj:TObj|undefined|null, Key:K, Value:TObj[K])
+	{
+		if(Obj!==null && Obj!==undefined)
+			Obj[Key]=Value;
+	}
+}
+
+export namespace Log
+{
+	export function Info (...Objs:unknown[]) { console.log(...Objs); }
+	export function Error(...Objs:unknown[]) { console.log("ERROR", ...Objs); }
+}
+
+export namespace DevStrings
+{
+	const ConvertEl=document.createElement('div');
+	export function SafeRich(Str:string)
+	{
+		ConvertEl.innerText=Str;
+		return ConvertEl.innerHTML;
+	}
+}
+
+export const enum StatStr {
+	Empty="",
+	NewLine="\n",
 }
 
 export class Iter<T> implements Iterable<T>
 {
 	constructor(private readonly MyIterable:Iterable<T>) { }
-	[Symbol.iterator]():Iterator<T> { return this.MyIterable[Symbol.iterator](); }
-	public toArray():T[] { return [...this.MyIterable]; }
+	public [Symbol.iterator]() { return this.MyIterable[Symbol.iterator](); }
+	public toArray() { return [...this.MyIterable]; }
 
-	public forEach(Fn:(Val:T) => void):void {
+	public forEach(Fn:(Val:T) => void) {
 		for(const Val of this.MyIterable)
 			Fn(Val);
 	}
 
-	public map<U>(Fn:(Val:T) => U):Iter<U> {
+	public map<U>(Fn:(Val:T) => U) {
 		const Self=this;
 		return new Iter<U>(function*() {
 			for(const Val of Self.MyIterable)
@@ -108,11 +123,24 @@ export class Iter<T> implements Iterable<T>
 		}());
 	}
 
-	public filter(Fn:(Val:T) => boolean):Iter<T> {
+	public filter(Fn:(Val:T) => boolean) {
 		const Self=this;
 		return new Iter<T>(function*() {
 			for(const Val of Self.MyIterable)
 				if(Fn(Val))
+					yield Val;
+		}());
+	}
+
+	public skip(n:number) {
+		if(n<=0)
+			return this;
+
+		const Self=this;
+		return new Iter<T>(function*() {
+			let i=0;
+			for(const Val of Self.MyIterable)
+				if(++i>n)
 					yield Val;
 		}());
 	}
@@ -128,3 +156,5 @@ export class PopupMessage
 		this.Container.on('click', () => this.Container.remove());
 	}
 }
+
+export const WillBeSet=undefined!;

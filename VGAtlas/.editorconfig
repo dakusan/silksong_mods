@@ -51,7 +51,6 @@ ij_editorconfig_space_before_comma = false
 ij_editorconfig_spaces_around_assignment_operators = false
 
 [{*.ats,*.cts,*.mts,*.ts}]
-max_line_length = 200
 ij_continuation_indent_size = 4
 ij_smart_tabs = false
 ij_visual_guides =

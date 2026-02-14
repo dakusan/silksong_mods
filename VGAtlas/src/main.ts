@@ -1,26 +1,29 @@
 import "./style.scss";
 import $ from "jquery";
-import { MapControl } from "./MapControl"
-import { Util } from "./SharedClasses";
+import { MapCanvas } from "./MapCanvas"
+import { Util, WillBeSet } from "./SharedClasses";
 import { InitFuncs } from "./Misc"
 
 class Shared
 {
-	public MC!:MapControl;
+	public MCanvas:MapCanvas=WillBeSet;
 }
 export const Share=new Shared();
 
 async function Main()
 {
+	let MCanvas:MapCanvas=WillBeSet;
 	try {
-		Share.MC=new MapControl();
+		MCanvas=Share.MCanvas=new MapCanvas();
+		await MCanvas.Init("Assets/PAtlasMap.png");
 		for(const Fn of InitFuncs)
 			Fn();
-		await Share.MC.Init("Assets/PAtlasMap.png");
+		MCanvas.ExtraMessage=undefined;
+		MCanvas.Refresh();
 	} catch(e) {
 		const Message=Util.GetErrorMessage(e);
-		if(Share.MC?.CanRender)
-			Share.MC.ErrorMessage=Message;
+		if(MCanvas?.CanRender)
+			MCanvas.ErrorMessage=Message;
 		else
 			$("#map").empty().append($("<div>").text(Message));
 	}
