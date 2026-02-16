@@ -159,7 +159,7 @@ public class DataStorage
 			//For Req/Needs items sets “Unlocks” to the reward
 			foreach(ChainItem CI in GetListItems(ReqOrNeedList))
 				if(ItemIDInRange(CI.LinkID))
-					Items[CI.LinkID].Unlocks.Add(RewardItem);
+					Items[CI.LinkID].Unlocks!.Add(RewardItem);
 		}
 
 		ChainItem.Process_NeedsIDAndName();
@@ -170,18 +170,36 @@ public class DataStorage
 			foreach(ChainList CL in GetNonEmptyLists(ItemData.Reqs, ItemData.Needs, ItemData.Rewards))
 				foreach(ChainItem CI in GetListItems(CL))
 					if(ItemIDInRange(CI.LinkID))
-						(CL==ItemData.Rewards ? Items[CI.LinkID].AQFrom : Items[CI.LinkID].Unlocks).Add(ItemData);
+						(CL==ItemData.Rewards ? Items[CI.LinkID].AQFrom! : Items[CI.LinkID].Unlocks!).Add(ItemData);
 
 			//Distribute store reward related items: Fills in Item.{Unlocks, AQFrom, Reqs, Needs} for items linked from this item’s store
 			foreach(StoreItem SI in ItemData.Store?.Items ?? [])
 				if(SI.Rewards.Items!=null)
 					foreach(ChainItem RWCI in GetListItems(SI.Rewards))
 						if(ItemIDInRange(RWCI.LinkID)) {
-							Items[RWCI.LinkID].AQFrom.Add(ItemData); //Set reward’s AQFrom to the vendor
+							Items[RWCI.LinkID].AQFrom!.Add(ItemData); //Set reward’s AQFrom to the vendor
 							foreach(ChainList CL in GetNonEmptyLists(SI.Reqs, SI.Needs))
 								AddReqOrNeedToReward(Items[RWCI.LinkID], CL, SI, Items);
 						}
 		}
+
+		//Remove unused Unlocks/AQFrom
+		foreach(Item ItemData in Items.Values) {
+			if(ItemData.Unlocks!.GetItems.Count==0)
+				ItemData.Unlocks=null;
+			if(ItemData.AQFrom!.GetItems.Count==0)
+				ItemData.AQFrom=null;
+		}
+
+		//Write out to a file for testing
+		#if WRITE_JSON
+			DateTime Start=DateTime.Now;
+			FileOps.WriteFile(FileOps.PathCombine(FileOps.GetPluginPath, "ItemsAndCategoriesExport.json"), JsonUtils.Serialize_Exporter(
+				new Dictionary<string, object?> { { "Categories", Categories }, { "Items", Items } },
+				TrailingCommas:true
+			));
+			Log.Error("Time to export: "+(DateTime.Now-Start).TotalSeconds);
+		#endif
 	}
 
 	//Link colors. Do not add any other public properties unless they are colors

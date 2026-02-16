@@ -1,11 +1,12 @@
 using SilkDev;
+using SilkDev.JSON;
 using SilkDev.Textures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEngine;
-using FieldInfo = System.Reflection.FieldInfo;
 
 namespace PharloomAtlas;
 
@@ -37,10 +38,10 @@ public class Category
 	public readonly int Order, IconID;
 	public int ID			{ get; internal set; }
 	public int TotalCount	{ get; internal set; }
-	public int CurrentCount { get; internal set; } = 0;
+	[ExpNo] public int CurrentCount { get; internal set; } = 0;
 	public string Title=string.Empty;
-	public Sprite Sprite	{ get; internal set; } = null!;
-	public CategoryToggleState ToggleState=CategoryToggleState.Unknown;
+	[ExpNo] public Sprite Sprite	{ get; internal set; } = null!;
+	[ExpNo] public CategoryToggleState ToggleState=CategoryToggleState.Unknown;
 	internal Category() { } //Created through JSON processing
 
 	public const int MinID=101, MaxID=499;
@@ -57,11 +58,11 @@ public class Item
 	public string Title=string.Empty;
 	public RenderedField? WhereAt, Notes, Effect, Tip;
 	public ChainList? Reqs, Needs, Rewards;
-	public ItemSet Unlocks=null!, AQFrom=null!; //AQFrom=Acquired From
+	public ItemSet? Unlocks, AQFrom; //AQFrom=Acquired From
 	public float x, y;
 	public string[]? ImageURLs, OtherLinks;
 	public StoreItems? Store;
-	public Vector2 Pos => new(x, y);
+	[ExpNo] public Vector2 Pos => new(x, y);
 	private int UniqueLinkIndex=0;
 	private string GetLinkID => $"{ID}.{UniqueLinkIndex++}";
 	internal Item() { } //Must be created through CreateItem
@@ -88,8 +89,8 @@ public class Item
 			Reqs	?.Render("Requirements"	),
 			Needs	?.Render("Needs"		),
 			Rewards	?.Render("Rewards"		),
-			Unlocks	 .Render("Unlocks"		),
-			AQFrom	 .Render("Acq. From"	),
+			Unlocks	?.Render("Unlocks"		),
+			AQFrom	?.Render("Acq. From"	),
 			Store	?.Render("Store"		),
 		]).Where(static V => V!=null));
 
@@ -142,7 +143,7 @@ public class Item
 	//A full chain list for a single field
 	public class ChainList
 	{
-		public readonly Item Parent;
+		[ExpNo] public readonly Item Parent;
 		public readonly string StartString;
 		public readonly RenderedField? ExtraStr;
 		public readonly ChainItem[][]? Items;
@@ -177,6 +178,7 @@ public class Item
 		private static readonly Regex ExtractItemCounts=new($"{ChainItem.AmountChar}\\d+{ChainItem.AmountChar}", RegexOptions.CultureInvariant|RegexOptions.Compiled); //LinkIDs are inside a set of AmountChar characters
 		private static readonly Regex ReplaceLangVars=new($"{TrVarChar}\\w+{TrVarChar}", RegexOptions.Compiled);
 		private record struct StringCountPair(string StrBeforeCount, StaticLink? SL); //Only last item in RenderParts will have SL=null
+		[ExpYes] private StringCountPair[] ExpRenderParts => RenderParts is null ? (RenderedString, RenderParts!).Item2 : RenderParts;
 		private StringCountPair[] RenderParts=null!;
 		private string[] RenderPartsAgnostic=null!; //Original RenderParts strings before replacing language variables
 		public string RenderedString => CompileRenderString();
@@ -258,7 +260,7 @@ public class Item
 	public class ChainItem
 	{
 		internal static string AmountChar=((char)1).ToString();
-		public readonly ChainList Parent;
+		[ExpNo] public readonly ChainList Parent;
 		public readonly string StartString;
 		private  string RenderedStringReal		=> field ??= FinishInternalRender(); //Contains AmountChar where the live collected count will need to be inserted
 		internal string RenderedStringInternal	=> GetProcessedRenderString(RenderedStringReal, $"{AmountChar}{LinkID}{AmountChar}"); //AmountChar becomes LinkID surround by AmountChar
@@ -367,7 +369,7 @@ public class Item
 		//Turn item links in a string into actual links
 		private static readonly Regex GetLinks=new(@"\[(\d+)(~[^^|`\]]+)?]", RegexOptions.CultureInvariant|RegexOptions.Compiled);
 
-		public readonly Item Parent;
+		[ExpNo] public readonly Item Parent;
 		public readonly string StartString;
 		public string RenderedString => field ??= FinishInternalRender();
 		internal RenderedField(Item Parent, string FieldValue) => (this.Parent, StartString)=(Parent, FieldValue);
@@ -391,9 +393,10 @@ public class Item
 
 	public class ItemSet(Item Parent)
 	{
-		public readonly Item Parent=Parent;
+		[ExpNo] public readonly Item Parent=Parent;
 		private readonly HashSet<Item> ItemList=[];
-		public IReadOnlyCollection<Item> GetItems => ItemList;
+		[ExpNo] public IReadOnlyCollection<Item> GetItems => ItemList;
+		[ExpYes] private string? ExpItemIDs => ItemList.Count==0 ? null : string.Join(", ", ItemList.Select(static I => I.ID.ToString()));
 
 		public string? RenderedString	{ get => field ??= FinishInternalRender(); private set;	}
 		public void Add		(Item Item)	{ RenderedString=null!;		_=	ItemList.Add	(Item); }
@@ -407,7 +410,7 @@ public class Item
 		public string? Render(string FieldTitle) => ItemList.Count==0 ? null : $"<b>{TSan(FieldTitle)}</b>: "+RenderedString;
 	}
 
-	public CategoryToggleState CurrentToggleState
+	[ExpNo] public CategoryToggleState CurrentToggleState
 	{
 		get;
 		set {
@@ -424,8 +427,8 @@ public class Item
 		else
 			IsStarted=Value;
 	}
-	public bool IsStarted=false;
-	public bool IsFound
+	[ExpNo] public bool IsStarted=false;
+	[ExpNo] public bool IsFound
 	{
 		get;
 		set {
@@ -437,7 +440,7 @@ public class Item
 		}
 	} = false;
 
-	public bool IsLinked
+	[ExpNo] public bool IsLinked
 	{
 		get;
 		set {
@@ -448,10 +451,12 @@ public class Item
 		}
 	} = false;
 
-	public MapIcon? MapIcon
+	[ExpNo] public MapIcon? MapIcon
 	{
 		get;
 		set {
+			if(value is null)
+				return;
 			field=value;
 			field!.UpdateState(CurrentToggleState);
 			field!.SetIsFound(IsFound);
@@ -459,44 +464,47 @@ public class Item
 		}
 	} = null!;
 
-	public bool Visible =>
+	[ExpNo] public bool Visible =>
 		   CurrentToggleState==CategoryToggleState.All
 		|| (CurrentToggleState==CategoryToggleState.Incomplete && !IsFound);
 
 	//JSON type conversion
 	internal class CreateItem : Item
 	{
-		public new string? WhereAt	{ set => Misc.IFF(value!=null, () => base.WhereAt	=new RenderedField	(this, value!					)); }
-		public new string? Notes	{ set => Misc.IFF(value!=null, () => base.Notes		=new RenderedField	(this, value!					)); }
-		public new string? Effect	{ set => Misc.IFF(value!=null, () => base.Effect	=new RenderedField	(this, value!					)); }
-		public new string? Tip		{ set => Misc.IFF(value!=null, () => base.Tip		=new RenderedField	(this, value!					)); }
-		public new string? Reqs		{ set => Misc.IFF(value!=null, () => base.Reqs		=new ChainList		(this, value!, ChainType.Reqs	)); }
-		public new string? Needs	{ set => Misc.IFF(value!=null, () => base.Needs		=new ChainList		(this, value!, ChainType.Needs	)); }
-		public new string? Rewards	{ set => Misc.IFF(value!=null, () => base.Rewards	=new ChainList		(this, value!, ChainType.Rewards)); }
+		private readonly Item RetItem=new();
+		public new string? WhereAt	{ set => Misc.IFF(value!=null, () => base.WhereAt	=new RenderedField	(RetItem, value!					)); }
+		public new string? Notes	{ set => Misc.IFF(value!=null, () => base.Notes		=new RenderedField	(RetItem, value!					)); }
+		public new string? Effect	{ set => Misc.IFF(value!=null, () => base.Effect	=new RenderedField	(RetItem, value!					)); }
+		public new string? Tip		{ set => Misc.IFF(value!=null, () => base.Tip		=new RenderedField	(RetItem, value!					)); }
+		public new string? Reqs		{ set => Misc.IFF(value!=null, () => base.Reqs		=new ChainList		(RetItem, value!, ChainType.Reqs	)); }
+		public new string? Needs	{ set => Misc.IFF(value!=null, () => base.Needs		=new ChainList		(RetItem, value!, ChainType.Needs	)); }
+		public new string? Rewards	{ set => Misc.IFF(value!=null, () => base.Rewards	=new ChainList		(RetItem, value!, ChainType.Rewards	)); }
 
 		//Store needs to be created separately since it is nested
 		private new CreateStoreItems[]? Store=null; //Set via JSON
 		private class CreateStoreItems { public string? Reqs=null; public string Needs=null!, Rewards=null!; }
+		private static readonly ConvertToChild<Item> CTC=new();
 		internal Item GetItem()
 		{
-			Unlocks=new ItemSet(this);
-			AQFrom =new ItemSet(this);
+			Unlocks=new ItemSet(RetItem);
+			AQFrom =new ItemSet(RetItem);
 
 			//If store is not set, nothing to do but return self
 			if(Store==null)
-				return this;
+				return CTC.Convert(RetItem, this);
 
 			//Fill in the store
 			StoreItem[] Items=new StoreItem[Store.Length];
 			foreach((int Index, CreateStoreItems Item) in Store.Entries)
 				Items[Index]=new StoreItem(
 					  Item.Reqs==null ? null
-					: new ChainList(this, Item.Reqs		, ChainType.Reqs	),
-					  new ChainList(this, Item.Needs	, ChainType.Needs	),
-					  new ChainList(this, Item.Rewards	, ChainType.Rewards	)
+					: new ChainList(RetItem, Item.Reqs		, ChainType.Reqs	),
+					  new ChainList(RetItem, Item.Needs		, ChainType.Needs	),
+					  new ChainList(RetItem, Item.Rewards	, ChainType.Rewards	)
 				);
+
 			base.Store=new StoreItems(Items);
-			return this;
+			return CTC.Convert(RetItem, this);
 		}
 
 		//Handle compacted Json data from CreateJSONs.php
@@ -536,7 +544,32 @@ public class Item
 	public void Selected() => MC.SelectAndCenterItemI(ID);
 }
 
-public class StaticLink(string Name, int CategoryID, int[]? ItemIDs, int SpecialCount, FieldInfo? FI, StaticLink.GetCount? CountFunc)
+//Converts a child type to its parent by copying all non-static public and private fields directly declared on the parent
+internal class ConvertToChild<ParentClass>
+{
+	private readonly List<MemberInfo> BaseFields=[];
+	public ConvertToChild()
+	{
+		BindingFlags BF=BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.DeclaredOnly;
+		foreach(PropertyInfo P in typeof(ParentClass).GetProperties(BF).Where(static P => P.SetMethod!=null && !P.SetMethod.IsStatic))
+			BaseFields.Add(P);
+		foreach(FieldInfo F in typeof(ParentClass).GetFields(BF).Where(static F => !F.IsStatic))
+			BaseFields.Add(F);
+	}
+
+	public ParentClass Convert(ParentClass ParentObj, ParentClass ChildObj)
+	{
+		foreach(MemberInfo IF in BaseFields)
+			if(IF is PropertyInfo PI)
+				PI.SetValue(ParentObj, PI.GetValue(ChildObj));
+			else if(IF is FieldInfo FI)
+				FI.SetValue(ParentObj, FI.GetValue(ChildObj));
+
+		return ParentObj;
+	}
+}
+
+public class StaticLink(string Name, int CategoryID, int[]? ItemIDs, int SpecialCount, FieldInfo? FI, StaticLink.GetCount? CountFunc) : Exporter.IExpOverride
 {
 	public readonly string Name=Name;
 	public readonly int CategoryID=CategoryID, SpecialCount=SpecialCount;
@@ -560,6 +593,13 @@ public class StaticLink(string Name, int CategoryID, int[]? ItemIDs, int Special
 			Enum e => Convert.ToInt32(e),
 			_ => 0
 		};
+
+	public string ExpOverride =>
+		  CategoryID!=-1	? DS.Categories[CategoryID].Title
+		: ItemIDs!=null		? string.Join(", ", ItemIDs.Select(static I => DS.Items[I].Title))
+		: CountFunc!=null	? CountFunc.Method.Name
+		: FI==null			? SpecialCount.ToString()
+		: FI.Name;
 
 	//JSON type conversion
 	public static Dictionary<int, StaticLink> Process(Dictionary<string, List<object>> StaticLinks, Dictionary<int, Item> Items, Dictionary<int, Category> Categories)

@@ -19,7 +19,8 @@ public static class JsonUtils
 	private static readonly Regex AddTrailingCommasRegEx=new(@"([^,{\[])(\r?\n[ \t]*)(?=[}\]])", RegexOptions.Compiled);
 	public static string Serialize_Conv(
 		object Obj, bool Compact=false, bool TabIndent=true, bool UnixNewLine=true, bool Sorted=false, bool TrailingCommas=false,	//See Serialize()
-		params System.Collections.Generic.List<JsonConverter> Converters															//Extra converters to use
+		Newtonsoft.Json.Serialization.IContractResolver? ContractResolver=null,
+		params System.Collections.Generic.IList<JsonConverter> Converters															//Extra converters to use
 	) {
 		using StringWriter	 SW								=new();
 		using JsonTextWriter JTW							=new(SW);
@@ -29,7 +30,7 @@ public static class JsonUtils
 		if(Sorted)			 Converters.Add					(new SortedConverter(true));
 
 		JsonSerializer.CreateDefault(
-			new JsonSerializerSettings { Converters=Converters }
+			new JsonSerializerSettings { Converters=Converters, ContractResolver=ContractResolver }
 		).Serialize(JTW, Obj);
 
 		return !Compact && TrailingCommas
@@ -45,7 +46,10 @@ public static class JsonUtils
 	//Runs specified classes through FieldPropConverter
 	public static string Serialize_FPC<T>(object Obj, bool OutputNulls=true, bool Compact=false, bool TabIndent=true, bool UnixNewLine=true, bool Sorted=false, bool TrailingCommas=false) where T: class =>
 		Serialize_Conv(Obj, Compact:Compact, TabIndent:TabIndent, UnixNewLine:UnixNewLine, Sorted:Sorted, TrailingCommas:TrailingCommas, Converters:new FieldPropConverter<T>(OutputNulls));
-
 	public static T Deserialize_FPC<T, T2>(string Data) where T2: class =>
 		JsonConvert.DeserializeObject<T>(Data, new FieldPropConverter<T2>())!;
+
+	//Run through Exporter
+	public static string Serialize_Exporter(object Obj, bool Compact=false, bool TabIndent=true, bool UnixNewLine=true, bool Sorted=false, bool TrailingCommas=false) =>
+		Serialize_Conv(Obj, Compact:Compact, TabIndent:TabIndent, UnixNewLine:UnixNewLine, Sorted:Sorted, TrailingCommas:TrailingCommas, ContractResolver:new Exporter());
 }
