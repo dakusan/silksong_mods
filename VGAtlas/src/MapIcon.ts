@@ -1,5 +1,5 @@
 import { CategoryToggleState, Item } from "./CategoriesAndItems"
-import { ColorRGBA, Rect, Vector2, WillBeSet } from "./SharedClasses";
+import { ColorRGBA, Log, Rect, Vector2, WillBeSet } from "./SharedClasses";
 import { LC } from "./AtlasConfig"
 import { Share } from "./main";
 import { InitFuncs } from "./Misc"
@@ -46,13 +46,15 @@ export class Sprite extends Versioned
 class GameObject extends Versioned
 {
 	private static OrderedGameObjectList:GameObject[]=[];
-	private static DrawAll(Ctx:CanvasRenderingContext2D) { GameObject.OrderedGameObjectList.forEach(GO => GO.Draw(Ctx)); }
+	private static DrawAll(Ctx:CanvasRenderingContext2D) { Log.Debug("Drawing complete. Icons rendered: "+
+		GameObject.OrderedGameObjectList.map(GO => GO.Draw(Ctx)).filter(B => B).length
+	); }
 	public static get AllObjects() { return GameObject.OrderedGameObjectList.values(); }
 	private static ColorShader:RGBTintShader;
 	private static InitClass()
 	{
 		GameObject.ColorShader=new RGBTintShader();
-		Share.MCanvas.DrawCallbacks.push(GameObject.DrawAll);
+		Share.MCanvas.Events.Draw.Add("GameObjects", GameObject.DrawAll);
 	}
 	static { InitFuncs.push(GameObject.InitClass); }
 
@@ -91,21 +93,23 @@ class GameObject extends Versioned
 		if(this.SRI===undefined)
 			return;
 
+		Log.Debug("Rerendering: "+this.Title);
+
 		//See if we can reuse the current canvas source
 		if(
 			   !(this.RenderedSprite instanceof OffscreenCanvas)
-			|| this.RenderedSprite.width !==this.SRI.ImageRect.width
-			|| this.RenderedSprite.height!==this.SRI.ImageRect.height
+			|| this.RenderedSprite.width !==this.SRI.ImageRect.Width
+			|| this.RenderedSprite.height!==this.SRI.ImageRect.Height
 		)
-			this.RenderedSprite=new OffscreenCanvas(this.SRI.ImageRect.width, this.SRI.ImageRect.height);
+			this.RenderedSprite=new OffscreenCanvas(this.SRI.ImageRect.Width, this.SRI.ImageRect.Height);
 
 		//Render to the new canvas
 		const Ctx=this.RenderedSprite.getContext("2d")!;
 		const SRIRect=this.SRI.ImageRect;
 		Ctx.reset();
 		Ctx.drawImage(
-			this.SRI.Image, SRIRect.x, SRIRect.y, SRIRect.width, SRIRect.height,
-			0, 0, SRIRect.width, SRIRect.height
+			this.SRI.Image, SRIRect.x, SRIRect.y, SRIRect.Width, SRIRect.Height,
+			0, 0, SRIRect.Width, SRIRect.Height
 		);
 		for(const Shader of [
 			this.Color!==undefined ? GameObject.ColorShader.SetColor(this.Color) : undefined,
@@ -117,7 +121,7 @@ class GameObject extends Versioned
 		}
 	}
 
-	public Draw(Ctx:CanvasRenderingContext2D)
+	public Draw(Ctx:CanvasRenderingContext2D): boolean
 	{
 		//Make sure the sprite info is up to date
 		if(this.MySprite.CurrentVersion>this.SpriteVersion) {
@@ -126,20 +130,12 @@ class GameObject extends Versioned
 			this.IncVersion();
 		}
 		if(this.SRI===undefined || !this.Active)
-			return;
+			return false;
 
 		//Determine if the sprite will be displayed on the screen
-		const MatchUnityScale=2/3;
-		const RenderWidth =this.SRI.ImageRect.width *this.LocalScale.x*MatchUnityScale;
-		const RenderHeight=this.SRI.ImageRect.height*this.LocalScale.y*MatchUnityScale;
-		const MapPos=Share.MCanvas.MapToCanvas(this.Pos.x, this.Pos.y);
-		MapPos.x-=RenderWidth *this.SRI.Center.x;
-		MapPos.y-=RenderHeight*this.SRI.Center.y;
-		if(
-			MapPos.x+RenderWidth <0 || MapPos.x>Share.MCanvas.Width ||
-			MapPos.y+RenderHeight<0 || MapPos.y>Share.MCanvas.Height
-		)
-			return;
+		const R=this.RenderRect!;
+		if(!R.Intersects(new Rect(0, 0, Share.MCanvas.Width, Share.MCanvas.Height)))
+			return false;
 
 		//Rerender when needed
 		if(this.RenderedVersion<this.CurrentVersion) {
@@ -150,8 +146,22 @@ class GameObject extends Versioned
 		//Draw to the canvas
 		Ctx.drawImage(
 			this.RenderedSprite, 0, 0, this.RenderedSprite.width, this.RenderedSprite.height,
-			MapPos.x, MapPos.y, RenderWidth, RenderHeight
+			R.x, R.y, R.Width, R.Height
 		);
+
+		return true;
+	}
+
+	public get RenderRect(): Rect|undefined
+	{
+		if(this.SRI===undefined)
+			return undefined;
+		const RenderWidth =this.SRI.ImageRect.Width *this.LocalScale.x;
+		const RenderHeight=this.SRI.ImageRect.Height*this.LocalScale.y;
+		const MapPos=Share.MCanvas.MapToCanvas(this.Pos);
+		MapPos.x-=RenderWidth *this.SRI.Center.x;
+		MapPos.y-=RenderHeight*this.SRI.Center.y;
+		return new Rect(MapPos.x, MapPos.y, RenderWidth, RenderHeight);
 	}
 }
 
@@ -165,7 +175,7 @@ export class MapIcon
 	constructor(Item:Item, MySprite:Sprite)
 	{
 		this.IconGO=new GameObject(`Pin - ${Item.Title} [${Item.ID}]`, Item.Pos, MySprite);
-		this.UpdateSize(LC.IconSize.V);
+		this.UpdateSize(0.75*2/3); //Use an arbitrary start size which will be reset upon MapControl load
 	}
 
 	private _CTS=CategoryToggleState.Unknown;
@@ -199,6 +209,7 @@ export class MapIcon
 		const NewColor=this.IconGO.Color=
 			  this.IsSelected ? ColorRGBA.Green
 			: this.IsHovered ? ColorRGBA.Blue
+			: Share.MC?.ShowLinkedStatus && !this.IsLinked ? ColorRGBA.Red
 			: undefined;
 
 		//Update the IsFound shader
@@ -214,7 +225,7 @@ export class MapIcon
 			MapIcon.MyShader=new HSVShader();
 			MapIcon.UpdateShaderColor(LC.Color_FoundIcon.V);
 		}, 0);
-		LC.Color_FoundIcon.SettingChanged.push(C => MapIcon.UpdateShaderColor(C));
+		LC.Color_FoundIcon.SettingChanged.Add("MapIcon.UpdateShaderColor", MapIcon.UpdateShaderColor.bind(this));
 	}
 	private static UpdateShaderColor(C:ColorRGBA)
 	{
@@ -226,7 +237,10 @@ export class MapIcon
 	}
 
 	public BringToFront() { this.IconGO.BringToFront(); }
-	public UpdateSize(IconSize:number) { this.IconGO.LocalScale=new Vector2(IconSize, IconSize); }
+	public UpdateSize(IconSize:number) { if(this.IconGO.LocalScale?.x!==IconSize) this.IconGO.LocalScale=new Vector2(IconSize, IconSize); }
+	public get RenderRect() { return this.IconGO.RenderRect; }
+	public set ForceVisibility(Val:boolean) { this.IconGO.Active=Val; }
+	public get IsIconVisible() { return this.IconGO.Active; }
 }
 
 abstract class Material
@@ -267,7 +281,7 @@ abstract class Material
 	protected abstract Process(Pixels:Uint8ClampedArray, Width:number, Height:number): void;
 
 	private readonly RegisteredGOs=new Set<GameObject>();
-	public Register(GO:GameObject) { this.RegisteredGOs.add(GO); }
+	public Register  (GO:GameObject) { this.RegisteredGOs.add(GO); }
 	public Deregister(GO:GameObject) { this.RegisteredGOs.delete(GO); }
 	public RunAllRegistered() { this.RegisteredGOs.forEach(GO => GO.IncVersion()); }
 }

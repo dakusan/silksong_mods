@@ -1,11 +1,27 @@
 import $ from "jquery";
 
-export class Vector2 { constructor(public x:number, public y:number) { } }
+export class Vector2
+{
+	constructor(public x:number, public y:number) { }
+	public Distance(Vec:Vector2) { return Vector2.Distance(this, Vec); }
+	public static Distance(a:Vector2, b:Vector2) { return Math.hypot(a.x-b.x, a.y-b.y); }
+}
+
 export class Rect
 {
-	constructor(public x:number, public y:number, public width:number, public height:number) { }
-	public SetWidth	(W:number) { this.width =W; return this; }
-	public SetHeight(H:number) { this.height=H; return this; }
+	constructor(public x:number, public y:number, public Width:number, public Height:number) { }
+	public SetWidth	(W:number) { this.Width =W; return this; }
+	public SetHeight(H:number) { this.Height=H; return this; }
+	public Intersects(R:Rect) { return Rect.Intersects(this, R); }
+	public static Intersects(a:Rect, b:Rect)
+	{
+		return (
+			   a.x<b.x+b.Width
+			&& b.x<a.x+a.Width
+			&& a.y<b.y+b.Height
+			&& b.y<a.y+a.Height
+		);
+	}
 }
 
 export class ColorRGBA
@@ -81,10 +97,32 @@ export namespace Util
 		if(Obj!==null && Obj!==undefined)
 			Obj[Key]=Value;
 	}
+
+	export function ThrowOnNull<T>(Val:T|undefined|null, Err:string): T
+	{
+		if(Val===undefined || Val===null)
+			throw new Error(Err);
+		return Val;
+	}
 }
 
 export namespace Log
 {
+	let _ShowDebug:boolean|null|undefined; //null==Loading
+	function ShowDebug() {
+		if(_ShowDebug===undefined)
+			LoadDebugValue().then();
+		return _ShowDebug ?? false;
+	}
+	async function LoadDebugValue()
+	{
+		_ShowDebug=null;
+		const ConfigDebug=(await import( "./AtlasConfig")).LC.Debug;
+		ConfigDebug.SettingChanged.Add("UpdatingShowDebug", NewVal => _ShowDebug=NewVal);
+		_ShowDebug=ConfigDebug.V;
+	}
+
+	export function Debug(...Objs:unknown[]) { if(ShowDebug()) console.log("DEBUG", ...Objs); }
 	export function Info (...Objs:unknown[]) { console.log(...Objs); }
 	export function Error(...Objs:unknown[]) { console.log("ERROR", ...Objs); }
 }
@@ -155,6 +193,33 @@ export class PopupMessage
 		this.Text=Text;
 		this.Container.on('click', () => this.Container.remove());
 	}
+}
+
+type Callback<Args extends unknown[]=unknown[]> = (...args: Args) => void;
+export class CallbackList<Args extends unknown[]>
+{
+	constructor(
+		public readonly Name:string,
+	) { }
+
+	private readonly Callbacks=new Map<string, Callback<Args>>();
+	public Add		(Name:string, CB:Callback<Args>	) {			this.Callbacks.set		(Name, CB	); }
+	public Remove	(Name:string					) { return	this.Callbacks.delete	(Name		); }
+	public Has		(Name:string					) { return	this.Callbacks.has		(Name		); }
+	public Execute(...Params:Args)
+	{
+		for(const [CBName, CB] of this.Callbacks.entries())
+			try { CB(...Params); }
+			catch(e) { Log.Error(`Callback “${CBName}” for ${this.Name} failed: ${Util.GetErrorMessage(e)}`); }
+	}
+}
+
+export namespace KeyState
+{
+	const Keys=new Map<string, boolean>();
+	window.addEventListener("keydown", e => Keys.set(e.code, true ), { passive:false });
+	window.addEventListener("keyup"  , e => Keys.set(e.code, false), { passive:false });
+	export function GetKeyDown(Name:string) { return Keys.get(Name) ?? false; }
 }
 
 export const WillBeSet=undefined!;

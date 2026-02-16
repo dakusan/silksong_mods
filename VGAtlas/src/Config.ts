@@ -1,8 +1,8 @@
-import { StatStr } from "./SharedClasses";
+import { CallbackList, StatStr } from "./SharedClasses";
 
 export class ConfigItem<T>
 {
-	public SettingChanged:((Value:T, Item:ConfigItem<T>) => void)[]=[];
+	public SettingChanged;
 	private Val:T;
 
 	constructor(
@@ -14,14 +14,14 @@ export class ConfigItem<T>
 		this.Val=(Raw===null ? this.Default : (JSON.parse(Raw) as T));
 		if(Raw===null)
 			this.Storage.setItem(this.Key, JSON.stringify(this.Val));
+		this.SettingChanged=new CallbackList<[Value:T, Item:ConfigItem<T>]>(`Config setting “${this.Key}”`);
 	}
 
 	public get V() { return this.Val; }
 	public set V(NewVal: T) {
 		this.Val=NewVal;
 		this.Storage.setItem(this.Key, JSON.stringify(NewVal));
-		for(const CB of this.SettingChanged)
-			CB(NewVal, this);
+		this.SettingChanged.Execute(NewVal, this);
 	}
 	public ResetToDefault() { this.V=this.Default; }
 }

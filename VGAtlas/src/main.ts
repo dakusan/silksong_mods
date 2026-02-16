@@ -2,13 +2,16 @@ import "./style.scss";
 import $ from "jquery";
 import { MapCanvas } from "./MapCanvas"
 import { DataStorage } from "./DataStorage"
+import MapControl from "./MapControl"
 import { Util, WillBeSet } from "./SharedClasses";
 import { InitFuncs } from "./Misc"
+import { LC } from "./AtlasConfig"
 
 class Shared
 {
 	public MCanvas	:MapCanvas	=WillBeSet;
 	public DS		:DataStorage=WillBeSet;
+	public MC		:MapControl	=WillBeSet;
 }
 export const Share=new Shared();
 
@@ -23,17 +26,18 @@ async function Main()
 {
 	let MCanvas:MapCanvas=WillBeSet;
 	try {
-		MCanvas=Share.MCanvas=new MapCanvas();
+		MCanvas=Share.MCanvas=new MapCanvas(87.7487, -87.5855, 2090, 1569);
 		const DS=new DataStorage();
 		await MCanvas.Init("Assets/PAtlasMap.png");
 		await (DS as DataStorage_Friend).Load(
 			"Assets/categories.json",
 			"Assets/items.json",
 			"Assets/Misc.json",
-			"Assets/Icons-FromGame.png",
+			LC.IconSet.V,
 		);
 		Share.DS=DS; //Setting this now flags some locations that DataStorage has now completed loading so they can start their tasks
 		(DS as DataStorage_Friend).CompleteInit();
+		Share.MC=new MapControl();
 		for(const Fn of InitFuncs)
 			Fn();
 		MCanvas.ExtraMessage=undefined;

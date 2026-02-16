@@ -2,6 +2,7 @@ import { Log, Rect, Util, Vector2 } from "./SharedClasses"
 import { Category, CategoryGroup, CreateItem, Item } from "./CategoriesAndItems"
 import { LoadJson } from "./LoadJSON"
 import { MapIcon, Sprite } from "./MapIcon"
+import { LC } from "./AtlasConfig"
 
 const IconLenX		=10;
 const IconLenY		=8;
@@ -153,7 +154,15 @@ export class DataStorage
 			try { (this.MyIconSprites as Icon_SpritesFriend).SetIconPics(await NewIconSet); }
 			catch(e) { Log.Error("Could not load icons texture: "+Util.GetErrorMessage(e)); }
 		};
+		async function UpdateIconSet(ImageURL:string) {
+			try { await LoadIconSet(Util.LoadImage(ImageURL)); }
+			catch(e) {
+				Log.Error(e);
+				throw e;
+			}
+		}
 		await LoadIconSet(PIconSet);
+		LC.IconSet.SettingChanged.Add("DataStorage.UpdateIconSet", UpdateIconSet);
 
 		//Create the sprites
 		for(const Category of this.Categories.values())
