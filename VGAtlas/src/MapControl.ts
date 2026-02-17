@@ -1,7 +1,7 @@
 import { Item } from "./CategoriesAndItems"
 import { Iter, KeyState, Rect, Util, Vector2 } from "./SharedClasses"
 import { LC } from "./AtlasConfig"
-import { Share } from "./main"
+import { Share } from "./Main"
 
 //All functions accept/return canvas pixel coordinates
 export default class MapControl
@@ -168,7 +168,7 @@ export default class MapControl
 		const MatchUnityScale=2/3;
 		const NewIconScaleSize=(!this.IconSizeScalesWithZoom ? IconSize*this.ZoomScale : IconSize)*MatchUnityScale;
 		for(const Item of Share.DS.Items.values())
-			Item.MapIcon?.UpdateSize(NewIconScaleSize);
+			Item.MapIcon!.UpdateSize(NewIconScaleSize);
 	}
 
 	//Selects a new item

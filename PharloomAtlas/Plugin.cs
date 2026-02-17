@@ -114,7 +114,7 @@ internal class Plugin : BaseUnityPlugin
 					() => SetPopupMessage(C.Tr.TDef(
 						"ProgressReport", nameof(ErrorLog),
 						"Progress: {0:0.00}% [{1:N0}/{2}{3:N0}]", false,
-						(double)Sent/Total*100, Sent, TotalIsEstimate ? "~" : "", Total
+						(double)Sent/Total*100, Sent, TotalIsEstimate ? "~" : string.Empty, Total
 					))
 				);
 			}
@@ -144,7 +144,7 @@ internal class Plugin : BaseUnityPlugin
 				FinalMessage=
 					  ReturnVal==null ? TrT("Send was cancelled")
 					: (WasSuccess=(ReturnVal=="SUCCESS")) ? TrT("Send was successful")
-					: C.Tr.T("Error: ", "")+ReturnVal;
+					: C.Tr.T("Error: ", string.Empty)+ReturnVal;
 				SilkDev.Log.Info("ErrorLog send result: "+FinalMessage);
 			} catch(Exception e) {
 				Catcher.OutputException(ErrMsg=TrT("Error sending log file"), e);

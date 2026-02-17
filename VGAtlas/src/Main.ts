@@ -1,9 +1,9 @@
-import "./style.scss";
-import $ from "jquery";
+import "./style.scss"
+import $ from "jquery"
 import { MapCanvas } from "./MapCanvas"
 import { DataStorage } from "./DataStorage"
 import MapControl from "./MapControl"
-import { Util, WillBeSet } from "./SharedClasses";
+import { Util, WillBeSet } from "./SharedClasses"
 import { InitFuncs } from "./Misc"
 import { LC } from "./AtlasConfig"
 

@@ -53,13 +53,12 @@ public class Item
 {
 	public int ID			{ get; internal set; }
 	public int CategoryID	{ get; internal set; } //Locking down CategoryID to make sure only registered categories are used
-	public Sprite Sprite	{ get; internal set; } = null!;
 	public int IconID=-1;
 	public string Title=string.Empty;
 	public RenderedField? WhereAt, Notes, Effect, Tip;
 	public ChainList? Reqs, Needs, Rewards;
 	public ItemSet? Unlocks, AQFrom; //AQFrom=Acquired From
-	public float x, y;
+	public readonly float x, y;
 	public string[]? ImageURLs, OtherLinks;
 	public StoreItems? Store;
 	[ExpNo] public Vector2 Pos => new(x, y);
@@ -67,7 +66,7 @@ public class Item
 	private string GetLinkID => $"{ID}.{UniqueLinkIndex++}";
 	internal Item() { } //Must be created through CreateItem
 
-	public const int MinID=100001, MaxID=int.MaxValue;
+	public const int MinID=100_001, MaxID=int.MaxValue;
 	private const char TrVarChar=(char)2; //Translation variable character - This is placed around any translation names in strings for quick variable fill-in
 	public enum ChainType { Reqs, Needs, Rewards }
 	public static bool IDInRange(int ID) => ID is >=MinID and <=MaxID;
@@ -94,25 +93,25 @@ public class Item
 			Store	?.Render("Store"		),
 		]).Where(static V => V!=null));
 
-	//Get the title from the item ID (cannot be ran until after all Items are loaded, which is why below objects have delayed string rendering)
+	//Get the title from the item ID (cannot be run until after all Items are loaded, which is why below objects have delayed string rendering)
 	private static string? GetItemTitleFromID(string ID) =>
 		  !int.TryParse(ID, out int i) ? null
 		: StaticLink.IDInRange(i) ? (MC.DS.StaticLinks.Get(i)?.Name)
 		: MC.DS.Items.Get(i)?.Title;
 
-	internal string? AddStoreChainList(StoreItem SI, ChainType CType) //Returns error or null on success
+	internal string? AddStoreChainList(ChainList ChainListToCopy) //Returns error or null on success
 	{
+		var CType=ChainListToCopy.Type;
 		if(CType is not (ChainType.Reqs or ChainType.Needs))
 			return "Combined chain lists must be for either Reqs or Needs: "+CType;
 
 		//Clone the new list
-		ChainList ChainListToCopy=(CType==ChainType.Reqs ? SI.Reqs : SI.Needs)!;
-		if(!(ChainListToCopy?.Items?.Length>0))
+		if(!(ChainListToCopy.Items?.Length>0))
 			return "List cannot be empty";
 		ChainList ClonedChainList=new(this, ChainListToCopy.StartString, CType);
 
 		//Create the new ChainItem list
-		ChainList ChainListToStartWith=(CType==ChainType.Reqs ? Reqs : Needs)!;
+		ChainList? ChainListToStartWith=(CType==ChainType.Reqs ? Reqs : Needs);
 		ChainItem[][] ListToStartWith=ChainListToStartWith?.Items ?? [];
 		ChainItem[][] NewList=new ChainItem[ListToStartWith.Length+ClonedChainList.Items!.Length][];
 		ListToStartWith.AsSpan().CopyTo(NewList);
@@ -127,9 +126,8 @@ public class Item
 			.Where(static S => !string.IsNullOrEmpty(S))
 		);
 		ChainList FinalList=new(
-			this, NewList, CType,
-			(ListToStartWith.Length>0 ? ChainListToStartWith!.StartString+'|' : null)+ChainListToCopy.StartString,
-			string.IsNullOrEmpty(CombinedExtraString) ? null : new RenderedField(this, CombinedExtraString)
+			this, (ListToStartWith.Length>0 ? ChainListToStartWith!.StartString+'|' : null)+ChainListToCopy.StartString,
+			CType, NewList, string.IsNullOrEmpty(CombinedExtraString) ? null : new RenderedField(this, CombinedExtraString)
 		);
 
 		//Set the new chain list and return success
@@ -162,19 +160,19 @@ public class Item
 
 			//Parse the list
 			if(ItemList!=string.Empty)
-				Items=[..ItemList.Split('|').Select((OrStr, GroupIndex) =>
-					OrStr.Split('`').Select((ItemStr, ItemIndex) =>
+				Items=[..ItemList.Split('|').Select(OrStr =>
+					OrStr.Split('`').Select(ItemStr =>
 						new ChainItem(this, ItemStr)
 					).ToArray()
 				)];
 		}
 
 		//Used in AddStoreChainList
-		internal ChainList(Item Parent, ChainItem[][] Items, ChainType Type, string StartString, RenderedField? ExtraStr) =>
+		internal ChainList(Item Parent, string StartString, ChainType Type, ChainItem[][] Items, RenderedField? ExtraStr) =>
 			(this.Parent, this.Items, this.Type, this.StartString, this.ExtraStr)=(Parent, Items, Type, StartString, ExtraStr);
 
 		//--------------------String rendering--------------------
-		//StringCountPair are created such that we can essentially do a `strings.Join(RenderParts.Select(RP => RP.StrBeforeCount+RP.SL.NumCollected)`
+		//StringCountPair are created such that we can essentially do a `strings.Join(RenderParts.Select(RP => RP.StrBeforeCount+RP.SL.NumCollected))`
 		private static readonly Regex ExtractItemCounts=new($"{ChainItem.AmountChar}\\d+{ChainItem.AmountChar}", RegexOptions.CultureInvariant|RegexOptions.Compiled); //LinkIDs are inside a set of AmountChar characters
 		private static readonly Regex ReplaceLangVars=new($"{TrVarChar}\\w+{TrVarChar}", RegexOptions.Compiled);
 		private record struct StringCountPair(string StrBeforeCount, StaticLink? SL); //Only last item in RenderParts will have SL=null
@@ -231,7 +229,7 @@ public class Item
 			var PendingStr=new System.Text.StringBuilder();
 			int CurPos=0;
 			foreach(Match m in ExtractItemCounts.Matches(Ret)) {
-				//Only add when non empty
+				//Only add when non-empty
 				if(m.Index>CurPos)
 					_=PendingStr.Append(Ret, CurPos, m.Index-CurPos);
 				CurPos=m.Index+m.Length;
@@ -303,7 +301,6 @@ public class Item
 			else
 				SetIDAndName();
 		}
-		private static string MakeAttr(string AttrName, object AttrVal) => $"<ATTR={AttrName}>{AttrVal}</ATTR>";
 		private string FinishInternalRender()
 		{
 			//Add flags back
@@ -316,7 +313,7 @@ public class Item
 				: $"<color={MC.DS.LinkColors.CollectedCounts}>"+(Parent.Type!=ChainType.Rewards ? AmountChar : null)
 				+ $"<b>{FlagAmount}</b>×</color>";
 
-			//If unlinked or linking failed do do not make it a real link
+			//If unlinked or linking failed do not make it a real link
 			if(LinkID==-1)
 				return Amounts?.Replace(AmountChar, null)+"<u>"+string.Join(null, [.. Parts, Name])+"</u>";
 
@@ -325,9 +322,10 @@ public class Item
 				  FlagNot		? MC.DS.LinkColors.Flag_NOT
 				: FlagStarted	? MC.DS.LinkColors.Flag_STARTED
 				: FlagRecommend	? MC.DS.LinkColors.Flag_RECOMMENDED
-				: new(null!);
+				: null!;
 
 			//Render as a linked item
+			static string MakeAttr(string AttrName, object AttrVal) => $"<ATTR={AttrName}>{AttrVal}</ATTR>"; //Sanitization not needed on use cases
 			return string.Join(null, [
 				$"<LinkID={Parent.Parent.GetLinkID}>",
 				MakeAttr("ItemID", LinkID),
@@ -375,17 +373,12 @@ public class Item
 		internal RenderedField(Item Parent, string FieldValue) => (this.Parent, StartString)=(Parent, FieldValue);
 		private string FinishInternalRender()
 		{
-			int ReplaceIndex=0;
-			return
-				GetLinks.Replace(
-					StartString,
-					Match => {
-						string ID=Match.Groups[1].Value;
-						string Text=Match.Groups[2].Value;
-						Text=!string.IsNullOrEmpty(Text) ? Text[1..] : (GetItemTitleFromID(ID) ?? ID);
-						return $"<LinkID={Parent.GetLinkID}>{(false ? $"<ATTR=RepIndx>{ReplaceIndex++}</ATTR>" : null)}<ATTR=ItemID>{ID}</ATTR><u>{Text}</u></LinkID>";
-					}
-				);
+			return GetLinks.Replace(StartString, Match => {
+				string ID=Match.Groups[1].Value;
+				string Text=Match.Groups[2].Value;
+				Text=!string.IsNullOrEmpty(Text) ? Text[1..] : (GetItemTitleFromID(ID) ?? ID);
+				return $"<LinkID={Parent.GetLinkID}><ATTR=ItemID>{ID}</ATTR><u>{Text}</u></LinkID>";
+			});
 		}
 		public override string ToString() => RenderedString;
 		public string Render(string FieldTitle) => $"<b>{TSan(FieldTitle)}</b>: "+RenderedString;
@@ -462,7 +455,7 @@ public class Item
 			field!.SetIsFound(IsFound);
 			field!.SetIsLinked(IsLinked);
 		}
-	} = null!;
+	} = null;
 
 	[ExpNo] public bool Visible =>
 		   CurrentToggleState==CategoryToggleState.All
@@ -619,14 +612,14 @@ public class StaticLink(string Name, int CategoryID, int[]? ItemIDs, int Special
 
 		//Process the static links
 		foreach((string ID, List<object> L) in StaticLinks)
-			if     (!int.TryParse(RemID=ID, out int MyID)	)	LineErr("ID is not an int",					true);
-			else if(!IDInRange(MyID)						)	LineErr("ID is not valid for a Static Link",true);
-			else if(L.Count==0								)	LineErr("Array is empty",					true);
+			if     (!int.TryParse(RemID=ID, out int MyID)	)	LineErr("ID is not an int",					true);				//ID is not an int
+			else if(!IDInRange(MyID)						)	LineErr("ID is not valid for a Static Link",true);				//ID not in StaticLink range
+			else if(L.Count==0								)	LineErr("Array is empty",					true);				//No entries in the array
 			else if((CurName=L[0] as string)==null			)	AddSL(MyID, OverwriteName:"???", ErrStr:"Name is not a string");//Invalid name
 			else if(L.Count==1								)	AddSL(MyID, SpecialCount:1);									//Unlinked
 			else if(L.Count==2 && (L[1] is string Special)	)																	//Special check
 				if(int.TryParse(Special, out int SpecialInt))	AddSL(MyID, SpecialCount:SpecialInt);							//Special Count Success
-				else if(SpecialFuncs.ContainsKey(Special)	)	AddSL(MyID, CountFunc: SpecialFuncs[Special]);					//Special GetCount func
+				else if(SpecialFuncs.ContainsKey(Special)	)	AddSL(MyID, CountFunc:SpecialFuncs[Special]);					//Special GetCount func
 				else try {																										//Special FieldInfo Check
 					FieldInfo FI=new Reflectors.RField<PlayerData, int>(null, Special).FI;
 					if(!IsValidSpecialFieldType(FI.FieldType))	AddSL(MyID, ErrStr:$"PlayerData.{Special} ≠ bool/int/enum");	//Special FieldInfo failed (not int)
@@ -635,16 +628,15 @@ public class StaticLink(string Name, int CategoryID, int[]? ItemIDs, int Special
 			else if(L.Count==2 && Category.IDInRange(CatID=(int)(L[1] is long CID ? CID : -1)))									//Category check
 				if(Categories.ContainsKey(CatID))				AddSL(MyID, CategoryID:CatID);									//Category success
 				else											AddSL(MyID, ErrStr:$"Invalid Category ID {CatID}");				//Category failed
-			else
-				AddSL(MyID, ItemIDs:[..																							//Item list
-					L.Skip(1)
-					.Select(I =>
-						   I is not			 long	IVal  ? Misc.PassThru(() => LineErr($"ItemID is not a long: {I}"			), -1)
-						: !Item.IDInRange	((int)	IVal) ? Misc.PassThru(() => LineErr($"ItemID is not a valid Item ID: {IVal}"), -1)
-						: !Items.ContainsKey((int)	IVal) ? Misc.PassThru(() => LineErr($"ItemID is not a valid Item: {IVal}"	), -1)
-						: (int)IVal
-					).Where(static I => I!=-1)
-				]);
+			else												AddSL(MyID, ItemIDs:[..											//Item list
+				L.Skip(1)
+				.Select(I =>
+					   I is not			  long	IVal  ? Misc.PassThru(() => LineErr($"ItemID is not a long: {I				}"), -1)
+					: !Item.IDInRange	((int)	IVal) ? Misc.PassThru(() => LineErr($"ItemID is not a valid Item ID: {IVal	}"), -1)
+					: !Items.ContainsKey((int)	IVal) ? Misc.PassThru(() => LineErr($"ItemID is not a valid Item: {IVal		}"), -1)
+					: (int)IVal
+				).Where(static I => I!=-1)
+			]);
 
 		return Out;
 	}

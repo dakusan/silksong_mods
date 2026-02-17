@@ -1,10 +1,15 @@
-import { DevStrings, StatStr, Util } from "./SharedClasses";
+/* eslint-disable @typescript-eslint/naming-convention */
+import { DevStrings, StatStr, Util } from "./SharedClasses"
 
+// noinspection JSUnusedGlobalSymbols
 class SavePlayerData
 {
 	[Name:string]:number|boolean;
-	public geo:number=0;
-	public ShellShards:number=0;
+	public geo=0;
+	public ShellShards=0;
+	public act2Started=false;
+	public act3_wokeUp=false;
+	public permadeathMode=false;
 }
 class PlayerDataExtended
 {

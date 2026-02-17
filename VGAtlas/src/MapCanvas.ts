@@ -1,4 +1,4 @@
-import $ from "jquery";
+import $ from "jquery"
 import { CallbackList, Util, Vector2, WillBeSet } from "./SharedClasses"
 const MaxZoomOutRation=4/3; //How much further the map can zoom past 100% fit
 

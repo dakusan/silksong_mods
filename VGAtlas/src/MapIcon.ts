@@ -1,9 +1,9 @@
 import { CategoryToggleState, Item } from "./CategoriesAndItems"
-import { ColorRGBA, Log, Rect, Vector2, WillBeSet } from "./SharedClasses";
+import { ColorRGBA, Log, Rect, Vector2, WillBeSet } from "./SharedClasses"
 import { LC } from "./AtlasConfig"
-import { Share } from "./main";
+import { Share } from "./Main"
 import { InitFuncs } from "./Misc"
-import Color from "color";
+import Color from "color"
 
 class SpriteRenderInfo { constructor(public readonly Image:ImageBitmap, public readonly ImageRect:Rect, public readonly Center:Vector2) { } }
 

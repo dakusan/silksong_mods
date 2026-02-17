@@ -1,7 +1,7 @@
-import { StatStr, Util, Vector2, WillBeSet } from "./SharedClasses";
-import { JsonClass, JsonPropsDec, LoadJson } from "./LoadJSON";
+import { StatStr, Util, Vector2, WillBeSet } from "./SharedClasses"
+import { JsonClass, JsonPropsDec, LoadJson } from "./LoadJSON"
 import { MapIcon, Sprite } from "./MapIcon"
-import { Share } from "./main"
+import { Share } from "./Main"
 
 export enum CategoryToggleState
 {
@@ -54,7 +54,7 @@ export class Item extends JsonClass
 	public get CurrentToggleState() { return this._CurrentToggleState; }
 	public set CurrentToggleState(Value:CategoryToggleState)
 	{
-		if(Value==CategoryToggleState.Unknown)
+		if(Value===CategoryToggleState.Unknown)
 			return;
 		this._CurrentToggleState=Value;
 		Util.SetNullable(this.MapIcon, "CTS", Value);

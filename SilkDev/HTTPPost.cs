@@ -217,7 +217,7 @@ public class HTTPPost : IDisposable
 		{
 			MultipartFormDataContent FormContent=(MultipartFormDataContent)this.FormContent;
 			foreach((string Key, string Value) in PostContent)
-				FormContent.Add(new StringContent(Value ?? ""), Key);
+				FormContent.Add(new StringContent(Value ?? string.Empty), Key);
 
 			//Get the estimated send size
 			int BoundaryLength=(BoundaryStr=BoundaryString).Length;
@@ -245,5 +245,5 @@ public class HTTPPost : IDisposable
 		protected override bool TryComputeLength(out long Length) => (Length=RealTotal!.Value)>=0 || true;
 	}
 
-	protected static int NumUTF8Bytes(string? Str) => System.Text.Encoding.UTF8.GetByteCount(Str ?? "");
+	protected static int NumUTF8Bytes(string? Str) => System.Text.Encoding.UTF8.GetByteCount(Str ?? string.Empty);
 }

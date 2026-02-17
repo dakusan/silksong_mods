@@ -166,7 +166,7 @@ public partial class SideBar
 				{
 					CenterRichText.alignment=A;
 					CenterRichText.normal.textColor=c;
-					DrawHelpString(new Rect(StartPos.x+x, StartPos.y+y, Width, Height), Tr.TDef(Key, nameof(HelpWindow), ""), CenterRichText);
+					DrawHelpString(new Rect(StartPos.x+x, StartPos.y+y, Width, Height), Tr.TDef(Key, nameof(HelpWindow), string.Empty), CenterRichText);
 				}
 				DrawLabel(480, 0  , 125, 89, TextAnchor.UpperRight , Color.cyan , "NumPadReqs"		);
 				DrawLabel(152, 0  , 287, 82, TextAnchor.UpperCenter, Color.white, "WhenButtonsWork"	);

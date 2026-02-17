@@ -1,4 +1,4 @@
-import { Util } from "./SharedClasses";
+import { Util } from "./SharedClasses"
 
 export class JsonConverter<ObjType, InVal, RetVal>
 {

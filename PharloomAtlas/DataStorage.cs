@@ -27,7 +27,7 @@ public class DataStorage
 	public readonly SafeTexture2D IconPicsTex;
 	internal const int IconLenX=10, IconLenY=8, IconWidth=65, IconHeight=65, IconPadding=1;
 
-	//Create icon sprites when needed
+	//Create icon sprites as needed
 	public class IconSprites
 	{
 		private readonly Sprite?[] SpriteList=new Sprite?[IconLenX*IconLenY];
@@ -84,6 +84,8 @@ public class DataStorage
 		} catch(Exception e) {
 			throw new Exception($"Could not load categories, failing out: {e.Message}");
 		}
+		if(CategoryGroupsDict.Count==0)
+			throw new Exception("Categories cannot be empty");
 
 		//Sort, turn into arrays and dicts, and add IDs/Titles
 		int i=0;
@@ -117,12 +119,12 @@ public class DataStorage
 		foreach(Item Item in Items.Values)
 			Categories[Item.CategoryID].TotalCount++;
 
-		//Load the static links
+		//Load the static links and Misc
 		try {
 			(LoadJSON<LoadMisc, LoadMisc>("Misc.json") ?? throw new Exception("Misc is null")).Process(this);
 		} catch(Exception e) {
 			Catcher.OutputException("Loading static links", e);
-			throw new Exception($"Could not load static links, failing out: {e.Message}");
+			throw new Exception($"Could not load misc/static links, failing out: {e.Message}");
 		}
 
 		//Create and update the sprite texture
@@ -149,10 +151,10 @@ public class DataStorage
 		//Static helpers
 		static IEnumerable<ChainList> GetNonEmptyLists(params ChainList?[] CL) => CL.Where(static CLi => CLi?.Items?.Length>0)!;
 		static IEnumerable<ChainItem> GetListItems				(ChainList CL) => CL.Items.SelectMany(static Arr => Arr);
-		static void AddReqOrNeedToReward(Item RewardItem, ChainList ReqOrNeedList, StoreItem SI, Dictionary<int, Item> Items)
+		static void AddReqOrNeedToReward(Item RewardItem, ChainList ReqOrNeedList, Dictionary<int, Item> Items)
 		{
 			//Add the Req/Need ChainList to the Reward
-			string? Error=RewardItem.AddStoreChainList(SI, ReqOrNeedList.Type);
+			string? Error=RewardItem.AddStoreChainList(ReqOrNeedList);
 			if(Error!=null)
 				Log.Error($"Error adding {ReqOrNeedList.Parent.ID}.Store.{ReqOrNeedList.Type} to reward {RewardItem.ID}: {Error}");
 
@@ -165,7 +167,7 @@ public class DataStorage
 		ChainItem.Process_NeedsIDAndName();
 
 		//Distribute links from each item
-		foreach((int ItemID, Item ItemData) in Items) {
+		foreach(Item ItemData in Items.Values) {
 			//Fills in Item.{Unlocks, AQFrom} for items linked from this item
 			foreach(ChainList CL in GetNonEmptyLists(ItemData.Reqs, ItemData.Needs, ItemData.Rewards))
 				foreach(ChainItem CI in GetListItems(CL))
@@ -179,7 +181,7 @@ public class DataStorage
 						if(ItemIDInRange(RWCI.LinkID)) {
 							Items[RWCI.LinkID].AQFrom!.Add(ItemData); //Set reward’s AQFrom to the vendor
 							foreach(ChainList CL in GetNonEmptyLists(SI.Reqs, SI.Needs))
-								AddReqOrNeedToReward(Items[RWCI.LinkID], CL, SI, Items);
+								AddReqOrNeedToReward(Items[RWCI.LinkID], CL, Items);
 						}
 		}
 
@@ -283,7 +285,7 @@ public class DataStorage
 		private readonly Dictionary<string, string> LinkColors=[], ImagePrefix=[], OtherLinkPrefix=[];
 
 		/*
-		Goal: Rewrite Item’s ImageURLs/OtherLinks entries based on per-prefix regex rules.
+		Rewrite Item’s ImageURLs/OtherLinks entries based on per-prefix regex rules.
 
 		For each string in ModifyList:
 		- If it starts with a rule’s PrefixSymbol (PrefixList.Key), remove the prefix and apply the rule’s regex rewrite.
@@ -393,7 +395,7 @@ public class DataStorage
 	//Category state updating functions
 	public void CycleGroupCategoryState(CategoryGroup CG)
 	{
-		CategoryToggleState ConfirmState=CG.First().Value.ToggleState;
+		CategoryToggleState ConfirmState=CG.FirstOrDefault().Value?.ToggleState ?? CategoryToggleState.None;
 		foreach(Category Cat in CG.Values)
 			if(Cat.ToggleState!=ConfirmState) {
 				ConfirmState=CategoryToggleState.None;
@@ -425,14 +427,8 @@ public class DataStorage
 	public void SetCategoriesStatesFor100Percent()
 	{
 		string[] RequiredCategories=["Mask Shard", "Spool Fragment", "Silk Heart", "Kit/Pouch Update"];
-		int[] RequiredCategoryIDs=new int[RequiredCategories.Length];
-		List<int> ChangedCategories=[.. Categories.Values.Where(Cat => {
-			CategoryToggleState Expected=RequiredCategories.Contains(Cat.Title) ? CategoryToggleState.Incomplete : CategoryToggleState.None;
-			if(Cat.ToggleState==Expected)
-				return false;
-			Cat.ToggleState=Expected;
-			return true;
-		}).Select(static Cat => Cat.ID)];
+		foreach(Category Cat in Categories.Values)
+			Cat.ToggleState=RequiredCategories.Contains(Cat.Title) ? CategoryToggleState.Incomplete : CategoryToggleState.None;
 		SaveAndUpdateAllCategoryToggleStates();
 	}
 

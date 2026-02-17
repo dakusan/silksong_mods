@@ -1,4 +1,4 @@
-import { CallbackList, StatStr } from "./SharedClasses";
+import { CallbackList, StatStr } from "./SharedClasses"
 
 export class ConfigItem<T>
 {

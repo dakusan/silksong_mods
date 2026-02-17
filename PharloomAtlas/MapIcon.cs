@@ -19,7 +19,7 @@ public class MapIcon
 	public MapIcon(Item Item, Sprite MySprite)
 	{
 		//Create the new GameObject and set its location
-		MyGO=new GameObject("Pin - "+Item.Title);
+		MyGO=new GameObject($"Pin - {Item.Title} [{Item.ID}]");
 		MyGO.transform.SetLocalPosition2D(Item.Pos);
 		MyGO.transform.SetLocalPositionZ(CurrentZ);
 		MyGO.layer=5;
