@@ -9,11 +9,6 @@ public class MapIcon
 	//Basic instance members
 	public GameObject? IconGO => MyGO!.NullSafe;
 	private readonly GameObject? MyGO;
-	public bool IsFound		{ get; private set; } = false;
-	public bool IsHovered	{ get; private set; } = false;
-	public bool IsSelected	{ get; private set; } = false;
-	public bool IsLinked	{ get; private set; } = false;
-	private CategoryToggleState CTS=CategoryToggleState.Unknown;
 	private static float CurrentZ=1.9f;
 
 	public MapIcon(Item Item, Sprite MySprite)
@@ -34,27 +29,30 @@ public class MapIcon
 		MyGO.transform.SetParent(MapControl.Self.AllIcons, false);
 	}
 
-	public void UpdateState(CategoryToggleState NewState)
+	public CategoryToggleState CTS
 	{
-		if(CTS==NewState || NewState==CategoryToggleState.Unknown)
-			return;
-
-		CTS=NewState;
+		private get;
+		set {
+			if(field==value || value==CategoryToggleState.Unknown)
+				return;
+			field=value;
+			UpdateActive(true);
+		}
+	} = CategoryToggleState.Unknown;
+	private void UpdateActive(bool _)
+	{
+		IconGO?.SetActive(
+			    CTS==CategoryToggleState.All
+			|| (CTS==CategoryToggleState.Incomplete && !IsFound)
+		);
 		SetIconColor();
-		SetIsFound(IsFound);
 	}
 
-	public void SetIsFound(bool IsFound)
-	{
-		this.IsFound=IsFound;
-		IconGO?.SetActive(CTS==CategoryToggleState.All || (CTS==CategoryToggleState.Incomplete && !IsFound));
-		SetIconColor();
-	}
-
-	internal void SetHovered  (bool State) => SetIconColor(IsHovered=State);
-	public   void SetSelected (bool State) => SetIconColor(IsSelected=State);
-	public   void SetIsLinked (bool State) => SetIconColor(IsLinked=State);
-	private  void SetIconColor(bool _	 ) => SetIconColor();
+	public	bool IsFound	{ get;			set => Misc.IFF(field!=value, () => UpdateActive(field=value)); } = false;
+	public	bool IsHovered	{ get; internal	set => Misc.IFF(field!=value, () => SetIconColor(field=value)); } = false;
+	public	bool IsSelected	{ get;			set => Misc.IFF(field!=value, () => SetIconColor(field=value)); } = false;
+	public	bool IsLinked	{ get;			set => Misc.IFF(field!=value, () => SetIconColor(field=value)); } = false;
+	private void SetIconColor(bool _) => SetIconColor();
 
 	internal void SetIconColor()
 	{

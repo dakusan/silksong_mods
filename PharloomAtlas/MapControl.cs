@@ -120,7 +120,7 @@ public class MapControl : SilkDev.Windows.Window
 		if(DS!=null) {
 			DS.LoadIcons();
 			SetIconSize(Conf.IconSize);
-			SelectedItem?.MapIcon!.SetSelected(true);
+			_=SelectedItem?.MapIcon!.IsSelected=true;
 			if(SideBarWasOpen)
 				SideBar.Visible=true;
 			MarkerLabels.Reload();
@@ -248,8 +248,8 @@ public class MapControl : SilkDev.Windows.Window
 			return;
 
 		//Deselect the previous hover item and select the new one
-		HoverItem?.MapIcon!.SetHovered(false);
-		ClosestItem?.MapIcon!.SetHovered(true);
+		_=HoverItem?.MapIcon!.IsHovered=false;
+		_=ClosestItem?.MapIcon!.IsHovered=true;
 		HoverItem=ClosestItem;
 	}
 
@@ -425,8 +425,8 @@ public class MapControl : SilkDev.Windows.Window
 		if(!(SelectedItem?.Visible ?? false) && (SelectedItem?.MapIcon?.IconGO?.activeSelf ?? false))
 			SelectedItem.MapIcon.IconGO.SetActive(false);
 
-		SelectedItem?.MapIcon!.SetSelected(false);
-		NewSelectItem?.MapIcon!.SetSelected(true);
+		_=SelectedItem?.MapIcon!.IsSelected=false;
+		_=NewSelectItem?.MapIcon!.IsSelected=true;
 		NewSelectItem?.MapIcon!.BringToFront();
 		SelectedItem=NewSelectItem;
 		SideBar.OnNewIconSelected();

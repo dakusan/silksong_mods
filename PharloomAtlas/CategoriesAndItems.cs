@@ -33,7 +33,7 @@ public class CategoryGroup : Dictionary<int, Category>
 }
 
 //Categories (All Items have a category)
-public class Category
+public class Category: Exporter.IExpFieldOrder
 {
 	public readonly int Order, IconID;
 	public int ID			{ get; internal set; }
@@ -46,19 +46,22 @@ public class Category
 
 	public const int MinID=101, MaxID=499;
 	public static bool IDInRange(int ID) => ID is >=MinID and <=MaxID;
+	private static string[]? ExpFieldOrder => [nameof(Order), nameof(IconID), nameof(Title), nameof(ID), nameof(TotalCount)];
 }
 
 //Items (icons)
-public class Item
+public class Item: Exporter.IExpFieldOrder
 {
 	public int ID			{ get; internal set; }
 	public int CategoryID	{ get; internal set; } //Locking down CategoryID to make sure only registered categories are used
 	public int IconID=-1;
 	public string Title=string.Empty;
+	[ExpYes] [ExpName("x")] protected readonly double _x; //The original full precision coords
+	[ExpYes] [ExpName("y")] protected readonly double _y; //The original full precision coords
 	public RenderedField? WhereAt, Notes, Effect, Tip;
 	public ChainList? Reqs, Needs, Rewards;
 	public ItemSet? Unlocks, AQFrom; //AQFrom=Acquired From
-	public readonly float x, y;
+	[ExpNo] public readonly float x, y;
 	public string[]? ImageURLs, OtherLinks;
 	public StoreItems? Store;
 	[ExpNo] public Vector2 Pos => new(x, y);
@@ -67,7 +70,7 @@ public class Item
 	internal Item() { } //Must be created through CreateItem
 
 	public const int MinID=100_001, MaxID=int.MaxValue;
-	private const char TrVarChar=(char)2; //Translation variable character - This is placed around any translation names in strings for quick variable fill-in
+	private const char TrVarChar=(char)0xE003; //Translation variable character - This is placed around any translation names in strings for quick variable fill-in
 	public enum ChainType { Reqs, Needs, Rewards }
 	public static bool IDInRange(int ID) => ID is >=MinID and <=MaxID;
 	private static string TSan(string Message) => Tr.TDef(Message, "ItemFields", Message, true);
@@ -139,7 +142,7 @@ public class Item
 	}
 
 	//A full chain list for a single field
-	public class ChainList
+	public class ChainList: Exporter.IExpFieldOrder
 	{
 		[ExpNo] public readonly Item Parent;
 		public readonly string StartString;
@@ -176,7 +179,6 @@ public class Item
 		private static readonly Regex ExtractItemCounts=new($"{ChainItem.AmountChar}\\d+{ChainItem.AmountChar}", RegexOptions.CultureInvariant|RegexOptions.Compiled); //LinkIDs are inside a set of AmountChar characters
 		private static readonly Regex ReplaceLangVars=new($"{TrVarChar}\\w+{TrVarChar}", RegexOptions.Compiled);
 		private record struct StringCountPair(string StrBeforeCount, StaticLink? SL); //Only last item in RenderParts will have SL=null
-		[ExpYes] private StringCountPair[] ExpRenderParts => RenderParts is null ? (RenderedString, RenderParts!).Item2 : RenderParts;
 		private StringCountPair[] RenderParts=null!;
 		private string[] RenderPartsAgnostic=null!; //Original RenderParts strings before replacing language variables
 		public string RenderedString => CompileRenderString();
@@ -252,12 +254,14 @@ public class Item
 		}
 
 		public string Render(string FieldTitle) => $"<b>{TSan(FieldTitle)}</b>: "+RenderedString;
+		private static string[]? ExpFieldOrder => [nameof(StartString), nameof(Type), nameof(Items), nameof(ExtraStr), nameof(y), nameof(ExpRenderParts), nameof(RenderedString)];
+		[ExpYes] private StringCountPair[] ExpRenderParts => RenderParts is null ? (RenderedString, RenderParts!).Item2 : RenderParts;
 	}
 
 	//A single item in a ChainList
-	public class ChainItem
+	public class ChainItem: Exporter.IExpFieldOrder
 	{
-		internal static string AmountChar=((char)1).ToString();
+		internal static string AmountChar=((char)0xE002).ToString();
 		[ExpNo] public readonly ChainList Parent;
 		public readonly string StartString;
 		private  string RenderedStringReal		=> field ??= FinishInternalRender(); //Contains AmountChar where the live collected count will need to be inserted
@@ -359,10 +363,15 @@ public class Item
 			else if(MC.DS.Items.TryGetValue(TestID, out Item LinkedItem))		(LinkID, Name)=(TestID, LinkedItem.Title);
 			else																RetErr("Item");
 		}
+
+		private static string[]? ExpFieldOrder => [
+			nameof(StartString), nameof(FlagNot), nameof(FlagStarted), nameof(FlagRecommend),
+			nameof(FlagUnlinked), nameof(FlagAmount), nameof(RenderedString), nameof(Name), nameof(LinkID)
+		];
 	}
 
 	//A string with item links inside square brackets rendered as actual links
-	public class RenderedField
+	public class RenderedField: Exporter.IExpFieldOrder
 	{
 		//Turn item links in a string into actual links
 		private static readonly Regex GetLinks=new(@"\[(\d+)(~[^^|`\]]+)?]", RegexOptions.CultureInvariant|RegexOptions.Compiled);
@@ -382,18 +391,22 @@ public class Item
 		}
 		public override string ToString() => RenderedString;
 		public string Render(string FieldTitle) => $"<b>{TSan(FieldTitle)}</b>: "+RenderedString;
+
+		private static string[]? ExpFieldOrder => [nameof(StartString), nameof(RenderedString)];
 	}
 
-	public class ItemSet(Item Parent)
+	public class ItemSet(Item Parent): Exporter.IExpFieldOrder
 	{
 		[ExpNo] public readonly Item Parent=Parent;
 		private readonly HashSet<Item> ItemList=[];
 		[ExpNo] public IReadOnlyCollection<Item> GetItems => ItemList;
-		[ExpYes] private string? ExpItemIDs => ItemList.Count==0 ? null : string.Join(", ", ItemList.Select(static I => I.ID.ToString()));
 
-		public string? RenderedString	{ get => field ??= FinishInternalRender(); private set;	}
-		public void Add		(Item Item)	{ RenderedString=null!;		_=	ItemList.Add	(Item); }
-		public bool Remove	(Item Item)	{ RenderedString=null!; return	ItemList.Remove	(Item); }
+		private bool IsRendered=false;
+		public string? RenderedString =>
+			    IsRendered ? field
+			: ((IsRendered,  field)=(true, FinishInternalRender())).Item2;
+		public void Add		(Item Item)	{ IsRendered=false;		_=	ItemList.Add	(Item); }
+		public bool Remove	(Item Item)	{ IsRendered=false; return	ItemList.Remove	(Item); }
 		public string? FinishInternalRender() =>
 			  ItemList.Count==0 ? null
 			: string.Join(
@@ -401,6 +414,9 @@ public class Item
 				ItemList.Select(Item => $"<LinkID=UL-{Item.ID}-{Parent.GetLinkID}><ATTR=ItemID>{Item.ID}</ATTR><u>{Item.Title}</u></LinkID>")
 			  );
 		public string? Render(string FieldTitle) => ItemList.Count==0 ? null : $"<b>{TSan(FieldTitle)}</b>: "+RenderedString;
+
+		private static string[]? ExpFieldOrder => [nameof(ExpItemIDs), nameof(RenderedString)];
+		[ExpYes] private string? ExpItemIDs => ItemList.Count==0 ? null : string.Join(", ", ItemList.Select(static I => I.ID.ToString()));
 	}
 
 	[ExpNo] public CategoryToggleState CurrentToggleState
@@ -410,7 +426,7 @@ public class Item
 			if(value==CategoryToggleState.Unknown)
 				return;
 			field=value;
-			MapIcon?.UpdateState(value);
+			_=MapIcon?.CTS=value;
 		}
 	} = CategoryToggleState.Unknown;
 	public void SetStatusFlag(bool ForStarted, bool Value)
@@ -429,7 +445,7 @@ public class Item
 				return;
 			MC.DS.Categories[CategoryID].CurrentCount+=(value ? 1 : -1);
 			field=value;
-			MapIcon?.SetIsFound(value);
+			_=MapIcon?.IsFound=value;
 		}
 	} = false;
 
@@ -440,7 +456,7 @@ public class Item
 			if(field==value)
 				return;
 			field=value;
-			MapIcon?.SetIsLinked(value);
+			_=MapIcon?.IsLinked=value;
 		}
 	} = false;
 
@@ -451,9 +467,9 @@ public class Item
 			if(value is null)
 				return;
 			field=value;
-			field!.UpdateState(CurrentToggleState);
-			field!.SetIsFound(IsFound);
-			field!.SetIsLinked(IsLinked);
+			field!.IsFound=IsFound;
+			field!.IsLinked=IsLinked;
+			field!.CTS=CurrentToggleState;
 		}
 	} = null;
 
@@ -472,6 +488,14 @@ public class Item
 		public new string? Reqs		{ set => Misc.IFF(value!=null, () => base.Reqs		=new ChainList		(RetItem, value!, ChainType.Reqs	)); }
 		public new string? Needs	{ set => Misc.IFF(value!=null, () => base.Needs		=new ChainList		(RetItem, value!, ChainType.Needs	)); }
 		public new string? Rewards	{ set => Misc.IFF(value!=null, () => base.Rewards	=new ChainList		(RetItem, value!, ChainType.Rewards	)); }
+
+		//Store both float and double of x/y
+		private static readonly Reflectors.RField<Item, float > Rx =new(null, nameof( x)), Ry =new(null, nameof( y));
+		private static readonly Reflectors.RField<Item, double> R_x=new(null, nameof(_x)), R_y=new(null, nameof(_y));
+		#pragma warning disable IDE1006 //Naming Styles
+		public new double x { set { Rx.UpdateObj(this).Set((float)value); R_x.UpdateObj(this).Set(value); } }
+		public new double y { set { Ry.UpdateObj(this).Set((float)value); R_y.UpdateObj(this).Set(value); } }
+		#pragma warning restore IDE1006 //Naming Styles
 
 		//Store needs to be created separately since it is nested
 		private new CreateStoreItems[]? Store=null; //Set via JSON
@@ -517,11 +541,13 @@ public class Item
 	}
 
 	//Store structures
-	public class StoreItem(ChainList? Reqs, ChainList Needs, ChainList Rewards) {
+	public class StoreItem(ChainList? Reqs, ChainList Needs, ChainList Rewards): Exporter.IExpFieldOrder
+	{
 		public readonly ChainList? Reqs=Reqs;
 		public readonly ChainList Needs=Needs, Rewards=Rewards;
+		private static string[]? ExpFieldOrder => [nameof(Reqs), nameof(Needs), nameof(Rewards)];
 	}
-	public class StoreItems(StoreItem[] Items)
+	public class StoreItems(StoreItem[] Items): Exporter.IExpFieldOrder
 	{
 		public string RenderedString => FinishInternalRender(); //Cannot be cached due to changing item collection counts
 		public StoreItem[] Items=Items;
@@ -531,10 +557,16 @@ public class Item
 				(I.Reqs!=null ? Tr.TDef("STORE_REQ", "ItemFields", " (Required: {0})", false, I.Reqs.RenderedString) : null)
 			));
 		public string Render(string FieldTitle) => $"<b>{TSan(FieldTitle)}</b>: "+RenderedString;
+		private static string[]? ExpFieldOrder => [nameof(Items), nameof(RenderedString)];
 	}
 
 	//Selected via a link
 	public void Selected() => MC.SelectAndCenterItemI(ID);
+
+	private static string[]? ExpFieldOrder => [
+		nameof(CategoryID), nameof(Title), nameof(_x), nameof(_y), nameof(IconID), nameof(WhereAt), nameof(Notes), nameof(Effect), nameof(Tip), nameof(Reqs),
+		nameof(Needs), nameof(Rewards), nameof(Store), nameof(ImageURLs), nameof(OtherLinks), nameof(Unlocks), nameof(AQFrom), nameof(ID), nameof(Description)
+	];
 }
 
 //Converts a child type to its parent by copying all non-static public and private fields directly declared on the parent
@@ -562,7 +594,7 @@ internal class ConvertToChild<ParentClass>
 	}
 }
 
-public class StaticLink(string Name, int CategoryID, int[]? ItemIDs, int SpecialCount, FieldInfo? FI, StaticLink.GetCount? CountFunc) : Exporter.IExpOverride
+public class StaticLink(string Name, int CategoryID, int[]? ItemIDs, int SpecialCount, FieldInfo? FI, StaticLink.GetCount? CountFunc): Exporter.IExpOverride
 {
 	public readonly string Name=Name;
 	public readonly int CategoryID=CategoryID, SpecialCount=SpecialCount;
@@ -589,7 +621,7 @@ public class StaticLink(string Name, int CategoryID, int[]? ItemIDs, int Special
 
 	public string ExpOverride =>
 		  CategoryID!=-1	? DS.Categories[CategoryID].Title
-		: ItemIDs!=null		? string.Join(", ", ItemIDs.Select(static I => DS.Items[I].Title))
+		: ItemIDs!=null		? string.Join(", ", ItemIDs.Select(static ItemID => $"{DS.Items[ItemID].Title} [{DS.Items[ItemID].ID}]"))
 		: CountFunc!=null	? CountFunc.Method.Name
 		: FI==null			? SpecialCount.ToString()
 		: FI.Name;
