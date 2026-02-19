@@ -52,7 +52,7 @@ export default [
 					selector: "default",
 					format:null,
 					filter: {
-						regex: "^(forEach|toArray)$",
+						regex: "^(forEach|toArray|toString)$",
 						match: false,
 					},
 					custom: {

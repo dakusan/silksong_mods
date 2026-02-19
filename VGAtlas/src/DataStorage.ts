@@ -1,8 +1,9 @@
-import { Log, Rect, Util, Vector2 } from "./SharedClasses"
-import { Category, CategoryGroup, CreateItem, Item } from "./CategoriesAndItems"
+import { DevStrings, Iter, Log,  Rect, StatStr, Util, Vector2, WillBeSet } from "./SharedClasses"
+import { Category, CategoryGroup, ChainItem, ChainList, CreateItem, Item, StaticLink } from "./CategoriesAndItems"
 import { LoadJson } from "./LoadJSON"
 import { MapIcon, Sprite } from "./MapIcon"
 import { LC } from "./AtlasConfig"
+import Color, { type ColorInstance } from "color"
 
 const IconLenX		=10;
 const IconLenY		=8;
@@ -10,7 +11,18 @@ const IconWidth		=65;
 const IconHeight	=65;
 const IconPadding	=1;
 
+//Color type that stores it HTML string and RGB color
+class StringColor extends Object {
+	constructor(
+		public readonly Value:string,
+		public readonly AsColor:ColorInstance
+	) { super(); }
+	public override toString() { return this.Value; }
+}
+
 //Shapes when loading from JSON
+export type LoadMisc_StaticLink=[Name:string, ...Links:(string|number)[]];
+type LoadMisc_Set=Record<string, Record<string, string|LoadMisc_StaticLink>>;
 type LoadCategory=Record<string, Record<string, {OrderID:number, IconID:number, Title:string}>>;
 
 //Create icon sprites as needed
@@ -69,6 +81,7 @@ export class DataStorage
 	public readonly CategoryGroups:CategoryGroup[]=[];
 	public readonly Categories=new Map<number, Category>();
 	public readonly Items=new Map<number, Item>();
+	public readonly StaticLinks=new Map<number, StaticLink>();
 	public readonly MyIconSprites=new IconSprites();
 
 	protected async Load(CategoriesPath:string, ItemsPath:string, MiscPath:string, IconSetPath:string)
@@ -145,6 +158,7 @@ export class DataStorage
 			const MiscDict=await PMisc;
 			if(!MiscDict)
 				throw new Error("Misc is null");
+			(new DataStorage.LoadMisc).Process(this, MiscDict as LoadMisc_Set);
 		} catch(e) {
 			throw new Error("Could not load misc/static links, failing out: "+Util.GetErrorMessage(e));
 		}
@@ -172,8 +186,225 @@ export class DataStorage
 	//Distribute chain system items
 	protected CompleteInit()
 	{
+		//Static helpers
+		const GetNonEmptyLists=(...CL:(ChainList|undefined)[]) => CL.filter(CLi => (CLi?.Items?.length ?? 0)>0) as ChainList[];
+		const GetListItems=(CL:ChainList) => CL.Items!.flat();
+		function AddReqOrNeedToReward(RewardItem:Item, ReqOrNeedList:ChainList, Items:Map<number, Item>)
+		{
+			//Add the Req/Need ChainList to the Reward
+			const Error=RewardItem.AddStoreChainList(ReqOrNeedList);
+			if(Error!==null)
+				Log.Error(`Error adding ${ReqOrNeedList.Parent.ID}.Store.${ReqOrNeedList.Type} to reward ${RewardItem.ID}: ${Error}`);
+
+			//For Req/Needs items sets “Unlocks” to the reward
+			for(const CI of GetListItems(ReqOrNeedList))
+				if(Item.IDInRange(CI.LinkID))
+					Items.get(CI.LinkID)!.Unlocks!.Add(RewardItem);
+		}
+
+		ChainItem_Friend.Process_NeedsIDAndName();
+
+		//Distribute links from each item
+		for(const ItemData of this.Items.values()) {
+			//Fills in Item.{Unlocks, AQFrom} for items linked from this item
+			for(const CL of GetNonEmptyLists(ItemData.Reqs, ItemData.Needs, ItemData.Rewards))
+				for(const CI of GetListItems(CL))
+					if(Item.IDInRange(CI.LinkID))
+						(CL===ItemData.Rewards ? this.Items.get(CI.LinkID)!.AQFrom! : this.Items.get(CI.LinkID)!.Unlocks!).Add(ItemData);
+
+			//Distribute store reward related items: Fills in Item.{Unlocks, AQFrom, Reqs, Needs} for items linked from this item’s store
+			for(const SI of ItemData.Store?.Items ?? [])
+				if(SI.Rewards.Items!==undefined)
+					for(const RewardCI of GetListItems(SI.Rewards))
+						if(Item.IDInRange(RewardCI.LinkID)) {
+							this.Items.get(RewardCI.LinkID)!.AQFrom!.Add(ItemData); //Set reward’s AQFrom to the vendor
+							for(const CL of GetNonEmptyLists(SI.Reqs, SI.Needs))
+								AddReqOrNeedToReward(this.Items.get(RewardCI.LinkID)!, CL, this.Items);
+						}
+		}
+
+		//Remove unused Unlocks/AQFrom
+		for(const ItemData of this.Items.values()) {
+			if(!ItemData.Unlocks!.HasItems)
+				ItemData.Unlocks=undefined;
+			if(!ItemData.AQFrom!.HasItems)
+				ItemData.AQFrom=undefined;
+		}
+
 		this.LoadIcons();
 	}
+
+	//In case I decide to store more colors like this, I decided to make it an abstract class
+	//Note: Do not add public properties to subclass unless they are colors
+	public static readonly CColorsSet=class ColorsSet
+	{
+		protected readonly DefaultColors=new Map<string, string>();
+		private HasInitialized=false;
+
+		public constructor() {
+			return new Proxy(this, {
+				set:(Target, Prop:string|symbol, Value:unknown, Receiver:unknown) => {
+					if(typeof(Prop)!=="string" || !Target.HasInitialized)
+						return Reflect.set(Target, Prop, Value, Receiver);
+					if(Target.DefaultColors.has(Prop))
+						return Target.SetColor(Prop, String(Value));
+					else if(Prop in Target)
+						return Reflect.set(Target, Prop, Value, Receiver);
+					throw new Error("Invalid property name: "+Prop);
+				}
+			});
+		}
+		public Init()
+		{
+			if(this.HasInitialized)
+				return this;
+			this.HasInitialized=true;
+
+			//Harvest defaults from derived-class instance fields that are StringColor
+			for(const [ColorName, ColorDefault] of Object.entries(this))
+				if(ColorDefault instanceof(StringColor))
+					this.DefaultColors.set(ColorName, ColorDefault.Value);
+
+			//Normalize all members (parse defaults into AsColor, etc.)
+			for(const [ColorName, ColorDefault] of this.DefaultColors) {
+				try { Color(ColorDefault); }
+				catch { throw new Error("Could not parse default color: "+ColorDefault); }
+				this.SetColor(ColorName, ColorDefault);
+			}
+
+			return this;
+		}
+		public get ColorNames() { return this.DefaultColors.keys(); }
+
+		private SetColor(ColorName:string, RequestedValue:string): true
+		{
+			//Get the new color (or use default if invalid)
+			let NewColorStr=RequestedValue;
+			let NewColorRGB;
+			try { NewColorRGB=Color(RequestedValue); }
+			catch { NewColorRGB=Color(NewColorStr=this.DefaultColors.get(ColorName)!); }
+
+			//Call the callback
+			const NewColorFinal=new StringColor(NewColorStr, NewColorRGB);
+			for(const Callback of this.Callbacks)
+				try { Callback(NewColorFinal, ColorName, (this as unknown as Record<string, StringColor>)[ColorName], RequestedValue); }
+				catch(e) { Util.OutputException("Set color callback", e); }
+
+			//Set the new value
+			(this as unknown as Record<string, StringColor>)[ColorName]=NewColorFinal;
+			return true;
+		}
+
+		public Callbacks:((NewValue:StringColor, ColorName:string, PreviousValue:StringColor, RequestedValue:string) => void)[]=[];
+	};
+
+	//Link colors. Do not add any other public properties unless they are colors
+	public static readonly LinkColorsT=class LinkColorsT extends DataStorage.CColorsSet
+	{
+		//The following of these are set statically so realtime changing is not supported (for now): Flag_{NOT,STARTED,RECOMMENDED}, Sep_{OR,AND}
+		public constructor() { super(); }
+		public Default			=new StringColor("cyan",		null!); //Default link color
+		public LinkHover		=new StringColor("yellow",		null!); //Color when a link has the mouse over it
+		public LabelHover		=new StringColor("#4678C880",	null!); //Box color for the entire label when mouse over (in the search box); Desaturated, mid-luminance blue goes well with: red, teal, plum, yellow, cyan, white, black, green
+		public Flag_NOT			=new StringColor("red",			null!); //Flag color (precedence=0) for NOT
+		public Flag_STARTED		=new StringColor("teal",		null!); //Flag color (precedence=1) for STARTED
+		public Flag_RECOMMENDED	=new StringColor("#dda0dd",		null!); //Flag color (precedence=2) for RECOMMENDED [#=plum]
+		public Sep_OR			=new StringColor("purple",		null!); //Separator for boolean OR “ OR ”
+		public Sep_AND			=new StringColor("white",		null!); //Separator for boolean AND “, ”
+		public Strike_Found		=new StringColor("white",		null!); //Straight line through link when item has been found
+		public Strike_Started	=new StringColor("silver",		null!); //Wavy line through link when item has been started (and not found)
+		public Search_Highlight	=new StringColor("green",		null!); //Highlighting searched string
+		public CollectedCounts	=new StringColor("grey",		null!); //Amounts the player has and needs to finish an item
+	};
+	public LinkColors=new DataStorage.LinkColorsT().Init();
+
+	//noinspection ExceptionCaughtLocallyJS
+	private static readonly LoadMisc=class LoadMisc
+	{
+		private StaticLinks		:Record<string, LoadMisc_StaticLink>=WillBeSet;
+		private LinkColors		:Record<string, string>=WillBeSet;
+		private ImagePrefix		:Record<string, string>=WillBeSet;
+		private OtherLinkPrefix	:Record<string, string>=WillBeSet;
+
+		/*
+		Rewrite Item’s ImageURLs/OtherLinks entries based on per-prefix regex rules.
+
+		For each string in ModifyList:
+		- If it starts with a rule’s PrefixSymbol (PrefixList.Key), remove the prefix and apply the rule’s regex rewrite.
+		- The rewrite specification is PrefixList.Value in the form: <D><SEARCH><D><REPLACE> (e.g., “~SEARCH~REPLACE”) where <D> is a single UTF-16 code unit delimiter.
+		- The SEARCH regex has no flags inherently. This means RegexOptions.CultureInvariant IS NOT turned on. Meaning \d matches more than [0-9].
+		- The delimiter must appear exactly twice (at the start and between SEARCH and REPLACE) and must not appear inside SEARCH or REPLACE.
+
+		If FinishProcessing is provided, it is run on every final value after all rewrites have been applied.
+		*/
+		private static RewriteList(
+			PrefixList:Record<string, string>,
+			ModifyList:Iterable<[I:Item, ItemList:string[]]>,
+			FinishProcessing?:((Str:string, ItemID:number, Index:number) => string)
+		) {
+			//Get the regular expression rewrites
+			const Rewrites:[RegExp, string, string][]=[];
+			for(const [PrefixSymbol, RegExStr] of Object.entries(PrefixList))
+				try {
+					if(PrefixSymbol.length===0)
+						throw new Error("PrefixSymbol cannot be blank");
+					else if(RegExStr.length<4)
+						throw new Error("RegEx must have at least 4 characters");
+					else if(RegExStr[0].codePointAt(0)!>0xFFFF)
+						throw new Error("RegEx split character must fit within a UTF16 code unit");
+					const RegExParts=RegExStr.slice(1).split(RegExStr[0]);
+					if(RegExParts.length!==2)
+						throw new Error(`Must contain first (${RegExStr[0]}) character exactly once more to split SEARCH and REPLACE`);
+					else if(RegExParts[0].length===0)
+						throw new Error("SEARCH cannot be blank");
+					else if(RegExParts[1].length===0)
+						throw new Error("REPLACE cannot be blank");
+					Rewrites.push([new RegExp(RegExParts[0], "g"), PrefixSymbol, RegExParts[1]]);
+				} catch(e) {
+					Log.Error(`Error parsing Rewrite RegEx “${RegExStr}” for “${PrefixSymbol}”: ${Util.GetErrorMessage(e)}`);
+				}
+
+			//Rewrite entries
+			for(const [I, ItemList] of ModifyList)
+				for(let Index=0; Index<ItemList.length; Index++) {
+					let FinalVal=ItemList[Index] ?? StatStr.Empty;
+					for(const [SearchRegEx, PrefixSymbol, ReplaceWith] of Rewrites)
+						if(FinalVal.startsWith(PrefixSymbol))
+							FinalVal=FinalVal.slice(PrefixSymbol.length).replace(SearchRegEx, ReplaceWith);
+					if(FinishProcessing!==undefined)
+						FinalVal=FinishProcessing(FinalVal, I.ID, Index);
+					ItemList[Index]=FinalVal;
+				}
+		}
+
+		public Process(DS:DataStorage, Obj:LoadMisc_Set)
+		{
+			this.StaticLinks	=(Obj.StaticLinks		as Record<string, LoadMisc_StaticLink>);
+			this.LinkColors		=(Obj.LinkColors		as Record<string, string>) ?? {};
+			this.ImagePrefix	=(Obj.ImagePrefix		as Record<string, string>) ?? {};
+			this.OtherLinkPrefix=(Obj.OtherLinkPrefix	as Record<string, string>) ?? {};
+
+			//StaticLinks
+			for(const [K, V] of StaticLink.Process(this.StaticLinks, DS.Items, DS.Categories))
+				DS.StaticLinks.set(K, V);
+
+			//LinkColors
+			for(const ColorName of DS.LinkColors.ColorNames)
+				if(this.LinkColors.hasOwnProperty(ColorName))
+					(DS.LinkColors as unknown as Record<string, string>)[ColorName]=this.LinkColors[ColorName];
+
+			//Rewrite from Image and OtherLink prefixes
+			LoadMisc.RewriteList(this.ImagePrefix,	 	new Iter(DS.Items.values()).filter(I => !!I.ImageURLs ?.length).map(I => [I, I.ImageURLs !]));
+			LoadMisc.RewriteList(this.OtherLinkPrefix,	new Iter(DS.Items.values()).filter(I => !!I.OtherLinks?.length).map(I => [I, I.OtherLinks!]),
+				//URL can be followed by an optional link name (URL escape not necessary) prefixed with a pipe “|”. If not given, the URL will be the link name. The Link name will have UrlDecode() ran on it for display.
+				(Str, ItemID, Index) => {
+					const Parts=Str.split("|", 2);
+					const [URL, Name]=(Parts.length===2 ? [Parts[0], Parts[1]] : [Str, Str]);
+					return `<a data-LinkID="OL-${ItemID}-${Index}" href="${DevStrings.SafeRich(URL)}">${DevStrings.SafeRich(decodeURIComponent(Name))}</a>`;
+				}
+			);
+		}
+	};
 
 	//Create all the icons
 	private LoadIcons()
@@ -184,7 +415,6 @@ export class DataStorage
 				this.MyIconSprites.Get(Item.IconID!==-1 ? Item.IconID : this.Categories.get(Item.CategoryID)!.IconID)
 			);
 	}
-
 }
 
 //Mimic C++ friend / C# internal
@@ -192,6 +422,10 @@ class Category_Friend extends Category
 {
 	public override set TotalCount	(_Value:number) { }
 	public override set Sprite		(_Value:Sprite)	{ }
+}
+class ChainItem_Friend extends ChainItem
+{
+	public static override Process_NeedsIDAndName() { return super.Process_NeedsIDAndName(); }
 }
 class Icon_SpritesFriend extends IconSprites
 {
