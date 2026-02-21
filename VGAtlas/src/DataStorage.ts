@@ -1,6 +1,6 @@
 import { DevStrings, Iter, Log,  Rect, StatStr, Util, Vector2, WillBeSet } from "./SharedClasses"
 import { Category, CategoryGroup, ChainItem, ChainList, CreateItem, Item, StaticLink } from "./CategoriesAndItems"
-import { LoadJson } from "./LoadJSON"
+import { LoadJson } from "./JSON"
 import { MapIcon, Sprite } from "./MapIcon"
 import { LC } from "./AtlasConfig"
 import Color, { type ColorInstance } from "color"

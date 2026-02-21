@@ -1,9 +1,10 @@
 import { Log, StatStr, Util, Vector2, WillBeSet } from "./SharedClasses"
-import { ExpNo, ExpYes, JsonClass, JsonConverter, JsonConverter_Generic, JsonPropsDec, LoadJson, SaveJson } from "./LoadJSON";
+import { ExpNo, ExpYes, JsonClass, JsonConverter, JsonConverter_Generic, JsonPropsDec, LoadJson, SaveJson } from "./JSON";
 import { MapIcon, Sprite } from "./MapIcon"
 import { Share } from "./Main"
 import { LC, Languages } from "./AtlasConfig"
 import { LoadMisc_StaticLink } from "./DataStorage"
+import { SaveData } from "./SaveData";
 import { Translate } from "./TempClasses"
 
 export enum CategoryToggleState
@@ -49,8 +50,8 @@ const enum LStatStr {
 
 //Translation functions
 const Tr=new Translate();
-function TSan(Message:string)						: string { return Tr.TDef(Message, "ItemFields", Message, true); }
-function TDef(Message:string, Default:string|null)	: string { return Tr.TDef(Message, "ItemFields", Default!, true); }
+function TSan(Message:string)						: string { return Tr.TDef(Message, "ItemFields", Message, true)!; }
+function TDef(Message:string, Default:string|null)	: string { return Tr.TDef(Message, "ItemFields", Default, true)!; }
 function TrVar(Name:string)							: string { return LStatStr.TrVarChar+Name+LStatStr.TrVarChar; }
 const VarDefaults:Record<string, string>={
 	SEP_AND			: ", ",
@@ -613,13 +614,13 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 
 	public get NumCollected(): number
 	{
-		let V:number|boolean;
+		let V:ReturnType<typeof SaveData.PlayerData.Get>;
 		//noinspection SuspiciousTypeOfGuard
 		return	this.CategoryID!==-1							? Share.DS.Categories.get(this.CategoryID)!.CurrentCount
 			:	this.ItemIDs!==undefined						? this.ItemIDs.filter(I => Share.DS.Items.get(I)!.IsFound).length
 			:	this.CountFunc!==undefined						? this.CountFunc()
 			:	this.FName===undefined							? this.SpecialCount
-			:	(V=PlayerData.instance[this.FName])===undefined	? 0
+			:	(V=SaveData.PlayerData.Get(this.FName))===null	? 0
 			:	typeof(V)==="number"							? V
 			:	typeof(V)==="boolean"							? (V ? 1 : 0)
 			:													  0;
@@ -649,7 +650,7 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 			return [ID, new StaticLink(P.OverwriteName ?? CurName, P.CategoryID ?? -1, P.ItemIDs, P.SpecialCount ?? 0, P.FName, P.CountFunc)];
 		}
 		function LineErr(Err:string, CompleteFail:boolean=false): undefined { Log.Error(`Error on Static Link #${RemID}${(CompleteFail ? " [Skipped]" : StatStr.Empty)}: ${Err}`); return undefined; }
-		function IsValidSpecialFieldType(MemberName:string) { const T:unknown=PlayerData.instance[MemberName]; return typeof(T)==="number" || typeof(T)==="boolean"; }
+		function IsValidSpecialFieldType(MemberName:string) { const T:unknown=SaveData.PlayerData.Get(MemberName); return typeof(T)==="number" || typeof(T)==="boolean"; }
 		function GetNum(NumStr:string): number|null { const N=Number(NumStr); return Number.isFinite(N) ? N : null; }
 
 		//Process the static links
@@ -663,7 +664,7 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 			else if(L.length===2 && typeof(L[1])==="string" && (Special=L[1]))															//Special check
 				if((SpecialInt=GetNum(Special)!)!==null)		yield AddSL(MyID, {SpecialCount:SpecialInt});							//Special Count Success
 				else if(StaticLink.SpecialFuncs.has(Special))	yield AddSL(MyID, {CountFunc:StaticLink.SpecialFuncs.get(Special)!});	//Special GetCount func
-				else if(PlayerData.instance[Special]!==undefined)																		//Special FieldInfo Check
+				else if(SaveData.PlayerData.Has(Special))																				//Special FieldInfo Check
 					if(!IsValidSpecialFieldType(Special))		yield AddSL(MyID, {ErrStr:`PlayerData.${Special} ≠ bool/int/enum`});	//Special FieldInfo failed (not int)
 					else										yield AddSL(MyID, {FName:Special});										//Special FieldInfo success
 				else											yield AddSL(MyID, {ErrStr:`Invalid value for special: ${Special}`});	//Special FieldInfo failed (doesn’t exist)
@@ -685,6 +686,26 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 	]);
 	private static GetToolSlots()
 	{
-		return 0; //Added in upcoming commit
+		let UnlockedSlotCount=0;
+		for(const [, { Name: CrestName, Data: CrestData }] of Object.entries(SaveData.PlayerData.ToolEquips.savedData)) {
+			//Hunter crests do not count towards unlocked slot count
+			if(CrestName.startsWith("Hunter"))
+				continue;
+
+			//Count the unlocked slots for the current crest
+			let CurrentToolUnlockedSlotCount=0;
+			for(const Slot of CrestData.Slots ?? [])
+				if(Slot.IsUnlocked)
+					CurrentToolUnlockedSlotCount++;
+
+			//All crests but the Toolmaster have a Silk Skills slot we need to subtract
+			if(CrestName!=="Toolmaster" && CurrentToolUnlockedSlotCount>1)
+				CurrentToolUnlockedSlotCount--;
+
+			//Add to the total
+			UnlockedSlotCount+=CurrentToolUnlockedSlotCount;
+		}
+
+		return UnlockedSlotCount;
 	}
 }

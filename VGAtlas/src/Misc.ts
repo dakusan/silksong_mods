@@ -10,10 +10,11 @@ InitFuncs.push(async () =>
 		...Share, ...AllShared, LC,
 		Modules:{
 			CategoriesAndItems	:await import("./CategoriesAndItems"),
-			LoadJSON			:await import("./LoadJSON"),
+			LoadJSON			:await import("./JSON"),
 			MapCanvas			:await import("./MapCanvas"),
 			MapIcon				:await import("./MapIcon"),
 			TempClasses			:await import("./TempClasses"),
+			SaveData			:await import("./SaveData"),
 		},
 	}
 );
