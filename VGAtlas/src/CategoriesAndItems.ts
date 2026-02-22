@@ -1,11 +1,10 @@
 import { Log, StatStr, Util, Vector2, WillBeSet } from "./SharedClasses"
 import { ExpNo, ExpYes, JsonClass, JsonConverter, JsonConverter_Generic, JsonPropsDec, LoadJson, SaveJson } from "./JSON";
 import { MapIcon, Sprite } from "./MapIcon"
-import { Share } from "./Main"
-import { LC, Languages } from "./AtlasConfig"
-import { LoadMisc_StaticLink } from "./DataStorage"
+import { Languages } from "./AtlasConfig"
 import { SaveData } from "./SaveData";
 import { Translate } from "./TempClasses"
+import { Share } from "./Share"
 
 export enum CategoryToggleState
 {
@@ -269,8 +268,8 @@ export class ChainList extends JsonClass
 	private CompileRenderString()
 	{
 		//Fill in RenderParts on language change
-		if(this.CurrentLang!==LC.Language.V) {
-			this.CurrentLang=LC.Language.V;
+		if(this.CurrentLang!==Share.LC.Language.V) {
+			this.CurrentLang=Share.LC.Language.V;
 
 			//Only need to render parts and fill in RenderPartsAgnostic once
 			if(this.RenderPartsAgnostic===undefined) {
@@ -597,6 +596,7 @@ class StoreItems
 	public Render(FieldTitle:string) { return `<b>${TSan(FieldTitle)}</b>: `+this.RenderedString; }
 }
 
+export type LoadMisc_StaticLink=[Name:string, ...Links:(string|number)[]];
 export class StaticLink extends Object implements SaveJson.IExpOverride
 {
 	constructor(

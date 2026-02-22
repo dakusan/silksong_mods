@@ -1,5 +1,5 @@
 import { Util } from "./SharedClasses"
-import { Share } from "./Main"
+import { Share } from "./Share"
 
 //See ClassFromObj.Converters
 export class JsonConverter<

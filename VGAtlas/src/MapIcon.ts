@@ -1,8 +1,7 @@
 import { CategoryToggleState, Item } from "./CategoriesAndItems"
 import { ColorRGBA, Log, Rect, Vector2, WillBeSet } from "./SharedClasses"
-import { LC } from "./AtlasConfig"
-import { Share } from "./Main"
 import { InitFuncs } from "./Misc"
+import { Share } from "./Share"
 import Color from "color"
 
 class SpriteRenderInfo { constructor(public readonly Image:ImageBitmap, public readonly ImageRect:Rect, public readonly Center:Vector2) { } }
@@ -223,9 +222,9 @@ export class MapIcon
 	static {
 		setTimeout(() => {
 			MapIcon.MyShader=new HSVShader();
-			MapIcon.UpdateShaderColor(LC.Color_FoundIcon.V);
+			MapIcon.UpdateShaderColor(Share.LC.Color_FoundIcon.V);
 		}, 0);
-		LC.Color_FoundIcon.SettingChanged.Add("MapIcon.UpdateShaderColor", MapIcon.UpdateShaderColor.bind(this));
+		Share.LC.Color_FoundIcon.SettingChanged.Add("MapIcon.UpdateShaderColor", MapIcon.UpdateShaderColor.bind(this));
 	}
 	private static UpdateShaderColor(C:ColorRGBA)
 	{

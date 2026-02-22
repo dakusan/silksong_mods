@@ -1,13 +1,12 @@
 export const InitFuncs:(() => void)[]=[];
 
 //Browser debugging
-import { Share } from "./Main"
 import * as AllShared from "./SharedClasses"
-import { LC } from "./AtlasConfig"
+import { Share } from "./Share"
 
 InitFuncs.push(async () =>
 	(window as unknown as {Atlas:object}).Atlas={
-		...Share, ...AllShared, LC,
+		...Share, ...AllShared,
 		Modules:{
 			CategoriesAndItems	:await import("./CategoriesAndItems"),
 			LoadJSON			:await import("./JSON"),

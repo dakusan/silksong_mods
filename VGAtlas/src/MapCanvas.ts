@@ -1,8 +1,9 @@
 import $ from "jquery"
 import { CallbackList, Util, Vector2, WillBeSet } from "./SharedClasses"
+import { Share } from "./Share"
 const MaxZoomOutRation=4/3; //How much further the map can zoom past 100% fit
 
-export class MapCanvas
+export default class MapCanvas
 {
 	private Canvas:HTMLCanvasElement=WillBeSet;
 	private Ctx:CanvasRenderingContext2D=WillBeSet;
@@ -31,11 +32,15 @@ export class MapCanvas
 		private readonly MulX:number, private readonly MulY:number, private readonly AddX:number, private readonly AddY:number
 	) { }
 
-	private UpdatePosAndScale(NewScale?:number, NewX:number|undefined=undefined, NewY:number|undefined=undefined)
+	protected UpdatePosAndScale(NewScale?:number, NewX:number|undefined=undefined, NewY:number|undefined=undefined, FromMover:boolean=false)
 	{
 		//If there is no image then do nothing
 		if(this.Image===null)
 			return;
+
+		//If mover is currently executing, stop it
+		if(!FromMover)
+			this.Mover?.Cancel();
 
 		//If there are no updates, then nothing to do
 		let SetX		=(NewX		?? this.x		);
@@ -298,13 +303,15 @@ export class MapCanvas
 		this.UpdatePosAndScale(undefined, this.x+DeltaX, this.y+DeltaY);
 	}
 
-	public CenterOnPoint(Pos:Vector2)
+	protected Mover?:Mover=undefined;
+	public CenterOnPoint(Pos:Vector2, Instant=false)
 	{
-		this.UpdatePosAndScale(
-			undefined,
-			this.Width /2-(Pos.x-this.x),
-			this.Height/2-(Pos.y-this.y),
-		);
+		const NewX=this.Width /2-(Pos.x-this.x);
+		const NewY=this.Height/2-(Pos.y-this.y);
+		if(Instant)
+			return void this.UpdatePosAndScale(undefined, NewX, NewY);
+		this.Mover?.Cancel();
+		this.Mover=new Mover(new Vector2(this.x, this.y), new Vector2(NewX, NewY), Share.LC.IconCenterTime.V)
 	}
 
 	private static readonly FPSAverageOver=2000;
@@ -396,4 +403,50 @@ export class MapCanvas
 	private CanvasToMapCoord(MapV:number, InV:number, Mul:number, Add:number) { return ((InV-MapV)/this.Scale-Add)/Mul; }
 	public MapToCanvas(Pos:Vector2) { return new Vector2(this.MapToCanvasCoord(this.x, Pos.x, this.MulX, this.AddX), this.MapToCanvasCoord(this.y, Pos.y, this.MulY, this.AddY)); }
 	public CanvasToMap(Pos:Vector2) { return new Vector2(this.CanvasToMapCoord(this.x, Pos.x, this.MulX, this.AddX), this.CanvasToMapCoord(this.y, Pos.y, this.MulY, this.AddY)); }
+}
+class Friend_MapCanvas extends MapCanvas
+{
+	public override UpdatePosAndScale(_NewScale:number|undefined, _NewX:number|undefined, _NewY:number|undefined, _FromMover:boolean) { }
+	public override Mover?:Mover=undefined;
+}
+
+class Mover
+{
+	private static ClassUniqueID=0;
+	private MyUniqueID=Mover.ClassUniqueID++;
+
+	public readonly StartTime=Date.now();
+	private IsComplete=false;
+	constructor(
+		public readonly Start:Vector2,
+		public readonly End  :Vector2,
+		public readonly Duration:number, //In seconds
+	) {
+		this.Duration*=1000;
+		Share.MCanvas.Events.Draw.Add("MoveToPointAction"+this.MyUniqueID, this.OnFrame.bind(this));
+	}
+
+	private static Ease(T:number, Pow=4) { return T<0.5 ? 0.5*Math.pow(2*T, Pow) : 1-0.5*Math.pow(2*(1-T), Pow); }
+	public static Lerp(a:number, b:number, t:number) { return a+(b-a)*t; }
+	private OnFrame()
+	{
+		const LinearProgressPoint=(Date.now()-this.StartTime)/this.Duration;
+		if(LinearProgressPoint>1)
+			return void this.Cancel();
+		const EaseProgress=Mover.Ease(LinearProgressPoint, Share.LC.IconCenterEase.V);
+		(Share.MCanvas as Friend_MapCanvas).UpdatePosAndScale(
+			undefined,
+			Mover.Lerp(this.Start.x, this.End.x, EaseProgress),
+			Mover.Lerp(this.Start.y, this.End.y, EaseProgress),
+			true
+		);
+	}
+	public Cancel()
+	{
+		if(this.IsComplete)
+			return;
+		this.IsComplete=true;
+		Share.MCanvas.Events.Draw.Remove("MoveToPointAction"+this.MyUniqueID);
+		(Share.MCanvas as Friend_MapCanvas).Mover=undefined;
+	}
 }

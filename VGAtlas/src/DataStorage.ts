@@ -1,5 +1,5 @@
-import { DevStrings, Iter, Log,  Rect, StatStr, Util, Vector2, WillBeSet } from "./SharedClasses"
-import { Category, CategoryGroup, ChainItem, ChainList, CreateItem, Item, StaticLink } from "./CategoriesAndItems"
+import { DevStrings, Iter, Log, Rect, StatStr, Util, Vector2, WillBeSet } from "./SharedClasses"
+import { Category, CategoryGroup, ChainItem, ChainList, CreateItem, Item, LoadMisc_StaticLink, StaticLink } from "./CategoriesAndItems"
 import { LoadJson } from "./JSON"
 import { MapIcon, Sprite } from "./MapIcon"
 import { LC } from "./AtlasConfig"
@@ -21,7 +21,6 @@ class StringColor extends Object {
 }
 
 //Shapes when loading from JSON
-export type LoadMisc_StaticLink=[Name:string, ...Links:(string|number)[]];
 type LoadMisc_Set=Record<string, Record<string, string|LoadMisc_StaticLink>>;
 type LoadCategory=Record<string, Record<string, {OrderID:number, IconID:number, Title:string}>>;
 
@@ -76,7 +75,7 @@ class IconSprites
 }
 
 //noinspection ExceptionCaughtLocallyJS
-export class DataStorage
+export default class DataStorage
 {
 	public readonly CategoryGroups:CategoryGroup[]=[];
 	public readonly Categories=new Map<number, Category>();

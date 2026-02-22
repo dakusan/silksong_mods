@@ -1,7 +1,6 @@
 import { Item } from "./CategoriesAndItems"
 import { Iter, KeyState, Rect, Util, Vector2 } from "./SharedClasses"
-import { LC } from "./AtlasConfig"
-import { Share } from "./Main"
+import { Share } from "./Share"
 
 //All functions accept/return canvas pixel coordinates
 export default class MapControl
@@ -16,13 +15,13 @@ export default class MapControl
 	private readonly MoveForwardStack	:Item[]=[];
 
 	//Zoom states and variables
-	private IconSizeScalesWithZoom=LC.IconSizeScalesWithZoom.V;
+	private IconSizeScalesWithZoom=Share.LC.IconSizeScalesWithZoom.V;
 	private _ZoomScale=this.GameMap.ZoomScale; public get ZoomScale(): number { return this._ZoomScale; }
 	private set ZoomScale(Value:number)
 	{
 		this._ZoomScale=Value;
 		if(!this.IconSizeScalesWithZoom)
-			this.SetIconSize(LC.IconSize.V);
+			this.SetIconSize(Share.LC.IconSize.V);
 	}
 
 	constructor()
@@ -34,12 +33,12 @@ export default class MapControl
 		this.GameMap.Events.Frame		.Add("MapControl.OnFrame",		this.OnFrame.bind(this));
 
 		//Handle settings changes
-		LC.IconSize.SettingChanged.Add("MapControl.SetIconSize", this.SetIconSize.bind(this));
-		LC.IconSizeScalesWithZoom.SettingChanged.Add("MapControl.SetIconSize", NewVal => {
+		Share.LC.IconSize.SettingChanged.Add("MapControl.SetIconSize", this.SetIconSize.bind(this));
+		Share.LC.IconSizeScalesWithZoom.SettingChanged.Add("MapControl.SetIconSize", NewVal => {
 			this.IconSizeScalesWithZoom=NewVal;
-			this.SetIconSize(LC.IconSize.V);
+			this.SetIconSize(Share.LC.IconSize.V);
 		});
-		this.SetIconSize(LC.IconSize.V);
+		this.SetIconSize(Share.LC.IconSize.V);
 	}
 
 	//Find the closest visible and intersecting item on the map
@@ -102,7 +101,7 @@ export default class MapControl
 		//Panning
 		for(const [KeyName, Directions] of MapControl.ArrowKeyDirections.entries())
 			if(KeyState.GetKeyDown(KeyName)) {
-				const Rate=LC.PanSpeed.V/this.GameMap.FPS; //Ticks per second
+				const Rate=Share.LC.PanSpeed.V/this.GameMap.FPS; //Ticks per second
 				this.GameMap.PanAt(Directions[0]*Rate, Directions[1]*Rate);
 			}
 
@@ -146,7 +145,7 @@ export default class MapControl
 
 	private GetUpdatedZoomScale(Amount:number)
 	{
-		const ZoomChange=Math.pow(LC.ZoomSpeed.V, Math.abs(Amount));
+		const ZoomChange=Math.pow(Share.LC.ZoomSpeed.V, Math.abs(Amount));
 		return Amount<0 ? 1/ZoomChange : ZoomChange;
 	}
 

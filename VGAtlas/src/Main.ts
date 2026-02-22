@@ -1,19 +1,11 @@
 import "./style.scss"
 import $ from "jquery"
-import { MapCanvas } from "./MapCanvas"
-import { DataStorage } from "./DataStorage"
+import MapCanvas from "./MapCanvas"
+import DataStorage from "./DataStorage"
 import MapControl from "./MapControl"
 import { Util, WillBeSet } from "./SharedClasses"
 import { InitFuncs } from "./Misc"
-import { LC } from "./AtlasConfig"
-
-class Shared
-{
-	public MCanvas	:MapCanvas	=WillBeSet;
-	public DS		:DataStorage=WillBeSet;
-	public MC		:MapControl	=WillBeSet;
-}
-export const Share=new Shared();
+import { Share } from "./Share"
 
 //Mimic C++ friend / C# internal
 class DataStorage_Friend extends DataStorage
@@ -33,7 +25,7 @@ async function Main()
 			"Assets/categories.json",
 			"Assets/items.json",
 			"Assets/Misc.json",
-			LC.IconSet.V,
+			Share.LC.IconSet.V,
 		);
 		Share.DS=DS; //Setting this now flags some locations that DataStorage has now completed loading so they can start their tasks
 		(DS as DataStorage_Friend).CompleteInit();

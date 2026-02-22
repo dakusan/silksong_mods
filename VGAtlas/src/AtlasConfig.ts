@@ -9,6 +9,8 @@ class LocalConfig extends Config {
 	public readonly IconSet					=this.Item("IconSet",				"Assets/Icons-FromGame.png");
 	public readonly PanSpeed				=this.Item("PanSpeed",				300);
 	public readonly ZoomSpeed				=this.Item("ZoomSpeed",				1.03);
+	public readonly IconCenterTime			=this.Item("IconCenterTime",		1.75);
+	public readonly IconCenterEase			=this.Item("IconCenterEase",		2.5);
 	public readonly IconSizeScalesWithZoom	=this.Item("IconSizeScalesWithZoom",true);
 	public readonly Language				=this.Item("Language",				Languages.English);
 	public readonly Debug					=this.Item("Language",				false);
