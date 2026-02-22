@@ -1,10 +1,12 @@
 export const InitFuncs:(() => void)[]=[];
 
 //Browser debugging
-import * as AllShared from "./SharedClasses"
-import { Share } from "./Share"
+InitFuncs.push(async () => {
+	const [{ Share }, AllShared]=await Promise.all([
+		import("./Share"),
+		import("./SharedClasses"),
+	]);
 
-InitFuncs.push(async () =>
 	(window as unknown as {Atlas:object}).Atlas={
 		...Share, ...AllShared,
 		Modules:{
@@ -16,4 +18,4 @@ InitFuncs.push(async () =>
 			SaveData			:await import("./SaveData"),
 		},
 	}
-);
+});

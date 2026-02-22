@@ -1,7 +1,7 @@
 //Primary share object
-import DataStorage from "./DataStorage";
-import MapCanvas from "./MapCanvas";
-import MapControl from "./MapControl";
+import type DataStorage from "./DataStorage";
+import type MapCanvas from "./MapCanvas";
+import type MapControl from "./MapControl";
 import { LC } from "./AtlasConfig";
 import { WillBeSet } from "./SharedClasses";
 class Shared

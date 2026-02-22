@@ -3,15 +3,18 @@ import $ from "jquery"
 import MapCanvas from "./MapCanvas"
 import DataStorage from "./DataStorage"
 import MapControl from "./MapControl"
-import { Util, WillBeSet } from "./SharedClasses"
+import { FriendClass, Util, WillBeSet } from "./SharedClasses"
 import { InitFuncs } from "./Misc"
 import { Share } from "./Share"
 
 //Mimic C++ friend / C# internal
-class DataStorage_Friend extends DataStorage
+abstract class DataStorage_Friend extends DataStorage implements FriendClass
 {
-	public override async Load(_CategoriesPath:string, _ItemsPath:string, _MiscPath:string, _IconSetPath:string) { }
-	public override CompleteInit(): void { }
+	public override async Load(_CategoriesPath:string, _ItemsPath:string, _MiscPath:string, _IconSetPath:string): Promise<void> { this.Stub(); }
+	public override CompleteInit(): void { this.Stub(); }
+	//Ignore these
+	protected constructor() { super(); this.Stub(); }
+	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }
 }
 
 async function Main()

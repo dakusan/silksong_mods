@@ -1,5 +1,5 @@
 import $ from "jquery"
-import { CallbackList, Util, Vector2, WillBeSet } from "./SharedClasses"
+import { CallbackList, FriendClass, Util, Vector2, WillBeSet } from "./SharedClasses"
 import { Share } from "./Share"
 const MaxZoomOutRation=4/3; //How much further the map can zoom past 100% fit
 
@@ -404,10 +404,13 @@ export default class MapCanvas
 	public MapToCanvas(Pos:Vector2) { return new Vector2(this.MapToCanvasCoord(this.x, Pos.x, this.MulX, this.AddX), this.MapToCanvasCoord(this.y, Pos.y, this.MulY, this.AddY)); }
 	public CanvasToMap(Pos:Vector2) { return new Vector2(this.CanvasToMapCoord(this.x, Pos.x, this.MulX, this.AddX), this.CanvasToMapCoord(this.y, Pos.y, this.MulY, this.AddY)); }
 }
-class Friend_MapCanvas extends MapCanvas
+abstract class MapCanvas_Friend extends MapCanvas implements FriendClass
 {
-	public override UpdatePosAndScale(_NewScale:number|undefined, _NewX:number|undefined, _NewY:number|undefined, _FromMover:boolean) { }
+	public override UpdatePosAndScale(_NewScale:number|undefined, _NewX:number|undefined, _NewY:number|undefined, _FromMover:boolean) { this.Stub(); }
 	public override Mover?:Mover=undefined;
+	//Ignore these
+	protected constructor() { super(-1, -1, -1, -1); this.Stub(); }
+	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }
 }
 
 class Mover
@@ -434,7 +437,7 @@ class Mover
 		if(LinearProgressPoint>1)
 			return void this.Cancel();
 		const EaseProgress=Mover.Ease(LinearProgressPoint, Share.LC.IconCenterEase.V);
-		(Share.MCanvas as Friend_MapCanvas).UpdatePosAndScale(
+		(Share.MCanvas as MapCanvas_Friend).UpdatePosAndScale(
 			undefined,
 			Mover.Lerp(this.Start.x, this.End.x, EaseProgress),
 			Mover.Lerp(this.Start.y, this.End.y, EaseProgress),
@@ -447,6 +450,6 @@ class Mover
 			return;
 		this.IsComplete=true;
 		Share.MCanvas.Events.Draw.Remove("MoveToPointAction"+this.MyUniqueID);
-		(Share.MCanvas as Friend_MapCanvas).Mover=undefined;
+		(Share.MCanvas as MapCanvas_Friend).Mover=undefined;
 	}
 }

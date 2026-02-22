@@ -223,3 +223,43 @@ export namespace KeyState
 }
 
 export const WillBeSet=undefined!;
+
+/*
+```
+Mimic C++ friend / C# internal.
+Friend classes allow outside classes to access protected members on base classes via fake typecasting stubs.
+
+Friend classes must be abstract and implement FriendClass.
+The constructor must call Stub().
+All [stub] members must:
+	- Be “override”
+	- Have no defaults in parameters
+	- Call Stub()
+NEVER extend the friend class. Consider it sealed.
+Static functions WILL be called and must be passed through
+
+Example usage:
+class Foo {
+	protected Bar:SomeClass=new SomeClass();
+	protected Baz(Apple:number, Pear:string, Lemon:string="Sour"): number { return Apple+Pear.length+Lemon.length; }
+	protected static Moo(V:number): number { return V+100; }
+	private Cow() { } //Cannot be friended!
+}
+abstract class Friend_Foo extends FooParent implements FriendClass {
+	public override Bar:SomeClass;
+	public override Baz(Apple:number, Pear:string, Lemon:string): number { return this.Stub(-100); }
+	public static Moo(V:number): number { return super.Moo(V); }
+
+	protected protected constructor() { super(); this.Stub(); }
+	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }
+}
+function Example() {
+	const Ex=new Foo();
+	console.log((Ex as Friend_Foo).Baz(5, "Green", "Yellow")); //Logs 16
+	console.log(Friend_Foo.Moo(20); //Logs 120
+}
+```
+
+<b>This is a type-system escape hatch. It does not grant runtime encapsulation. It can make code type-check while throwing at runtime if misused.</b>
+*/
+export interface FriendClass { Stub<T>(_V?:T): T; } // { throw new Error("This function is a stub"); }

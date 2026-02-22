@@ -1,4 +1,4 @@
-import { DevStrings, Iter, Log, Rect, StatStr, Util, Vector2, WillBeSet } from "./SharedClasses"
+import { DevStrings, FriendClass, Iter, Log, Rect, StatStr, Util, Vector2, WillBeSet } from "./SharedClasses"
 import { Category, CategoryGroup, ChainItem, ChainList, CreateItem, Item, LoadMisc_StaticLink, StaticLink } from "./CategoriesAndItems"
 import { LoadJson } from "./JSON"
 import { MapIcon, Sprite } from "./MapIcon"
@@ -417,16 +417,25 @@ export default class DataStorage
 }
 
 //Mimic C++ friend / C# internal
-class Category_Friend extends Category
+abstract class Category_Friend extends Category implements FriendClass
 {
-	public override set TotalCount	(_Value:number) { }
-	public override set Sprite		(_Value:Sprite)	{ }
+	public override set TotalCount	(_Value:number) { this.Stub(); }
+	public override set Sprite		(_Value:Sprite)	{ this.Stub(); }
+	//Ignore these
+	protected constructor() { super(-1); this.Stub(); }
+	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }
 }
-class ChainItem_Friend extends ChainItem
+abstract class ChainItem_Friend extends ChainItem implements FriendClass
 {
 	public static override Process_NeedsIDAndName() { return super.Process_NeedsIDAndName(); }
+	//Ignore these
+	protected constructor() { super(null!, null!); this.Stub(); }
+	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }
 }
-class Icon_SpritesFriend extends IconSprites
+abstract class Icon_SpritesFriend extends IconSprites implements FriendClass
 {
-	public override SetIconPics(_IconPicsTex:ImageBitmap) { }
+	public override SetIconPics(_IconPicsTex:ImageBitmap) { this.Stub(); }
+	//Ignore these
+	protected constructor() { super(); this.Stub(); }
+	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }
 }

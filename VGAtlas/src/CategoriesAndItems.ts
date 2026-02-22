@@ -1,4 +1,4 @@
-import { Log, StatStr, Util, Vector2, WillBeSet } from "./SharedClasses"
+import { FriendClass, Log, StatStr, Util, Vector2, WillBeSet } from "./SharedClasses"
 import { ExpNo, ExpYes, JsonClass, JsonConverter, JsonConverter_Generic, JsonPropsDec, LoadJson, SaveJson } from "./JSON";
 import { MapIcon, Sprite } from "./MapIcon"
 import { Languages } from "./AtlasConfig"
@@ -36,9 +36,12 @@ export class Category extends JsonClass
 	public static readonly MaxID=499;
 	public static IDInRange(ID:number) { return ID>=Category.MinID && ID<=Category.MaxID; }
 }
-class Category_Friend extends Category
+abstract class Category_Friend extends Category implements FriendClass
 {
-	public override set CurrentCount(_Value:number){ }
+	public override set CurrentCount(_Value:number) { this.Stub(); }
+	//Ignore these
+	protected constructor() { super(-1); this.Stub(); }
+	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }
 }
 
 //Characters used for string manipulation stand-ins
@@ -212,9 +215,12 @@ export class Item extends JsonClass
 	}
 }
 
-class Item_Friend extends Item
+abstract class Item_Friend extends Item implements FriendClass
 {
-	public override get GetLinkID() { return super.GetLinkID; }
+	public override get GetLinkID(): string { return this.Stub(""); }
+	//Ignore these
+	protected constructor() { super(-1); this.Stub(); }
+	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }
 }
 
 class StringCountPair { //Only last item in RenderParts will have SL=null
