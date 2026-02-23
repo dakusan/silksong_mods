@@ -30,6 +30,7 @@ export default class MapControl
 		this.GameMap.Events.UserZoom	.Add("MapControl.UserZoom",		this.UserZoom.bind(this));
 		this.GameMap.Events.MouseMove	.Add("MapControl.OnMouseMove",	this.OnMouseMove.bind(this));
 		this.GameMap.Events.Click		.Add("MapControl.OnClick",		this.OnClick.bind(this));
+		this.GameMap.Events.MouseDown	.Add("MapControl.MouseDown",	() => Share.WM.SetFocus(null));
 		this.GameMap.Events.Frame		.Add("MapControl.OnFrame",		this.OnFrame.bind(this));
 
 		//Handle settings changes
@@ -93,6 +94,9 @@ export default class MapControl
 	private StackMoveKeyState=false;
 	public OnFrame()
 	{
+		if(Share.WM.ControlsKeyboard)
+			return;
+
 		//Handle zooming
 		for(const [KeyName, Direction] of MapControl.ZoomKeysAmount.entries())
 			if(KeyState.GetKeyDown(KeyName))

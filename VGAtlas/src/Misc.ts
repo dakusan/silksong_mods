@@ -16,6 +16,7 @@ InitFuncs.push(async () => {
 			MapIcon				:await import("./MapIcon"),
 			TempClasses			:await import("./TempClasses"),
 			SaveData			:await import("./SaveData"),
+			WindowManager		:await import("./WindowManager"),
 		},
 	}
 });

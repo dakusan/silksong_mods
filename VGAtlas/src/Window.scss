@@ -1,0 +1,58 @@
+@mixin emit-border($left, $right, $top, $bottom, $width, $height, $cursor) {
+	@if $left   != null { left:		$left;	}
+	@if $right  != null { right:	$right;	}
+	@if $top    != null { top:		$top;	}
+	@if $bottom != null { bottom:	$bottom;}
+	@if $width  != null { width:	$width;	}
+	@if $height != null { height:	$height;}
+	cursor: $cursor;
+}
+
+.WinRoot {
+	position:absolute; box-sizing:border-box; border:1px solid rgba(255, 255, 255, 0.25); border-radius:8px;
+	background:rgba(20, 20, 20, 0.94); color:#eee; box-shadow:0 10px 30px rgba(0, 0, 0, 0.45);
+	user-select:none;
+
+	&.Active { outline:2px solid rgba(120, 160, 255, 0.55); }
+	&.NoResize .ResizeHandle { cursor:not-allowed !important; }
+	&.Invisible { display:none; pointer-events:none; }
+
+	.Titlebar {
+		display:flex; align-items:center; gap:8px; padding:6px 8px;
+		border-bottom:1px solid rgba(255, 255, 255, 0.12);
+		background:rgba(255, 255, 255, 0.04); cursor:grab;
+		&:Active { cursor:grabbing; }
+
+		.Title {
+			flex:1;
+			font-weight:600; font-size:13px; line-height:1.2;
+			white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+		}
+	}
+	.Buttons {
+		display:flex; align-items:center; gap:6px;
+
+		.Close {
+			width:26px; height:22px; border-radius:6px; border:1px solid rgba(255,255,255,0.18);
+			background:rgba(255, 255, 255, 0.06); color:#eee; cursor:pointer;
+			font-weight:700; font-size:12px; line-height:1;
+			&:hover:not( .Disabled) { background:rgba(255, 255, 255, 0.10); }
+			&:active:not(.Disabled) { background:rgba(255, 255, 255, 0.14); }
+			&.Disabled { opacity:0.45; cursor:not-allowed; }
+		}
+	}
+
+	.Content { padding:8px; user-select:text; }
+
+	.ResizeHandle {
+		position:absolute; background:transparent;
+		&.BN  { @include emit-border( 8px,  8px, -4px, null, null,  8px, ns-resize	); }
+		&.BS  { @include emit-border( 8px,  8px, null, -4px, null,  8px, ns-resize	); }
+		&.BE  { @include emit-border(null, -4px,  8px,  8px,  8px, null, ew-resize	); }
+		&.BW  { @include emit-border(-4px, null,  8px,  8px,  8px, null, ew-resize	); }
+		&.BNE { @include emit-border(null, -4px, -4px, null, 12px, 12px, nesw-resize); }
+		&.BSW { @include emit-border(-4px, null, null, -4px, 12px, 12px, nesw-resize); }
+		&.BNW { @include emit-border(-4px, null, -4px, null, 12px, 12px, nwse-resize); }
+		&.BSE { @include emit-border(null, -4px, null, -4px, 12px, 12px, nwse-resize); }
+	}
+}

@@ -72,7 +72,8 @@ export default class MapCanvas
 	public readonly Events={
 		Frame		:new CallbackList<[FrameNum:number					]>("MapCanvas.Frame"		),
 		Draw		:new CallbackList<[Ctx:CanvasRenderingContext2D		]>("MapCanvas.Draw"			),
-		MouseMove	:new CallbackList<[Pos:Vector2						]>("MapCanvas.MouseDown"	),
+		MouseDown	:new CallbackList<[Pos:Vector2						]>("MapCanvas.MouseDown"	),
+		MouseMove	:new CallbackList<[Pos:Vector2						]>("MapCanvas.MouseMove"	),
 		Click		:new CallbackList<[Pos:Vector2						]>("MapCanvas.MouseClick"	),
 		Scale		:new CallbackList<[NewScale:number, OldScale:number	]>("MapCanvas.Scale"		), //Scaling will always additionally call Moved
 		Moved		:new CallbackList<[Pos:Vector2, Scale:number		]>("MapCanvas.Moved"		),
@@ -166,8 +167,10 @@ export default class MapCanvas
 				if(e.which!==1)
 					return;
 				IsDragging=true;
-				StartX=LastX=e.clientX;
-				StartY=LastY=e.clientY;
+				this.Events.MouseDown.Execute(new Vector2(
+					StartX=LastX=e.clientX,
+					StartY=LastY=e.clientY
+				));
 			})
 			.on("mouseleave", () => IsDragging=false)
 			.on("mouseup", e => {
@@ -240,8 +243,10 @@ export default class MapCanvas
 					return;
 
 				IsDragging=true;
-				StartX=LastX=Pe.clientX;
-				StartY=LastY=Pe.clientY;
+				this.Events.MouseDown.Execute(new Vector2(
+					StartX=LastX=Pe.clientX,
+					StartY=LastY=Pe.clientY
+				));
 			})
 			.on("pointermove", e => {
 				const Pe=e.originalEvent as PointerEvent;

@@ -3,6 +3,7 @@ import $ from "jquery"
 import MapCanvas from "./MapCanvas"
 import DataStorage from "./DataStorage"
 import MapControl from "./MapControl"
+import { WM } from "./WindowManager"
 import { FriendClass, Util, WillBeSet } from "./SharedClasses"
 import { InitFuncs } from "./Misc"
 import { Share } from "./Share"
@@ -21,6 +22,7 @@ async function Main()
 {
 	let MCanvas:MapCanvas=WillBeSet;
 	try {
+		//Primary map and icon functionality
 		MCanvas=Share.MCanvas=new MapCanvas(87.7487, -87.5855, 2090, 1569);
 		const DS=new DataStorage();
 		await MCanvas.Init("Assets/PAtlasMap.png");
@@ -32,6 +34,9 @@ async function Main()
 		);
 		Share.DS=DS; //Setting this now flags some locations that DataStorage has now completed loading so they can start their tasks
 		(DS as DataStorage_Friend).CompleteInit();
+
+		//Finish initializing
+		Share.WM=WM;
 		Share.MC=new MapControl();
 		for(const Fn of InitFuncs)
 			Fn();
