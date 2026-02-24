@@ -18,7 +18,7 @@
 	&.Invisible { display:none; pointer-events:none; }
 
 	.Titlebar {
-		display:flex; align-items:center; gap:8px; padding:6px 8px;
+		display:flex; align-items:center; gap:8px; padding:2px 4px 2px 8px;
 		border-bottom:1px solid rgba(255, 255, 255, 0.12);
 		background:rgba(255, 255, 255, 0.04); cursor:grab;
 		&:Active { cursor:grabbing; }

@@ -5,6 +5,8 @@ export class Vector2
 	constructor(public X:number, public Y:number) { }
 	public Distance(Vec:Vector2) { return Vector2.Distance(this, Vec); }
 	public static Distance(a:Vector2, b:Vector2) { return Math.hypot(a.X-b.X, a.Y-b.Y); }
+	public Add(Vec:Vector2) { return new Vector2(this.X+Vec.X, this.Y+Vec.Y); }
+	public Sub(Vec:Vector2) { return new Vector2(this.X-Vec.X, this.Y-Vec.Y); }
 }
 
 export class Rect

@@ -1,4 +1,6 @@
+import $ from "jquery"
 import { Item } from "./CategoriesAndItems"
+import { Window } from "./WindowManager"
 import { Iter, KeyState, Rect, Util, Vector2 } from "./SharedClasses"
 import { Share } from "./Share"
 
@@ -9,10 +11,12 @@ export default class MapControl
 	public get GameMap() { return Share.MCanvas; }
 	private _HoverItem		?:Item=undefined; public get HoverItem	 () { return this._HoverItem	; } private set HoverItem	(Val) { this._HoverItem		=Val; }
 	private _SelectedItem	?:Item=undefined; public get SelectedItem() { return this._SelectedItem	; } private set SelectedItem(Val) { this._SelectedItem	=Val; }
+	private CurrentItemWindow?:ItemWindow;
 
 	//Private members
 	private readonly MoveBackStack		:Item[]=[];
 	private readonly MoveForwardStack	:Item[]=[];
+	private readonly ItemTooltip=$('<div id=ItemTooltip />').appendTo(document.body);
 
 	//Zoom states and variables
 	private IconSizeScalesWithZoom=Share.LC.IconSizeScalesWithZoom.V;
@@ -32,6 +36,8 @@ export default class MapControl
 		this.GameMap.Events.Click		.Add("MapControl.OnClick",		this.OnClick.bind(this));
 		this.GameMap.Events.MouseDown	.Add("MapControl.MouseDown",	() => Share.WM.SetFocus(null));
 		this.GameMap.Events.Frame		.Add("MapControl.OnFrame",		this.OnFrame.bind(this));
+		this.GameMap.Events.MouseLeave	.Add("MapControl.MouseLeave",	() => this.SetHoverItem(undefined));
+		this.GameMap.Events.Moved		.Add("MapControl.Move",			this.OnMove.bind(this));
 
 		//Handle settings changes
 		Share.LC.IconSize.SettingChanged.Add("MapControl.SetIconSize", this.SetIconSize.bind(this));
@@ -76,6 +82,9 @@ export default class MapControl
 		Util.SetNullable(this.HoverItem	?.MapIcon, "IsHovered", false);
 		Util.SetNullable(ClosestItem	?.MapIcon, "IsHovered", true );
 		this.HoverItem=ClosestItem;
+		this.ItemTooltip
+			.toggleClass("Active", ClosestItem!==undefined)
+			.text(`${ClosestItem?.Title} [${ClosestItem?.ID}]`);
 	}
 
 	//Handle key presses
@@ -186,6 +195,20 @@ export default class MapControl
 		if(!(this.SelectedItem?.Visible ?? false) && (this.SelectedItem?.MapIcon?.IsIconVisible ?? false))
 			this.SelectedItem!.MapIcon!.ForceVisibility=false;
 
+		//Handle updating the popup item window
+		this.CurrentItemWindow?.ItemUnselected();
+		this.CurrentItemWindow=undefined;
+		if(NewSelectItem) {
+			for(const W of Share.WM.AllWindows) {
+				const IW=(W as unknown as ItemWindow);
+				if(IW.LinkedItem?.ID!==NewSelectItem.ID)
+					continue;
+				(this.CurrentItemWindow=IW).Focus();
+				break;
+			}
+			this.CurrentItemWindow ??= new ItemWindow(NewSelectItem);
+		}
+
 		Util.SetNullable(this.SelectedItem?.MapIcon, "IsSelected", false);
 		Util.SetNullable(NewSelectItem?.MapIcon, "IsSelected", true);
 		NewSelectItem?.MapIcon?.BringToFront();
@@ -208,8 +231,21 @@ export default class MapControl
 		Util.SetNullable(I.MapIcon, "ForceVisibility", true); //Force the icon to be visible
 	}
 
+	private OnMove()
+	{
+		this.CurrentItemWindow?.UpdateAttachedPosition();
+	}
+
 	//Handle mouse events
-	protected OnMouseMove(Pos:Vector2) { this.SetHoverItem(this.FindClosestItem(Pos)); }
+	protected OnMouseMove(Pos:Vector2)
+	{
+		this.SetHoverItem(this.FindClosestItem(Pos));
+		const RealPos=Pos.Add(this.GameMap.CanvasPos);
+		this.ItemTooltip.css({
+			left:(RealPos.X+4)+"px",
+			top :(RealPos.Y+4)+"px",
+		});
+	}
 	protected OnClick(Pos:Vector2)
 	{
 		this.SetHoverItem(this.FindClosestItem(Pos));
@@ -226,5 +262,47 @@ export default class MapControl
 		for(const Item of Share.DS.Items.values())
 			if(!Item.IsLinked)
 				Item.MapIcon!.SetIconColor();
+	}
+}
+
+class ItemWindow extends Window
+{
+	private IsAttached=true; private SelfMove=false;
+	constructor(
+		public readonly LinkedItem:Item,
+	) {
+		super({
+			Title: `${LinkedItem.Title} [${LinkedItem.ID}]`,
+			Width:350,
+			Height:200,
+			AcceptsKeyboard:false,
+		});
+		this.$Content.html(this.LinkedItem.Description);
+		this.UpdateAttachedPosition();
+	}
+	public UpdateAttachedPosition()
+	{
+		if(!this.IsAttached)
+			return;
+		this.SelfMove=true;
+		const NewPos=Share.MCanvas.MapToCanvas(this.LinkedItem.Pos).Add(Share.MCanvas.CanvasPos);
+		this.UpdateBounds({X:NewPos.X, Y:NewPos.Y}, true);
+		const IsVis=new Rect(0, 0, document.documentElement.clientWidth, document.documentElement.clientHeight).Intersects(this.Bounds);
+		if(this.Visible!==IsVis) {
+			this.Visible=IsVis;
+			this.UpdateBounds({X:NewPos.X, Y:NewPos.Y}, true);
+		}
+		this.SelfMove=false;
+	}
+
+	public override OnMoved()
+	{
+		if(!this.SelfMove)
+			this.IsAttached=false;
+	}
+	public ItemUnselected()
+	{
+		if(this.IsAttached)
+			this.Close();
 	}
 }

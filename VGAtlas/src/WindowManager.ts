@@ -32,6 +32,7 @@ function Clamp(n:number, min:number, max:number): number
 export class WindowManager
 {
 	private Windows:Window[]=[];
+	public get AllWindows(): ArrayIterator<Window> { return this.Windows.values(); }
 	private _Active:Window|null=null; public get Active() { return this._Active; } private set Active(Val) { this._Active=Val; }
 	public get ControlsKeyboard(): boolean { return !!this._Active?.AcceptsKeyboard; }
 
@@ -88,7 +89,7 @@ type WindowInit=Partial<Pick<Window,
 export class Window
 {
 	//Settable properties
-	private _Title			="Window"		; public get Title			() { return this._Title				; }; public set Title			(Value) { this.$Title?.text		(this._Title=			Value); }
+	private _Title			="Window"		; public get Title			() { return this._Title				; }; public set Title			(Value) { this.$Title.text		(this._Title=			Value); }
 	private _Parent			=document.body	; public get Parent			() { return this._Parent			; }; public set Parent			(Value) { $(this.$Root).appendTo(this._Parent=			Value); }
 	private _X				=80				; public get X				() { return this._X					; }; public set X				(Value) { this.UpdateBounds		({X:					Value}); }
 	private _Y				=80				; public get Y				() { return this._Y					; }; public set Y				(Value) { this.UpdateBounds		({Y:					Value}); }
@@ -137,8 +138,6 @@ export class Window
 	}
 	public constructor(Init:WindowInit={})
 	{
-		Window.AssignProps(this, Init);
-
 		//Build DOM
 		this.$Root		=$("<div/>",	{class:"WinRoot", "data-id":this.ID		});
 		this.$Titlebar	=$("<div/>", 	{class:"Titlebar"						});
@@ -156,7 +155,8 @@ export class Window
 			this.$Root.append($("<div/>", {class:`ResizeHandle B${Dir.toUpperCase()}`}).attr("data-dir", Dir));
 
 		//Initialize parts
-		this.UpdateBounds(undefined, true);
+		Window.AssignProps(this, Init);
+		this.UpdateBounds(undefined, false, true);
 		this.SetCanClose (this.CanClose	);
 		this.SetCanResize(this.CanResize);
 		this.SetVisible  (this.Visible	);
@@ -182,14 +182,16 @@ export class Window
 			 WM.SetFocus(null);
 	}
 
-	private UpdateBounds(Updates?:{X?:number, Y?:number, Width?:number, Height?:number}, IsInitial=false): void
+	protected UpdateBounds(Updates?:{X?:number, Y?:number, Width?:number, Height?:number}, NoBoundsCheck=false, IsInitial=false): void
 	{
 		//Get the new bounds
 		const NewRect=Object.assign(this.Bounds, typeof(Updates)==="object" ? Updates : {}) as Rect;
-		NewRect.Width =Math.max(NewRect.Width , this.MinWidth );
-		NewRect.Height=Math.max(NewRect.Height, this.MinHeight);
-		NewRect.X=Clamp(NewRect.X, -(NewRect.Width-this.VisibleEdge), document.documentElement.clientWidth -this.VisibleEdge );
-		NewRect.Y=Clamp(NewRect.Y, 0								, document.documentElement.clientHeight-this.VisibleTitle);
+		if(!NoBoundsCheck) {
+			NewRect.Width =Math.max(NewRect.Width , this.MinWidth );
+			NewRect.Height=Math.max(NewRect.Height, this.MinHeight);
+			NewRect.X=Clamp(NewRect.X, -(NewRect.Width-this.VisibleEdge), document.documentElement.clientWidth -this.VisibleEdge );
+			NewRect.Y=Clamp(NewRect.Y, 0								, document.documentElement.clientHeight-this.VisibleTitle);
+		}
 
 		//If bounds have not changed, exit early
 		const OldRect=this.Bounds;

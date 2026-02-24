@@ -27,6 +27,7 @@ export default class MapCanvas
 	public get Height() { return this.Canvas.clientHeight; }
 	public get Pos() { return new Vector2(this.X, this.Y); }
 	public get ZoomScale() { return this.Scale; }
+	public get CanvasPos() { const Rect=this.Canvas.getBoundingClientRect(); return new Vector2(Rect.x, Rect.y); }
 
 	constructor(
 		private readonly MulX:number, private readonly MulY:number, private readonly AddX:number, private readonly AddY:number
@@ -74,6 +75,7 @@ export default class MapCanvas
 		Draw		:new CallbackList<[Ctx:CanvasRenderingContext2D		]>("MapCanvas.Draw"			),
 		MouseDown	:new CallbackList<[Pos:Vector2						]>("MapCanvas.MouseDown"	),
 		MouseMove	:new CallbackList<[Pos:Vector2						]>("MapCanvas.MouseMove"	),
+		MouseLeave	:new CallbackList<[									]>("MapCanvas.MouseLeave"	),
 		Click		:new CallbackList<[Pos:Vector2						]>("MapCanvas.MouseClick"	),
 		Scale		:new CallbackList<[NewScale:number, OldScale:number	]>("MapCanvas.Scale"		), //Scaling will always additionally call Moved
 		Moved		:new CallbackList<[Pos:Vector2, Scale:number		]>("MapCanvas.Moved"		),
@@ -112,12 +114,10 @@ export default class MapCanvas
 
 	private ResizeToWindow()
 	{
-		this.Canvas.style.width =window.innerWidth +"px";
-		this.Canvas.style.height=window.innerHeight+"px";
-
+		const CRect=this.Canvas.getBoundingClientRect();
 		this.DRP=window.devicePixelRatio||1;
-		this.Canvas.width =Math.floor(window.innerWidth *this.DRP);
-		this.Canvas.height=Math.floor(window.innerHeight*this.DRP);
+		this.Canvas.width =Math.floor(CRect.width *this.DRP);
+		this.Canvas.height=Math.floor(CRect.height*this.DRP);
 
 		this.Ctx.resetTransform();
 		this.Ctx.scale(this.DRP, this.DRP);
@@ -149,8 +149,7 @@ export default class MapCanvas
 		//Bind the wheel
 		this.Canvas.addEventListener("wheel", e => {
 			e.preventDefault();
-			const Rect=this.Canvas.getBoundingClientRect();
-			const ZoomAround=new Vector2(e.clientX-Rect.left, e.clientY-Rect.top);
+			const ZoomAround=this.EvPos(e);
 			const ScaleAt={Scale:e.deltaY>0 ? 0.9 : 1.1};
 			this.Events.UserZoom.Execute(ZoomAround, ScaleAt);
 			this.ZoomAt(ZoomAround, ScaleAt.Scale);
@@ -167,27 +166,28 @@ export default class MapCanvas
 				if(e.which!==1)
 					return;
 				IsDragging=true;
-				this.Events.MouseDown.Execute(new Vector2(
-					StartX=LastX=e.clientX,
-					StartY=LastY=e.clientY
-				));
+				const MousePos=this.EvPos(e);
+				StartX=LastX=MousePos.X;
+				StartY=LastY=MousePos.Y;
+				this.Events.MouseDown.Execute(MousePos);
 			})
-			.on("mouseleave", () => IsDragging=false)
+			.on("mouseleave", () => { IsDragging=false; this.Events.MouseLeave.Execute(); })
 			.on("mouseup", e => {
-				const MousePos=new Vector2(e.clientX, e.clientY);
+				const MousePos=this.EvPos(e);
 				IsDragging=false;
 				if(MousePos.Distance(new Vector2(StartX, StartY))<Math.sqrt(3*3+3*3))
 					this.Events.Click.Execute(MousePos);
 			})
 			.on("mousemove", e => {
-				this.Events.MouseMove.Execute(new Vector2(e.clientX, e.clientY));
+				const MousePos=this.EvPos(e);
+				this.Events.MouseMove.Execute(MousePos);
 
 				if(!IsDragging)
 					return;
 
-				this.UpdatePosAndScale(undefined, this.X+e.clientX-LastX, this.Y+e.clientY-LastY);
-				LastX  =e.clientX;
-				LastY  =e.clientY;
+				this.UpdatePosAndScale(undefined, this.X+MousePos.X-LastX, this.Y+MousePos.Y-LastY);
+				LastX  =MousePos.X;
+				LastY  =MousePos.Y;
 			});
 	}
 
@@ -231,7 +231,8 @@ export default class MapCanvas
 					return;
 
 				const Pe=e.originalEvent as PointerEvent;
-				Pointers.set(Pe.pointerId, new Vector2(Pe.clientX, Pe.clientY));
+				const MousePos=this.EvPos(Pe);
+				Pointers.set(Pe.pointerId, MousePos);
 				try { this.Canvas.setPointerCapture(Pe.pointerId); } catch {}
 				if(Pointers.size===2)
 					return void(BeginPinch());
@@ -243,18 +244,18 @@ export default class MapCanvas
 					return;
 
 				IsDragging=true;
-				this.Events.MouseDown.Execute(new Vector2(
-					StartX=LastX=Pe.clientX,
-					StartY=LastY=Pe.clientY
-				));
+				StartX=LastX=MousePos.X;
+				StartY=LastY=MousePos.Y;
+				this.Events.MouseDown.Execute(MousePos);
 			})
 			.on("pointermove", e => {
 				const Pe=e.originalEvent as PointerEvent;
 				const P=Pointers.get(Pe.pointerId);
-				this.Events.MouseMove.Execute(new Vector2(Pe.clientX, Pe.clientY));
+				const MousePos=this.EvPos(Pe);
+				this.Events.MouseMove.Execute(MousePos);
 
 				if(P)
-					[P.X, P.Y]=[Pe.clientX, Pe.clientY];
+					[P.X, P.Y]=[MousePos.X, MousePos.Y];
 				if(IsPinching)
 					return void(UpdatePinch());
 				else if(!IsDragging)
@@ -262,14 +263,16 @@ export default class MapCanvas
 				else if((Pe.buttons&1)===0)
 					return void(IsDragging=false);
 
-				this.UpdatePosAndScale(undefined, this.X+Pe.clientX-LastX, this.Y+Pe.clientY-LastY);
-				LastX=Pe.clientX;
-				LastY=Pe.clientY;
+				this.UpdatePosAndScale(undefined, this.X+MousePos.X-LastX, this.Y+MousePos.Y-LastY);
+				LastX=MousePos.X;
+				LastY=MousePos.Y;
 			})
+			.on("pointerleave", () => { IsDragging=false; this.Events.MouseLeave.Execute(); })
 			.on("pointerup pointercancel", e => {
 				const Pe=e.originalEvent as PointerEvent;
-				if(new Vector2(Pe.clientX, Pe.clientY).Distance(new Vector2(StartX, StartY))<Math.sqrt(3*3+3*3))
-					this.Events.Click.Execute(new Vector2(Pe.clientX, Pe.clientY));
+				const MousePos=this.EvPos(Pe);
+				if(MousePos.Distance(new Vector2(StartX, StartY))<Math.sqrt(3*3+3*3))
+					this.Events.Click.Execute(MousePos);
 				Pointers.delete(Pe.pointerId);
 				try { this.Canvas.releasePointerCapture(Pe.pointerId); } catch {}
 
@@ -408,6 +411,8 @@ export default class MapCanvas
 	private CanvasToMapCoord(MapV:number, InV:number, Mul:number, Add:number) { return ((InV-MapV)/this.Scale-Add)/Mul; }
 	public MapToCanvas(Pos:Vector2) { return new Vector2(this.MapToCanvasCoord(this.X, Pos.X, this.MulX, this.AddX), this.MapToCanvasCoord(this.Y, Pos.Y, this.MulY, this.AddY)); }
 	public CanvasToMap(Pos:Vector2) { return new Vector2(this.CanvasToMapCoord(this.X, Pos.X, this.MulX, this.AddX), this.CanvasToMapCoord(this.Y, Pos.Y, this.MulY, this.AddY)); }
+	//eslint-disable-next-line @typescript-eslint/naming-convention
+	private EvPos(e:{clientX:number, clientY:number}) { return new Vector2(e.clientX, e.clientY).Sub(this.CanvasPos); }
 }
 abstract class MapCanvas_Friend extends MapCanvas implements FriendClass
 {
