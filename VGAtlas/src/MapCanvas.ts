@@ -9,7 +9,7 @@ export default class MapCanvas
 	private Ctx:CanvasRenderingContext2D=WillBeSet;
 	private Image:ImageBitmap=null!;
 	private DRP=1;
-	private x=0; private y=0;
+	private X=0; private Y=0;
 	private Scale=1; private MinScale=0.1; private MaxScale=8;
 	private MinVisiblePx=32; //Pan clamp config: ensure at least some of the image remains visible
 	private NeedsRedraw=true;
@@ -25,7 +25,7 @@ export default class MapCanvas
 
 	public get Width() { return this.Canvas.clientWidth; }
 	public get Height() { return this.Canvas.clientHeight; }
-	public get Pos() { return new Vector2(this.x, this.y); }
+	public get Pos() { return new Vector2(this.X, this.Y); }
 	public get ZoomScale() { return this.Scale; }
 
 	constructor(
@@ -43,8 +43,8 @@ export default class MapCanvas
 			this.Mover?.Cancel();
 
 		//If there are no updates, then nothing to do
-		let SetX		=(NewX		?? this.x		);
-		let SetY		=(NewY		?? this.y		);
+		let SetX		=(NewX		?? this.X		);
+		let SetY		=(NewY		?? this.Y		);
 		const SetScale	=(NewScale	?? this.Scale	);
 
 		//Clamp pan so the map can’t fully disappear off-screen
@@ -53,13 +53,13 @@ export default class MapCanvas
 		SetY=Math.min(Math.max(SetY, Pad-this.Image.height*SetScale), this.Height-Pad);
 
 		//If there has been no change, then stop here
-		if(SetX===this.x && SetY===this.y && SetScale===this.Scale)
+		if(SetX===this.X && SetY===this.Y && SetScale===this.Scale)
 			return;
 
 		//Update the position and set to draw
 		const OldScale=this.Scale;
-		this.x=SetX;
-		this.y=SetY;
+		this.X=SetX;
+		this.Y=SetY;
 		this.Scale=SetScale;
 		this.NeedsRedraw=true;
 
@@ -185,7 +185,7 @@ export default class MapCanvas
 				if(!IsDragging)
 					return;
 
-				this.UpdatePosAndScale(undefined, this.x+e.clientX-LastX, this.y+e.clientY-LastY);
+				this.UpdatePosAndScale(undefined, this.X+e.clientX-LastX, this.Y+e.clientY-LastY);
 				LastX  =e.clientX;
 				LastY  =e.clientY;
 			});
@@ -197,7 +197,7 @@ export default class MapCanvas
 		let LastX=0, LastY=0, PinchMapX=0, PinchMapY=0, PinchStartDist=0, PinchStartScale=1, StartX=0, StartY=0;
 		const Pointers=new Map<number, Vector2>();
 
-		const GetCenter	=(A:Vector2, B:Vector2) => new Vector2((A.x+B.x)/2, (A.y+B.y)/2);
+		const GetCenter	=(A:Vector2, B:Vector2) => new Vector2((A.X+B.X)/2, (A.Y+B.Y)/2);
 		const BeginPinch=() => {
 			if(Pointers.size!==2)
 				return;
@@ -207,8 +207,8 @@ export default class MapCanvas
 			PinchStartScale=this.Scale;
 
 			const C=GetCenter(It[0], It[1]);
-			PinchMapX=(C.x-this.x)/this.Scale;
-			PinchMapY=(C.y-this.y)/this.Scale;
+			PinchMapX=(C.X-this.X)/this.Scale;
+			PinchMapY=(C.Y-this.Y)/this.Scale;
 		};
 		const UpdatePinch=() => {
 			if(!IsPinching || Pointers.size!==2)
@@ -219,8 +219,8 @@ export default class MapCanvas
 			const C=GetCenter(It[0], It[1]);
 			this.UpdatePosAndScale(
 				NewScale,
-				C.x-PinchMapX*NewScale,
-				C.y-PinchMapY*NewScale,
+				C.X-PinchMapX*NewScale,
+				C.Y-PinchMapY*NewScale,
 			);
 		};
 		const EndPinch= () => IsPinching=false;
@@ -254,7 +254,7 @@ export default class MapCanvas
 				this.Events.MouseMove.Execute(new Vector2(Pe.clientX, Pe.clientY));
 
 				if(P)
-					[P.x, P.y]=[Pe.clientX, Pe.clientY];
+					[P.X, P.Y]=[Pe.clientX, Pe.clientY];
 				if(IsPinching)
 					return void(UpdatePinch());
 				else if(!IsDragging)
@@ -262,7 +262,7 @@ export default class MapCanvas
 				else if((Pe.buttons&1)===0)
 					return void(IsDragging=false);
 
-				this.UpdatePosAndScale(undefined, this.x+Pe.clientX-LastX, this.y+Pe.clientY-LastY);
+				this.UpdatePosAndScale(undefined, this.X+Pe.clientX-LastX, this.Y+Pe.clientY-LastY);
 				LastX=Pe.clientX;
 				LastY=Pe.clientY;
 			})
@@ -279,8 +279,8 @@ export default class MapCanvas
 
 				if(Pointers.size===1) {
 					const It=[...Pointers.values()];
-					LastX=It[0].x;
-					LastY=It[0].y;
+					LastX=It[0].X;
+					LastY=It[0].Y;
 					IsDragging=true;
 				}
 			});
@@ -298,25 +298,25 @@ export default class MapCanvas
 		const Ratio=NewScale/this.Scale;
 		this.UpdatePosAndScale(
 			NewScale,
-			Pos.x-(Pos.x-this.x)*Ratio,
-			Pos.y-(Pos.y-this.y)*Ratio,
+			Pos.X-(Pos.X-this.X)*Ratio,
+			Pos.Y-(Pos.Y-this.Y)*Ratio,
 		);
 	}
 
 	public PanAt(DeltaX:number, DeltaY:number)
 	{
-		this.UpdatePosAndScale(undefined, this.x+DeltaX, this.y+DeltaY);
+		this.UpdatePosAndScale(undefined, this.X+DeltaX, this.Y+DeltaY);
 	}
 
 	protected Mover?:Mover=undefined;
 	public CenterOnPoint(Pos:Vector2, Instant=false)
 	{
-		const NewX=this.Width /2-(Pos.x-this.x);
-		const NewY=this.Height/2-(Pos.y-this.y);
+		const NewX=this.Width /2-(Pos.X-this.X);
+		const NewY=this.Height/2-(Pos.Y-this.Y);
 		if(Instant)
 			return void this.UpdatePosAndScale(undefined, NewX, NewY);
 		this.Mover?.Cancel();
-		this.Mover=new Mover(new Vector2(this.x, this.y), new Vector2(NewX, NewY), Share.LC.IconCenterTime.V)
+		this.Mover=new Mover(new Vector2(this.X, this.Y), new Vector2(NewX, NewY), Share.LC.IconCenterTime.V)
 	}
 
 	private static readonly FPSAverageOver=2000;
@@ -356,7 +356,7 @@ export default class MapCanvas
 
 		this.Ctx.imageSmoothingEnabled=true;
 		this.Ctx.drawImage(
-			this.Image, this.x, this.y,
+			this.Image, this.X, this.Y,
 			this.Image.width*this.Scale,
 			this.Image.height*this.Scale
 		);
@@ -406,8 +406,8 @@ export default class MapCanvas
 
 	private MapToCanvasCoord(MapV:number, InV:number, Mul:number, Add:number) { return MapV+(InV*Mul+Add)*this.Scale; }
 	private CanvasToMapCoord(MapV:number, InV:number, Mul:number, Add:number) { return ((InV-MapV)/this.Scale-Add)/Mul; }
-	public MapToCanvas(Pos:Vector2) { return new Vector2(this.MapToCanvasCoord(this.x, Pos.x, this.MulX, this.AddX), this.MapToCanvasCoord(this.y, Pos.y, this.MulY, this.AddY)); }
-	public CanvasToMap(Pos:Vector2) { return new Vector2(this.CanvasToMapCoord(this.x, Pos.x, this.MulX, this.AddX), this.CanvasToMapCoord(this.y, Pos.y, this.MulY, this.AddY)); }
+	public MapToCanvas(Pos:Vector2) { return new Vector2(this.MapToCanvasCoord(this.X, Pos.X, this.MulX, this.AddX), this.MapToCanvasCoord(this.Y, Pos.Y, this.MulY, this.AddY)); }
+	public CanvasToMap(Pos:Vector2) { return new Vector2(this.CanvasToMapCoord(this.X, Pos.X, this.MulX, this.AddX), this.CanvasToMapCoord(this.Y, Pos.Y, this.MulY, this.AddY)); }
 }
 abstract class MapCanvas_Friend extends MapCanvas implements FriendClass
 {
@@ -444,8 +444,8 @@ class Mover
 		const EaseProgress=Mover.Ease(LinearProgressPoint, Share.LC.IconCenterEase.V);
 		(Share.MCanvas as MapCanvas_Friend).UpdatePosAndScale(
 			undefined,
-			Mover.Lerp(this.Start.x, this.End.x, EaseProgress),
-			Mover.Lerp(this.Start.y, this.End.y, EaseProgress),
+			Mover.Lerp(this.Start.X, this.End.X, EaseProgress),
+			Mover.Lerp(this.Start.Y, this.End.Y, EaseProgress),
 			true
 		);
 	}

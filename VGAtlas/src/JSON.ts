@@ -52,12 +52,14 @@ export abstract class JsonClass { public static ClassJSProps?:Map<string, JSProp
 export namespace LoadJson
 {
 	//Loads in JSON object from a URL. Allows for JSONC comments and trailing commas
-	export async function FromURL(url:string)
+	export async function FromURL(url:string): Promise<object>
 	{
 		const Result=await fetch(url);
 		if(!Result.ok)
 			throw new Error(`Failed to load ${url}: ${Result.status}`);
 		const Text=await Result.text();
+		if(Text.startsWith("<!doctype"))
+			throw new Error(`Failed to load ${url}: HTML document received`);
 		const Parsed=JSON.parse(Text.replace(/,(\n\t*[}\]])/g, '$1').replace(/^[ \t]*\/\/.*/m, ''));
 
 		if(!(Parsed instanceof Object))

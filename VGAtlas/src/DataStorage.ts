@@ -62,11 +62,11 @@ class IconSprites
 
 	private static GetIconRectByID(IconID:number)
 	{
-		const x=IconID%IconLenX;
-		const y=Math.floor(IconID/IconLenX);
+		const X=IconID%IconLenX;
+		const Y=Math.floor(IconID/IconLenX);
 		return new Rect(
-			x*(IconWidth +IconPadding),
-			y*(IconHeight+IconPadding),
+			X*(IconWidth +IconPadding),
+			Y*(IconHeight+IconPadding),
 			IconWidth, IconHeight
 		);
 	}

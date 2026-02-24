@@ -51,7 +51,7 @@ export class WindowManager
 	}
 	protected Unregister(W:Window): void
 	{
-		this.Windows=this.Windows.filter(x => x!==W);
+		this.Windows=this.Windows.filter(CheckWin => CheckWin!==W);
 		if(this.Active===W)
 			this.Active=null;
 	}
@@ -88,26 +88,26 @@ type WindowInit=Partial<Pick<Window,
 export class Window
 {
 	//Settable properties
-	private _Title			="Window"		; public get Title			() { return this._Title				; }; public set Title			(Value) { this.$Title?.text		(this._Title	=Value); }
-	private _Parent			=document.body	; public get Parent			() { return this._Parent			; }; public set Parent			(Value) { $(this.$Root).appendTo(this._Parent	=Value); }
-	private _X				=80				; public get X				() { return this._X					; }; public set X				(Value) { this.UpdateBox		(this._X		=Value); }
-	private _Y				=80				; public get Y				() { return this._Y					; }; public set Y				(Value) { this.UpdateBox		(this._Y		=Value); }
-	private _Width			=420			; public get Width			() { return this._Width				; }; public set Width			(Value) { this.UpdateBox		(this._Width	=Value); }
-	private _Height			=280			; public get Height			() { return this._Height			; }; public set Height			(Value) { this.UpdateBox		(this._Height	=Value); }
-	private _MinWidth		=180			; public get MinWidth		() { return this._MinWidth			; }; public set MinWidth		(Value) { this.UpdateBox		(this._MinWidth	=Value); }
-	private _MinHeight		=120			; public get MinHeight		() { return this._MinHeight			; }; public set MinHeight		(Value) { this.UpdateBox		(this._MinHeight=Value); }
-	private _CanClose		=true			; public get CanClose		() { return this._CanClose			; }; public set CanClose		(Value) { this.SetCanClose		(this._CanClose	=Value); }
-	private _CanResize		=true			; public get CanResize		() { return this._CanResize			; }; public set CanResize		(Value) { this.SetCanResize		(this._CanResize=Value); }
-	private _Visible		=true			; public get Visible		() { return this._Visible			; }; public set Visible			(Value) { this.SetVisible		(this._Visible	=Value); }
-	public get Pos ():Vector2 { return new Vector2(this._X,		this._Y		); } public set Pos	(Value:Vector2) { [this._X,		this._Y		]=[Value.x, Value.y]; this.UpdateBox(); }
-	public get Size():Vector2 { return new Vector2(this._Width,	this._Height); } public set Size(Value:Vector2) { [this._Width, this._Height]=[Value.x, Value.y]; this.UpdateBox(); }
-	public get Rect():Rect { return new Rect(this._X, this._Y, this._Width,	this._Height); }
-		public set Rect(Value:Rect) { [this._X, this._Y, this._Width, this._Height]=[Value.x, Value.y, Value.Width, Value.Height]; this.UpdateBox(); }
+	private _Title			="Window"		; public get Title			() { return this._Title				; }; public set Title			(Value) { this.$Title?.text		(this._Title=			Value); }
+	private _Parent			=document.body	; public get Parent			() { return this._Parent			; }; public set Parent			(Value) { $(this.$Root).appendTo(this._Parent=			Value); }
+	private _X				=80				; public get X				() { return this._X					; }; public set X				(Value) { this.UpdateBounds		({X:					Value}); }
+	private _Y				=80				; public get Y				() { return this._Y					; }; public set Y				(Value) { this.UpdateBounds		({Y:					Value}); }
+	private _Width			=420			; public get Width			() { return this._Width				; }; public set Width			(Value) { this.UpdateBounds		({Width:				Value}); }
+	private _Height			=280			; public get Height			() { return this._Height			; }; public set Height			(Value) { this.UpdateBounds		({Height:				Value}); }
+	private _MinWidth		=180			; public get MinWidth		() { return this._MinWidth			; }; public set MinWidth		(Value) { this.UpdateBounds		(void(this._MinWidth=	Value)); }
+	private _MinHeight		=120			; public get MinHeight		() { return this._MinHeight			; }; public set MinHeight		(Value) { this.UpdateBounds		(void(this._MinHeight=	Value)); }
+	private _CanClose		=true			; public get CanClose		() { return this._CanClose			; }; public set CanClose		(Value) { this.SetCanClose		(this._CanClose=		Value); }
+	private _CanResize		=true			; public get CanResize		() { return this._CanResize			; }; public set CanResize		(Value) { this.SetCanResize		(this._CanResize=		Value); }
+	private _Visible		=true			; public get Visible		() { return this._Visible			; }; public set Visible			(Value) { this.SetVisible		(this._Visible=			Value); }
+	public get Pos ():Vector2 { return new Vector2	(this._X, this._Y							 ); }			 public set Pos		(Value:Vector2) { this.UpdateBounds({X:Value.X, Y:Value.Y}); }
+	public get Size():Vector2 { return new Vector2	(					this._Width, this._Height); }			 public set Size	(Value:Vector2) { this.UpdateBounds({Width:Value.X, Height:Value.Y}); }
+	public get Bounds():Rect  { return new Rect		(this._X, this._Y,	this._Width, this._Height); }			 public set Bounds	   (Value:Rect) { this.UpdateBounds(Value); }
 
 	public AcceptsKeyboard=true;
 	public OnKeyDown?:KeyHandler<Window>;
 	public OnKeyUp	?:KeyHandler<Window>;
 	public OnClosed	?(): boolean; //Return true to cancel close
+	public OnMoved	?(Old:Rect, New:Rect): void;
 
 	//Unsettable properties
 	private	static		IDCounter		=0;
@@ -156,10 +156,10 @@ export class Window
 			this.$Root.append($("<div/>", {class:`ResizeHandle B${Dir.toUpperCase()}`}).attr("data-dir", Dir));
 
 		//Initialize parts
+		this.UpdateBounds(undefined, true);
 		this.SetCanClose (this.CanClose	);
 		this.SetCanResize(this.CanResize);
 		this.SetVisible  (this.Visible	);
-		this.UpdateBox();
 		this.Title=this.Title;
 		this.Parent=this.Parent;
 
@@ -168,7 +168,7 @@ export class Window
 	}
 
 	public		Close			():						void { this.TryDispose(); }
-	public		EnsureOnScreen	():						void { this.UpdateBox()	; }
+	public		EnsureOnScreen	():						void { this.UpdateBounds(); }
 	public		Focus			(): 					void { WM.SetFocus(this); }
 	private		SetCanClose		(CanClose	:boolean):	void { this.$Close?.toggleClass("Disabled"	, !CanClose	).prop("disabled", !CanClose); }
 	private		SetCanResize	(CanResize	:boolean):	void { this.$Root?.	toggleClass("NoResize"	, !CanResize); }
@@ -177,23 +177,35 @@ export class Window
 	{
 		this.$Root?.toggleClass("Invisible", !Visible);
 		if(Visible)
-			this.UpdateBox();
+			this.UpdateBounds();
 		else if(WM.Active===this)
 			 WM.SetFocus(null);
 	}
 
-	private UpdateBox(_?:unknown): void
+	private UpdateBounds(Updates?:{X?:number, Y?:number, Width?:number, Height?:number}, IsInitial=false): void
 	{
-		this._Width =Math.max(this._Width , this._MinWidth );
-		this._Height=Math.max(this._Height, this._MinHeight);
-		this._X=Clamp(this._X, -(this._Width-this.VisibleEdge)	, document.documentElement.clientWidth -this.VisibleEdge );
-		this._Y=Clamp(this._Y, 0								, document.documentElement.clientHeight-this.VisibleTitle);
+		//Get the new bounds
+		const NewRect=Object.assign(this.Bounds, typeof(Updates)==="object" ? Updates : {}) as Rect;
+		NewRect.Width =Math.max(NewRect.Width , this.MinWidth );
+		NewRect.Height=Math.max(NewRect.Height, this.MinHeight);
+		NewRect.X=Clamp(NewRect.X, -(NewRect.Width-this.VisibleEdge), document.documentElement.clientWidth -this.VisibleEdge );
+		NewRect.Y=Clamp(NewRect.Y, 0								, document.documentElement.clientHeight-this.VisibleTitle);
+
+		//If bounds have not changed, exit early
+		const OldRect=this.Bounds;
+		if(!IsInitial && OldRect.Equals(NewRect))
+			return;
+
+		//Update DOM and stored bounds
 		this.$Root?.css({
-			left	:`${this._X		}px`,
-			top		:`${this._Y		}px`,
-			width	:`${this._Width	}px`,
-			height	:`${this._Height}px`,
+			left	:`${NewRect.X		}px`,
+			top		:`${NewRect.Y		}px`,
+			width	:`${NewRect.Width	}px`,
+			height	:`${NewRect.Height	}px`,
 		});
+		[this._X, this._Y, this._Width, this._Height]=[NewRect.X, NewRect.Y, NewRect.Width, NewRect.Height];
+
+		this.OnMoved?.(OldRect, NewRect);
 	}
 
 	private TryDispose(): void
@@ -280,7 +292,7 @@ export class Window
 				if(NW<this.MinWidth ) { if(D("w")) NX=NX-(this.MinWidth -NW); NW=this.MinWidth ; }
 				if(NH<this.MinHeight) { if(D("n")) NY=NY-(this.MinHeight-NH); NH=this.MinHeight; }
 
-				this.Rect=new Rect(NX, NY, NW, NH);
+				this.Bounds=new Rect(NX, NY, NW, NH);
 			}).on(`pointerup${this.EventNS} pointercancel${this.EventNS}`, ".ResizeHandle", (e:JQuery.TriggeredEvent) =>
 			{
 				const PE=e.originalEvent as PointerEvent|undefined;

@@ -2,24 +2,25 @@ import $ from "jquery"
 
 export class Vector2
 {
-	constructor(public x:number, public y:number) { }
+	constructor(public X:number, public Y:number) { }
 	public Distance(Vec:Vector2) { return Vector2.Distance(this, Vec); }
-	public static Distance(a:Vector2, b:Vector2) { return Math.hypot(a.x-b.x, a.y-b.y); }
+	public static Distance(a:Vector2, b:Vector2) { return Math.hypot(a.X-b.X, a.Y-b.Y); }
 }
 
 export class Rect
 {
-	constructor(public x:number, public y:number, public Width:number, public Height:number) { }
+	constructor(public X:number, public Y:number, public Width:number, public Height:number) { }
+	public Equals(Other?:Rect) { return Other?.X===this.X && Other.Y===this.Y && Other.Width===this.Width && Other.Height===this.Height; }
 	public SetWidth	(W:number) { this.Width =W; return this; }
 	public SetHeight(H:number) { this.Height=H; return this; }
 	public Intersects(R:Rect) { return Rect.Intersects(this, R); }
 	public static Intersects(a:Rect, b:Rect)
 	{
 		return (
-			   a.x<b.x+b.Width
-			&& b.x<a.x+a.Width
-			&& a.y<b.y+b.Height
-			&& b.y<a.y+a.Height
+			   a.X<b.X+b.Width
+			&& b.X<a.X+a.Width
+			&& a.Y<b.Y+b.Height
+			&& b.Y<a.Y+a.Height
 		);
 	}
 }

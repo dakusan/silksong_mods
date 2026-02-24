@@ -107,7 +107,7 @@ class GameObject extends Versioned
 		const SRIRect=this.SRI.ImageRect;
 		Ctx.reset();
 		Ctx.drawImage(
-			this.SRI.Image, SRIRect.x, SRIRect.y, SRIRect.Width, SRIRect.Height,
+			this.SRI.Image, SRIRect.X, SRIRect.Y, SRIRect.Width, SRIRect.Height,
 			0, 0, SRIRect.Width, SRIRect.Height
 		);
 		for(const Shader of [
@@ -145,7 +145,7 @@ class GameObject extends Versioned
 		//Draw to the canvas
 		Ctx.drawImage(
 			this.RenderedSprite, 0, 0, this.RenderedSprite.width, this.RenderedSprite.height,
-			R.x, R.y, R.Width, R.Height
+			R.X, R.Y, R.Width, R.Height
 		);
 
 		return true;
@@ -155,12 +155,12 @@ class GameObject extends Versioned
 	{
 		if(this.SRI===undefined)
 			return undefined;
-		const RenderWidth =this.SRI.ImageRect.Width *this.LocalScale.x;
-		const RenderHeight=this.SRI.ImageRect.Height*this.LocalScale.y;
+		const RenderWidth =this.SRI.ImageRect.Width *this.LocalScale.X;
+		const RenderHeight=this.SRI.ImageRect.Height*this.LocalScale.Y;
 		const MapPos=Share.MCanvas.MapToCanvas(this.Pos);
-		MapPos.x-=RenderWidth *this.SRI.Center.x;
-		MapPos.y-=RenderHeight*this.SRI.Center.y;
-		return new Rect(MapPos.x, MapPos.y, RenderWidth, RenderHeight);
+		MapPos.X-=RenderWidth *this.SRI.Center.X;
+		MapPos.Y-=RenderHeight*this.SRI.Center.Y;
+		return new Rect(MapPos.X, MapPos.Y, RenderWidth, RenderHeight);
 	}
 }
 
@@ -236,7 +236,7 @@ export class MapIcon
 	}
 
 	public BringToFront() { this.IconGO.BringToFront(); }
-	public UpdateSize(IconSize:number) { if(this.IconGO.LocalScale?.x!==IconSize) this.IconGO.LocalScale=new Vector2(IconSize, IconSize); }
+	public UpdateSize(IconSize:number) { if(this.IconGO.LocalScale?.X!==IconSize) this.IconGO.LocalScale=new Vector2(IconSize, IconSize); }
 	public get RenderRect() { return this.IconGO.RenderRect; }
 	public set ForceVisibility(Val:boolean) { this.IconGO.Active=Val; }
 	public get IsIconVisible() { return this.IconGO.Active; }
@@ -252,15 +252,15 @@ abstract class Material
 	//Keep a canvas ready for any x*y multiplier
 	private static readonly MapKeyMultiplier=10_000;
 	private static CanvasList=new Map<number, OffscreenCanvas>();
-	protected static GetCanvas(x:number, y:number)
+	protected static GetCanvas(X:number, Y:number)
 	{
-		if(x<=0 || y<=0)
+		if(X<=0 || Y<=0)
 			throw new Error("Size must be greater than 0");
-		if(x>=Material.MapKeyMultiplier || y>=Material.MapKeyMultiplier)
+		if(X>=Material.MapKeyMultiplier || Y>=Material.MapKeyMultiplier)
 			throw new Error("Size cannot be greater than "+Material.MapKeyMultiplier);
-		let Ret=Material.CanvasList.get(y*Material.MapKeyMultiplier+x);
+		let Ret=Material.CanvasList.get(Y*Material.MapKeyMultiplier+X);
 		if(!Ret)
-			Material.CanvasList.set(y*Material.MapKeyMultiplier+x, Ret=new OffscreenCanvas(x, y));
+			Material.CanvasList.set(Y*Material.MapKeyMultiplier+X, Ret=new OffscreenCanvas(X, Y));
 		return Ret;
 	}
 

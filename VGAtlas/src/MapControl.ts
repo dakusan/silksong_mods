@@ -46,7 +46,7 @@ export default class MapControl
 	public FindClosestItem(PosOnMap:Vector2, SelectionSize:number=1): Item|undefined
 	{
 		const ClosestItem=this.FindClosestVector(new Iter(Share.DS.Items.values()).filter(I => I.Visible), PosOnMap);
-		return ClosestItem?.MapIcon?.RenderRect?.Intersects(new Rect(PosOnMap.x, PosOnMap.y, SelectionSize, SelectionSize)) ? ClosestItem : undefined;
+		return ClosestItem?.MapIcon?.RenderRect?.Intersects(new Rect(PosOnMap.X, PosOnMap.Y, SelectionSize, SelectionSize)) ? ClosestItem : undefined;
 	}
 
 	//Find the closest item to the given map position
@@ -142,7 +142,7 @@ export default class MapControl
 	{
 		if(this.HoverItem && this.IconSizeScalesWithZoom) {
 			const NewPos=this.GameMap.MapToCanvas(this.HoverItem.Pos);
-			Pos.x=NewPos.x; Pos.y=NewPos.y;
+			Pos.X=NewPos.X; Pos.Y=NewPos.Y;
 		}
 		ScaleObj.Scale=this.GetUpdatedZoomScale(ScaleObj.Scale<1 ? -2 : 2);
 	}
