@@ -177,9 +177,28 @@ export default class DataStorage
 		await LoadIconSet(PIconSet);
 		LC.IconSet.SettingChanged.Add("DataStorage.UpdateIconSet", UpdateIconSet);
 
+		this.HandleColors();
+
 		//Create the sprites
 		for(const Category of this.Categories.values())
 			(Category as Category_Friend).Sprite=this.MyIconSprites.Get(Category.IconID);
+	}
+
+	//Store link colors in HTML
+	private HandleColors()
+	{
+		const ColorsStylesheet=document.createElement("style");
+		const UpdateColors=(_:unknown, ColorName:string) => {
+			if(ColorName!=="Default" && ColorName!=="LinkHover")
+				return;
+			ColorsStylesheet.textContent=`
+.ItemContents a, .ItemContents a:visited	{ color:${this.LinkColors.Default.Value		}; }
+.ItemContents a:hover						{ color:${this.LinkColors.LinkHover.Value	}; }
+			`;
+		};
+		document.head.appendChild(ColorsStylesheet);
+		UpdateColors(null, "Default");
+		this.LinkColors.Callbacks.push(UpdateColors);
 	}
 
 	//Distribute chain system items
@@ -283,14 +302,15 @@ export default class DataStorage
 			try { NewColorRGB=Color(RequestedValue); }
 			catch { NewColorRGB=Color(NewColorStr=this.DefaultColors.get(ColorName)!); }
 
-			//Call the callback
+			//Set the new value
 			const NewColorFinal=new StringColor(NewColorStr, NewColorRGB);
+			(this as unknown as Record<string, StringColor>)[ColorName]=NewColorFinal;
+
+			//Call the callback
 			for(const Callback of this.Callbacks)
 				try { Callback(NewColorFinal, ColorName, (this as unknown as Record<string, StringColor>)[ColorName], RequestedValue); }
 				catch(e) { Util.OutputException("Set color callback", e); }
 
-			//Set the new value
-			(this as unknown as Record<string, StringColor>)[ColorName]=NewColorFinal;
 			return true;
 		}
 
@@ -315,7 +335,7 @@ export default class DataStorage
 		public Search_Highlight	=new StringColor("green",		null!); //Highlighting searched string
 		public CollectedCounts	=new StringColor("grey",		null!); //Amounts the player has and needs to finish an item
 	};
-	public LinkColors=new DataStorage.LinkColorsT().Init();
+	public readonly LinkColors=new DataStorage.LinkColorsT().Init();
 
 	//noinspection ExceptionCaughtLocallyJS
 	private static readonly LoadMisc=class LoadMisc

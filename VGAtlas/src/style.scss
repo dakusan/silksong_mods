@@ -16,3 +16,7 @@ canvas { width:100%; height:100%; touch-action:none; overscroll-behavior:none; }
 	padding:3px;
 	&.Active { display:block; }
 }
+
+.ItemContents {
+	white-space:pre-wrap;
+}

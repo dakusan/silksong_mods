@@ -279,6 +279,7 @@ class ItemWindow extends Window
 		});
 		this.$Content.html(this.LinkedItem.Description);
 		this.UpdateAttachedPosition();
+		this.$Content.addClass("ItemContents");
 	}
 	public UpdateAttachedPosition()
 	{

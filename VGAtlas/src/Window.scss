@@ -9,7 +9,7 @@
 }
 
 .WinRoot {
-	position:absolute; box-sizing:border-box; border:1px solid rgba(255, 255, 255, 0.25); border-radius:8px;
+	position:absolute; display:flex; flex-direction:column; box-sizing:border-box; border:1px solid rgba(255, 255, 255, 0.25); border-radius:8px; overflow:hidden;
 	background:rgba(20, 20, 20, 0.94); color:#eee; box-shadow:0 10px 30px rgba(0, 0, 0, 0.45);
 	user-select:none;
 
@@ -18,7 +18,7 @@
 	&.Invisible { display:none; pointer-events:none; }
 
 	.Titlebar {
-		display:flex; align-items:center; gap:8px; padding:2px 4px 2px 8px;
+		display:flex; flex:0 0 auto; align-items:center; gap:8px; padding:2px 4px 2px 8px;
 		border-bottom:1px solid rgba(255, 255, 255, 0.12);
 		background:rgba(255, 255, 255, 0.04); cursor:grab;
 		&:Active { cursor:grabbing; }
@@ -42,7 +42,15 @@
 		}
 	}
 
-	.Content { padding:8px; user-select:text; }
+	.Content {
+		flex:1 1 auto; padding:8px; overflow-y:scroll;
+		user-select:text;
+
+		&::-webkit-scrollbar { width:10px; }
+		&::-webkit-scrollbar-track { background:rgba(255,255,255,0.06); border-radius:8px; }
+		&::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.25); border-radius:8px; border:2px solid transparent; background-clip:content-box; }
+		&::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.4); }
+	}
 
 	.ResizeHandle {
 		position:absolute; background:transparent;
