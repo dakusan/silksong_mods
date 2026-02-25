@@ -316,8 +316,8 @@ export class ChainList extends JsonClass
 		//Reformat the list
 		const Ret=
 			this.Items.map(ItemList =>
-				ItemList.map(I => (I as Category_ChainItem).RenderedStringInternal).join(`<span style="color:${Share.DS.LinkColors.Sep_AND}">${TrVar("SEP_AND")}</span>`)
-			).join(` <b><span style="color:${Share.DS.LinkColors.Sep_OR}">${TrVar("SEP_OR")}</span></b> `)
+				ItemList.map(I => (I as Category_ChainItem).RenderedStringInternal).join(`<color=${Share.DS.LinkColors.Sep_AND}>${TrVar("SEP_AND")}</color>`)
+			).join(` <b><color=${Share.DS.LinkColors.Sep_OR}>${TrVar("SEP_OR")}</color></b> `)
 			+(this.ExtraStr===undefined ? StatStr.Empty : `; ${this.ExtraStr}`);
 
 		//Extract ExtractItemCounts sections as StringCountPair. Only StaticLinks are used since items cannot have a count and are just set as “1”
@@ -412,8 +412,8 @@ export class ChainItem extends JsonClass
 		if(this.FlagRecommend) Parts.push(`<i>${TrVar("FLAG_RECOMMENDED")	}</i> `);
 		const Amounts=
 			  this.FlagAmount===1 ? undefined
-			: `<span style="color:${Share.DS.LinkColors.CollectedCounts}">`+(this.Parent.Type!==ChainType.Rewards ? LStatStr.ChainItem_AmountChar : StatStr.Empty)
-			+ `<b>${this.FlagAmount}</b>×</span>`;
+			: `<color=${Share.DS.LinkColors.CollectedCounts}>`+(this.Parent.Type!==ChainType.Rewards ? LStatStr.ChainItem_AmountChar : StatStr.Empty)
+			+ `<b>${this.FlagAmount}</b>×</color>`;
 
 		//If unlinked or linking failed do not make it a real link
 		if(this.LinkID===-1)
@@ -427,15 +427,16 @@ export class ChainItem extends JsonClass
 			: undefined;
 
 		//Render as a linked item
+		const MakeAttr=(AttrName:string, AttrVal:unknown) => `<ATTR=${AttrName}>${AttrVal}</ATTR>`; //Sanitization not needed on use cases
 		return [
-			`<a data-LinkID=${(this.Parent.Parent as Item_Friend).GetLinkID} data-ItemID=${this.LinkID} href="#${this.LinkID}"`,
-			ExtraColor!==undefined ? ` style="color:${ExtraColor}"` : undefined,
-			">",
-			Amounts?.replace(LStatStr.ChainItem_AmountChar, `<b><size=-4>${LStatStr.ChainItem_AmountChar}</size></b><span style="color:white">/</span>`),
+			`<LinkID=${(this.Parent.Parent as Item_Friend).GetLinkID}>`,
+			MakeAttr("ItemID", this.LinkID),
+			ExtraColor!==undefined ? MakeAttr("NormalColor", ExtraColor) : StatStr.Empty,
+			Amounts?.replace(LStatStr.ChainItem_AmountChar, `<b><size=-4>${LStatStr.ChainItem_AmountChar}</size></b><color=white>/</color>`),
 			"<u>",
 			...Parts,
 			this.Name,
-			"</u></a>",
+			"</u></LinkID>",
 		].filter(Str => Str!==undefined).join(StatStr.Empty);
 	}
 
@@ -486,7 +487,7 @@ class RenderedField extends JsonClass
 	{
 		return this.StartString.replace(RenderedField.GetLinks, (_:string, ID:string, Text:string|undefined) => {
 			Text=(Text ? Text.slice(1) : (GetItemTitleFromID(ID) ?? ID));
-			return `<a data-LinkID=${(this.Parent as Item_Friend).GetLinkID} data-ItemID=${ID} href="#${ID}"><u>${Text}</u></a>`;
+			return `<LinkID=${(this.Parent as Item_Friend).GetLinkID}><ATTR=ItemID>${ID}</ATTR><u>${Text}</u></LinkID>`;
 		});
 	}
 	public override toString() { return this.RenderedString; }
@@ -518,7 +519,7 @@ class ItemSet extends JsonClass
 		return	this.ItemList.size===0 ? undefined
 			:	[...this.ItemList].map(Item =>
 					`<LinkID=UL-${Item.ID}-${(this.Parent as Item_Friend).GetLinkID}><ATTR=ItemID>${Item.ID}</ATTR><u>${Item.Title}</u></LinkID>`
-				).join(`<span style="color:${Share.DS.LinkColors.Sep_AND}">${TDef("SEP_AND", VarDefaults.SEP_AND)}</span>`);
+				).join(`<color=${Share.DS.LinkColors.Sep_AND}>${TDef("SEP_AND", VarDefaults.SEP_AND)}</color>`);
 	}
 	public Render(FieldTitle:string): string|undefined { return this.ItemList.size===0 ? undefined : `<b>${TSan(FieldTitle)}</b>: ${this.RenderedString}`; }
 }

@@ -176,7 +176,7 @@ export namespace SaveJson
 	}
 
 	//Exporting functions
-	const PlaceholderChar="\uE001";
+	const PlaceholderChar="\uEE01";
 	//Encodes to JSON. Classes can be handled by IExpOverride; Object fields and getters are handled according to JSProps exporting decorators.
 	//Objects maintain their member order. Getters always come after fields. Numeric keys in maps are kept in their original order.
 	export function Stringify(Data:unknown, Compact=false, TrailingCommas=true, Replacer?:(this:unknown, key:string, value:unknown) => unknown)
@@ -192,12 +192,15 @@ export namespace SaveJson
 	}
 
 	//Exports DS.Categories and DS.Items through Stringify. If MatchModOutput is enabled, the output from the C# module will be matched exactly.
-	export function ExportDefaultData(TrailingCommas=true, Compact=false, MatchModOutput=false)
+	export async function ExportDefaultData(TrailingCommas=true, Compact=false, MatchModOutput=false, UseTestHTMLExport=false): Promise<string>
 	{
 		const Start=new Date();
 		let Output=Stringify({Categories:Share.DS.Categories, Items:Share.DS.Items}, Compact, TrailingCommas, MatchModOutput ? PreFormatLikeMod : undefined);
 		if(MatchModOutput)
-			Output=PostFormatLikeMod(Output);
+			if(!UseTestHTMLExport)
+				Output=PostFormatLikeMod(Output);
+			else
+				Output=await PostFormatLikeMod_TestHTML(Output);
 
 		console.log("Time to export: "+(Date.now()-Start.getTime())/1000);
 		return Output;
@@ -239,19 +242,15 @@ export namespace SaveJson
 	function PostFormatLikeMod(Str:string)
 	{
 		Str=Str.replace(/^(\t*"[xy]": )"(.*?)"/gm, '$1$2'); //Doubles were formatted to G17 as string, so revert them
-
-		//Replace anchors with LinkID
-		//noinspection RegExpSuspiciousBackref
-		Str=Str.replace(
-			/<a data-LinkID=(?:\\")?([^ "]+)(?:\\")?(?: data-ItemID=(\d+))? href=\\"(#\2|https:[^\\]+)\\"(?: style=\\"color:(#?\w+)\\")?>(.*?)<\/a>/sg,
-			(_Full, LinkID, ItemID, Href, NormalColor, Inner) =>
-				`<LinkID=${LinkID}>${ItemID ? `<ATTR=ItemID>${ItemID}</ATTR>` : ""}${Href!=="#"+ItemID ? `<ATTR=href>${Href}</ATTR>` : ""}${NormalColor ? `<ATTR=NormalColor>${NormalColor}</ATTR>` : ""}${Inner}</LinkID>`
-		);
-
-		//Replace span+color w/ <color>
-		for(let LastStr:string|undefined=undefined; Str!==LastStr; )
-			Str=(LastStr=Str).replace(/<span style=\\"color:(#?\w+)\\">((?:(?!<span\b)[\s\S])*?)<\/span>/g, `<color=$1>$2</color>`); //Color spans
-
 		return Str;
+	}
+
+	//For testing with rendered contents
+	async function PostFormatLikeMod_TestHTML(Str:string)
+	{
+		return Str=new (await import("./LinkedLabel"))
+			.default(PostFormatLikeMod(Str)).RenderedContents
+			.replace(/<(a|span)[^>]+>/g, m => m.replace(/"/g, '\\"'))
+			.replace(/ style=\\"--phase:[\d.]+\\"/g, "");
 	}
 }

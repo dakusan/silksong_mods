@@ -3,6 +3,7 @@ import { Item } from "./CategoriesAndItems"
 import { Window } from "./WindowManager"
 import { Iter, KeyState, Rect, Util, Vector2 } from "./SharedClasses"
 import { Share } from "./Share"
+import LinkedLabel from "./LinkedLabel";
 
 //All functions accept/return canvas pixel coordinates
 export default class MapControl
@@ -277,7 +278,7 @@ class ItemWindow extends Window
 			Height:200,
 			AcceptsKeyboard:false,
 		});
-		this.$Content.html(this.LinkedItem.Description);
+		this.$Content.html(new LinkedLabel(this.LinkedItem.Description).RenderedContents);
 		this.UpdateAttachedPosition();
 		this.$Content.addClass("ItemContents");
 	}

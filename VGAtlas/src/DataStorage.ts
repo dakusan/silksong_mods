@@ -419,7 +419,7 @@ export default class DataStorage
 				(Str, ItemID, Index) => {
 					const Parts=Str.split("|", 2);
 					const [URL, Name]=(Parts.length===2 ? [Parts[0], Parts[1]] : [Str, Str]);
-					return `<a data-LinkID="OL-${ItemID}-${Index}" href="${DevStrings.SafeRich(URL)}">${DevStrings.SafeRich(decodeURIComponent(Name))}</a>`;
+					return `<LinkID=OL-${ItemID}-${Index}><ATTR=href>${DevStrings.SafeRich(URL)}</ATTR>${DevStrings.SafeRich(decodeURIComponent(Name))}</LinkID>`;
 				}
 			);
 		}
