@@ -27,8 +27,8 @@ async function Main()
 		const DS=new DataStorage();
 		await MCanvas.Init("Assets/PAtlasMap.png");
 		await (DS as DataStorage_Friend).Load(
-			"Assets/categories.json",
-			"Assets/items.json",
+			"Assets/Categories.json",
+			"Assets/Items.json",
 			"Assets/Misc.json",
 			Share.LC.IconSet.V,
 		);

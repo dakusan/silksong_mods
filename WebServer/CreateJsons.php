@@ -26,8 +26,8 @@ if(!isset($argv) || !str_ends_with($_SERVER['SCRIPT_NAME'], pathinfo(__FILE__, P
 	return ErrAndDie('Missing Build parameter', null, 400);
 
 //Output all files to local folder (which are probably symlinked elsewhere)
-file_put_contents('./categories.json', GenerateCategories());
-file_put_contents('./items.json', GenerateItems());
+file_put_contents('./Categories.json', GenerateCategories());
+file_put_contents('./Items.json', GenerateItems());
 file_put_contents('./Misc.json', GenerateMisc());
 file_put_contents('./ItemFinder.json', GenerateItemFinder());
 print "Generated all files\n";
@@ -169,7 +169,7 @@ function GenerateItems()
 			$SmallItem->{$Combined[$Key]}=$Val;
 	}
 
-	return ($CompactJSON ? '//Unminified JSON file at https://www.castledragmire.com/silksong/items.json' : '//See Items.ebnf for requirements')."\n"
+	return ($CompactJSON ? '//Unminified JSON file at https://www.castledragmire.com/silksong/Items.json' : '//See Items.ebnf for requirements')."\n"
 		.GenerateJson($Items);
 }
 
@@ -324,7 +324,7 @@ function GenerateMisc()
 		'/\n\t\t\t/'=> ' ' , //Combine item lists into 1 row
 		'/\n\t\t]/' => ']' , //Move item list end bracket onto item row
 		'/\[ "/'	=> '["', //Remove extra space at beginning of item lists
-		'/(\n\t\"StaticLinks)/' => "\n\t//Lists coorespond to IDs from items.json. Single numbers are from categories.json\\1",
+		'/(\n\t\"StaticLinks)/' => "\n\t//Lists coorespond to IDs from Items.json. Single numbers are from Categories.json\\1",
 	];
 	$Out=preg_replace(array_keys($Replacements), array_values($Replacements), $Out);
 	return $Out;

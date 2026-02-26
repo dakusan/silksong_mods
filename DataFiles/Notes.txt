@@ -1,0 +1,5 @@
+Files in this directory are symlinked to the project https://github.com/dakusan/silksong_mods_assets at “../../Media”.
+
+I’m trying to keep data files out of this repository (some creeped in very early) so am using this structure.
+
+Anywhere in this repo that needs access to these files are symlinked to this directory.

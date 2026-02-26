@@ -79,7 +79,7 @@ public class DataStorage
 		//Load the categories
 		Dictionary<string, CategoryGroup> CategoryGroupsDict;
 		try {
-			CategoryGroupsDict=LoadJSON<Dictionary<string, CategoryGroup>, Category>("categories.json") ??
+			CategoryGroupsDict=LoadJSON<Dictionary<string, CategoryGroup>, Category>("Categories.json") ??
 				throw new Exception("Categories is null");
 		} catch(Exception e) {
 			throw new Exception($"Could not load categories, failing out: {e.Message}");
@@ -102,7 +102,7 @@ public class DataStorage
 
 		//Load the items
 		try {
-			Items=(LoadJSON<Dictionary<int, CreateItem>, CreateItem>("items.json") ?? throw new Exception("Items is null"))
+			Items=(LoadJSON<Dictionary<int, CreateItem>, CreateItem>("Items.json") ?? throw new Exception("Items is null"))
 				.ToDictionary(static Pair => Pair.Key, static Pair => Pair.Value.GetItem());
 		} catch(Exception e) {
 			throw new Exception($"Could not load items, failing out: "+FileOps.Ser(e)); //The exceptions in this can get pretty deep, so just output the entire exception chain

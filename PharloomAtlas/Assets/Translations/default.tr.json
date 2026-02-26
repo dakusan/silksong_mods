@@ -250,7 +250,7 @@
 		"Hide Unlinked": "Hide Unlinked",
 		"Show Unlinked": "Show Unlinked",
 	},
-	"Categories":{ //Names for item categories. See categories.json
+	"Categories":{ //Names for item categories. See Categories.json
 		"*****IMPORTANT NOTE*****": "The values in this section need to be kept as short as possible",
 		"Ability": "Ability",
 		"Achievement": "Achievement",
