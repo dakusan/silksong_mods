@@ -31,7 +31,7 @@ body #___markdown-content___ a:hover { color:white !important; }
 
 Developer utility used to create accurate data files for mods like [Pharloom Atlas](https://www.nexusmods.com/hollowknightsilksong/mods/755).
 <br>Runs once (or on demand), writes a clean JSON to the plugin folder. Process can be paused and restarted without losing anything.
-<br>You can find my latest copy of the processing, with synced changes from the last 3 months, [here](https://www.castledragmire.com/silksong/Pins.json).
+<br>You can find my latest copy of the processing, with synced changes from the last 3 months, [here](https://silksong.castledragmire.com/Pins.json).
 <br>Settings dialog translated [via LLM] into 20 languages.
 
 <br class=Hide><br><center><font size=5>⚙️ **Installation** ⚙️</font></center>

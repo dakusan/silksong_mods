@@ -169,7 +169,7 @@ function GenerateItems()
 			$SmallItem->{$Combined[$Key]}=$Val;
 	}
 
-	return ($CompactJSON ? '//Unminified JSON file at https://www.castledragmire.com/silksong/Items.json' : '//See Items.ebnf for requirements')."\n"
+	return ($CompactJSON ? '//Unminified JSON file at https://silksong.castledragmire.com/Items.json' : '//See Items.ebnf for requirements')."\n"
 		.GenerateJson($Items);
 }
 

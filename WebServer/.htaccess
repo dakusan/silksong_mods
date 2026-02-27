@@ -1,11 +1,13 @@
-<Files "Config.php">
+options -indexes
+
+<FilesMatch "^(Config\.php|errors\.log)$">
 	Require all denied
-</Files>
+</FilesMatch>
 
 RewriteEngine On
-RewriteRule ^items\.json$ CreateJsons.php?Build=Items [QSA,L]
+RewriteRule ^items\.json$ /Items.json [R=301,L,QSA]
+RewriteRule ^categories\.json$ /Categories.json [R=301,L,QSA]
 RewriteRule ^Items\.json$ CreateJsons.php?Build=Items [QSA,L]
-RewriteRule ^categories\.json$ CreateJsons.php?Build=Categories [QSA,L]
 RewriteRule ^Categories\.json$ CreateJsons.php?Build=Categories [QSA,L]
 RewriteRule ^Misc\.json$ CreateJsons.php?Build=Misc [QSA,L]
 RewriteRule ^ItemFinder\.json$ CreateJsons.php?Build=ItemFinder [QSA,L]

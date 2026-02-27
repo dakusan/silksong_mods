@@ -54,7 +54,7 @@ internal class Plugin : BaseUnityPlugin
 	internal class CErrorLog
 	{
 		internal const string				PAtlasErrorLogName="PAtlas-Error.log";
-		private  const string				ErrorLogWebAddress="https://www.castledragmire.com/silksong/SubmitErrorLog.php", LogCutStr="...CUT...";
+		private  const string				ErrorLogWebAddress="https://silksong.castledragmire.com/SubmitErrorLog.php", LogCutStr="...CUT...";
 		private  const int					MaxLogSize=8*1024*1024;
 		internal readonly AsyncLogger		Log=new(null, FilterErrorLog) { DuplicateWindowSeconds=10 };
 		private  bool						IsSending=false;

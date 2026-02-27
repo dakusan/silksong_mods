@@ -60,7 +60,7 @@ public class MonitorSaveValues
 	private static readonly string JsonFileName="ItemFinder.json", JsonFilePath=FileOps.PathCombine(FileOps.GetPluginPath, JsonFileName);
 	private static readonly string LogFilePath=FileOps.PathCombine(FileOps.GetPluginPath, "ItemFinder.log");
 	private readonly ItemFinder IF=null!;
-	private const string WebAddress="https://www.castledragmire.com/silksong/Submit.php";
+	private const string WebAddress="https://silksong.castledragmire.com/Submit.php";
 	private const string PlayerDataStr=nameof(PlayerData);
 
 	//Members

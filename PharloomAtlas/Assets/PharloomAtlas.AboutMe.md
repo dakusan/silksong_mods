@@ -125,7 +125,7 @@ Many icons remain unlinked (and unchecked) — and you can help! See the **Saved
 
 <br>To contribute:
 * Download and edit [Icons-FromGame](https://static.castledragmire.com/silksong/Icons-FromGame.png) or [Icons-Circles](https://static.castledragmire.com/silksong/Icons-Circles.png) → place in **BepInEx/plugins/dakusan/**
-* See [Categories.json](https://www.castledragmire.com/silksong/Categories.json) and [Items.json](https://www.castledragmire.com/silksong/Items.json) for icon mapping numbers.
+* See [Categories.json](https://silksong.castledragmire.com/Categories.json) and [Items.json](https://silksong.castledragmire.com/Items.json) for icon mapping numbers.
 * Appreciated updates could include better images, per-NPC or per-map icons, and an expanded Circles set with more item-specific icons.
 * Expanding the icon set beyond the current image limit will require additional code (quick fix). I’ll also probably need to add bounding shapes for the icons.
 
@@ -178,10 +178,10 @@ Community help is crucial to nail every icon! I’ve matched 550/1,908 via my [P
 <br>**If anyone is interested in helping get the database in this project complete, <font color=green><i>PLEASE contact me</i></font>**. If there is enough interest I’ll put up a discord.
 
 <br><ins>Up-to-date JSON files:</ins>
-* Icon data and relationships:                   <font size=1 style="padding-right:140px" >  </font>              [Items.json](https://www.castledragmire.com/silksong/Items.json) <font            size=1 style="padding-right:41px;">    </font>        [Compact](https://www.castledragmire.com/silksong/Items.json?CompactJSON=1)
-* Icon categories (used for hiding/filtering):   <font size=1 style="padding-right:32px">    </font         >     [Categories.json](https://www.castledragmire.com/silksong/Categories.json)<font   size=1 style="padding-right:7px;"    > </font     >   [Compact](https://www.castledragmire.com/silksong/Categories.json?CompactJSON=1)
-* Item → save-value bindings (progress tracking):<font size=1 style="padding-right:0px"     ></font             > [ItemFinder.json](https://www.castledragmire.com/silksong/ItemFinder.json)  <font size=1 style="padding-right:2px;"    > </font        >[Compact](https://www.castledragmire.com/silksong/ItemFinder.json?CompactJSON=1)
-* Category groupings and misc progress data:     <font size=1 style="padding-right:17px"  >  </font              >[Misc.json](https://www.castledragmire.com/silksong/Misc.json)            <font   size=1 style="padding-right:47px;"   > </font        >[Compact](https://www.castledragmire.com/silksong/Misc.json?CompactJSON=1)
+* Icon data and relationships:                   <font size=1 style="padding-right:140px" >  </font>              [Items.json](https://silksong.castledragmire.com/Items.json) <font            size=1 style="padding-right:41px;">    </font>        [Compact](https://silksong.castledragmire.com/Items.json?CompactJSON=1)
+* Icon categories (used for hiding/filtering):   <font size=1 style="padding-right:32px">    </font         >     [Categories.json](https://silksong.castledragmire.com/Categories.json)<font   size=1 style="padding-right:7px;"    > </font     >   [Compact](https://silksong.castledragmire.com/Categories.json?CompactJSON=1)
+* Item → save-value bindings (progress tracking):<font size=1 style="padding-right:0px"     ></font             > [ItemFinder.json](https://silksong.castledragmire.com/ItemFinder.json)  <font size=1 style="padding-right:2px;"    > </font        >[Compact](https://silksong.castledragmire.com/ItemFinder.json?CompactJSON=1)
+* Category groupings and misc progress data:     <font size=1 style="padding-right:17px"  >  </font              >[Misc.json](https://silksong.castledragmire.com/Misc.json)            <font   size=1 style="padding-right:47px;"   > </font        >[Compact](https://silksong.castledragmire.com/Misc.json?CompactJSON=1)
 
 <br class=Hide><br><center><font size=5><img src="https://static.castledragmire.com/silksong/FireSmall.png" align="middle" class=SmallIcon>                   <b>Bonus Rant</b>                   <img src="https://static.castledragmire.com/silksong/FireSmallRev.png" align="middle" class=SmallIcon></font></center>
  ---
