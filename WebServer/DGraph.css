@@ -58,7 +58,7 @@
 	margin		:-4px -6px 0 0;
 	width		:var(--out-icon-size);
 	height		:var(--out-icon-size);
-	background	:url("Icons-FromGame.png") no-repeat;
+	background	:url("https://static.castledragmire.com/silksong/Icons-FromGame.png") no-repeat;
 	background-size:
 		calc((var(--sheet-width ) * var(--out-icon-size) / var(--sprite-size)) * 1px)
 		calc((var(--sheet-height) * var(--out-icon-size) / var(--sprite-size)) * 1px);

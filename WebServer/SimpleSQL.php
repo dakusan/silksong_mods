@@ -34,7 +34,7 @@ class MysqliResultIterator implements Iterator {
 	}
 }
 
-function BaseQuery(string $Query, mixed ...$Vars): mysqli_result
+function BaseQuery(string $Query, mixed ...$Vars): mysqli_result|bool
 {
 	global $Conn;
 	$QuerySections=explode('?', $Query);
@@ -52,6 +52,7 @@ function BaseQuery(string $Query, mixed ...$Vars): mysqli_result
 
 function Query(string $Query, mixed ...$Vars): MysqliResultIterator|int|null
 {
+	global $Conn;
 	$Result=BaseQuery($Query, ...$Vars);
 	if(preg_match('/^\s*(?:SELECT|SHOW)/i', $Query))
 		return new MysqliResultIterator($Result);
