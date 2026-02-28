@@ -1,0 +1,60 @@
+//Note: Project names cannot contain spaces
+{
+	"PharloomAtlas":{
+		"NexusID": 755,
+		"Name": "Pharloom Atlas\n(Map overhaul)",
+		"ShortName": "Pharloom Atlas",
+		"Pictures":{
+			"Logo.png": "Logo",
+			"FullMap.jpg": "Sidebar and Map",
+			"BasicSettings.png": "Basic Settings",
+			"MoreMarkersAndLabels.png": "More Markers and Labels",
+			"HelpWindow.png": "Help Screen",
+			"HelpWindow-Japanese.png": "Help Screen - In Japanese!",
+			"Search.png": "Search Window",
+			"SavedValuesWindow.png": "Saved Values Window",
+			"ChainSystem.jpg": "Chain System",
+			"SideBar.png": "Full sidebar",
+			"SilksongAnimations.gif": "Hornet Pin Animations",
+			"AllSettings.png": "All Settings",
+			"ConfigBackups.png": "Configs with Backups",
+		},
+	},
+	"SilkDev":{
+		"NexusID": 510,
+		"Name": "Plugin\nDeveloper\nTools",
+		"ShortName": "SilkDev",
+		"Pictures":{
+			"SilkDevIcon.jpg":"Logo",
+			"KeyboardBlocked.jpg":"Keyboard blocked (optional) overlay",
+			"Settings.png":"Settings",
+			"ExtractAllTextures.jpg":"Extract all textures progress",
+			"SpriteAsTexture.jpg":"Extract sprite by texture",
+			"SpriteAsRender.jpg":"Extract sprite by render",
+			"SpriteAsSheet.jpg":"Extract sprite by sheet",
+			"SpritesWithBoxes.jpg":"Extract Sprite with boxes",
+			"ExtractSpritesHelp.png":"Extract Sprites window help",
+			"SourceCodeClassDocumentation.png":"Dev classes and functions",
+		},
+		"Videos":{
+			"Silkdev.mp4":"Plugin Demonstration",
+		},
+	},
+	"NoClip":{
+		"NexusID": 478,
+		"Name": "No\nClip",
+		"ShortName": "No Clip",
+		"Pictures":{
+			"NoClipIcon.jpg":"Logo",
+			"EditScreenshot.png":"Settings",
+		},
+	},
+	"PinFinder":{
+		"NexusID": 772,
+		"Name": "Pin\nFinder",
+		"ShortName": "Pin Finder",
+		"Pictures":{
+			"Logo.png": "Logo",
+		},
+	},
+}

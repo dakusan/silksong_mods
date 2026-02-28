@@ -191,7 +191,7 @@ Nexus re-encoded my GIFs into WebP and butchered the quality 😅️
 
 <br><center><font size=5>📜️              <b>Immediate Todos</b>            📜️</font></center>
  ---
-<center><b>Coming before February</b></center><br><meta/>
+<center><b>Coming soon</b></center><br><meta/>
 
 * Finish the chain system:
     * Hide icons until an area is mapped
