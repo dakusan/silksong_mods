@@ -85,3 +85,9 @@ a.Tab { min-height:inherit; }
 	pointer-events:none;
 }
 .LogoCard:hover::before { opacity:1; }
+.DisplayImage { cursor:pointer; }
+
+/* Lightbox */
+body .glightbox-clean .gslide-description { position:relative; background-color:transparent; }
+body .glightbox-clean .gdesc-inner { padding:0 20px; margin:5px 0 10px; border:1px solid rgba(255, 255, 255, 0.10); border-radius:12px; background:rgba(0, 0, 0, 0.25); backdrop-filter:blur(6px); }
+body .glightbox-clean .gslide-title { margin:5px; color:white; }

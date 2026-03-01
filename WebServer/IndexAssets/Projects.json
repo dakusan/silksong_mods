@@ -25,7 +25,7 @@
 		"Name": "Plugin\nDeveloper\nTools",
 		"ShortName": "SilkDev",
 		"Pictures":{
-			"SilkDevIcon.jpg":"Logo",
+			"SilkDevIcon.png":"Logo",
 			"KeyboardBlocked.jpg":"Keyboard blocked (optional) overlay",
 			"Settings.png":"Settings",
 			"ExtractAllTextures.jpg":"Extract all textures progress",
@@ -37,7 +37,10 @@
 			"SourceCodeClassDocumentation.png":"Dev classes and functions",
 		},
 		"Videos":{
-			"Silkdev.mp4":"Plugin Demonstration",
+			"Silkdev.mp4":{
+				"Description":"Plugin Demonstration",
+				"Source":"https://www.youtube.com/watch?v=hVsqv094Pnk",
+			},
 		},
 	},
 	"NoClip":{

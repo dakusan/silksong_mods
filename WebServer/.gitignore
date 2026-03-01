@@ -1,3 +1,4 @@
 /Config.php
 /errors.log
-Assets/index.html
+/IndexAssets/index.html
+/node_modules/

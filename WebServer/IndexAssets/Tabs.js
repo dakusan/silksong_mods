@@ -9,8 +9,10 @@ export default class Tab
 	/** @type {HTMLElement|null} */ $Contents=null; //Only null for top level parent
 	/** @type {Tab[]} */ SubTabs=[];
 	/** @type {Tab|null} */ LastSubTab=null;
-	constructor(Parent, Slug, Title, $Tab, $Contents) { //Consider this protected
-		[this.Parent, this.Slug, this.Title, this.$Tab, this.$Contents]=[Parent, Slug, Title, $Tab, $Contents];
+	LastSubTabIndex=0;
+	Index=-1;
+	constructor(Parent, Slug, Title, $Tab, $Contents, Index) { //Consider this protected
+		[this.Parent, this.Slug, this.Title, this.$Tab, this.$Contents, this.Index]=[Parent, Slug, Title, $Tab, $Contents, Index];
 		if(this.Parent!==null)
 			this.constructor.BindDOMTab(this.$Tab, this.Select.bind(this));
 	}
@@ -19,10 +21,11 @@ export default class Tab
 	{
 		if(this.Parent===null) return;
 		this.Parent.LastSubTab?.DeSelect();
+		this.Parent.LastSubTabIndex=this.Index;
 		this.constructor.ToggleDOMTab((this.Parent.LastSubTab=this).$Tab, true);
-		this.$Contents.classList.toggle("Selected", true);
+		this.SetContentsVisibility(true);
 		if(AutoSelectFirstChild && this.SubTabs.length)
-			return void this.SubTabs[0].Select(UpdateHashAndTitle, AutoSelectFirstChild);
+			return void this.SubTabs[this.LastSubTabIndex].Select(UpdateHashAndTitle, AutoSelectFirstChild);
 
 		if(!UpdateHashAndTitle)
 			return;
@@ -37,8 +40,12 @@ export default class Tab
 		if(this.Parent===null) return;
 		this.LastSubTab?.DeSelect();
 		this.constructor.ToggleDOMTab(this.$Tab, false);
-		this.$Contents.classList.toggle("Selected", false);
+		this.SetContentsVisibility(false);
 		this.Parent.LastSubTab=null;
+	}
+	SetContentsVisibility(IsVisible)
+	{
+		this.$Contents.classList.toggle("Selected", IsVisible);
 	}
 
 	/** @returns {Tab} */
@@ -62,7 +69,7 @@ export default class Tab
 		const NewTab=new this.constructor(
 			this, Slug,
 			$Tab.dataset.title ?? Slug.replace(/_([a-z])/g, M => ' '+M[1].toUpperCase()),
-			$Tab, document.getElementById(Aria)
+			$Tab, document.getElementById(Aria), this.SubTabs.length
 		);
 		this.SubTabs.push(NewTab);
 		return NewTab;
@@ -114,7 +121,7 @@ export default class Tab
 	{
 		const NewTab=
 			  TitleOrRootTab instanceof Tab ? TitleOrRootTab
-			: new Tab(null, null, TitleOrRootTab.toString(), null, null);
+			: new Tab(null, null, TitleOrRootTab.toString(), null, null, 0);
 		this.RootTab=NewTab;
 		NewTab.ProcessTagGroup(document.getElementById('RootTabs'));
 		window.addEventListener('hashchange', this.HashUpdated.bind(this, false));
