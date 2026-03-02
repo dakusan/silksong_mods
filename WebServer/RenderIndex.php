@@ -1,14 +1,16 @@
-<? /** @noinspection PhpShortOpenTagInspection, CssUnusedSymbol */
+<? /** @noinspection PhpShortOpenTagInspection */
 $Projects=(array)json_decode(
 	preg_replace(['/,(\s+[}\]])/', '~^//.*$~m'], ['$1', ''], file_get_contents('IndexAssets/Projects.json'))
 );
 
+function ClearWS(): string { ob_start(); return ''; }
+function EndClearWS(): string { return preg_replace('/\s+/', ' ', ob_get_clean()); }
+
 //Pull the rendered HTML for the projects and create the project name slugs
-function CreateSlug($Name)
+function CreateSlug($Name): string
 {
 	$Name=trim($Name);
 	if(class_exists('Normalizer'))
-		/** @noinspection PhpParamsInspection */
 		$Name=Normalizer::normalize($Name, Normalizer::FORM_KD);
 	$Name=preg_replace('/[^A-Za-z0-9]+/', '_', $Name); //Replace non-alphanumeric characters with underscore
 	$Name=preg_replace('/_+/', '_', $Name); //Collapse multiple underscores
@@ -34,7 +36,7 @@ foreach($Matches[1] as $Match)
 	print $Match;
 ?>
 </style>
-<link rel=stylesheet href="IndexAssets/index.css" />
+<link rel=stylesheet href="IndexAssets/Index.css" />
 <link rel=stylesheet href="IndexAssets/glightbox.css" />
 </head><body>
 <div role="tablist" class="Tabs TopBoxes" aria-label="Projects" id=RootTabs>
@@ -54,6 +56,18 @@ foreach($Matches[1] as $Match)
 		<button role=tab class=Tab id=tab-<?=$PData->Slug?>-Pictures aria-controls=panel-<?=$PData->Slug?>-Pictures>Pictures</button>
 <? } if(isset($PData->Videos)) { ?>
 		<button role=tab class=Tab id=tab-<?=$PData->Slug?>-Videos aria-controls=panel-<?=$PData->Slug?>-Videos>Videos</button>
+<? } if(isset($PData->Articles)) { ?>
+		<div class="Tab MenuContainer" role=menu>
+			Articles
+			<div class=MenuPopup>
+				<? foreach($PData->Articles as $Article) { $ArticleSlug=CreateSlug($Article->File); ?>
+					<a role=tab class="Tab Article" id=tab-<?=$PData->Slug?>-Article_<?=$ArticleSlug?> aria-controls=panel-<?=$PData->Slug?>-Article_<?=$ArticleSlug?>>
+						<div class=Title><?=htmlentities($Article->Title)?></div>
+						<div class=Date><?=htmlentities($Article->Date)?></div>
+					</a>
+				<? } ?>
+			</div>
+		</div>
 <? } ?>
 		<a class="Tab Disabled"><span>Coming<br>soon</span>Github</a>
 		<a class="Tab Disabled"><span>Coming<br>soon</span>Download</a>
@@ -71,12 +85,12 @@ foreach($Matches[1] as $Match)
 		<div class=LogoGrid>
 			<? $i=0; foreach($PData->Pictures as $FileName => $Description) { ?>
 			<div class=LogoCard>
-				<img
+				<?=ClearWS()?><img
 					src="https://static.castledragmire.com/silksong/<?=$ProjectName?>/Thumbs/<?=$FileName?>"
 					loading="lazy" decoding="async" class="DisplayImage"
 					alt="<?=htmlentities($Description)?>"
 					data-image-index=<?=$i++?>
-				>
+				><?=EndClearWS()?>
 				<span><?=htmlentities($Description)?></span>
 			</div>
 			<? } ?>
@@ -87,85 +101,33 @@ foreach($Matches[1] as $Match)
 		<div class=LogoGrid>
 			<? $i=0; foreach($PData->Videos as $FileName => $VData) { ?>
 			<div class=LogoCard>
-				<img
+				<?=ClearWS()?><img
 					src="https://static.castledragmire.com/silksong/<?=$ProjectName?>/Thumbs/<?=$FileName?>.jpg"
 					loading="lazy" decoding="async" class="DisplayImage"
 					alt="<?=htmlentities($VData->Description)?>"
 					data-image-index=<?=$i++?>
 					<?=!isset($VData->Source) ? '' : 'data-video-src="'.htmlentities($VData->Source).'">'?>
-				>
+				><?=EndClearWS()?>
 				<span><?=htmlentities($VData->Description)?></span>
 			</div>
 			<? } ?>
 		</div>
 	</div>
+	<? } foreach(($PData->Articles ?? []) as $Article) { $ArticleSlug=CreateSlug($Article->File); ?>
+		<div role=tabpanel class="TabContents Article" id=panel-<?=$PData->Slug?>-Article_<?=$ArticleSlug?> aria-labelledby=tab-<?=$PData->Slug?>-Article_<?=$ArticleSlug?>>
+			<?=$Article->File?> :: <?=$Article->Title?>
+		</div>
 	<? } ?>
 <? } ?>
 </div></div>
 </body>
-<script type="module">
-import Tab from "./IndexAssets/Tabs.js"
-import "./IndexAssets/glightbox.js"
-class TabOverride extends Tab
+<script type=importmap>
 {
-	HasLoadedImages=false;
-	PreloadedImages=new WeakSet();
-	/** @type {import("glightbox").GlightboxInstance} */ LightBox=null;
-	constructor(Parent, Slug, Title, $Tab, $Contents, Index) {
-		super(Parent, Slug, Title, $Tab, $Contents, Index);
+	"imports": {
+		"@floating-ui/core": "./IndexAssets/floating-ui.core.browser.min.mjs",
+		"@floating-ui/dom": "./IndexAssets/floating-ui.dom.browser.min.mjs"
 	}
-	Select(UpdateHashAndTitle=true, AutoSelectFirstChild=true)
-	{
-		super.Select(UpdateHashAndTitle, AutoSelectFirstChild);
-		document.getElementById('ContentsFrame').classList.toggle("FullBleed", this.Title==="Pictures" || this.Title==="Videos");
-	}
-
-	//Prep image content the first time pictures become visible
-	SetContentsVisibility(IsVisible)
-	{
-		super.SetContentsVisibility(IsVisible);
-		if(!IsVisible || this.HasLoadedImages)
-			return;
-		this.HasLoadedImages=true;
-
-		//Make sure all images in visible contents load immediately (ignore lazy)
-		for(const CurImage of this.$Contents.querySelectorAll("img"))
-			if(!CurImage.complete && !(CurImage.naturalWidth>0)) {
-				const Img=new Image();
-				Img.decoding="async";
-				Img.src=CurImage.currentSrc || CurImage.getAttribute("src");
-				this.PreloadedImages.add(Img);
-			}
-
-		//Prep all images to load the glightbox
-		/** @type { (HTMLImageElement|HTMLVideoElement)[] } */
-		const Images=
-			[...this.$Contents.getElementsByClassName('DisplayImage')]
-			.sort((ImgA, ImgB) => Number(ImgA.dataset.imageIndex)-Number(ImgB.dataset.imageIndex));
-		if(Images.length===0)
-			return;
-		this.LightBox=GLightbox({
-			elements:Images.map(I => {
-				let Src=I.getAttribute('src').replace('/Thumbs', '');
-				const IsVideo=Src.match(/\.(mp4|webm|ogg)\.jpg$/i);
-				if(IsVideo)
-					Src=(I.dataset.videoSrc ?? Src.slice(0, '.jpg'.length*-1));
-
-				return {
-					href:Src,
-					type:IsVideo ? "video" : "image",
-					title:I.getAttribute('alt'),
-				};
-			}),
-			loop:true, touchNavigation:true, keyboardNavigation:true,
-		});
-
-		const ImageListener=this.OpenLightbox.bind(this);
-		for(const CurImage of Images)
-			CurImage.addEventListener('click', ImageListener);
-	}
-	OpenLightbox(e) { this.LightBox.openAt(e.currentTarget.dataset.imageIndex); }
 }
-Tab.InitRoot(/** @type {Tab} */ new TabOverride(null, null, document.title, null, null));
 </script>
+<script type="module" src="./IndexAssets/Index.js"></script>
 </html>

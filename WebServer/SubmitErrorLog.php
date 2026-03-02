@@ -9,6 +9,7 @@ if(strlen($ErrorLog)>$MaxPayload)
 $SteamUsername=GetSteamUsername();
 
 try {
+	global $Conn;
 	$Stmt=$Conn->prepare('INSERT INTO ErrorLogs (Username, ErrorLog) VALUES (?, ?)');
 	$Stmt->bind_param('ss', $SteamUsername, $ErrorLog);
 	$Stmt->execute();

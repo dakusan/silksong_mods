@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"@floating-ui/dom": "^1.7.5",
 		"glightbox": "^3.3.1"
 	}
 }

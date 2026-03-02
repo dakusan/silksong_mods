@@ -33,25 +33,25 @@ file_put_contents('./Assets/ItemFinder.json', GenerateItemFinder());
 print "Generated all files\n";
 exit(0);
 
-function GenerateJson($Data)
+function GenerateJson($Data): string
 {
 	global $CompactJSON;
 	if($CompactJSON)
 		return json_encode($Data, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
 
 	$Data=json_encode($Data, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
-	for($Count=1; $Count!=0; $Data=preg_replace('/^(\t*)    /m', "\\1\t", $Data, -1, $Count)); //Replace 4 space indents to tabs
+	/** @noinspection PhpStatementHasEmptyBodyInspection */
+	for($Count=1; $Count!=0; $Data=preg_replace('/^(\t*) {4}/m', "\\1\t", $Data, -1, $Count)); //Replace 4 space indents to tabs
 	return preg_replace('/([^{[,])\n/', "\$1,\n", $Data); //Add trailing commas
 }
 
-function GenerateCategories()
+function GenerateCategories(): string
 {
 	//Get the category groups
 	$CatGroupTitlesByID=QueryKVP('SELECT ID, Title FROM CategoryGroups ORDER BY OrderNum ASC');
 	$CatGroups=array_fill_keys(array_values($CatGroupTitlesByID), []);
 
 	//Fill in the categories
-	$CatOrder=['Order', 'IconID', 'Title'];
 	foreach(Query('SELECT ID, CategoryGroupID, OrderNum, IconID, Title FROM Categories ORDER BY ID ASC') as $Row) {
 		$NewItem=(object)[
 			'Order'=>(int)$Row->OrderNum,
@@ -64,7 +64,7 @@ function GenerateCategories()
 	return GenerateJson($CatGroups);
 }
 
-function GenerateItems()
+function GenerateItems(): string
 {
 	//Put together the structured item links by set, group, and order
 	$StaticLinks=QueryKVP('SELECT ID, Name, Special, AllowOn FROM StaticLinks');
@@ -154,12 +154,11 @@ function GenerateItems()
 			$NewItem->Store=$Stores[$Row->ID];
 		else
 			unset($NewItem->Store);
-		foreach(['ImageURLs'=>&$ImageURLs, 'OtherLinks'=>&$OtherLinks] as $VarName => &$Arr)
+		foreach(['ImageURLs'=>&$ImageURLs, 'OtherLinks'=>&$OtherLinks] as $VarName => $Arr)
 			if(isset($Arr[$Row->ID]))
 				$NewItem->$VarName=$Arr[$Row->ID];
 			else
 				unset($NewItem->$VarName);
-		unset($Arr);
 
 		//Compact JSON
 		if(!$CompactJSON)
@@ -174,9 +173,11 @@ function GenerateItems()
 }
 
 //Compile structured requirements, notes, and reward
-function CompileSet($Set, $StaticLinks, $FieldName)
+/** @throws Exception */
+function CompileSet($Set, $StaticLinks, $FieldName): string
 {
 	//Add and check flags
+	/** @throws Exception */
 	$AddFlag=function($Flag) use (&$ItemFlags, $FieldName) {
 		$ItemFlags[]=$Flag;
 		if(in_array($FieldName, ['Needs', 'Rewards']) && $Flag=='@')
@@ -244,7 +245,7 @@ function CompileSet($Set, $StaticLinks, $FieldName)
 				else
 					continue;
 
-				//Make sure first character of item will not interfeer with the flags
+				//Make sure first character of item will not interfere with the flags
 				$ItemFlags=implode('', $ItemFlags);
 				$ItemFlagChar=ord($ItemFlags[-1] ?? chr(0));
 				$ItemValChar=ord($ItemVals[0]);
@@ -258,20 +259,20 @@ function CompileSet($Set, $StaticLinks, $FieldName)
 			$Groups[$GroupIndex]=implode('`', $Items);
 	}
 
-	if(count($Groups)>1 &&  in_array($FieldName, ['Rewards']))
+	if(count($Groups)>1 && in_array($FieldName, ['Rewards']))
 		throw new Exception('cannot have multiple set groups');
 
 	return implode('|', $Groups).$ExtraEnd;
 }
 
 //Compact a double from a string
-function GetDouble($Str)
+function GetDouble($Str): float
 {
 	global $CompactJSON;
 	return (double)(!$CompactJSON ? $Str : preg_replace('/(\.\d{5})\d+/', '\1', $Str));
 }
 
-function GenerateMisc()
+function GenerateMisc(): string
 {
 	//Gather the StaticLinks and StaticLinkItems
 	$StaticLinkNames=[];
@@ -324,14 +325,14 @@ function GenerateMisc()
 		'/\n\t\t\t/'=> ' ' , //Combine item lists into 1 row
 		'/\n\t\t]/' => ']' , //Move item list end bracket onto item row
 		'/\[ "/'	=> '["', //Remove extra space at beginning of item lists
-		'/(\n\t\"StaticLinks)/' => "\n\t//Lists coorespond to IDs from Items.json. Single numbers are from Categories.json\\1",
+		'/(\n\t\"StaticLinks)/' => "\n\t//Lists correspond to IDs from Items.json. Single numbers are from Categories.json\\1",
 	];
 	$Out=preg_replace(array_keys($Replacements), array_values($Replacements), $Out);
 	return $Out;
 }
 
 //Generate Matched Icons
-function GenerateItemFinder()
+function GenerateItemFinder(): string
 {
 	$IgnorePlayerNamedValues=$MatchedIcons=[];
 	foreach(Query('SELECT Name FROM IgnorePlayerNamedValues ID ORDER BY Name') as $Row)

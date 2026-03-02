@@ -1,4 +1,4 @@
-<html>
+<html lang=en>
 <head>
 	<title>Chain System: Dependency Graph</title>
 	<link rel="stylesheet" href="DGraph.css">
@@ -29,15 +29,12 @@ ORDER BY ID ASC') as $Row) {
 }
 
 $StaticLinks=[];
-foreach(Query('SELECT ID, Name, Special FROM StaticLinks ORDER BY ID Asc') as $Row)
+foreach(Query('SELECT ID, Name, Special FROM StaticLinks ORDER BY ID ASC') as $Row)
 	$StaticLinks[$Row->ID]=(array)$Row;
 
-function FixList($Row, $FieldName)
+function FixList($Row, $FieldName): void
 {
-	if(!isset($Row->$FieldName))
-		unset($Row->$FieldName);
-	else
-		$Row->$FieldName=explode(', ', $Row->$FieldName);
+	$Row->$FieldName=explode(', ', $Row->$FieldName);
 }
 
 //***************************************************IMPORTANT NOTE: THE BELOW CODE IS 100% GROK GENERATED AND HAS NOT BEEN CHECKED. I JUST NEEDED IT FOR A SCREENSHOT***************************************************
@@ -62,10 +59,10 @@ foreach ($nodes as $id => $data) {
 		foreach ($data[$field] as $link) {
 			$orig_link = $link;
 			$flag = '';
-			if (strpos($link, '!') === 0) {
+			if (str_starts_with($link, '!')) {
 				$flag = '!';
 				$link = substr($link, 1);
-			} elseif (strpos($link, '~') === 0) {
+			} elseif (str_starts_with($link, '~')) {
 				$flag = '~';
 				$link = substr($link, 1);
 			}
@@ -143,7 +140,7 @@ function find_uf(&$parent_uf, $x) {
 	if ($parent_uf[$x] != $x) $parent_uf[$x] = find_uf($parent_uf, $parent_uf[$x]);
 	return $parent_uf[$x];
 }
-function union_uf(&$parent_uf, $x, $y) {
+function union_uf(&$parent_uf, $x, $y): void {
 	$px = find_uf($parent_uf, $x); $py = find_uf($parent_uf, $y);
 	if ($px != $py) $parent_uf[$px] = $py;
 }
@@ -170,7 +167,7 @@ usort($comp_sizes, function($a, $b) {
 // Render
 echo '<div class=OrgTag><pre>';
 $subtree_shown = [];
-function print_tree($node, &$subtree_shown, &$nodes, &$graph, &$max_depth, &$primary_parent, &$reverse_graph, &$extra_parents, &$edge_info, $prefix = '', $is_last = true, $current_parent = null) {
+function print_tree($node, &$subtree_shown, &$nodes, &$graph, &$max_depth, &$primary_parent, &$reverse_graph, &$extra_parents, &$edge_info, $prefix = '', $is_last = true, $current_parent = null): void {
 	if (isset($subtree_shown[$node])) {
 		// Show minimal if already shown
 		$branch = $is_last ? '└─ ' : '├─ ';

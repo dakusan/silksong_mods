@@ -132,7 +132,7 @@ export default class Tab
 	/** @param {HTMLElement} $TabSection */
 	ProcessTagGroup($TabSection)
 	{
-		for(const ST of $TabSection.querySelectorAll(":scope > [aria-controls]")) {
+		for(const ST of $TabSection.querySelectorAll("[aria-controls]")) {
 			const NewTab=this.AddSubTab(ST);
 			NewTab.ProcessTagGroup(NewTab.$Contents);
 		}

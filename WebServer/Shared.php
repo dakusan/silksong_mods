@@ -1,5 +1,7 @@
 <?php
-function ErrAndDie(string $User, ?string $Log=null, int $ResponseCode=500)
+use JetBrains\PhpStorm\NoReturn;
+#[NoReturn]
+function ErrAndDie(string $User, ?string $Log=null, int $ResponseCode=500): int
 {
 	global $argv;
 	file_put_contents(__DIR__.'/errors.log', date('Y-m-d H:i:s ').($Log!=null ? "$User: $Log" : $User)."\n", FILE_APPEND|LOCK_EX);
@@ -24,7 +26,7 @@ function GetVariable(string $Name, string $Pattern, int $MaxFieldLen=100): strin
 
 function GetSteamUsername(string $FieldName='Username'): string //SteamName=3-32 characters
 {
-	$Username=GetVariable($FieldName, '/^[^\x00-\x1F\s][^\x00-\x1F\r\n]{2,49}$/uD');
+	$Username=GetVariable($FieldName, '/^[^\x00-\x1F\s][^\x00-\x1F]{2,49}$/uD');
 	return
 		   $Username!='*SILKDEV NO NAME*' ? $Username
 		: 'IP='.substr($_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_REAL_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? 'No IP address', 0, 47);

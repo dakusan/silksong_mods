@@ -80,7 +80,7 @@ CREATE TABLE StaticLinks (
   ID int UNSIGNED NOT NULL AUTO_INCREMENT,
   Name varchar(100) NOT NULL,
   Special varchar(100) NULL,
-  AllowOn enum("All", "ReqOnly", "NeedOnly") CHARACTER SET ascii COLLATE ascii_bin NOT NULL DEFAULT "All",
+  AllowOn enum('All', 'ReqOnly', 'NeedOnly') CHARACTER SET ascii COLLATE ascii_bin NOT NULL DEFAULT 'All',
 
   PRIMARY KEY (ID),
   KEY (Name)
@@ -112,7 +112,7 @@ CREATE TABLE ItemLinkDefs (
   FlagStarted bool NOT NULL DEFAULT false,
   FlagRecommend bool NOT NULL DEFAULT false,
 
-  #These are mutually excluive
+  #These are mutually exclusive
   ItemID int UNSIGNED NULL,
   StaticLinkID int UNSIGNED NULL,
   Name varchar(125) NULL,

@@ -1,0 +1,1 @@
+../node_modules/@floating-ui/dom/dist/floating-ui.dom.browser.min.mjs

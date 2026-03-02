@@ -2,10 +2,12 @@
 require_once(__DIR__.'/Config.php');
 require_once(__DIR__.'/Shared.php');
 
+$Conn=null;
 try {
+	global $Config;
 	$Conn=@new mysqli($Config->Host, $Config->User, $Config->Password, $Config->DBName);
 	if($Conn->connect_errno)
-		throw $mysqli->connect_error;
+		throw $Conn->connect_error;
 } catch(Exception $e) {
 	ErrAndDie('SQL Connection Failed', $e->getMessage());
 }
@@ -43,7 +45,7 @@ function BaseQuery(string $Query, mixed ...$Vars): mysqli_result|bool
 		if(count($QuerySections)!=count($Vars))
 			throw new Exception('Invalid number of vars');
 		foreach($QuerySections as $Index => $QueryPart)
-			$EndQuery.=FormatQueryItem($Conn, $Vars[$Index]).$QueryPart;
+			$EndQuery.=FormatQueryItem($Vars[$Index]).$QueryPart;
 		return $Conn->query($EndQuery);
 	} catch(Exception $e) {
 		ErrAndDie('Query error', "$Query\n$EndQuery\n$e\n".var_export($Vars, true));
@@ -61,14 +63,14 @@ function Query(string $Query, mixed ...$Vars): MysqliResultIterator|int|null
 	return null;
 }
 
-function FormatQueryItem(mysqli $Conn, mixed $Item): string|int
+function FormatQueryItem(mixed $Item): string|int
 {
 	if($Item===null)
 		return 'null';
 	else if(is_int($Item))
-		return (int)$Item;
+		return $Item;
 	else if(is_float($Item))
-		return (float)$Item;
+		return $Item;
 	else if(is_bool($Item))
 		return $Item ? 'true' : 'false';
 	else
