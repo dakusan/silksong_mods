@@ -6,16 +6,12 @@ class TabOverride extends Tab
 {
 	static IgnorePreloadList=['SilksongAnimations.gif'];
 	HasLoaded=false;
-	PreloadedImages=new WeakSet();
+	/** @type {Set<string>} */ PreloadedImageSources=new Set();
+	/** @type {WeakSet<HTMLImageElement>} */ PreloadedImages=new WeakSet();
 	/** @type {import("glightbox").GlightboxInstance} */ LightBox=null;
 	/** @type {PopupUtil[]} */ Popups=[];
 	constructor(Parent, Slug, Title, $Tab, $Contents, Index) {
 		super(Parent, Slug, Title, $Tab, $Contents, Index);
-	}
-	Select(UpdateHashAndTitle=true, AutoSelectFirstChild=true)
-	{
-		super.Select(UpdateHashAndTitle, AutoSelectFirstChild);
-		document.getElementById('ContentsFrame').classList.toggle("FullBleed", this.Title!=="Description");
 	}
 
 	//Prep new tab and its contents when first viewable
@@ -47,11 +43,12 @@ class TabOverride extends Tab
 		for(const CurImage of this.$Contents.querySelectorAll("img"))
 			if(!CurImage.complete && !(CurImage.naturalWidth>0)) {
 				const Src=CurImage.currentSrc || CurImage.getAttribute("src");
-				if(TabOverride.IgnorePreloadList.indexOf(Src.substring(Src.lastIndexOf('/')+1))!==-1)
+				if(TabOverride.IgnorePreloadList.indexOf(Src.substring(Src.lastIndexOf('/')+1))!==-1 || this.PreloadedImageSources.has(Src))
 					continue;
 				const Img=new Image();
 				Img.decoding="async";
 				Img.src=Src;
+				this.PreloadedImageSources.add(Src);
 				this.PreloadedImages.add(Img);
 			}
 
@@ -78,6 +75,7 @@ class TabOverride extends Tab
 			}),
 			loop:true, touchNavigation:true, keyboardNavigation:true,
 		});
+		//NOTE: glightbox currently has a bug where looping when swiping does not work. The .js file must be manually changed to fix this as everything is private within a scope.
 
 		const ImageListener=this.OpenLightbox.bind(this);
 		for(const CurImage of Images)
@@ -85,4 +83,6 @@ class TabOverride extends Tab
 	}
 	OpenLightbox(e) { this.LightBox.openAt(Number(e.currentTarget.dataset.imageIndex)); }
 }
-Tab.InitRoot(/** @type {Tab} */ window.RootTab=new TabOverride(null, null, document.title, null, null));
+document.addEventListener("DOMContentLoaded", () =>
+	Tab.InitRoot(/** @type {Tab} */ window.RootTab=new TabOverride(null, null, document.title, null, null))
+);

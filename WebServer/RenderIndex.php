@@ -54,9 +54,17 @@ foreach($Matches[0] as $Match)
 	print $Match;
 ?>
 <link rel=stylesheet href="IndexAssets/Index.css" />
-<link rel=stylesheet href="IndexAssets/glightbox.css" />
+<script type=importmap>
+{
+	"imports": {
+		"@floating-ui/core": "./IndexAssets/floating-ui.core.browser.min.mjs",
+		"@floating-ui/dom": "./IndexAssets/floating-ui.dom.browser.min.mjs"
+	}
+}
+</script>
+<script type="module" src="./IndexAssets/Index.js"></script>
 </head><body>
-<div role="tablist" class="Tabs TopBoxes" aria-label="Projects" id=RootTabs>
+<div role="tablist" class="Tabs TopBoxes HasMaxWidth" aria-label="Projects" id=RootTabs>
 <? foreach($Projects as $ProjectName => $PData) { ?>
 	<button role=tab class=Tab id=tab-<?=$PData->Slug?> data-title="<?=htmlentities($PData->ShortName)?>" aria-controls=panel-<?=$PData->Slug?>>
 		<div class=TabLogo><img src="https://static.castledragmire.com/silksong/<?=$ProjectName?>/<?=$ProjectName?>LogoThumb.png" alt="<?=$PData->Name?> Logo" /></div>
@@ -66,7 +74,7 @@ foreach($Matches[0] as $Match)
 </div>
 <div class="Links" aria-label="Links Sections">
 <? foreach($Projects as $ProjectName => $PData) { ?>
-	<div class='Boxes TopBoxes' id=panel-<?=$PData->Slug?> aria-labelledby=tab-<?=$PData->Slug?>>
+	<div class="Boxes TopBoxes HasMaxWidth" id=panel-<?=$PData->Slug?> aria-labelledby=tab-<?=$PData->Slug?>>
 		<a class=Tab href="https://www.nexusmods.com/hollowknightsilksong/mods/<?=$PData->NexusID?>">Nexus Mods: <?=$PData->ShortName?></a>
 		<button role=tab class=Tab id=tab-<?=$PData->Slug?>-Description aria-controls=panel-<?=$PData->Slug?>-Description>Description</button>
 <? if(isset($PData->Pictures)) { ?>
@@ -91,13 +99,13 @@ foreach($Matches[0] as $Match)
 	</div>
 <? } ?>
 </div>
-<div id=ContentsFrame><div id=Contents>
+<div id=Contents>
 <? foreach($Projects as $ProjectName => $PData) { ?>
-	<div role=tabpanel class=TabContents id=panel-<?=$PData->Slug?>-Description aria-labelledby=tab-<?=$PData->Slug?>-Description>
+	<div role=tabpanel class="TabContents Description HasMaxWidth" id=panel-<?=$PData->Slug?>-Description aria-labelledby=tab-<?=$PData->Slug?>-Description>
 		<?=ProcessHTMLFile($PData->HTML)?>
 	</div>
 	<? if(isset($PData->Pictures)) { ?>
-	<div role=tabpanel class="TabContents Pictures" id=panel-<?=$PData->Slug?>-Pictures aria-labelledby=tab-<?=$PData->Slug?>-Pictures>
+	<div role=tabpanel class="TabContents Pictures HasMaxWidth" id=panel-<?=$PData->Slug?>-Pictures aria-labelledby=tab-<?=$PData->Slug?>-Pictures>
 		<img src="https://static.castledragmire.com/silksong/<?=$ProjectName?>/Thumbs/Background.jpg" loading="lazy" decoding="async" alt="<?=$PData->ShortName?> Background" class="BackgroundImage DisplayImage" data-image-index=<?=count((array)$PData->Pictures)?>>
 		<div class=LogoGrid>
 			<? $i=0; foreach($PData->Pictures as $FileName => $Description) { ?>
@@ -114,7 +122,7 @@ foreach($Matches[0] as $Match)
 		</div>
 	</div>
 	<? } if(isset($PData->Videos)) { ?>
-	<div role=tabpanel class="TabContents Videos" id=panel-<?=$PData->Slug?>-Videos aria-labelledby=tab-<?=$PData->Slug?>-Videos>
+	<div role=tabpanel class="TabContents Videos HasMaxWidth" id=panel-<?=$PData->Slug?>-Videos aria-labelledby=tab-<?=$PData->Slug?>-Videos>
 		<div class=LogoGrid>
 			<? $i=0; foreach($PData->Videos as $FileName => $VData) { ?>
 			<div class=LogoCard>
@@ -131,22 +139,13 @@ foreach($Matches[0] as $Match)
 		</div>
 	</div>
 	<? } foreach(($PData->Articles ?? []) as $Article) { $ArticleSlug=$PData->Slug.'-Article_'.CreateSlug($Article->FileName); ?>
-		<div role=tabpanel class="TabContents Article" id=panel-<?=$ArticleSlug?> aria-labelledby=tab-<?=$ArticleSlug?>>
+		<div role=tabpanel class="TabContents Article HasMaxWidth" id=panel-<?=$ArticleSlug?> aria-labelledby=tab-<?=$ArticleSlug?>>
 			<div class=Title><?=htmlentities($Article->Title)?></div>
 			<div class=Date><?=htmlentities($Article->Date)?></div>
 			<div class=ArticleContents><?=ProcessHTMLFile(file_get_contents("IndexAssets/HTMLRenders/$ProjectName.Article.$Article->FileName.html"), 'panel-'.$ArticleSlug)?></div>
 		</div>
 	<? } ?>
 <? } ?>
-</div></div>
+</div>
 </body>
-<script type=importmap>
-{
-	"imports": {
-		"@floating-ui/core": "./IndexAssets/floating-ui.core.browser.min.mjs",
-		"@floating-ui/dom": "./IndexAssets/floating-ui.dom.browser.min.mjs"
-	}
-}
-</script>
-<script type="module" src="./IndexAssets/Index.js"></script>
 </html>

@@ -1,12 +1,24 @@
-/* Add extra spacing for content padding */
-html body { max-width:1060px; padding:20px clamp(0px, calc((100vw - 1060px) / 2), 120px); overflow-x:hidden; }
+@import "./glightbox.css";
+
+/* Fix content padding */
+html body { max-width:1300px; padding:20px 0; margin:0 auto; overflow-x:hidden; }
+.TopBoxes { --my-max-width:1060px; }
+.TabContents { --my-max-width:1280px; }
+.TabContents.Description { --my-max-width:1060px; }
+
+.HasMaxWidth {
+	box-sizing:border-box;
+	--new-width:min(var(--my-max-width), calc(100% - 20px));
+	width:var(--new-width); margin-inline:calc((100% - var(--new-width))/2);
+}
+@media (max-width:480px) { .HasMaxWidth { --new-width:100%; } }
 
 /* Visibility of tabs content sections */
 .TabContents:not(.Selected), .TopBoxes.Boxes:not(.Selected) { display:none; }
 
 /* Button trays */
 .TopBoxes {
-	display:flex; flex-wrap:wrap; gap:10px; margin:0 0 14px 0; padding:10px; border:1px solid rgba(255, 255, 255, 0.10); border-radius:12px;
+	display:inline-flex; flex-wrap:wrap; gap:10px; margin-bottom:14px; padding:10px; border:1px solid rgba(255, 255, 255, 0.10); border-radius:12px;
 	background:rgba(0, 0, 0, 0.25);
 }
 @media (max-width: 800px) { .TopBoxes { justify-content:center; } } /* Note: This value will need to be adjusted for the width of all the buttons */
@@ -27,8 +39,8 @@ button.Tab { display:flex; align-items:center; gap:12px; }
 a.Tab, div.Tab { min-height:inherit; }
 
 /* HTML Contents sections */
-#Contents {
-	padding:14px 19px; border:1px solid rgba(255, 255, 255, 0.10); border-radius:14px;
+.TabContents {
+	display:inline-block; padding:14px 19px; border:1px solid rgba(255, 255, 255, 0.10); border-radius:14px;
 	background:rgba(0, 0, 0, 0.20);
 }
 .TabContents.Selected { animation:TabFade 120ms ease-out; }
@@ -59,9 +71,6 @@ a.Tab, div.Tab { min-height:inherit; }
 }
 
 /* Pictures */
-.FullBleed { margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw); }
-.FullBleed>* { width:min(1240px, calc(100vw - 80px)); margin:0 auto; }
-@media (max-width: 715px) { .FullBleed>* { width:100%; } } /* Note: This value will need to be adjusted for the width of all the buttons */
 .LogoGrid { display:grid; grid-template-columns:repeat(auto-fit, minmax(308px, 1fr)); }
 .LogoCard {
 	position:relative; display:inline-flex; width:300px; height:174px; margin:5px 5px 5px 0; border:1px solid rgba(255, 255, 255, 0.12); border-radius:10px; padding-top:1px;
