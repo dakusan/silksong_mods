@@ -15,7 +15,7 @@ class TabOverride extends Tab
 	Select(UpdateHashAndTitle=true, AutoSelectFirstChild=true)
 	{
 		super.Select(UpdateHashAndTitle, AutoSelectFirstChild);
-		document.getElementById('ContentsFrame').classList.toggle("FullBleed", this.Title==="Pictures" || this.Title==="Videos");
+		document.getElementById('ContentsFrame').classList.toggle("FullBleed", this.Title!=="Description");
 	}
 
 	//Prep new tab and its contents when first viewable

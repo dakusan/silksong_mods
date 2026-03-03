@@ -1,6 +1,6 @@
 <? /** @noinspection PhpShortOpenTagInspection */
 $Projects=(array)json_decode(
-	preg_replace(['/,(\s+[}\]])/', '~^//.*$~m'], ['$1', ''], file_get_contents('IndexAssets/Projects.json'))
+	preg_replace(['/,(\s+[}\]])/', '~^//.*$~m'], ['$1', ''], file_get_contents('./IndexAssets/HTMLRenders/Projects.json'))
 );
 
 function ClearWS(): string { ob_start(); return ''; }
@@ -17,8 +17,27 @@ function CreateSlug($Name): string
 	return trim($Name, '_'); //Trim leading/trailing underscores
 }
 
+function ProcessHTMLFile($HTML, $SectionID=null): string
+{
+	$HTMLSections=explode('</style></details></div>', $HTML, 2); //Split around end of header section
+	$Ret=preg_replace('/<img(\s+)/i', '<img loading=lazy decoding=async$1', $HTMLSections[1]); //Add lazy loading onto all images
+
+	//Include custom styles
+	if($SectionID!==null && count($CustomStylesParts=explode('/* Custom Styles */', $HTMLSections[0], 2))>1)
+		$Ret='<style>'.preg_replace_callback(
+			'/^([^{}]+)\{/m',
+			fn($Matches) => implode(', ', array_map(
+				fn($Str) => "#$SectionID ".trim($Str),
+				preg_split('/, */', $Matches[1])
+			)).' {',
+			trim($CustomStylesParts[1])
+		)."</style>\n$Ret";
+
+	return $Ret;
+}
+
 foreach($Projects as $ProjectName => $PData) {
-	$PData->HTML=file_get_contents(__DIR__."/Assets/$ProjectName.AboutMe.html");
+	$PData->HTML=file_get_contents("./IndexAssets/HTMLRenders/$ProjectName.AboutMe.html");
 	$PData->Slug=CreateSlug($ProjectName);
 }
 ?>
@@ -28,14 +47,12 @@ foreach($Projects as $ProjectName => $PData) {
 	<title>Silksong Mods by Dakusan</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<style>
 <?
 //Output the stylesheet from Pharloom Atlas
-preg_match_all('/<style\b[^>]*>(.*?)<\/style>/is', $Projects['PharloomAtlas']->HTML, $Matches);
-foreach($Matches[1] as $Match)
+preg_match_all('/<style\b[^>]*>.*?<\/style>/is', $Projects['PharloomAtlas']->HTML, $Matches);
+foreach($Matches[0] as $Match)
 	print $Match;
 ?>
-</style>
 <link rel=stylesheet href="IndexAssets/Index.css" />
 <link rel=stylesheet href="IndexAssets/glightbox.css" />
 </head><body>
@@ -60,7 +77,7 @@ foreach($Matches[1] as $Match)
 		<div class="Tab MenuContainer" role=menu>
 			Articles
 			<div class=MenuPopup>
-				<? foreach($PData->Articles as $Article) { $ArticleSlug=CreateSlug($Article->File); ?>
+				<? foreach(array_reverse($PData->Articles) as $Article) { $ArticleSlug=CreateSlug($Article->FileName); ?>
 					<a role=tab class="Tab Article" id=tab-<?=$PData->Slug?>-Article_<?=$ArticleSlug?> aria-controls=panel-<?=$PData->Slug?>-Article_<?=$ArticleSlug?>>
 						<div class=Title><?=htmlentities($Article->Title)?></div>
 						<div class=Date><?=htmlentities($Article->Date)?></div>
@@ -75,9 +92,9 @@ foreach($Matches[1] as $Match)
 <? } ?>
 </div>
 <div id=ContentsFrame><div id=Contents>
-<? $PrintAfter='</style></details></div>'; foreach($Projects as $ProjectName => $PData) { ?>
+<? foreach($Projects as $ProjectName => $PData) { ?>
 	<div role=tabpanel class=TabContents id=panel-<?=$PData->Slug?>-Description aria-labelledby=tab-<?=$PData->Slug?>-Description>
-		<?=preg_replace('/<img(\s+)/i', '<img loading=lazy decoding=async$1', substr($PData->HTML, strpos($PData->HTML, $PrintAfter)+strlen($PrintAfter)))?>
+		<?=ProcessHTMLFile($PData->HTML)?>
 	</div>
 	<? if(isset($PData->Pictures)) { ?>
 	<div role=tabpanel class="TabContents Pictures" id=panel-<?=$PData->Slug?>-Pictures aria-labelledby=tab-<?=$PData->Slug?>-Pictures>
@@ -113,9 +130,11 @@ foreach($Matches[1] as $Match)
 			<? } ?>
 		</div>
 	</div>
-	<? } foreach(($PData->Articles ?? []) as $Article) { $ArticleSlug=CreateSlug($Article->File); ?>
-		<div role=tabpanel class="TabContents Article" id=panel-<?=$PData->Slug?>-Article_<?=$ArticleSlug?> aria-labelledby=tab-<?=$PData->Slug?>-Article_<?=$ArticleSlug?>>
-			<?=$Article->File?> :: <?=$Article->Title?>
+	<? } foreach(($PData->Articles ?? []) as $Article) { $ArticleSlug=$PData->Slug.'-Article_'.CreateSlug($Article->FileName); ?>
+		<div role=tabpanel class="TabContents Article" id=panel-<?=$ArticleSlug?> aria-labelledby=tab-<?=$ArticleSlug?>>
+			<div class=Title><?=htmlentities($Article->Title)?></div>
+			<div class=Date><?=htmlentities($Article->Date)?></div>
+			<div class=ArticleContents><?=ProcessHTMLFile(file_get_contents("IndexAssets/HTMLRenders/$ProjectName.Article.$Article->FileName.html"), 'panel-'.$ArticleSlug)?></div>
 		</div>
 	<? } ?>
 <? } ?>

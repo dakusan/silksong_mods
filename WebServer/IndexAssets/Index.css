@@ -1,3 +1,6 @@
+/* Add extra spacing for content padding */
+html body { max-width:1060px; padding:20px clamp(0px, calc((100vw - 1060px) / 2), 120px); overflow-x:hidden; }
+
 /* Visibility of tabs content sections */
 .TabContents:not(.Selected), .TopBoxes.Boxes:not(.Selected) { display:none; }
 
@@ -25,7 +28,7 @@ a.Tab, div.Tab { min-height:inherit; }
 
 /* HTML Contents sections */
 #Contents {
-	padding:14px 16px; border:1px solid rgba(255, 255, 255, 0.10); border-radius:14px;
+	padding:14px 19px; border:1px solid rgba(255, 255, 255, 0.10); border-radius:14px;
 	background:rgba(0, 0, 0, 0.20);
 }
 .TabContents.Selected { animation:TabFade 120ms ease-out; }
@@ -84,6 +87,12 @@ a.Tab, div.Tab { min-height:inherit; }
 .LogoCard:hover::before { opacity:1; }
 .DisplayImage { cursor:pointer; }
 
+/* Articles */
+.Tab.Article .Title { font-weight:bold; }
+.Tab.Article .Date { padding-top:3px; font-size:65%; }
+.TabContents.Article .Title { font-size:29px; font-weight:700; }
+.TabContents.Article .Date { display:block; margin-bottom:12px; font-size:13px; font-weight:500; color:#666; }
+
 /* Popup menu */
 body:has(.MenuPopup.FullScreen) { overflow:hidden; } /* Fullscreen popup needs to turn off background scrolling */
 .Tab.MenuContainer:active { transform:none; }
@@ -93,7 +102,7 @@ body:has(.MenuPopup.FullScreen) { overflow:hidden; } /* Fullscreen popup needs t
 .MenuPopup {
 	position:fixed; display:inline-block; box-sizing:border-box; width:auto; max-width:300px;
 	padding:10px; border:1px solid rgba(255, 255, 255, 0.10); border-radius:12px;
-	background:rgba(0, 0, 0, 0.85); overflow-x:hidden; overflow-y:auto; z-index:100;
+	background:rgba(0, 0, 0, 0.95); overflow-x:hidden; overflow-y:auto; z-index:100;
 }
 .MenuPopup.FullScreen {
 	position:fixed; inset:0; top:0 !important; left:0 !important; width:100%; height:100dvh; max-width:none; overflow-x:hidden; overflow-y:auto;
@@ -106,8 +115,6 @@ body:has(.MenuPopup.FullScreen) { overflow:hidden; } /* Fullscreen popup needs t
 .MenuPopup.FullScreen .PopupClose { display:block; }
 .MenuPopup .PopupClose:hover { color:#cccc !important; }
 .MenuPopup .Tab { display:block; border-radius:0; white-space:normal; }
-.Tab.Article .Title { font-weight:bold; }
-.Tab.Article .Date { padding-top:3px; font-size:65%; }
 
 /* Lightbox */
 body .glightbox-clean .gslide-description { position:relative; background-color:transparent; }
