@@ -83,7 +83,7 @@ foreach($Matches[0] as $Match)
 		<button role=tab class=Tab id=tab-<?=$PData->Slug?>-Videos aria-controls=panel-<?=$PData->Slug?>-Videos>Videos</button>
 <? } if(isset($PData->Articles)) { ?>
 		<div class="Tab MenuContainer" role=menu>
-			Articles
+			Articles ☰
 			<div class=MenuPopup>
 				<? foreach(array_reverse($PData->Articles) as $Article) { $ArticleSlug=CreateSlug($Article->FileName); ?>
 					<a role=tab class="Tab Article" id=tab-<?=$PData->Slug?>-Article_<?=$ArticleSlug?> aria-controls=panel-<?=$PData->Slug?>-Article_<?=$ArticleSlug?>>
@@ -93,9 +93,13 @@ foreach($Matches[0] as $Match)
 				<? } ?>
 			</div>
 		</div>
+<? } foreach($PData->Links ?? [] as $LinkName => $LinkLocation) {
+	if($LinkLocation==='') { ?>
+		<a class="Tab Disabled"><span>Coming<br>soon</span><?=htmlentities($LinkName)?></a>
+	<? } else { ?>
+		<a class=Tab href="<?=htmlentities($LinkLocation)?>"><?=htmlentities($LinkName)?></a>
+	<? } ?>
 <? } ?>
-		<a class="Tab Disabled"><span>Coming<br>soon</span>Github</a>
-		<a class="Tab Disabled"><span>Coming<br>soon</span>Download</a>
 	</div>
 <? } ?>
 </div>

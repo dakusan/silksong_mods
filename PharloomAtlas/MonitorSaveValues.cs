@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
@@ -459,6 +460,15 @@ public class MonitorSaveValues
 			HttpResponseMessage Response=await Client.GetAsync(Url);
 			_=Response.EnsureSuccessStatusCode();
 			return await Response.Content.ReadAsStringAsync();
+		} catch(HttpRequestException HRE) {
+			SocketException? SE=
+				   HRE.InnerException as System.Net.Sockets.SocketException
+				?? HRE.InnerException?.InnerException as System.Net.Sockets.SocketException;
+			return SE==null ? HRE.ToString() :
+				 $"HttpRequestException: {HRE.Message}\n"
+				+$"SocketException: {SE.SocketErrorCode} ({SE.ErrorCode})\n"
+				+$"NativeErrorCode: {SE.NativeErrorCode}\n"
+				+$"SocketMessage: {SE.Message}";
 		} catch(Exception e) {
 			return e.Message;
 		}
