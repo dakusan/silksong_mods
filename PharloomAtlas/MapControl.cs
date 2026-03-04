@@ -1,5 +1,6 @@
 using SilkDev;
 using SilkDev.DevInput.Mouse;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -321,6 +322,7 @@ public class MapControl : SilkDev.Windows.Window
 			}
 
 		HornetIconAnimators.Run();
+		MyMover?.OnFrame();
 	}
 
 	//Zoom in or out
@@ -400,7 +402,7 @@ public class MapControl : SilkDev.Windows.Window
 
 	//Move map to center over your character
 	public  void CenterOverCharacter () => Misc.IFF(GameMap!=null, CenterOverCharacterI);
-	private void CenterOverCharacterI() => MapPos=CharacterPositionI;
+	private void CenterOverCharacterI() => MoveTo(CharacterPositionI);
 
 	//Get character position
 	public   Vector2 CharacterPosition  => GameMap!=null ? CharacterPositionI : Vector2.zero;
@@ -443,8 +445,8 @@ public class MapControl : SilkDev.Windows.Window
 	public   void SelectAndCenterItem (int ItemID) => Misc.IFF(GameMap!=null, () => SelectAndCenterItemI(ItemID));
 	internal void SelectAndCenterItemI(int ItemID, bool IsStackMove=false)
 	{
-		Item I=DS.Items.Get(ItemID) ?? throw new System.ArgumentOutOfRangeException("ItemID");
-		MapPos=I.Pos;
+		Item I=DS.Items.Get(ItemID) ?? throw new ArgumentOutOfRangeException("ItemID");
+		MoveTo(I.Pos);
 		SelectItemI(I, IsStackMove);
 		I.MapIcon?.IconGO?.SetActive(true); //Force the icon to be visible
 	}
@@ -629,4 +631,43 @@ public class MapControl : SilkDev.Windows.Window
 	//Reflecter stuff
 	private T QuickField<T>(string FieldName) => QuickFieldT<T>(FieldName).Get();
 	private Reflectors.RField<GameMap, T> QuickFieldT<T>(string FieldName) => new(GameMap, FieldName);
+
+	//Animated moves
+	private void MoveTo(Vector2 Pos)
+	{
+		MyMover?.Cancel();
+		MyMover=new Mover(Pos, TimeSpan.FromSeconds(Conf.AutoPanTime));
+	}
+	private Mover? MyMover=null;
+	private class Mover(Vector2 EndPos, TimeSpan Duration)
+	{
+		public readonly DateTime StartTime=DateTime.UtcNow;
+		public readonly float Duration=(float)Duration.TotalSeconds;
+		public readonly Vector2 Start=Self.MapPos, End=EndPos;
+		private readonly float EasePow=Config.C.AutoPanEase;
+		private Vector2 CurPos=Self.MapPos;
+		private bool IsComplete=false;
+		private static float Ease(float T, float Pow=4) => (float)(T<0.5 ? 0.5*Mathf.Pow(2*T, Pow) : 1-0.5*Mathf.Pow(2*(1-T), Pow));
+		internal void OnFrame()
+		{
+			//Make sure nothing else caused a move
+			if(!Mathf.Approximately(CurPos.x, Self.MapPos.x) || !Mathf.Approximately(CurPos.y, Self.MapPos.y)) {
+				Cancel();
+				return;
+			}
+
+			//Update our position
+			float LinearProgressPoint=Mathf.Min((float)(DateTime.UtcNow-StartTime).TotalSeconds/Duration, 1);
+			Self.MapPos=CurPos=Vector2.LerpUnclamped(Start, End, Ease(LinearProgressPoint, EasePow));
+			if(LinearProgressPoint>=1)
+				Cancel();
+		}
+		public void Cancel()
+		{
+			if(IsComplete)
+				return;
+			IsComplete=true;
+			Self.MyMover=null;
+		}
+	}
 }

@@ -13,7 +13,7 @@ public class Config
 	public readonly PerSaveConfig PSC;
 	public readonly ConfigEntryT<string> CategoryToggleStates, MarkerLabels;
 	public readonly ConfigEntryT<bool> UnlockMap, UnlockMapBounds, ShowSidebarOnGameLoad, ShowSideBarPictures, ShowMouseWhenSBVisible, MarkerZoomDoesntMove, IconSizeScalesWithZoom, AutoMap, MoreMarkers, AlwaysShowMarkerLabels, ForceDisplayCompass, HornetSpinningClockwise, HornetRevolvingClockwise, MapInAbyss, MapInAbyssUnspoiled, AnonymousSubmissions, UseErrorLog, UseErrorLogSend;
-	public readonly ConfigEntryT<float> ZoomSpeed, PanSpeed, MarkerPanSpeed, IconSize, QueryTime_PersistentObj, QueryTime_PlayerData, HornetHighlightSpeed, HornetRainbow2WaitTime, HornetRainbow2RunTime, HornetGrowingMax, HornetRevolvingDist, HornetRainbow1Scale, HornetRainbow1Angle;
+	public readonly ConfigEntryT<float> ZoomSpeed, PanSpeed, MarkerPanSpeed, IconSize, AutoPanEase, AutoPanTime, QueryTime_PersistentObj, QueryTime_PlayerData, HornetHighlightSpeed, HornetRainbow2WaitTime, HornetRainbow2RunTime, HornetGrowingMax, HornetRevolvingDist, HornetRainbow1Scale, HornetRainbow1Angle;
 	public readonly ConfigEntryT<int> SideBarWidth;
 	public readonly ConfigEntryTKeyboardShortcut Shortcut_ZoomIn, Shortcut_ZoomOut, Shortcut_CenterOverChar, Shortcut_ToggleSideBar, Shortcut_EditMarkerLabel, Shortcut_SaveValueWindow, Shortcut_Val_ScrollUp, Shortcut_Val_ScrollDown;
 	public readonly ConfigEntryTKeyboardShortcut Shortcut_SB_Up, Shortcut_SB_Down, Shortcut_SB_Left, Shortcut_SB_Right, Shortcut_SB_ToggleItem, Shortcut_SelStack_Next, Shortcut_SelStack_Prev, Shortcut_SB_SelectIcon;
@@ -54,6 +54,8 @@ public class Config
 		IconSizeScalesWithZoom	=Con.Bind(Title, "Icon/Marker size scales with zoom",		true, "If true icons will always stay the same size at any zoom.", IsAdvanced);
 		Color_FoundIcon			=Con.Bind(Title, "Found icon color*",						new Color(.5f, 0, .5f, .75f), "When in “All” mode for a category, found icons are tinted this color.\nRGB is actually HSV [Hue Saturation Lightness], unless the shader fails to load, in which case, it really is RGB.", IsAdvanced);
 		Shortcut_EditMarkerLabel=Con.Bind(Title, "Shortcut: Edit Marker Label",				new KeyboardShortcut(KeyCode.KeypadPeriod));
+		AutoPanEase				=Con.Bind(Title, "Autopan ease",							2.5f, AVR(1f, 5f, "The autopan ease formula multiplier. This is used when the map is animated panning to an an icon.", IsAdvanced));
+		AutoPanTime				=Con.Bind(Title, "Autopan time",							1.75f, AVR(0.1f, 3f, "The time it takes the autopan to move between points. This is used when the map is animated panning to an an icon.", IsAdvanced));
 		HornetRevolvingDist		=Con.Bind(Title, "Hornet marker: Revolving: Distance",		.1f, AVR(.02f, 1f, "The distance of the revolutions", IsAdvanced));
 		HornetRevolvingClockwise=Con.Bind(Title, "Hornet marker: Revolving: Is Clockwise",	true, "The direction of the revolving", IsAdvanced);
 		HornetGrowingMax		=Con.Bind(Title, "Hornet marker: Growing: Max Size",		0.5f, AVR(0.2f, 5f, "The largest the growing effect gets", IsAdvanced));
