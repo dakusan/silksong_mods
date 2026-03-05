@@ -1,25 +1,64 @@
+import $ from "jquery"
 import { StatStr } from "./SharedClasses"
+import { Share } from "./Share"
 
 const LTChar='\uEE04', RTChar='\uEE05';
-const RegEx_LinkID=/<LinkID=(?:\\")?([^ ">]+)(?:\\")?>(.*?)<\/LinkID>/sg;
-const RegEx_Color=/<color=(#?\w+)>((?:(?!<color\b)[\s\S])*?)<\/color>/g;
+const RegEx_LinkID=/<LinkID=(?:\\")?([^ ">]+)(?:\\")?>(.*?)<\/LinkID>/isg;
+const RegEx_Color=/<color=(#?\w+)>((?:(?!<color\b)[\s\S])*?)<\/color>/ig;
 const RegEx_Attr=/<ATTR=([-.\w]+)>(.*?)<\/ATTR>/ig;
-const RegEx_SafeTags=/<\/?(?:b|i|u|s|strong|em|ins|del|size(?:=-?\d+)?)>/g;
+const RegEx_SafeTags=/<\/?(?:b|i|u|s|strong|em|ins|del|size(?:=-?\d+)?)>/ig;
 const RegEx_LTGT=/[<>]/g;
 const RegEx_LTGTChar=new RegExp(`[${LTChar}${RTChar}]`, "g");
 
 export default class LinkedLabel
 {
 	public readonly RenderedContents:string;
+	public readonly $Content=$('<div>');
+	private HasInitialized=false;
 
 	constructor(
-		public readonly StartContents:string
+		public readonly StartContents:string,
 	) {
 		let Ret=StartContents.replace(RegEx_LTGTChar, '\uE000'); //If used, change our private range escape characters to the character at the start of the private range.
 		Ret=LinkedLabel.UnityRichTextToHTML(Ret);
 		Ret=LinkedLabel.KeepSafeHTMLTags(Ret);
 		Ret=LinkedLabel.FixTags(Ret);
 		this.RenderedContents=Ret;
+	}
+	public Init(Parent:JQuery)
+	{
+		if(this.HasInitialized)
+			return;
+		this.HasInitialized=true;
+
+		Parent.append(this.$Content.html(this.RenderedContents));
+		this.$Content.find('a').each((_, El) => {
+			if(!El.hasAttribute('href'))
+				El.setAttribute('href', '#');
+			else if(!El.getAttribute('href')!.startsWith('#'))
+				return void $(El).attr({target:"_blank", rel:"noopener"});
+
+			$(El).on('click', this.AnchorSelected.bind(this));
+		});
+	}
+
+	private AnchorSelected(Ev:JQuery.ClickEvent)
+	{
+		const Anchor=Ev.currentTarget as HTMLAnchorElement;
+		const ItemID=$(Anchor).attr("data-ItemID");
+		if(!Number.isInteger(Number(ItemID))) {
+			Ev.preventDefault();
+			Ev.stopImmediatePropagation();
+			return;
+		}
+
+		//Only intercept a plain left-click. Let middle-click / ctrl+click / cmd+click / etc. do normal navigation
+		if(Ev.which!==1 || Ev.ctrlKey || Ev.metaKey || Ev.shiftKey || Ev.altKey)
+			return;
+		Ev.preventDefault();
+		Ev.stopImmediatePropagation();
+
+		Share.DS.LinkSelected(Number(ItemID));
 	}
 
 	//Revert our escapes and change < and > to their HTML escaped equivalents

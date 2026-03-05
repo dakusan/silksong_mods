@@ -1,4 +1,4 @@
-import { DevStrings, FriendClass, Iter, Log, Rect, StatStr, Util, Vector2, WillBeSet } from "./SharedClasses"
+import { DevStrings, FriendClass, Iter, Log, PopupMessage, Rect, StatStr, Util, Vector2, WillBeSet } from "./SharedClasses"
 import { Category, CategoryGroup, ChainItem, ChainList, CreateItem, Item, LoadMisc_StaticLink, StaticLink } from "./CategoriesAndItems"
 import { LoadJson } from "./JSON"
 import { MapIcon, Sprite } from "./MapIcon"
@@ -433,6 +433,30 @@ export default class DataStorage
 				Item,
 				this.MyIconSprites.Get(Item.IconID!==-1 ? Item.IconID : this.Categories.get(Item.CategoryID)!.IconID)
 			);
+	}
+
+	public LinkSelected(ID:number|string)
+	{
+		//Convert from a string to an int
+		if(typeof(ID)==="string") {
+			ID=Number.parseInt(ID, 10);
+			if(!Number.isFinite(ID))
+				return;
+		}
+
+		let SelectedObj:StaticLink|Item|undefined;
+		if(StaticLink.IDInRange(ID))
+			if((SelectedObj=this.StaticLinks.get(ID))!==undefined)
+				SelectedObj.Selected();
+			else
+				new PopupMessage("Invalid Static Link ID");
+		else if(Item.IDInRange(ID))
+			if((SelectedObj=this.Items.get(ID))!==undefined)
+				SelectedObj.Selected();
+			else
+				new PopupMessage("Invalid Item ID");
+		else
+			new PopupMessage("Invalid ID");
 	}
 }
 

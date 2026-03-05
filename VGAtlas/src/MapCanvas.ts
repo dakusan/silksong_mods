@@ -1,7 +1,7 @@
 import $ from "jquery"
 import { CallbackList, FriendClass, Util, Vector2, WillBeSet } from "./SharedClasses"
 import { Share } from "./Share"
-const MaxZoomOutRation=4/3; //How much further the map can zoom past 100% fit
+const MaxZoomOutRatio=4/3; //How much further the map can zoom past 100% fit
 
 export default class MapCanvas
 {
@@ -10,7 +10,7 @@ export default class MapCanvas
 	private Image:ImageBitmap=null!;
 	private DRP=1;
 	private X=0; private Y=0;
-	private Scale=1; private MinScale=0.1; private MaxScale=8;
+	private Scale=1; private MinScale=0.1; private MaxScale=8; public get ScaleRange() { return new Vector2(this.MinScale, this.MaxScale); }
 	private MinVisiblePx=32; //Pan clamp config: ensure at least some of the image remains visible
 	private NeedsRedraw=true;
 	public Refresh() { this.NeedsRedraw=true; }
@@ -101,7 +101,7 @@ export default class MapCanvas
 			const ImgLoader=Util.LoadImage(ImageURL);
 			this.Image=await ImgLoader;
 			this.ResizeToWindow();
-			this.Scale=this.MinScale*MaxZoomOutRation;
+			this.Scale=this.MinScale*MaxZoomOutRatio;
 			this.UpdatePosAndScale( //Center bitmap at current scale
 				this.Scale,
 				(this.Width -this.Image.width *this.Scale)/2,
@@ -131,7 +131,7 @@ export default class MapCanvas
 			this.Width /this.Image.width,
 			this.Height/this.Image.height
 		);
-		this.MinScale=FitScale/MaxZoomOutRation;
+		this.MinScale=FitScale/MaxZoomOutRatio;
 		this.UpdatePosAndScale(Math.min(Math.max(this.Scale, this.MinScale), this.MaxScale)); //Ensure current scale respects new bounds
 	}
 
@@ -312,14 +312,14 @@ export default class MapCanvas
 	}
 
 	protected Mover?:Mover=undefined;
-	public CenterOnPoint(Pos:Vector2, Instant=false)
+	public CenterOnPoint(Pos:Vector2, Duration?:number, NewScale?:number)
 	{
 		const NewX=this.Width /2-(Pos.X-this.X);
 		const NewY=this.Height/2-(Pos.Y-this.Y);
-		if(Instant)
-			return void this.UpdatePosAndScale(undefined, NewX, NewY);
+		if((Duration ??= Share.LC.IconCenterTime.V)<=0)
+			return void this.UpdatePosAndScale(NewScale, NewX, NewY);
 		this.Mover?.Cancel();
-		this.Mover=new Mover(new Vector2(this.X, this.Y), new Vector2(NewX, NewY), Share.LC.IconCenterTime.V)
+		this.Mover=new Mover(new Vector2(this.X, this.Y), new Vector2(NewX, NewY), Duration, NewScale)
 	}
 
 	private static readonly FPSAverageOver=2000;
@@ -409,8 +409,15 @@ export default class MapCanvas
 
 	private MapToCanvasCoord(MapV:number, InV:number, Mul:number, Add:number) { return MapV+(InV*Mul+Add)*this.Scale; }
 	private CanvasToMapCoord(MapV:number, InV:number, Mul:number, Add:number) { return ((InV-MapV)/this.Scale-Add)/Mul; }
-	public MapToCanvas(Pos:Vector2) { return new Vector2(this.MapToCanvasCoord(this.X, Pos.X, this.MulX, this.AddX), this.MapToCanvasCoord(this.Y, Pos.Y, this.MulY, this.AddY)); }
-	public CanvasToMap(Pos:Vector2) { return new Vector2(this.CanvasToMapCoord(this.X, Pos.X, this.MulX, this.AddX), this.CanvasToMapCoord(this.Y, Pos.Y, this.MulY, this.AddY)); }
+	private MapToCanvasRel	(Pos:Vector2, RelX:number, RelY:number) { return new Vector2(this.MapToCanvasCoord(RelX, Pos.X, this.MulX, this.AddX), this.MapToCanvasCoord(RelY, Pos.Y, this.MulY, this.AddY)); }
+	private CanvasToMapRel	(Pos:Vector2, RelX:number, RelY:number) { return new Vector2(this.CanvasToMapCoord(RelX, Pos.X, this.MulX, this.AddX), this.CanvasToMapCoord(RelY, Pos.Y, this.MulY, this.AddY)); }
+	public MapToCanvas		(Pos:Vector2) { return this.MapToCanvasRel(Pos, this.X, this.Y		); }
+	public CanvasToMap		(Pos:Vector2) { return this.CanvasToMapRel(Pos, this.X, this.Y		); }
+	public MapToCanvasUniv	(Pos:Vector2) { return this.MapToCanvasRel(Pos, 0,			0		); }
+	public CanvasUnivToMap	(Pos:Vector2) { return this.CanvasToMapRel(Pos, 0,			0		); }
+	public CanvasToCanvasUniversal(Pos:Vector2) { return new Vector2(Pos.X-this.X, Pos.Y-this.Y	); }
+	public CanvasUniversalToCanvas(Pos:Vector2) { return new Vector2(Pos.X+this.X, Pos.Y+this.Y	); }
+
 	//eslint-disable-next-line @typescript-eslint/naming-convention
 	private EvPos(e:{clientX:number, clientY:number}) { return new Vector2(e.clientX, e.clientY).Sub(this.CanvasPos); }
 }
@@ -426,7 +433,8 @@ abstract class MapCanvas_Friend extends MapCanvas implements FriendClass
 class Mover
 {
 	private static ClassUniqueID=0;
-	private MyUniqueID=Mover.ClassUniqueID++;
+	private readonly MyUniqueID=Mover.ClassUniqueID++;
+	private readonly StartZoom=Share.MCanvas.ZoomScale;
 
 	public readonly StartTime=Date.now();
 	private IsComplete=false;
@@ -434,9 +442,21 @@ class Mover
 		public readonly Start:Vector2,
 		public readonly End  :Vector2,
 		public readonly Duration:number, //In seconds
+		public readonly ZoomTo?:number,
 	) {
 		this.Duration*=1000;
 		Share.MCanvas.Events.Draw.Add("MoveToPointAction"+this.MyUniqueID, this.OnFrame.bind(this));
+
+		//If also zooming then we need to use map coordinates
+		if(this.ZoomTo!==undefined) {
+			const Ratio=this.ZoomTo/this.StartZoom;
+			const CX=Share.MCanvas.Width /2;
+			const CY=Share.MCanvas.Height/2;
+			this.End=new Vector2(
+				CX-(CX-this.End.X)*Ratio,
+				CY-(CY-this.End.Y)*Ratio
+			);
+		}
 	}
 
 	private static Ease(T:number, Pow=4) { return T<0.5 ? 0.5*Math.pow(2*T, Pow) : 1-0.5*Math.pow(2*(1-T), Pow); }
@@ -447,10 +467,13 @@ class Mover
 		if(LinearProgressPoint>1)
 			return void this.Cancel();
 		const EaseProgress=Mover.Ease(LinearProgressPoint, Share.LC.IconCenterEase.V);
+
+		//If zooming we need to use map coordinates
+		const Start=this.Start, End=this.End;
 		(Share.MCanvas as MapCanvas_Friend).UpdatePosAndScale(
-			undefined,
-			Mover.Lerp(this.Start.X, this.End.X, EaseProgress),
-			Mover.Lerp(this.Start.Y, this.End.Y, EaseProgress),
+			this.ZoomTo===undefined ? undefined : Mover.Lerp(this.StartZoom, this.ZoomTo, EaseProgress),
+			Mover.Lerp(Start.X, End.X, EaseProgress),
+			Mover.Lerp(Start.Y, End.Y, EaseProgress),
 			true
 		);
 	}

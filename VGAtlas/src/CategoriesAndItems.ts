@@ -1,5 +1,5 @@
-import { FriendClass, Log, StatStr, Util, Vector2, WillBeSet } from "./SharedClasses"
-import { ExpNo, ExpYes, JsonClass, JsonConverter, JsonConverter_Generic, JsonPropsDec, LoadJson, SaveJson } from "./JSON";
+import { FriendClass, Log, PopupMessage, StatStr, Util, Vector2, WillBeSet } from "./SharedClasses"
+import { ExpNo, ExpYes, JsonClass, JsonConverter, JsonConverter_Generic, JsonPropsDec, LoadJson, SaveJson } from "./JSON"
 import { MapIcon, Sprite } from "./MapIcon"
 import { Languages } from "./AtlasConfig"
 import { SaveData } from "./SaveData";
@@ -213,6 +213,9 @@ export class Item extends JsonClass
 		return	this.CurrentToggleState===CategoryToggleState.All
 			|| (this.CurrentToggleState===CategoryToggleState.Incomplete && !this.IsFound);
 	}
+
+	//Selected via a link
+	public Selected() { Share.MC.SelectAndCenterItem(this.ID); }
 }
 
 abstract class Item_Friend extends Item implements FriendClass
@@ -714,5 +717,14 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 		}
 
 		return UnlockedSlotCount;
+	}
+
+	//Selected via a link
+	public Selected()
+	{
+		if(this.ItemIDs?.length===1 && Item.IDInRange(this.ItemIDs[0]))
+			Share.DS.Items.get(this.ItemIDs[0])!.Selected();
+		else
+			new PopupMessage(Tr.Translate("Category selection is not yet supported", undefined, true)!);
 	}
 }

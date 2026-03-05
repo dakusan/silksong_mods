@@ -13,6 +13,5 @@ class LocalConfig extends Config {
 	public readonly IconCenterEase			=this.Item("IconCenterEase",		2.5);
 	public readonly IconSizeScalesWithZoom	=this.Item("IconSizeScalesWithZoom",true);
 	public readonly Language				=this.Item("Language",				Languages.English);
-	public readonly Debug					=this.Item("Language",				false);
 }
 export const LC=new LocalConfig();

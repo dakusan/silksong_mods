@@ -111,23 +111,9 @@ export namespace Util
 
 export namespace Log
 {
-	let _ShowDebug:boolean|null|undefined; //null==Loading
-	function ShowDebug() {
-		if(_ShowDebug===undefined)
-			LoadDebugValue().then();
-		return _ShowDebug ?? false;
-	}
-	async function LoadDebugValue()
-	{
-		_ShowDebug=null;
-		const ConfigDebug=(await import( "./AtlasConfig")).LC.Debug;
-		ConfigDebug.SettingChanged.Add("UpdatingShowDebug", NewVal => _ShowDebug=NewVal);
-		_ShowDebug=ConfigDebug.V;
-	}
-
-	export function Debug(...Objs:unknown[]) { if(ShowDebug()) console.log("DEBUG", ...Objs); }
-	export function Info (...Objs:unknown[]) { console.log(...Objs); }
-	export function Error(...Objs:unknown[]) { console.log("ERROR", ...Objs); }
+	export function Debug(...Objs:unknown[]) { console.debug(...Objs); }
+	export function Info (...Objs:unknown[]) { console.info	(...Objs); }
+	export function Error(...Objs:unknown[]) { console.error(...Objs); }
 }
 
 export namespace DevStrings

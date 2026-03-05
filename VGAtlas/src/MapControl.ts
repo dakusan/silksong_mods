@@ -1,7 +1,7 @@
 import $ from "jquery"
 import { Item } from "./CategoriesAndItems"
 import { Window } from "./WindowManager"
-import { Iter, KeyState, Rect, Util, Vector2 } from "./SharedClasses"
+import { Iter, KeyState, Log, Rect, StatStr, Util, Vector2 } from "./SharedClasses"
 import { Share } from "./Share"
 import LinkedLabel from "./LinkedLabel";
 
@@ -15,8 +15,6 @@ export default class MapControl
 	private CurrentItemWindow?:ItemWindow;
 
 	//Private members
-	private readonly MoveBackStack		:Item[]=[];
-	private readonly MoveForwardStack	:Item[]=[];
 	private readonly ItemTooltip=$('<div id=ItemTooltip />').appendTo(document.body);
 
 	//Zoom states and variables
@@ -47,6 +45,40 @@ export default class MapControl
 			this.SetIconSize(Share.LC.IconSize.V);
 		});
 		this.SetIconSize(Share.LC.IconSize.V);
+
+		this.InitURLHashes();
+	}
+
+	//Handle state change for choosing icons
+	private InitURLHashes()
+	{
+		this.HashUpdate(true);
+		window.addEventListener('hashchange', () => this.HashUpdate(false));
+	}
+	private HashUpdate(IsInitial:boolean)
+	{
+		//TODO: Support categories
+		let NewHash=(window.location.hash ?? "");
+		if(NewHash[0]==='#')
+			NewHash=NewHash.slice(1);
+		if(NewHash.length===0) {
+			if(IsInitial)
+				return;
+			this.SelectItemI(undefined, true);
+			Log.Debug(`Stack Update: Empty`);
+			return;
+		}
+
+		try {
+			if(!IsInitial) {
+				this.SelectAndCenterItemI(Number(NewHash), true);
+				return void Log.Debug(`Stack Update: #${NewHash}`);
+			}
+
+			const ScaleRange=Share.MCanvas.ScaleRange;
+			this.SelectAndCenterItemI(Number(NewHash), true, (ScaleRange.Y-ScaleRange.X)/2+ScaleRange.X, 1.75);
+			Log.Debug(`Stack Initial: #${NewHash}`);
+		} catch { Log.Error("Invalid ItemID in URL: "+NewHash); }
 	}
 
 	//Find the closest visible and intersecting item on the map
@@ -101,7 +133,6 @@ export default class MapControl
 		["ArrowUp",		[ 0, 1]],
 		["ArrowDown",	[ 0,-1]]
 	]);
-	private StackMoveKeyState=false;
 	public OnFrame()
 	{
 		if(Share.WM.ControlsKeyboard)
@@ -113,39 +144,12 @@ export default class MapControl
 				this.Zoom(Direction);
 
 		//Panning
-		for(const [KeyName, Directions] of MapControl.ArrowKeyDirections.entries())
-			if(KeyState.GetKeyDown(KeyName)) {
-				const Rate=Share.LC.PanSpeed.V/this.GameMap.FPS; //Ticks per second
-				this.GameMap.PanAt(Directions[0]*Rate, Directions[1]*Rate);
-			}
-
-		//Forward/Backward in item stack
-		const IsStackKeyDown=(KeyState.GetKeyDown("PageUp") || KeyState.GetKeyDown("PageDown"));
-		if(IsStackKeyDown!==this.StackMoveKeyState) {
-			this.StackMoveKeyState=IsStackKeyDown;
-			if(IsStackKeyDown)
-				this.MoveInItemStack(KeyState.GetKeyDown("PageUp"));
-		}
-	}
-
-	public MoveInItemStack(StackDirectionForward: boolean)
-	{
-		//Item selection stack
-		if(StackDirectionForward && this.MoveForwardStack.length>0) {
-			const NewItem=this.MoveForwardStack.pop()!;
-			this.MoveBackStack.push(NewItem);
-			this.SelectAndCenterItemI(NewItem.ID, true);
-		} else if(
-			   !StackDirectionForward
-			&& (
-				   this.MoveBackStack.length>1
-				|| (this.MoveBackStack.length===1 && this.SelectedItem==null)
-			)
-		) {
-			if(this.SelectedItem!=null)
-				this.MoveForwardStack.push(this.MoveBackStack.pop()!);
-			this.SelectAndCenterItemI(this.MoveBackStack[this.MoveBackStack.length-1]!.ID, true);
-		}
+		if(!KeyState.GetKeyDown("AltLeft") && !KeyState.GetKeyDown("AltRight"))
+			for(const [KeyName, Directions] of MapControl.ArrowKeyDirections.entries())
+				if(KeyState.GetKeyDown(KeyName)) {
+					const Rate=Share.LC.PanSpeed.V/this.GameMap.FPS; //Ticks per second
+					this.GameMap.PanAt(Directions[0]*Rate, Directions[1]*Rate);
+				}
 	}
 
 	private UserZoom(Pos:Vector2, ScaleObj:{Scale:number})
@@ -196,6 +200,17 @@ export default class MapControl
 		if(!(this.SelectedItem?.Visible ?? false) && (this.SelectedItem?.MapIcon?.IsIconVisible ?? false))
 			this.SelectedItem!.MapIcon!.ForceVisibility=false;
 
+		//Update browser state
+		if(!IsStackMove) {
+			const IsReplace=!this.CurrentItemWindow;
+			Log.Debug(`Stack ${IsReplace ? "Replace" : "Add"}: ${NewSelectItem ? "#"+NewSelectItem.ID : "Empty"}`);
+			history[IsReplace ? "replaceState" : "pushState"](
+				null, StatStr.Empty,
+				location.pathname+location.search+(NewSelectItem ? "#"+NewSelectItem.ID : StatStr.Empty)
+			);
+		}
+		document.title="VGAtlas - SilkSong - "+(NewSelectItem?.Title ?? "No item selected");
+
 		//Handle updating the popup item window
 		this.CurrentItemWindow?.ItemUnselected();
 		this.CurrentItemWindow=undefined;
@@ -214,20 +229,14 @@ export default class MapControl
 		Util.SetNullable(NewSelectItem?.MapIcon, "IsSelected", true);
 		NewSelectItem?.MapIcon?.BringToFront();
 		this.SelectedItem=NewSelectItem;
-
-		//Add to stack
-		if(!IsStackMove && NewSelectItem!==undefined) {
-			this.MoveBackStack.push(NewSelectItem);
-			this.MoveForwardStack.length=0;
-		}
 	}
 
 	//Center over and select an item by its ID
 	public   SelectAndCenterItem(ItemID:number) { return this.SelectAndCenterItemI(ItemID); }
-	protected SelectAndCenterItemI(ItemID:number, IsStackMove:boolean=false)
+	protected SelectAndCenterItemI(ItemID:number, IsStackMove:boolean=false, NewScale?:number, Duration?:number)
 	{
 		const I=Util.ThrowOnNull(Share.DS.Items.get(ItemID), "Invalid ItemID");
-		this.GameMap.CenterOnPoint(this.GameMap.MapToCanvas(I.Pos));
+		this.GameMap.CenterOnPoint(this.GameMap.MapToCanvas(I.Pos), Duration, NewScale);
 		this.SelectItemI(I, IsStackMove);
 		Util.SetNullable(I.MapIcon, "ForceVisibility", true); //Force the icon to be visible
 	}
@@ -269,6 +278,7 @@ export default class MapControl
 class ItemWindow extends Window
 {
 	private IsAttached=true; private SelfMove=false;
+	public readonly MyLabel:LinkedLabel;
 	constructor(
 		public readonly LinkedItem:Item,
 	) {
@@ -278,7 +288,8 @@ class ItemWindow extends Window
 			Height:200,
 			AcceptsKeyboard:false,
 		});
-		this.$Content.html(new LinkedLabel(this.LinkedItem.Description).RenderedContents);
+		this.MyLabel=new LinkedLabel(this.LinkedItem.Description);
+		this.MyLabel.Init(this.$Content);
 		this.UpdateAttachedPosition();
 		this.$Content.addClass("ItemContents");
 	}
