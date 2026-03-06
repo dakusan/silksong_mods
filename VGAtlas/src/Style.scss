@@ -36,7 +36,30 @@ canvas { width:100%; height:100%; touch-action:none; overscroll-behavior:none; }
 		animation-delay:calc(-3s * var(--phase));
 	}
 	@keyframes ImportantRainbowShift {
-		0%   { background-position:0% 50%; }
+		0%   { background-position:0 50%; }
 		100% { background-position:200% 50%; }
+	}
+}
+
+.ItemIcon {
+	position:relative; display:inline-block; overflow:hidden; left:-2px; top:3px; margin-top:-2px;
+	width :var(--NewIconSize);
+	height:var(--NewIconSize);
+	&:before {
+		content:""; position:absolute; display:block; left:0; top:0; background-repeat:no-repeat;
+		width :var(--ItemIconWidth );
+		height:var(--ItemIconHeight);
+
+		background-position:
+			calc(-1*var(--x) * (var(--ItemIconWidth ) + var(--ItemIconPadding)))
+			calc(-1*var(--y) * (var(--ItemIconHeight) + var(--ItemIconPadding)));
+
+		//Nasty hack to convert pixels to unitless numbers
+		--NewIconSize_Num	:tan(atan2(var(--NewIconSize	), 1px));
+		--ItemIconWidth_Num	:tan(atan2(var(--ItemIconWidth	), 1px));
+
+		transform-origin:top left;
+		--NewScale:calc(var(--NewIconSize_Num) / var(--ItemIconWidth_Num));
+		transform:scale(var(--NewScale));
 	}
 }

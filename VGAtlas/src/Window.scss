@@ -33,7 +33,7 @@
 		display:flex; align-items:center; gap:6px;
 
 		.Close {
-			width:26px; height:22px; border-radius:6px; border:1px solid rgba(255,255,255,0.18);
+			width:26px; height:22px; border-radius:6px; border:1px solid rgba(255, 255, 255, 0.18);
 			background:rgba(255, 255, 255, 0.06); color:#eee; cursor:pointer;
 			font-weight:700; font-size:12px; line-height:1;
 			&:hover:not( .Disabled) { background:rgba(255, 255, 255, 0.10); }
@@ -43,13 +43,13 @@
 	}
 
 	.Content {
-		flex:1 1 auto; padding:8px; overflow-y:scroll;
+		flex:1 1 auto; padding:8px; overflow-y:auto;
 		user-select:text;
 
 		&::-webkit-scrollbar { width:10px; }
-		&::-webkit-scrollbar-track { background:rgba(255,255,255,0.06); border-radius:8px; }
-		&::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.25); border-radius:8px; border:2px solid transparent; background-clip:content-box; }
-		&::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.4); }
+		&::-webkit-scrollbar-track { background:rgba(255, 255, 255, 0.06); border-radius:8px; }
+		&::-webkit-scrollbar-thumb { background:rgba(255, 255, 255, 0.25); border-radius:8px; border:2px solid transparent; background-clip:content-box; }
+		&::-webkit-scrollbar-thumb:hover { background:rgba(255, 255, 255, 0.4); }
 	}
 
 	.ResizeHandle {

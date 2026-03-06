@@ -10,6 +10,7 @@ const IconLenY		=8;
 const IconWidth		=65;
 const IconHeight	=65;
 const IconPadding	=1;
+const NewIconSize	=18;
 
 //Color type that stores it HTML string and RGB color
 class StringColor extends Object {
@@ -28,12 +29,31 @@ type LoadCategory=Record<string, Record<string, {OrderID:number, IconID:number, 
 class IconSprites
 {
 	private SpriteList:(Sprite|null)[]=Array(IconLenX*IconLenY).fill(null);
+	private CSSSpriteURL =document.createElement("style");
+	private CSSSpriteList=document.createElement("style");
 	public constructor()
 	{
 		//Create the special error sprite (which is always the last square and is of size ErrorTexSize*ErrorTexSize)
 		const ErrorTexSize=54;
 		const LastSpriteID=IconLenX*IconLenY-1;
 		this.SpriteList[LastSpriteID]=this.CreateSprite(IconSprites.GetIconRectByID(LastSpriteID).SetWidth(ErrorTexSize).SetHeight(ErrorTexSize));
+
+		//Create sprite sheets
+		document.head.appendChild(this.CSSSpriteURL);
+		document.head.appendChild(this.CSSSpriteList);
+		this.CSSSpriteList.textContent=this.SpriteList.map((_, IconID) => {
+			const X=IconID%IconLenX;
+			const Y=Math.floor(IconID/IconLenX);
+			return `.ItemIcon.I${IconID} { --x:${X}; --y:${Y}; }`
+		}).join("\n")+`
+.ItemIcon {
+	--ItemIconWidth		:${IconWidth}px;
+	--ItemIconHeight	:${IconHeight}px;
+	--ItemIconPadding	:${IconPadding}px;
+	&.Size24 {
+		--NewIconSize	:${NewIconSize}px;
+	}
+}`;
 	}
 
 	public Get(IconID:number)
@@ -52,12 +72,15 @@ class IconSprites
 
 	//Set the sprites image
 	private IconPicsTex?:ImageBitmap=undefined;
-	protected SetIconPics(IconPicsTex:ImageBitmap)
+	protected SetIconPics(IconPicsTex:ImageBitmap, ImageURL:string)
 	{
 		this.IconPicsTex=IconPicsTex;
 		for(const MySprite of this.SpriteList.values())
 			if(MySprite!==null)
 				MySprite.Image=IconPicsTex;
+
+		//Update URL sprite sheet
+		this.CSSSpriteURL.textContent=`.ItemIcon:before { background-image:url("${ImageURL}"); }`;
 	}
 
 	private static GetIconRectByID(IconID:number)
@@ -163,18 +186,18 @@ export default class DataStorage
 		}
 
 		//Create and update the sprite texture
-		const LoadIconSet=async (NewIconSet:Promise<ImageBitmap>) => {
-			try { (this.MyIconSprites as Icon_SpritesFriend).SetIconPics(await NewIconSet); }
+		const LoadIconSet=async (NewIconSet:Promise<ImageBitmap>, ImageURL:string) => {
+			try { (this.MyIconSprites as Icon_SpritesFriend).SetIconPics(await NewIconSet, ImageURL); }
 			catch(e) { Log.Error("Could not load icons texture: "+Util.GetErrorMessage(e)); }
 		};
 		async function UpdateIconSet(ImageURL:string) {
-			try { await LoadIconSet(Util.LoadImage(ImageURL)); }
+			try { await LoadIconSet(Util.LoadImage(ImageURL), ImageURL); }
 			catch(e) {
 				Log.Error(e);
 				throw e;
 			}
 		}
-		await LoadIconSet(PIconSet);
+		await LoadIconSet(PIconSet, IconSetPath);
 		LC.IconSet.SettingChanged.Add("DataStorage.UpdateIconSet", UpdateIconSet);
 
 		this.HandleColors();
@@ -478,7 +501,7 @@ abstract class ChainItem_Friend extends ChainItem implements FriendClass
 }
 abstract class Icon_SpritesFriend extends IconSprites implements FriendClass
 {
-	public override SetIconPics(_IconPicsTex:ImageBitmap) { this.Stub(); }
+	public override SetIconPics(_IconPicsTex:ImageBitmap, _ImageURL:string) { this.Stub(); }
 	//Ignore these
 	protected constructor() { super(); this.Stub(); }
 	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }

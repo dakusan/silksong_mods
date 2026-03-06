@@ -111,10 +111,16 @@ export default class LinkedLabel
 		const AddClass	=(Name:string					) => (V=Attrs.get(Name))===undefined ? false : ClearAttr(Name, Classes.push(Name				));
 
 		//Static attributes that are handled differently
+		let ItemIcon:string=StatStr.Empty;
 		FAttrs.push("data-LinkID="+LinkID);
-		if(AddAttr("ItemID"))
+		if(AddAttr("ItemID")) {
 			FAttrs.push(`href="#${V}"`);
-		else
+			const Item=Share.DS.Items.get(Number(V));
+			const ItemIconID=Item?.IconID;
+			const FinalIconID=((ItemIconID ?? -1)!==-1 ? ItemIconID : Share.DS.Categories.get(Item?.CategoryID ?? -1)?.IconID);
+			if(FinalIconID!==undefined)
+				ItemIcon=`${LTChar}span class="ItemIcon Size24 I${FinalIconID}"${RTChar}${LTChar}/span${RTChar}`;
+		} else
 			AddAttr("href", true);
 		AddStyle("NormalColor", 'color');
 		if(AddClass("Important"))
@@ -132,6 +138,6 @@ export default class LinkedLabel
 			FAttrs.push(`class="${Classes.join(" ")}"`);
 		if(Styles.length)
 			FAttrs.push(`style="${Styles.join("; ")}"`);
-		return `${LTChar}a ${FAttrs.join(" ")}${RTChar}${Inner}${LTChar}/a${RTChar}`;
+		return `${ItemIcon}${LTChar}a ${FAttrs.join(" ")}${RTChar}${Inner}${LTChar}/a${RTChar}`;
 	}
 }

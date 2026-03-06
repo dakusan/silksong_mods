@@ -1,4 +1,4 @@
-import "./style.scss"
+import "./Style.scss"
 import $ from "jquery"
 import MapCanvas from "./MapCanvas"
 import DataStorage from "./DataStorage"
