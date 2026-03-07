@@ -111,16 +111,17 @@ export class Window
 	public OnMoved	?(Old:Rect, New:Rect): void;
 
 	//Unsettable properties
-	private	static		IDCounter		=0;
-	public	readonly	ID				="Win"+Window.IDCounter++;
-	private	readonly	EventNS			="."+this.ID;
-	private				Drag?:DragState	=undefined;
-	private				Disposed		=false;
-	public	readonly	$Root		:JQuery<HTMLDivElement>;
-	public	readonly	$Content	:JQuery<HTMLDivElement>;
-	private	readonly	$Titlebar	:JQuery<HTMLDivElement>;
-	private	readonly	$Title		:JQuery<HTMLDivElement>;
-	private	readonly	$Close		:JQuery<HTMLButtonElement>;
+	private		static		IDCounter		=0;
+	public		readonly	ID				="Win"+Window.IDCounter++;
+	private		readonly	EventNS			="."+this.ID;
+	private					Drag?:DragState	=undefined;
+	private					Disposed		=false;
+	public		readonly	$Root		:JQuery<HTMLDivElement>;
+	public		readonly	$Content	:JQuery<HTMLDivElement>;
+	protected	readonly	$Titlebar	:JQuery<HTMLDivElement>;
+	protected	readonly	$Buttons	:JQuery<HTMLDivElement>;
+	protected	readonly	$Title		:JQuery<HTMLDivElement>;
+	protected	readonly	$Close		:JQuery<HTMLButtonElement>;
 
 	//Keep some part visible so you can always recover it
 	private readonly VisibleEdge:number=24;
@@ -143,10 +144,10 @@ export class Window
 		this.$Titlebar	=$("<div/>", 	{class:"Titlebar"						});
 		this.$Title		=$("<div/>", 	{class:"Title"							});
 		this.$Close		=$("<button/>", {class:"Close", type:"button", text:"✕"	});
-		const $Buttons	=$("<div/>", 	{class:"Buttons"						});
+		this.$Buttons	=$("<div/>", 	{class:"Buttons"						});
 		this.$Content	=$("<div/>",	{class:"Content"						});
 		this.$Root.append(
-			this.$Titlebar.append(this.$Title, $Buttons.append(this.$Close)),
+			this.$Titlebar.append(this.$Title, this.$Buttons.append(this.$Close)),
 			this.$Content
 		);
 
@@ -216,7 +217,7 @@ export class Window
 			return;
 		this.Disposed=true;
 		this.Drag=undefined;
-		([this.$Root, this.$Titlebar, this.$Close] as JQuery<HTMLElement>[])
+		([this.$Root, this.$Titlebar, this.$Close] as JQuery[])
 			.forEach(El => El.off(this.EventNS));
 		this.$Root.remove();
 		(WM as WindowManager_Friend).Unregister(this);
@@ -301,6 +302,42 @@ export class Window
 				if(PE && this.Drag?.PointerId===PE.pointerId)
 					this.Drag=undefined;
 			});
+	}
+
+	//Resizes the window to the sizes of your title and contents. This requires exactly 1 element within $Content.
+	//MinHeight will be set to the titlebar height
+	public AutoSize<T extends Window>(AutoSizeCallback:(this:T, FinishAutoSize:(this:Window, MaxContentHeight:number, MaxWindowWidth:number) => void) => void)
+	{
+		if(this.$Content.children().length>1)													//Only allow 1 child since we need to determine its size
+			throw new Error("Can only have 1 child in Contents when auto sizing");
+		this.$Root.css('visibility', 'hidden');													//Set the element visible so the user doesn’t see the changes we are making
+		this.Height=this.MinHeight=1;															//Set height to a minimum so we can get height measurements
+		this.$Content.children().eq(0).css('display', 'inline-block');							//Set the child as an inline-block so we can measure its width
+		const TempTitle=$('<span/>').text(this.$Title.text());									//Move the title text into a <span> within $Title so we can measure its width
+		this.$Title.empty().append(TempTitle);
+		setTimeout(() => AutoSizeCallback.call(this as unknown as T, this.FinishAutoSize), 0);	//Wait for the element to render so we can take measurements
+	}
+	private FinishAutoSize(MaxContentHeight:number=200, MaxWindowWidth:number=350)
+	{
+		const ContentBox=this.$Content;
+		const TitleHeight=ContentBox.position().top!+3;
+		const TitleChild=this.$Title.children().eq(0);
+		const ContentChild=ContentBox.children().eq(0);
+
+		this.MinHeight=TitleHeight;
+		this.Height=TitleHeight+Math.min(ContentBox[0].scrollHeight+3, MaxContentHeight);
+		this.Width=
+			Math.min(MaxWindowWidth,
+				Math.max(
+					TitleChild.width()!+(this.$Root.width()!-this.$Title.width()!)+4,
+					ContentChild[0].scrollWidth+(this.$Root.width()!-this.$Content.width()!)+3,
+				)
+			);
+		ContentChild.css('display', '');
+		const TitleText=TitleChild.text();
+		this.$Title.empty().text(TitleText);
+
+		this.$Root.css('visibility', 'visible');
 	}
 }
 

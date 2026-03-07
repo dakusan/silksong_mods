@@ -8,8 +8,7 @@ canvas { width:100%; height:100%; touch-action:none; overscroll-behavior:none; }
 	.MessageText { flex:1 1 auto; display:flex; justify-content:center; align-items:center; text-align:center; font-size:80px; color:#eee; }
 }
 
-#ItemTooltip
-{
+#ItemTooltip {
 	position:absolute; box-sizing:border-box; border:1px solid rgba(255, 255, 255, 0.25);
 	background-color:rgba(64, 64, 64, 0.8); color:#eee; box-shadow:0 10px 30px rgba(0, 0, 0, 0.45);
 	display:none; z-index:20000; white-space:nowrap;
@@ -62,4 +61,11 @@ canvas { width:100%; height:100%; touch-action:none; overscroll-behavior:none; }
 		--NewScale:calc(var(--NewIconSize_Num) / var(--ItemIconWidth_Num));
 		transform:scale(var(--NewScale));
 	}
+}
+
+.WinRoot.Detached {
+	@keyframes DetachedBorderBlink	{ to { border-color :green; } }
+	@keyframes DetachedOutlineBlink	{ to { outline-color:green; } }
+	 			animation:DetachedBorderBlink	1s ease-in-out infinite alternate;
+	&.Active {	animation:DetachedOutlineBlink	1s ease-in-out infinite alternate; }
 }

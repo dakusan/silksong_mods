@@ -277,7 +277,7 @@ export default class MapControl
 
 class ItemWindow extends Window
 {
-	private IsAttached=true; private SelfMove=false;
+	private IsAttached=true; private SelfMove=true; private IsInitializing=true;
 	public readonly MyLabel:LinkedLabel;
 	constructor(
 		public readonly LinkedItem:Item,
@@ -285,13 +285,15 @@ class ItemWindow extends Window
 		super({
 			Title: `${LinkedItem.Title} [${LinkedItem.ID}]`,
 			Width:350,
-			Height:200,
+			MinWidth:60,
 			AcceptsKeyboard:false,
 		});
 		this.MyLabel=new LinkedLabel(this.LinkedItem.Description);
 		this.MyLabel.Init(this.$Content);
 		this.UpdateAttachedPosition();
 		this.$Content.addClass("ItemContents");
+
+		this.AutoSize(Callback => { Callback.call(this, 200, 350); this.IsInitializing=this.SelfMove=false; });
 	}
 	public UpdateAttachedPosition()
 	{
@@ -305,13 +307,16 @@ class ItemWindow extends Window
 			this.Visible=IsVis;
 			this.UpdateBounds({X:NewPos.X, Y:NewPos.Y}, true);
 		}
-		this.SelfMove=false;
+		this.SelfMove=this.IsInitializing;
 	}
 
 	public override OnMoved()
 	{
-		if(!this.SelfMove)
-			this.IsAttached=false;
+		if(this.SelfMove || !this.IsAttached)
+			return;
+		this.IsAttached=false;
+		this.$Root.addClass("Detached");
+		setTimeout(() => this.$Root.removeClass("Detached"), 4000);
 	}
 	public ItemUnselected()
 	{
