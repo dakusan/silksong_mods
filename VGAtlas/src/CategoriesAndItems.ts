@@ -2,7 +2,7 @@ import { FriendClass, Log, PopupMessage, StatStr, Util, Vector2, WillBeSet } fro
 import { ExpNo, ExpYes, JsonClass, JsonConverter, JsonConverter_Generic, JsonPropsDec, LoadJson, SaveJson } from "./JSON"
 import { MapIcon, Sprite } from "./MapIcon"
 import { Languages } from "./AtlasConfig"
-import { SaveData } from "./SaveData";
+import { SaveData } from "./SaveData"
 import { Translate } from "./TempClasses"
 import { Share } from "./Share"
 

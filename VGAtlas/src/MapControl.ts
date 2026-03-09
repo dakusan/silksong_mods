@@ -3,7 +3,7 @@ import { Item } from "./CategoriesAndItems"
 import { Window } from "./WindowManager"
 import { Iter, KeyState, Log, Rect, StatStr, Util, Vector2 } from "./SharedClasses"
 import { Share } from "./Share"
-import LinkedLabel from "./LinkedLabel";
+import LinkedLabel from "./LinkedLabel"
 
 //All functions accept/return canvas pixel coordinates
 export default class MapControl
@@ -115,9 +115,13 @@ export default class MapControl
 		Util.SetNullable(this.HoverItem	?.MapIcon, "IsHovered", false);
 		Util.SetNullable(ClosestItem	?.MapIcon, "IsHovered", true );
 		this.HoverItem=ClosestItem;
-		this.ItemTooltip
-			.toggleClass("Active", ClosestItem!==undefined)
-			.text(`${ClosestItem?.Title} [${ClosestItem?.ID}]`);
+		this.ItemTooltip.toggleClass("Active", ClosestItem!==undefined);
+		if(ClosestItem)
+			this.ItemTooltip
+				.empty().append($('<div/>').append(
+					$('<span class="ItemIcon I'+(ClosestItem.IconID!==-1 ? ClosestItem.IconID : Share.DS.Categories.get(ClosestItem.CategoryID)!.IconID)+'"></span>'),
+					$('<span/>').text(`${ClosestItem?.Title} [${ClosestItem?.ID}]`),
+				));
 	}
 
 	//Handle key presses

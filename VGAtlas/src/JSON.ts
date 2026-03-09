@@ -248,7 +248,7 @@ export namespace SaveJson
 	//For testing with rendered contents
 	async function PostFormatLikeMod_TestHTML(Str:string)
 	{
-		return Str=new (await import("./LinkedLabel"))
+		return new (await import("./LinkedLabel"))
 			.default(PostFormatLikeMod(Str)).RenderedContents
 			.replace(/<(a|span)[^>]+>/g, m => m.replace(/"/g, '\\"'))
 			.replace(/ style=\\"--phase:[\d.]+\\"/g, "");

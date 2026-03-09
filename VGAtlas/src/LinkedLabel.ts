@@ -119,7 +119,7 @@ export default class LinkedLabel
 			const ItemIconID=Item?.IconID;
 			const FinalIconID=((ItemIconID ?? -1)!==-1 ? ItemIconID : Share.DS.Categories.get(Item?.CategoryID ?? -1)?.IconID);
 			if(FinalIconID!==undefined)
-				ItemIcon=`${LTChar}span class="ItemIcon Size24 I${FinalIconID}"${RTChar}${LTChar}/span${RTChar}`;
+				ItemIcon=`${LTChar}span class="ItemIcon I${FinalIconID}"${RTChar}${LTChar}/span${RTChar}`;
 		} else
 			AddAttr("href", true);
 		AddStyle("NormalColor", 'color');

@@ -2,7 +2,7 @@
 //noinspection JSUnusedGlobalSymbols,SpellCheckingInspection
 
 import { Util, WillBeSet } from "./SharedClasses"
-import { LoadJson } from "./JSON";
+import { LoadJson } from "./JSON"
 
 class SaveDataClass
 {

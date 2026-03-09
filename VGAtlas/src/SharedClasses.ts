@@ -239,7 +239,7 @@ abstract class Friend_Foo extends FooParent implements FriendClass {
 	public override Baz(Apple:number, Pear:string, Lemon:string): number { return this.Stub(-100); }
 	public static Moo(V:number): number { return super.Moo(V); }
 
-	protected protected constructor() { super(); this.Stub(); }
+	protected constructor() { super(); this.Stub(); }
 	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }
 }
 function Example() {

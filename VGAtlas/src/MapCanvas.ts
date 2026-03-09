@@ -1,5 +1,5 @@
 import $ from "jquery"
-import { CallbackList, FriendClass, Util, Vector2, WillBeSet } from "./SharedClasses"
+import { CallbackList, FriendClass, Log, Util, Vector2, WillBeSet } from "./SharedClasses"
 import { Share } from "./Share"
 const MaxZoomOutRatio=4/3; //How much further the map can zoom past 100% fit
 
@@ -33,11 +33,11 @@ export default class MapCanvas
 		private readonly MulX:number, private readonly MulY:number, private readonly AddX:number, private readonly AddY:number
 	) { }
 
-	protected UpdatePosAndScale(NewScale?:number, NewX:number|undefined=undefined, NewY:number|undefined=undefined, FromMover:boolean=false)
+	protected UpdatePosAndScale(NewScale?:number, NewX:number|undefined=undefined, NewY:number|undefined=undefined, FromMover:boolean=false): boolean
 	{
 		//If there is no image then do nothing
 		if(this.Image===null)
-			return;
+			return false;
 
 		//If mover is currently executing, stop it
 		if(!FromMover)
@@ -55,7 +55,7 @@ export default class MapCanvas
 
 		//If there has been no change, then stop here
 		if(SetX===this.X && SetY===this.Y && SetScale===this.Scale)
-			return;
+			return false;
 
 		//Update the position and set to draw
 		const OldScale=this.Scale;
@@ -68,6 +68,8 @@ export default class MapCanvas
 		this.Events.Moved.Execute(new Vector2(SetX, SetY), SetScale);
 		if(OldScale!==SetScale)
 			this.Events.Scale.Execute(OldScale, SetScale);
+
+		return true;
 	}
 
 	public readonly Events={
@@ -423,7 +425,7 @@ export default class MapCanvas
 }
 abstract class MapCanvas_Friend extends MapCanvas implements FriendClass
 {
-	public override UpdatePosAndScale(_NewScale:number|undefined, _NewX:number|undefined, _NewY:number|undefined, _FromMover:boolean) { this.Stub(); }
+	public override UpdatePosAndScale(_NewScale:number|undefined, _NewX:number|undefined, _NewY:number|undefined, _FromMover:boolean): boolean { return this.Stub(true); }
 	public override Mover?:Mover=undefined;
 	//Ignore these
 	protected constructor() { super(-1, -1, -1, -1); this.Stub(); }
@@ -463,19 +465,22 @@ class Mover
 	public static Lerp(a:number, b:number, t:number) { return a+(b-a)*t; }
 	private OnFrame()
 	{
-		const LinearProgressPoint=(Date.now()-this.StartTime)/this.Duration;
-		if(LinearProgressPoint>1)
-			return void this.Cancel();
+		const LinearProgressPoint=Math.min((Date.now()-this.StartTime)/this.Duration, 1);
+		if(LinearProgressPoint===0)
+			return;
 		const EaseProgress=Mover.Ease(LinearProgressPoint, Share.LC.IconCenterEase.V);
-
-		//If zooming we need to use map coordinates
-		const Start=this.Start, End=this.End;
-		(Share.MCanvas as MapCanvas_Friend).UpdatePosAndScale(
+		if(!(Share.MCanvas as MapCanvas_Friend).UpdatePosAndScale(
 			this.ZoomTo===undefined ? undefined : Mover.Lerp(this.StartZoom, this.ZoomTo, EaseProgress),
-			Mover.Lerp(Start.X, End.X, EaseProgress),
-			Mover.Lerp(Start.Y, End.Y, EaseProgress),
+			Mover.Lerp(this.Start.X, this.End.X, EaseProgress),
+			Mover.Lerp(this.Start.Y, this.End.Y, EaseProgress),
 			true
-		);
+		)) {
+			Log.Debug("Stopping mover early");
+			return void this.Cancel();
+		}
+
+		if(LinearProgressPoint>=1)
+			this.Cancel();
 	}
 	public Cancel()
 	{

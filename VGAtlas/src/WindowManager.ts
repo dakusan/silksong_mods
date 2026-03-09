@@ -1,6 +1,6 @@
-import $ from "jquery";
+import $ from "jquery"
 import "./Window.scss"
-import { FriendClass, Vector2, Rect } from "./SharedClasses";
+import { FriendClass, Vector2, Rect } from "./SharedClasses"
 
 type KeyHandler<T extends Window|null>=(this:T, e:KeyboardEvent)=>boolean|undefined;
 type ResizeDir="n"|"s"|"e"|"w"|"ne"|"nw"|"se"|"sw";
@@ -11,14 +11,14 @@ class DragState
 	public constructor(Kind:"resize", StartMX:number, StartMY:number, StartX:number, StartY:number, PointerId:number, Dir:ResizeDir, StartW:number, StartH:number);
 	public constructor(
 		public Kind:"move"|"resize",
-		public StartMX:number,
-		public StartMY:number,
-		public StartX:number,
-		public StartY:number,
+		public StartMX	:number,
+		public StartMY	:number,
+		public StartX	:number,
+		public StartY	:number,
 		public PointerId:number,
-		public Dir:ResizeDir="n",
-		public StartW:number=-1,
-		public StartH:number=-1
+		public Dir		:ResizeDir="n",
+		public StartW	:number=-1,
+		public StartH	:number=-1,
 	) { }
 }
 
@@ -84,7 +84,7 @@ export const WM=new WindowManager();
 
 type WindowInit=Partial<Pick<Window,
 	"Title"|"Parent"|"X"|"Y"|"Width"|"Height"|"MinWidth"|"MinHeight"|"CanClose"|
-	"CanResize"|"Visible"|"AcceptsKeyboard"|"OnKeyDown"|"OnKeyUp"|"OnClosed"
+	"CanResize"|"Visible"|"AcceptsKeyboard"|"OnKeyDown"|"OnKeyUp"|"OnClosing"
 >>;
 export class Window
 {
@@ -107,10 +107,10 @@ export class Window
 	public AcceptsKeyboard=true;
 	public OnKeyDown?:KeyHandler<Window>;
 	public OnKeyUp	?:KeyHandler<Window>;
-	public OnClosed	?(): boolean; //Return true to cancel close
+	public OnClosing?(): boolean; //Return true to cancel close
 	public OnMoved	?(Old:Rect, New:Rect): void;
 
-	//Unsettable properties
+	//Unsettable/private properties
 	private		static		IDCounter		=0;
 	public		readonly	ID				="Win"+Window.IDCounter++;
 	private		readonly	EventNS			="."+this.ID;
@@ -213,7 +213,7 @@ export class Window
 
 	private TryDispose(): void
 	{
-		if(this.Disposed || this.OnClosed?.())
+		if(this.Disposed || this.OnClosing?.())
 			return;
 		this.Disposed=true;
 		this.Drag=undefined;
@@ -308,14 +308,24 @@ export class Window
 	//MinHeight will be set to the titlebar height
 	public AutoSize<T extends Window>(AutoSizeCallback:(this:T, FinishAutoSize:(this:Window, MaxContentHeight:number, MaxWindowWidth:number) => void) => void)
 	{
-		if(this.$Content.children().length>1)													//Only allow 1 child since we need to determine its size
+		if(this.$Content.children().length>1)														//Only allow 1 child since we need to determine its size
 			throw new Error("Can only have 1 child in Contents when auto sizing");
-		this.$Root.css('visibility', 'hidden');													//Set the element visible so the user doesn’t see the changes we are making
-		this.Height=this.MinHeight=1;															//Set height to a minimum so we can get height measurements
-		this.$Content.children().eq(0).css('display', 'inline-block');							//Set the child as an inline-block so we can measure its width
-		const TempTitle=$('<span/>').text(this.$Title.text());									//Move the title text into a <span> within $Title so we can measure its width
+		this.$Root.css('visibility', 'hidden');														//Set the element visible so the user doesn’t see the changes we are making
+		this.Height=this.MinHeight=1;																//Set height to a minimum so we can get height measurements
+		this.$Content.children().eq(0).css('display', 'inline-block');								//Set the child as an inline-block so we can measure its width
+		const TempTitle=$('<span/>').text(this.$Title.text());										//Move the title text into a <span> within $Title so we can measure its width
 		this.$Title.empty().append(TempTitle);
-		setTimeout(() => AutoSizeCallback.call(this as unknown as T, this.FinishAutoSize), 0);	//Wait for the element to render so we can take measurements
+		const UserCallback=() => AutoSizeCallback.call(this as unknown as T, this.FinishAutoSize);	//What we will callback once content has rendered
+		setTimeout(() => this.CheckAutoSize(UserCallback), 0);										//Wait for the element to render so we can take measurements
+	}
+	private CheckAutoSize(CB:() => void)
+	{
+		if(this.Disposed)
+			return;
+		else if(this.$Content[0].scrollHeight===0)
+			setTimeout(() => this.CheckAutoSize(CB), 10);
+		else
+			CB();
 	}
 	private FinishAutoSize(MaxContentHeight:number=200, MaxWindowWidth:number=350)
 	{

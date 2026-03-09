@@ -50,9 +50,7 @@ class IconSprites
 	--ItemIconWidth		:${IconWidth}px;
 	--ItemIconHeight	:${IconHeight}px;
 	--ItemIconPadding	:${IconPadding}px;
-	&.Size24 {
-		--NewIconSize	:${NewIconSize}px;
-	}
+	--NewIconSize		:${NewIconSize}px;
 }`;
 	}
 
