@@ -1,9 +1,11 @@
 import { DevStrings, FriendClass, Iter, Log, PopupMessage, Rect, StatStr, Util, Vector2, WillBeSet } from "./SharedClasses"
-import { Category, CategoryGroup, ChainItem, ChainList, CreateItem, Item, LoadMisc_StaticLink, StaticLink } from "./CategoriesAndItems"
+import { Category, CategoryGroup, CategoryToggleState, ChainItem, ChainList, CreateItem, Item, LoadMisc_StaticLink, StaticLink } from "./CategoriesAndItems"
+import { MonitorSaveValues } from "./TempClasses"
 import { LoadJson } from "./JSON"
 import { MapIcon, Sprite } from "./MapIcon"
 import { LC } from "./AtlasConfig"
 import Color, { type ColorInstance } from "color"
+import { Share } from "./Share"
 
 const IconLenX		=10;
 const IconLenY		=8;
@@ -161,7 +163,9 @@ export default class DataStorage
 				this.Items.set(NewID, CreateItem.Process(NewID, V));
 			} catch(e) { Log.Error(`Could not load item ${K}: ${Util.GetErrorMessage(e)}`); }
 
+		const MatchedIcons=Share.MSV.GetMatchedIcons;
 		for(const [ItemID, ItemData] of this.Items.entries()) {
+			ItemData.IsLinked=MatchedIcons.has(MonitorSaveValues.GetItemIDHash(ItemID, false));
 			if(this.Categories.has(ItemData.CategoryID))
 				continue;
 
@@ -203,6 +207,8 @@ export default class DataStorage
 		//Create the sprites
 		for(const Category of this.Categories.values())
 			(Category as Category_Friend).Sprite=this.MyIconSprites.Get(Category.IconID);
+
+		this.LoadCategoryToggleStates(true);
 	}
 
 	//Store link colors in HTML
@@ -446,6 +452,27 @@ export default class DataStorage
 		}
 	};
 
+	//Load the category toggle states
+	private LoadCategoryToggleStates(FirstRun:boolean)
+	{
+		try {
+			for(const Cat of this.Categories.values())
+				Cat.ToggleState=CategoryToggleState.Incomplete;
+
+			//Load the categories from the settings
+			for(const [CatToggleState, CatIDs] of LC.CategoryToggleStates.V.slice(0, CategoryToggleState.Unknown).entries())
+				for(const CatID of CatIDs)
+					Util.SetNullable(this.Categories.get(CatID)!, "ToggleState", CatToggleState as CategoryToggleState);
+
+			//Resave in case there were errors or changes
+			if(FirstRun)
+				this.SaveAndUpdateAllCategoryToggleStates();
+		} catch {
+			if(FirstRun)
+				this.SetCategoriesStatesFor100Percent();
+		}
+	}
+
 	//Create all the icons
 	private LoadIcons()
 	{
@@ -454,6 +481,67 @@ export default class DataStorage
 				Item,
 				this.MyIconSprites.Get(Item.IconID!==-1 ? Item.IconID : this.Categories.get(Item.CategoryID)!.IconID)
 			);
+	}
+
+	//Category state updating functions
+	public CycleGroupCategoryState(CG:CategoryGroup)
+	{
+		let ConfirmState=CG.values().next().value?.ToggleState ?? CategoryToggleState.None;
+		for(const Cat of CG.values())
+			if(Cat.ToggleState!==ConfirmState) {
+				ConfirmState=CategoryToggleState.None;
+				break;
+			}
+		ConfirmState=DataStorage.GetNextToggleState(ConfirmState);
+		for(const Cat of CG.values())
+			Cat.ToggleState=ConfirmState;
+		this.SaveAndUpdateAllCategoryToggleStates();
+	}
+
+	public SetAllCategoriesStates(NewState:CategoryToggleState)
+	{
+		if(NewState===CategoryToggleState.Unknown)
+			return;
+		for(const Category of this.Categories.values())
+			Category.ToggleState=NewState;
+		this.SaveAndUpdateAllCategoryToggleStates();
+	}
+
+	public SetCategoryState(TheCat:Category, NewState:CategoryToggleState)
+	{
+		if(NewState===CategoryToggleState.Unknown)
+			return;
+		TheCat.ToggleState=NewState;
+		this.SaveAndUpdateAllCategoryToggleStates();
+	}
+
+	public SetCategoriesStatesFor100Percent()
+	{
+		const RequiredCategories=["Mask Shard", "Spool Fragment", "Silk Heart", "Kit/Pouch Update"];
+		for(const Cat of this.Categories.values())
+			Cat.ToggleState=RequiredCategories.includes(Cat.Title) ? CategoryToggleState.Incomplete : CategoryToggleState.None;
+		this.SaveAndUpdateAllCategoryToggleStates();
+	}
+
+	public static GetNextToggleState(TS:CategoryToggleState): CategoryToggleState
+	{
+		switch(TS) {
+			case CategoryToggleState.None:		return CategoryToggleState.All;
+			case CategoryToggleState.All:		return CategoryToggleState.Incomplete;
+			case CategoryToggleState.Incomplete:return CategoryToggleState.None;
+			default:							return CategoryToggleState.All;
+		}
+	}
+
+	private SaveAndUpdateAllCategoryToggleStates()
+	{
+		const SaveLists:[number[], number[], number[]]=[[], [], []];
+		for(const Cat of this.Categories.values())
+			SaveLists[Cat.ToggleState as number].push(Cat.ID);
+		LC.CategoryToggleStates.V=SaveLists;
+
+		for(const Item of this.Items.values())
+			Item.CurrentToggleState=this.Categories.get(Item.CategoryID)!.ToggleState;
 	}
 
 	public LinkSelected(ID:number|string)

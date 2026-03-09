@@ -4,6 +4,7 @@ import { ColorRGBA } from "./SharedClasses"
 export enum Languages { English }
 class LocalConfig extends Config {
 	constructor() { super("Atlas_"); }
+	public readonly CategoryToggleStates	=this.Item("CategoryToggleStates",	[[], [], []] as number[][]);
 	public readonly Color_FoundIcon			=this.Item("Color_FoundIcon",		new ColorRGBA(0.5, 0, 0.5, 0.75));
 	public readonly IconSize				=this.Item("IconSize",				.75);
 	public readonly IconSet					=this.Item("IconSet",				"Assets/Icons-FromGame.png");

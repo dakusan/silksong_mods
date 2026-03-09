@@ -15,6 +15,17 @@ export enum CategoryToggleState
 export class CategoryGroup extends Map<number, Category>
 {
 	constructor(public readonly Title:string, public readonly Order:number) { super(); }
+
+	private _AsOrdered?:Category[]=undefined;
+	public get AsOrdered()
+	{
+		if(this._AsOrdered===undefined) {
+			this._AsOrdered=new Array<Category>(this.size);
+			for(const Cat of this.values())
+				this._AsOrdered[Cat.Order]=Cat;
+		}
+		return this._AsOrdered;
+	}
 }
 
 //Categories (All Items have a category)
@@ -28,13 +39,23 @@ export class Category extends JsonClass
 	@JsonPropsDec(true) public readonly IconID:number=-1;
 	@JsonPropsDec(true, StatStr.Empty) public Title:string=WillBeSet;
 
-	@ExpNo() protected _TotalCount  :number=0	;			public get TotalCount  	() { return this._TotalCount	; } protected set TotalCount	(Value) { this._TotalCount	=Value; } //Set by friends
-	@ExpNo() protected _CurrentCount:number=0	; @ExpNo()	public get CurrentCount	() { return this._CurrentCount	; } protected set CurrentCount	(Value) { this._CurrentCount=Value; } //Set by friends
+	@ExpNo() protected _TotalCount  :number=0	;			public get TotalCount  	() { return this._TotalCount	; } protected set TotalCount	(Value) { this.Update(this._TotalCount	=Value); } //Set by friends
+	@ExpNo() protected _CurrentCount:number=0	; @ExpNo()	public get CurrentCount	() { return this._CurrentCount	; } protected set CurrentCount	(Value) { this.Update(this._CurrentCount=Value); } //Set by friends
 	@ExpNo() protected _Sprite:Sprite=WillBeSet	; @ExpNo()	public get Sprite		() { return this._Sprite		; } protected set Sprite		(Value) { this._Sprite		=Value; } //Set by friends
+	@ExpNo() public _ToggleState=CategoryToggleState.Unknown;
+		 										  @ExpNo()	public get ToggleState	() { return this._ToggleState	; } public	  set ToggleState	(Value) { this.Update(this._ToggleState	=Value); }
 
 	public static readonly MinID=101;
 	public static readonly MaxID=499;
 	public static IDInRange(ID:number) { return ID>=Category.MinID && ID<=Category.MaxID; }
+
+	public CallOnUpdate:(() => void)[]=[];
+	private Update(_Dummy:unknown)
+	{
+		for(const CB of this.CallOnUpdate)
+			try { CB(); }
+			catch(e) { Util.OutputException("Update category callback", e); }
+	}
 }
 abstract class Category_Friend extends Category implements FriendClass
 {

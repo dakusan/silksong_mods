@@ -1,3 +1,4 @@
+button, input, select, textarea { color:inherit; font-family:inherit; }
 canvas { width:100%; height:100%; touch-action:none; overscroll-behavior:none; } //Stops pinch-zoom/pan from being handled by the page
 
 .PopupMessage {
@@ -69,4 +70,56 @@ canvas { width:100%; height:100%; touch-action:none; overscroll-behavior:none; }
 	@keyframes DetachedOutlineBlink	{ to { outline-color:green; } }
 	 			animation:DetachedBorderBlink	1s ease-in-out infinite alternate;
 	&.Active {	animation:DetachedOutlineBlink	1s ease-in-out infinite alternate; }
+}
+
+.CategoryGroups {
+	min-height:0; overflow:auto; column-width:220px; column-fill:auto; column-gap:10px; width:100%; flex:1 1 auto; font-size:14px; white-space:nowrap;
+	button { background-color:transparent; border-width:0; font-size:inherit; }
+	.Title {
+		margin-bottom:2px; font-size:18px; color:#e6e6e6;
+		&:hover { color:blue; }
+	}
+	.Group { break-inside:avoid; page-break-inside:avoid; margin-bottom:10px; }
+	.Row {
+		text-align:left; display:block; width:100%; position:relative; padding:2px 2px; margin-bottom:1px; color:#808080;
+		&:hover { color:white; }
+		&.Completed {
+			color:lime;
+			&:hover { color:rgb(160, 255, 0); }
+		}
+	}
+	.Category {
+		margin-left:4px;
+		&.StateAll { font-weight:bold; }
+		&.StateNone::before {
+			$StrikeHeight:1px;
+			position:absolute; left:0; top:calc(50% - $StrikeHeight / 2); width:100%; height:$StrikeHeight;
+			content:""; background:white; pointer-events:none; z-index:2;
+		}
+
+		.ItemIcon { position:relative; top:4px; margin-top:-6px; --NewIconSize:20px; }
+		.Name { margin-right:4px; }
+	}
+	.Counts { float:right; z-index:0; }
+}
+
+#CategoryGroupsWindow {
+	display:flex; flex-direction:column; background-color:rgba(0, 0, 0, 0.52); user-select:none;
+	button { cursor:pointer; }
+
+	.CategoryGroupButtons {
+		display:flex; flex-wrap:wrap; gap:6px; justify-content:space-evenly; align-items:center; flex:0 0 auto;
+		>button {
+			flex:0 1 auto; border-width:0; border-radius:6px; padding:3px 4px 4px 4px;
+			white-space:nowrap; background-color:#0000A0; color:white;
+			&:active { transform:translateY(1px); }
+		}
+	}
+}
+
+.OpenCategoriesButton {
+	position:absolute; top:15px; left:15px; font-size:28px; color:#808080;
+	&:hover { color:white; }
+	&:before { content:"☰"; }
+	&:active { transform:translateY(1px); }
 }

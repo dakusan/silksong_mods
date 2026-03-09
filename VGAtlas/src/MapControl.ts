@@ -37,6 +37,7 @@ export default class MapControl
 		this.GameMap.Events.Frame		.Add("MapControl.OnFrame",		this.OnFrame.bind(this));
 		this.GameMap.Events.MouseLeave	.Add("MapControl.MouseLeave",	() => this.SetHoverItem(undefined));
 		this.GameMap.Events.Moved		.Add("MapControl.Move",			this.OnMove.bind(this));
+		Share.MSV.UpdateAllUsedValuesOnLoad();
 
 		//Handle settings changes
 		Share.LC.IconSize.SettingChanged.Add("MapControl.SetIconSize", this.SetIconSize.bind(this));

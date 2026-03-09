@@ -17,6 +17,7 @@ InitFuncs.push(async () => {
 			TempClasses			:await import("./TempClasses"),
 			SaveData			:await import("./SaveData"),
 			WindowManager		:await import("./WindowManager"),
+			CategoryGroupsWindow:await import("./DockableWindows/CategoryGroupsWindow"),
 		},
 	}
 });

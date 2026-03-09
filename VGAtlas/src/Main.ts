@@ -7,6 +7,8 @@ import { WM } from "./WindowManager"
 import { FriendClass, Util, WillBeSet } from "./SharedClasses"
 import { InitFuncs } from "./Misc"
 import { Share } from "./Share"
+import { MonitorSaveValues } from "./TempClasses"
+import CategoryGroupsWindow from "./DockableWindows/CategoryGroupsWindow"
 
 //Mimic C++ friend / C# internal
 abstract class DataStorage_Friend extends DataStorage implements FriendClass
@@ -24,6 +26,7 @@ async function Main()
 	try {
 		//Primary map and icon functionality
 		MCanvas=Share.MCanvas=new MapCanvas(87.7487, -87.5855, 2090, 1569);
+		Share.MSV=new MonitorSaveValues();
 		const DS=new DataStorage();
 		await MCanvas.Init("Assets/PAtlasMap.png");
 		await (DS as DataStorage_Friend).Load(
@@ -42,6 +45,7 @@ async function Main()
 			Fn();
 		MCanvas.ExtraMessage=undefined;
 		MCanvas.Refresh();
+		$('<div class=OpenCategoriesButton>').appendTo(document.body).on('click', () => CategoryGroupsWindow.Self.Visible=true);
 	} catch(e) {
 		const Message=Util.GetErrorMessage(e);
 		if(MCanvas?.CanRender)
