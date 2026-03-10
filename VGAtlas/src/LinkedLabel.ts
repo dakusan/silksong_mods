@@ -25,13 +25,13 @@ export default class LinkedLabel
 		Ret=LinkedLabel.FixTags(Ret);
 		this.RenderedContents=Ret;
 	}
-	public Init(Parent:JQuery)
+	public Init()
 	{
 		if(this.HasInitialized)
-			return;
+			return this.$Content;
 		this.HasInitialized=true;
 
-		Parent.append(this.$Content.html(this.RenderedContents));
+		this.$Content.html(this.RenderedContents);
 		this.$Content.find('a').each((_, El) => {
 			if(!El.hasAttribute('href'))
 				El.setAttribute('href', '#');
@@ -40,6 +40,8 @@ export default class LinkedLabel
 
 			$(El).on('click', this.AnchorSelected.bind(this));
 		});
+
+		return this.$Content;
 	}
 
 	private AnchorSelected(Ev:JQuery.ClickEvent)

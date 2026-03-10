@@ -347,7 +347,7 @@ export class Window
 		const TitleText=TitleChild.text();
 		this.$Title.empty().text(TitleText);
 
-		this.$Root.css('visibility', 'visible');
+		this.$Root.css('visibility', 'visible').addClass('AutoSized');
 	}
 }
 

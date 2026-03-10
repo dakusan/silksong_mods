@@ -293,12 +293,38 @@ class ItemWindow extends Window
 			MinWidth:60,
 			AcceptsKeyboard:false,
 		});
-		this.MyLabel=new LinkedLabel(this.LinkedItem.Description);
-		this.MyLabel.Init(this.$Content);
-		this.UpdateAttachedPosition();
-		this.$Content.addClass("ItemContents");
+		const Cat=Share.DS.Categories.get(LinkedItem.CategoryID)!;
+		this.$Content.addClass("ItemContents").append($('<div>').append(
+			//Title
+			$('<div class=Title><span class=Key>Title</span>: </div>').append(
+				LinkedItem.IconID===-1 ? null! : $(`<span class="ItemIcon I${LinkedItem.IconID}"></span>`),
+				$("<span class=Value>").text(LinkedItem.Title),
+			),
 
-		this.AutoSize(Callback => { Callback.call(this, 200, 350); this.IsInitializing=this.SelfMove=false; });
+			//Category
+			$('<div class=Category><span class=Key>Category</span>: </div>').append(
+				$(`<span class="ItemIcon I${Cat.IconID}"></span>`),
+				$("<span class=Value>").text(Cat.Title),
+			),
+
+			//Description and other links
+			(this.MyLabel=new LinkedLabel(
+				this.LinkedItem.Description+(
+					((LinkedItem.OtherLinks?.length ?? 0)<=0) ? StatStr.Empty :
+						"\nLinks: <b>"
+						+this.LinkedItem.OtherLinks!.join(", ")
+						+"</b>"
+				)
+			)).Init(),
+
+			//Images
+			...(LinkedItem.ImageURLs?.map(Src =>
+				$('<img alt=Screenshot src="" class=IsLoading>').attr('src', Src)
+			) ?? []),
+		));
+
+		this.UpdateAttachedPosition();
+		this.AutoSize(Callback => { Callback.call(this, 300, 350); this.IsInitializing=this.SelfMove=false; });
 	}
 	public UpdateAttachedPosition()
 	{
