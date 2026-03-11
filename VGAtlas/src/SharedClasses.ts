@@ -175,12 +175,50 @@ export class Iter<T> implements Iterable<T>
 
 export class PopupMessage
 {
-	private Container=$('<div class=PopupMessage><div><div class=CloseMessage>Click anywhere to close this popup</div><div class=MessageText></div></div></div>').appendTo('body');
-	public set Text(Text:string) { this.Container.find(".MessageText").text(Text); }
-	constructor(Text:string)
+	private static PopupMessages=new Map<Element, PopupMessage>();
+	private static Observer=new ResizeObserver(Entries => Entries.forEach(Entry => this.PopupMessages.get(Entry.target)?.ReadjustSize()));
+	private readonly Container=$('<div class=PopupMessage><div><div class=CloseMessage>Click anywhere to close this popup</div><div class=MessageText><div></div></div></div></div>').appendTo('body');
+	private readonly MessageTextEl=this.Container.find(".MessageText"); //Note: There is an extra div under this element that actually receives the text
+	private readonly StartTextSize=parseFloat(this.MessageTextEl.css('font-size')) || 80;
+	private HasClosed=false;
+
+	private _HTMLContent:string=WillBeSet; public get HTMLContent() { return this._HTMLContent; }
+	public set Text(Contents:string) { this.HTML=DevStrings.SafeRich(Contents); }
+	public set HTML(Contents:string) { this.MessageTextEl.children().eq(0).html(this._HTMLContent=Contents); this.ReadjustSize(); }
+
+	constructor(TextOrHTML:string, IsHTML=false)
 	{
-		this.Text=Text;
-		this.Container.on('click', () => this.Container.remove());
+		this[!IsHTML ? 'Text' : 'HTML']=TextOrHTML;
+		this.Container.on('click', () => this.Close());
+		PopupMessage.PopupMessages.set(this.Container[0], this);
+		PopupMessage.Observer.observe(this.Container[0]);
+	}
+
+	public Close()
+	{
+		if(this.HasClosed)
+			return;
+		this.HasClosed=true;
+
+		PopupMessage.Observer.unobserve(this.Container[0]);
+		PopupMessage.PopupMessages.delete(this.Container[0]);
+		this.Container.remove()
+	}
+
+	private ReadjustSize()
+	{
+		const Parent=this.MessageTextEl[0];
+		const El=Parent.firstElementChild as HTMLElement;
+		let Min=10, Max=this.StartTextSize;
+		while(Min<=Max) {
+			const Mid=Math.floor((Min+Max)/2);
+			El.style.fontSize=Mid+"px";
+			if(El.scrollWidth>Parent.clientWidth || El.scrollHeight>Parent.clientHeight)
+				Max=Mid-1;
+			else
+				Min=Mid+1;
+		}
+		El.style.fontSize=Max+"px";
 	}
 }
 
