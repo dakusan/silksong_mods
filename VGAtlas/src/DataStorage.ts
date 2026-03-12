@@ -1,11 +1,11 @@
-import { DevStrings, FriendClass, Iter, Log, PopupMessage, Rect, StatStr, Util, Vector2, WillBeSet } from "./SharedClasses"
-import { Category, CategoryGroup, CategoryToggleState, ChainItem, ChainList, CreateItem, Item, LoadMisc_StaticLink, StaticLink } from "./CategoriesAndItems"
-import { MonitorSaveValues } from "./TempClasses"
-import { LoadJson } from "./JSON"
-import { MapIcon, Sprite } from "./MapIcon"
-import { LC } from "./AtlasConfig"
-import Color, { type ColorInstance } from "color"
-import { Share } from "./Share"
+import { DevStrings, FriendClass, Iter, Log, PopupMessage, Rect, StatStr, Util, Vector2, WillBeSet } from './SharedClasses';
+import { Category, CategoryGroup, CategoryToggleState, ChainItem, ChainList, CreateItem, Item, LoadMisc_StaticLink, StaticLink } from './CategoriesAndItems';
+import { MonitorSaveValues } from './TempClasses';
+import { LoadJson } from './JSON';
+import { MapIcon, Sprite } from './MapIcon';
+import { LC } from './AtlasConfig';
+import Color, { type ColorInstance } from 'color';
+import { Share } from './Share';
 
 const IconLenX		=10;
 const IconLenY		=8;
@@ -13,6 +13,7 @@ const IconWidth		=65;
 const IconHeight	=65;
 const IconPadding	=1;
 const NewIconSize	=18;
+const NT=StatStr.NeedsTranslate;
 
 //Color type that stores it HTML string and RGB color
 class StringColor extends Object {
@@ -31,8 +32,8 @@ type LoadCategory=Record<string, Record<string, {OrderID:number, IconID:number, 
 class IconSprites
 {
 	private SpriteList:(Sprite|null)[]=Array(IconLenX*IconLenY).fill(null);
-	private CSSSpriteURL =document.createElement("style");
-	private CSSSpriteList=document.createElement("style");
+	private CSSSpriteURL =document.createElement('style');
+	private CSSSpriteList=document.createElement('style');
 	public constructor()
 	{
 		//Create the special error sprite (which is always the last square and is of size ErrorTexSize*ErrorTexSize)
@@ -47,7 +48,7 @@ class IconSprites
 			const X=IconID%IconLenX;
 			const Y=Math.floor(IconID/IconLenX);
 			return `.ItemIcon.I${IconID} { --x:${X}; --y:${Y}; }`
-		}).join("\n")+`
+		}).join(StatStr.NewLine)+`
 .ItemIcon {
 	--ItemIconWidth		:${IconWidth}px;
 	--ItemIconHeight	:${IconHeight}px;
@@ -80,7 +81,7 @@ class IconSprites
 				MySprite.Image=IconPicsTex;
 
 		//Update URL sprite sheet
-		this.CSSSpriteURL.textContent=`.ItemIcon:before { background-image:url("${ImageURL}"); }`;
+		this.CSSSpriteURL.textContent=`.ItemIcon:before { background-image:url('${ImageURL}'); }`;
 	}
 
 	private static GetIconRectByID(IconID:number)
@@ -140,7 +141,7 @@ export default class DataStorage
 					const CatData=LoadJson.ClassFromObj(new Category(CatIDAsInt), CatDataObj);
 					Groups.set(CatIDAsInt, CatData);
 					this.Categories.set(CatIDAsInt, CatData);
-				} catch(e) { Log.Error(`Could not load Category ${CatID}: ${Util.GetErrorMessage(e)}`); }
+				} catch(e) { Log.Error(NT+`Could not load Category ${CatID}: ${Util.GetErrorMessage(e)}`); }
 		}
 
 		//Load the items
@@ -161,7 +162,7 @@ export default class DataStorage
 				if(!Number.isFinite(NewID))
 					throw new Error("Invalid ItemID");
 				this.Items.set(NewID, CreateItem.Process(NewID, V));
-			} catch(e) { Log.Error(`Could not load item ${K}: ${Util.GetErrorMessage(e)}`); }
+			} catch(e) { Log.Error(NT+`Could not load item ${K}: ${Util.GetErrorMessage(e)}`); }
 
 		const MatchedIcons=Share.MSV.GetMatchedIcons;
 		for(const [ItemID, ItemData] of this.Items.entries()) {
@@ -169,7 +170,7 @@ export default class DataStorage
 			if(this.Categories.has(ItemData.CategoryID))
 				continue;
 
-			Log.Error(`Invalid CategoryID[#${ItemData.CategoryID}] on Item[#${ItemID}]`);
+			Log.Error(NT+`Invalid CategoryID[#${ItemData.CategoryID}] on Item[#${ItemID}]`);
 			(ItemData as {CategoryID:number}).CategoryID=this.Categories.keys().next().value!; //Set the readonly value
 		}
 		for(const ItemData of this.Items.values()) {
@@ -200,7 +201,7 @@ export default class DataStorage
 			}
 		}
 		await LoadIconSet(PIconSet, IconSetPath);
-		LC.IconSet.SettingChanged.Add("DataStorage.UpdateIconSet", UpdateIconSet);
+		LC.IconSet.SettingChanged.Add('DataStorage.UpdateIconSet', UpdateIconSet);
 
 		this.HandleColors();
 
@@ -214,9 +215,9 @@ export default class DataStorage
 	//Store link colors in HTML
 	private HandleColors()
 	{
-		const ColorsStylesheet=document.createElement("style");
+		const ColorsStylesheet=document.createElement('style');
 		const UpdateColors=(_:unknown, ColorName:string) => {
-			if(ColorName!=="Default" && ColorName!=="LinkHover")
+			if(ColorName!=='Default' && ColorName!=='LinkHover')
 				return;
 			ColorsStylesheet.textContent=`
 .ItemContents a, .ItemContents a:visited	{ color:${this.LinkColors.Default.Value		}; }
@@ -224,7 +225,7 @@ export default class DataStorage
 			`;
 		};
 		document.head.appendChild(ColorsStylesheet);
-		UpdateColors(null, "Default");
+		UpdateColors(null, 'Default');
 		this.LinkColors.Callbacks.push(UpdateColors);
 	}
 
@@ -239,7 +240,7 @@ export default class DataStorage
 			//Add the Req/Need ChainList to the Reward
 			const Error=RewardItem.AddStoreChainList(ReqOrNeedList);
 			if(Error!==null)
-				Log.Error(`Error adding ${ReqOrNeedList.Parent.ID}.Store.${ReqOrNeedList.Type} to reward ${RewardItem.ID}: ${Error}`);
+				Log.Error(NT+`Error adding ${ReqOrNeedList.Parent.ID}.Store.${ReqOrNeedList.Type} to reward ${RewardItem.ID}: ${Error}`);
 
 			//For Req/Needs items sets “Unlocks” to the reward
 			for(const CI of GetListItems(ReqOrNeedList))
@@ -289,7 +290,7 @@ export default class DataStorage
 		public constructor() {
 			return new Proxy(this, {
 				set:(Target, Prop:string|symbol, Value:unknown, Receiver:unknown) => {
-					if(typeof(Prop)!=="string" || !Target.HasInitialized)
+					if(typeof(Prop)!=='string' || !Target.HasInitialized)
 						return Reflect.set(Target, Prop, Value, Receiver);
 					if(Target.DefaultColors.has(Prop))
 						return Target.SetColor(Prop, String(Value));
@@ -349,18 +350,18 @@ export default class DataStorage
 	{
 		//The following of these are set statically so realtime changing is not supported (for now): Flag_{NOT,STARTED,RECOMMENDED}, Sep_{OR,AND}
 		public constructor() { super(); }
-		public Default			=new StringColor("cyan",		null!); //Default link color
-		public LinkHover		=new StringColor("yellow",		null!); //Color when a link has the mouse over it
-		public LabelHover		=new StringColor("#4678C880",	null!); //Box color for the entire label when mouse over (in the search box); Desaturated, mid-luminance blue goes well with: red, teal, plum, yellow, cyan, white, black, green
-		public Flag_NOT			=new StringColor("red",			null!); //Flag color (precedence=0) for NOT
-		public Flag_STARTED		=new StringColor("teal",		null!); //Flag color (precedence=1) for STARTED
-		public Flag_RECOMMENDED	=new StringColor("#dda0dd",		null!); //Flag color (precedence=2) for RECOMMENDED [#=plum]
-		public Sep_OR			=new StringColor("purple",		null!); //Separator for boolean OR “ OR ”
-		public Sep_AND			=new StringColor("white",		null!); //Separator for boolean AND “, ”
-		public Strike_Found		=new StringColor("white",		null!); //Straight line through link when item has been found
-		public Strike_Started	=new StringColor("silver",		null!); //Wavy line through link when item has been started (and not found)
-		public Search_Highlight	=new StringColor("green",		null!); //Highlighting searched string
-		public CollectedCounts	=new StringColor("grey",		null!); //Amounts the player has and needs to finish an item
+		public Default			=new StringColor('cyan',		null!); //Default link color
+		public LinkHover		=new StringColor('yellow',		null!); //Color when a link has the mouse over it
+		public LabelHover		=new StringColor('#4678C880',	null!); //Box color for the entire label when mouse over (in the search box); Desaturated, mid-luminance blue goes well with: red, teal, plum, yellow, cyan, white, black, green
+		public Flag_NOT			=new StringColor('red',			null!); //Flag color (precedence=0) for NOT
+		public Flag_STARTED		=new StringColor('teal',		null!); //Flag color (precedence=1) for STARTED
+		public Flag_RECOMMENDED	=new StringColor('#dda0dd',		null!); //Flag color (precedence=2) for RECOMMENDED [#=plum]
+		public Sep_OR			=new StringColor('purple',		null!); //Separator for boolean OR “ OR ”
+		public Sep_AND			=new StringColor('white',		null!); //Separator for boolean AND “, ”
+		public Strike_Found		=new StringColor('white',		null!); //Straight line through link when item has been found
+		public Strike_Started	=new StringColor('silver',		null!); //Wavy line through link when item has been started (and not found)
+		public Search_Highlight	=new StringColor('green',		null!); //Highlighting searched string
+		public CollectedCounts	=new StringColor('grey',		null!); //Amounts the player has and needs to finish an item
 	};
 	public readonly LinkColors=new DataStorage.LinkColorsT().Init();
 
@@ -400,14 +401,14 @@ export default class DataStorage
 						throw new Error("RegEx split character must fit within a UTF16 code unit");
 					const RegExParts=RegExStr.slice(1).split(RegExStr[0]);
 					if(RegExParts.length!==2)
-						throw new Error(`Must contain first (${RegExStr[0]}) character exactly once more to split SEARCH and REPLACE`);
+						throw new Error(NT+`Must contain first (${RegExStr[0]}) character exactly once more to split SEARCH and REPLACE`);
 					else if(RegExParts[0].length===0)
 						throw new Error("SEARCH cannot be blank");
 					else if(RegExParts[1].length===0)
 						throw new Error("REPLACE cannot be blank");
-					Rewrites.push([new RegExp(RegExParts[0], "g"), PrefixSymbol, RegExParts[1]]);
+					Rewrites.push([new RegExp(RegExParts[0], 'g'), PrefixSymbol, RegExParts[1]]);
 				} catch(e) {
-					Log.Error(`Error parsing Rewrite RegEx “${RegExStr}” for “${PrefixSymbol}”: ${Util.GetErrorMessage(e)}`);
+					Log.Error(NT+`Error parsing Rewrite RegEx “${RegExStr}” for “${PrefixSymbol}”: ${Util.GetErrorMessage(e)}`);
 				}
 
 			//Rewrite entries
@@ -444,7 +445,7 @@ export default class DataStorage
 			LoadMisc.RewriteList(this.OtherLinkPrefix,	new Iter(DS.Items.values()).filter(I => !!I.OtherLinks?.length).map(I => [I, I.OtherLinks!]),
 				//URL can be followed by an optional link name (URL escape not necessary) prefixed with a pipe “|”. If not given, the URL will be the link name. The Link name will have UrlDecode() ran on it for display.
 				(Str, ItemID, Index) => {
-					const Parts=Str.split("|", 2);
+					const Parts=Str.split('|', 2);
 					const [URL, Name]=(Parts.length===2 ? [Parts[0], Parts[1]] : [Str, Str]);
 					return `<LinkID=OL-${ItemID}-${Index}><ATTR=href>${DevStrings.SafeRich(URL)}</ATTR>${DevStrings.SafeRich(decodeURIComponent(Name))}</LinkID>`;
 				}
@@ -462,7 +463,7 @@ export default class DataStorage
 			//Load the categories from the settings
 			for(const [CatToggleState, CatIDs] of LC.CategoryToggleStates.V.slice(0, CategoryToggleState.Unknown).entries())
 				for(const CatID of CatIDs)
-					Util.SetNullable(this.Categories.get(CatID)!, "ToggleState", CatToggleState as CategoryToggleState);
+					Util.SetNullable(this.Categories.get(CatID)!, 'ToggleState', CatToggleState as CategoryToggleState);
 
 			//Resave in case there were errors or changes
 			if(FirstRun)
@@ -517,7 +518,7 @@ export default class DataStorage
 
 	public SetCategoriesStatesFor100Percent()
 	{
-		const RequiredCategories=["Mask Shard", "Spool Fragment", "Silk Heart", "Kit/Pouch Update"];
+		const RequiredCategories=['Mask Shard', 'Spool Fragment', 'Silk Heart', 'Kit/Pouch Update'];
 		for(const Cat of this.Categories.values())
 			Cat.ToggleState=RequiredCategories.includes(Cat.Title) ? CategoryToggleState.Incomplete : CategoryToggleState.None;
 		this.SaveAndUpdateAllCategoryToggleStates();
@@ -547,7 +548,7 @@ export default class DataStorage
 	public LinkSelected(ID:number|string)
 	{
 		//Convert from a string to an int
-		if(typeof(ID)==="string") {
+		if(typeof(ID)==='string') {
 			ID=Number.parseInt(ID, 10);
 			if(!Number.isFinite(ID))
 				return;
@@ -576,19 +577,19 @@ abstract class Category_Friend extends Category implements FriendClass
 	public override set Sprite		(_Value:Sprite)	{ this.Stub(); }
 	//Ignore these
 	protected constructor() { super(-1); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
 }
 abstract class ChainItem_Friend extends ChainItem implements FriendClass
 {
 	public static override Process_NeedsIDAndName() { return super.Process_NeedsIDAndName(); }
 	//Ignore these
 	protected constructor() { super(null!, null!); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
 }
 abstract class Icon_SpritesFriend extends IconSprites implements FriendClass
 {
 	public override SetIconPics(_IconPicsTex:ImageBitmap, _ImageURL:string) { this.Stub(); }
 	//Ignore these
 	protected constructor() { super(); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
 }

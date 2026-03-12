@@ -1,8 +1,8 @@
-import { CategoryToggleState, Item } from "./CategoriesAndItems"
-import { ColorRGBA, Log, Rect, Vector2, WillBeSet } from "./SharedClasses"
-import { InitFuncs } from "./Misc"
-import { Share } from "./Share"
-import Color from "color"
+import { CategoryToggleState, Item } from './CategoriesAndItems';
+import { ColorRGBA, Log, Rect, Vector2, WillBeSet } from './SharedClasses';
+import { InitFuncs } from './Misc';
+import { Share } from './Share';
+import Color from 'color';
 
 class SpriteRenderInfo { constructor(public readonly Image:ImageBitmap, public readonly ImageRect:Rect, public readonly Center:Vector2) { } }
 
@@ -24,7 +24,7 @@ export class Sprite extends Versioned
 	private static async CreateErrorImage()
 	{
 		//noinspection SpellCheckingInspection
-		const Res=await fetch(`data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADcAAAA2AQMAAABZSZOgAAAABlBMVEX/ANwAAAAtIRQiAAAAIElEQVR4AWNgsH/A/4P5H8X0/wPyH9j/MFBKj7oHPw0AR228KREmCC0AAAAASUVORK5CYII=`);
+		const Res=await fetch('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADcAAAA2AQMAAABZSZOgAAAABlBMVEX/ANwAAAAtIRQiAAAAIElEQVR4AWNgsH/A/4P5H8X0/wPyH9j/MFBKj7oHPw0AR228KREmCC0AAAAASUVORK5CYII=');
 		Sprite.ErrImage=await createImageBitmap(await Res.blob());
 	}
 
@@ -53,7 +53,7 @@ class GameObject extends Versioned
 	private static InitClass()
 	{
 		GameObject.ColorShader=new RGBTintShader();
-		Share.MCanvas.Events.Draw.Add("GameObjects", GameObject.DrawAll);
+		Share.MCanvas.Events.Draw.Add('GameObjects', GameObject.DrawAll);
 	}
 	static { InitFuncs.push(GameObject.InitClass); }
 
@@ -103,7 +103,7 @@ class GameObject extends Versioned
 			this.RenderedSprite=new OffscreenCanvas(this.SRI.ImageRect.Width, this.SRI.ImageRect.Height);
 
 		//Render to the new canvas
-		const Ctx=this.RenderedSprite.getContext("2d")!;
+		const Ctx=this.RenderedSprite.getContext('2d')!;
 		const SRIRect=this.SRI.ImageRect;
 		Ctx.reset();
 		Ctx.drawImage(
@@ -224,7 +224,7 @@ export class MapIcon
 			MapIcon.MyShader=new HSVShader();
 			MapIcon.UpdateShaderColor(Share.LC.Color_FoundIcon.V);
 		}, 0);
-		Share.LC.Color_FoundIcon.SettingChanged.Add("MapIcon.UpdateShaderColor", MapIcon.UpdateShaderColor.bind(this));
+		Share.LC.Color_FoundIcon.SettingChanged.Add('MapIcon.UpdateShaderColor', MapIcon.UpdateShaderColor.bind(this));
 	}
 	private static UpdateShaderColor(C:ColorRGBA)
 	{
@@ -267,7 +267,7 @@ abstract class Material
 	public Run(In:OffscreenCanvas)
 	{
 		const Canvas=Material.GetCanvas(In.width, In.height);
-		const Ctx=Canvas.getContext("2d")!;
+		const Ctx=Canvas.getContext('2d')!;
 		Ctx.reset();
 		Ctx.drawImage(In, 0, 0);
 		const ImageData=Ctx.getImageData(0, 0, In.width, In.height);

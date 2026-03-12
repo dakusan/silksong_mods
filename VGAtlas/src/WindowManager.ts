@@ -1,22 +1,22 @@
-import $ from "jquery"
-import "./Window.scss"
-import { FriendClass, Vector2, Rect } from "./SharedClasses"
+import $ from 'jquery';
+import './Window.scss';
+import { FriendClass, Vector2, Rect, StatStr } from './SharedClasses';
 
 type KeyHandler<T extends Window|null>=(this:T, e:KeyboardEvent)=>boolean|undefined;
-type ResizeDir="n"|"s"|"e"|"w"|"ne"|"nw"|"se"|"sw";
+type ResizeDir='n'|'s'|'e'|'w'|'ne'|'nw'|'se'|'sw';
 
 class DragState
 {
-	public constructor(Kind:"move"  , StartMX:number, StartMY:number, StartX:number, StartY:number, PointerId:number);
-	public constructor(Kind:"resize", StartMX:number, StartMY:number, StartX:number, StartY:number, PointerId:number, Dir:ResizeDir, StartW:number, StartH:number);
+	public constructor(Kind:'move'  , StartMX:number, StartMY:number, StartX:number, StartY:number, PointerId:number);
+	public constructor(Kind:'resize', StartMX:number, StartMY:number, StartX:number, StartY:number, PointerId:number, Dir:ResizeDir, StartW:number, StartH:number);
 	public constructor(
-		public Kind:"move"|"resize",
+		public Kind:'move'|'resize',
 		public StartMX	:number,
 		public StartMY	:number,
 		public StartX	:number,
 		public StartY	:number,
 		public PointerId:number,
-		public Dir		:ResizeDir="n",
+		public Dir		:ResizeDir='n',
 		public StartW	:number=-1,
 		public StartH	:number=-1,
 	) { }
@@ -40,9 +40,9 @@ export class WindowManager
 
 	public constructor()
 	{
-		window.addEventListener("keydown", e => this.OnKey(e, "Down"), {capture:true});
-		window.addEventListener("keyup"  , e => this.OnKey(e, "Up"	), {capture:true});
-		window.addEventListener("resize" , ()=> this.Windows.forEach(W => W.EnsureOnScreen()));
+		window.addEventListener('keydown', e => this.OnKey(e, 'Down'), {capture:true});
+		window.addEventListener('keyup'  , e => this.OnKey(e, 'Up'	), {capture:true});
+		window.addEventListener('resize' , ()=> this.Windows.forEach(W => W.EnsureOnScreen()));
 	}
 
 	protected Register(W:Window): void
@@ -69,12 +69,12 @@ export class WindowManager
 			return;
 		this.Z++;
 		(W as Window_Friend).SetActive(true);
-		W.$Root.css("z-index", String(this.Z));
+		W.$Root.css('z-index', String(this.Z));
 	}
 
-	private OnKey(e:KeyboardEvent, Type:"Down"|"Up"): void
+	private OnKey(e:KeyboardEvent, Type:'Down'|'Up'): void
 	{
-		if(!this.ControlsKeyboard || !this.Active![Type==="Down" ? "OnKeyDown" : "OnKeyUp"]?.(e))
+		if(!this.ControlsKeyboard || !this.Active![Type==='Down' ? 'OnKeyDown' : 'OnKeyUp']?.(e))
 			return;
 		e.preventDefault();
 		e.stopPropagation();
@@ -83,8 +83,8 @@ export class WindowManager
 export const WM=new WindowManager();
 
 type WindowInit=Partial<Pick<Window,
-	"Title"|"Parent"|"X"|"Y"|"Width"|"Height"|"MinWidth"|"MinHeight"|"CanClose"|
-	"CanResize"|"Visible"|"AcceptsKeyboard"|"OnKeyDown"|"OnKeyUp"|"OnClosing"
+	'Title'|'Parent'|'X'|'Y'|'Width'|'Height'|'MinWidth'|'MinHeight'|'CanClose'|
+	'CanResize'|'Visible'|'AcceptsKeyboard'|'OnKeyDown'|'OnKeyUp'|'OnClosing'
 >>;
 export class Window
 {
@@ -112,8 +112,8 @@ export class Window
 
 	//Unsettable/private properties
 	private		static		IDCounter		=0;
-	public		readonly	ID				="Win"+Window.IDCounter++;
-	private		readonly	EventNS			="."+this.ID;
+	public		readonly	ID				='Win'+Window.IDCounter++;
+	private		readonly	EventNS			='.'+this.ID;
 	private					Drag?:DragState	=undefined;
 	private					Disposed		=false;
 	public		readonly	$Root		:JQuery<HTMLDivElement>;
@@ -140,20 +140,20 @@ export class Window
 	public constructor(Init:WindowInit={})
 	{
 		//Build DOM
-		this.$Root		=$("<div/>",	{class:"WinRoot", "data-id":this.ID		});
-		this.$Titlebar	=$("<div/>", 	{class:"Titlebar"						});
-		this.$Title		=$("<div/>", 	{class:"Title"							});
-		this.$Close		=$("<button/>", {class:"Close", type:"button", text:"✕"	});
-		this.$Buttons	=$("<div/>", 	{class:"Buttons"						});
-		this.$Content	=$("<div/>",	{class:"Content"						});
+		this.$Root		=$('<div/>',	{class:'WinRoot', 'data-id':this.ID		});
+		this.$Titlebar	=$('<div/>', 	{class:'Titlebar'						});
+		this.$Title		=$('<div/>', 	{class:'Title'							});
+		this.$Close		=$('<button/>', {class:'Close', type:'button', text:'✕'	});
+		this.$Buttons	=$('<div/>', 	{class:'Buttons'						});
+		this.$Content	=$('<div/>',	{class:'Content'						});
 		this.$Root.append(
 			this.$Titlebar.append(this.$Title, this.$Buttons.append(this.$Close)),
 			this.$Content
 		);
 
 		//Create resize elements
-		for(const Dir of "n,s,e,w,ne,nw,se,sw".split(','))
-			this.$Root.append($("<div/>", {class:`ResizeHandle B${Dir.toUpperCase()}`}).attr("data-dir", Dir));
+		for(const Dir of 'n,s,e,w,ne,nw,se,sw'.split(','))
+			this.$Root.append($('<div/>', {class:`ResizeHandle B${Dir.toUpperCase()}`}).attr('data-dir', Dir));
 
 		//Initialize parts
 		Window.AssignProps(this, Init);
@@ -171,12 +171,12 @@ export class Window
 	public		Close			():						void { this.TryDispose(); }
 	public		EnsureOnScreen	():						void { this.UpdateBounds(); }
 	public		Focus			(): 					void { WM.SetFocus(this); }
-	private		SetCanClose		(CanClose	:boolean):	void { this.$Close?.toggleClass("Disabled"	, !CanClose	).prop("disabled", !CanClose); }
-	private		SetCanResize	(CanResize	:boolean):	void { this.$Root?.	toggleClass("NoResize"	, !CanResize); }
-	protected	SetActive		(Active		:boolean):	void { this.$Root.	toggleClass("Active"	, Active	); }
+	private		SetCanClose		(CanClose	:boolean):	void { this.$Close?.toggleClass('Disabled'	, !CanClose	).prop('disabled', !CanClose); }
+	private		SetCanResize	(CanResize	:boolean):	void { this.$Root?.	toggleClass('NoResize'	, !CanResize); }
+	protected	SetActive		(Active		:boolean):	void { this.$Root.	toggleClass('Active'	, Active	); }
 	private		SetVisible		(Visible	:boolean):	void
 	{
-		this.$Root?.toggleClass("Invisible", !Visible);
+		this.$Root?.toggleClass('Invisible', !Visible);
 		if(Visible)
 			this.UpdateBounds();
 		else if(WM.Active===this)
@@ -186,7 +186,7 @@ export class Window
 	protected UpdateBounds(Updates?:{X?:number, Y?:number, Width?:number, Height?:number}, NoBoundsCheck=false, IsInitial=false): void
 	{
 		//Get the new bounds
-		const NewRect=Object.assign(this.Bounds, typeof(Updates)==="object" ? Updates : {}) as Rect;
+		const NewRect=Object.assign(this.Bounds, typeof(Updates)==='object' ? Updates : {}) as Rect;
 		if(!NoBoundsCheck) {
 			NewRect.Width =Math.max(NewRect.Width , this.MinWidth );
 			NewRect.Height=Math.max(NewRect.Height, this.MinHeight);
@@ -232,18 +232,18 @@ export class Window
 			.on(`pointerdown${this.EventNS}`, (e:JQuery.TriggeredEvent) =>
 			{
 				const PE=e.originalEvent as PointerEvent|undefined;
-				if(!PE || !this.Visible || $(PE.target!).closest(".Close").length)
+				if(!PE || !this.Visible || $(PE.target!).closest('.Close').length)
 					return;
 
 				PE.preventDefault();
 				this.Focus();
 				(this.$Titlebar[0] as HTMLElement).setPointerCapture(PE.pointerId);
-				this.Drag=new DragState("move", PE.clientX, PE.clientY, this.X, this.Y, PE.pointerId);
+				this.Drag=new DragState('move', PE.clientX, PE.clientY, this.X, this.Y, PE.pointerId);
 			})
 			.on(`pointermove${this.EventNS}`, (e:JQuery.TriggeredEvent) =>
 			{
 				const PE=e.originalEvent as PointerEvent|undefined;
-				if(PE && this.Drag?.Kind==="move" && PE.pointerId===this.Drag.PointerId)
+				if(PE && this.Drag?.Kind==='move' && PE.pointerId===this.Drag.PointerId)
 					this.Pos=new Vector2(
 						this.Drag.StartX+PE.clientX-this.Drag.StartMX,
 						this.Drag.StartY+PE.clientY-this.Drag.StartMY
@@ -257,7 +257,7 @@ export class Window
 			});
 
 		this.$Root
-			.on(`pointerdown${this.EventNS}`, ".ResizeHandle", (e:JQuery.TriggeredEvent) =>
+			.on(`pointerdown${this.EventNS}`, '.ResizeHandle', (e:JQuery.TriggeredEvent) =>
 			{
 				const PE=e.originalEvent as PointerEvent|undefined;
 				if(!PE || !this.Visible)
@@ -267,17 +267,17 @@ export class Window
 				if(!this.CanResize)
 					return void PE.preventDefault();
 
-				const Dir=$(e.currentTarget).attr("data-dir") as ResizeDir|undefined;
+				const Dir=$(e.currentTarget).attr('data-dir') as ResizeDir|undefined;
 				if(!Dir)
 					return;
 				PE.preventDefault();
 				(e.currentTarget as HTMLElement).setPointerCapture(PE.pointerId);
-				this.Drag=new DragState("resize", PE.clientX, PE.clientY, this.X, this.Y, PE.pointerId, Dir, this.Width, this.Height);
+				this.Drag=new DragState('resize', PE.clientX, PE.clientY, this.X, this.Y, PE.pointerId, Dir, this.Width, this.Height);
 			})
-			.on(`pointermove${this.EventNS}`, ".ResizeHandle", (e:JQuery.TriggeredEvent) =>
+			.on(`pointermove${this.EventNS}`, '.ResizeHandle', (e:JQuery.TriggeredEvent) =>
 			{
 				const PE=e.originalEvent as PointerEvent|undefined;
-				if(!PE || this.Drag?.Kind!=="resize" || PE.pointerId!==this.Drag.PointerId)
+				if(!PE || this.Drag?.Kind!=='resize' || PE.pointerId!==this.Drag.PointerId)
 					return;
 
 				const DX=PE.clientX-this.Drag.StartMX;
@@ -288,15 +288,15 @@ export class Window
 				let NH=this.Drag.StartH;
 				const D=(Dir:ResizeDir) => this.Drag!.Dir.includes(Dir);
 
-				if(D("e")) { NW=this.Drag.StartW+DX;						}
-				if(D("w")) { NW=this.Drag.StartW-DX; NX=this.Drag.StartX+DX;}
-				if(D("s")) { NH=this.Drag.StartH+DY;						}
-				if(D("n")) { NH=this.Drag.StartH-DY; NY=this.Drag.StartY+DY;}
-				if(NW<this.MinWidth ) { if(D("w")) NX=NX-(this.MinWidth -NW); NW=this.MinWidth ; }
-				if(NH<this.MinHeight) { if(D("n")) NY=NY-(this.MinHeight-NH); NH=this.MinHeight; }
+				if(D('e')) { NW=this.Drag.StartW+DX;						}
+				if(D('w')) { NW=this.Drag.StartW-DX; NX=this.Drag.StartX+DX;}
+				if(D('s')) { NH=this.Drag.StartH+DY;						}
+				if(D('n')) { NH=this.Drag.StartH-DY; NY=this.Drag.StartY+DY;}
+				if(NW<this.MinWidth ) { if(D('w')) NX=NX-(this.MinWidth -NW); NW=this.MinWidth ; }
+				if(NH<this.MinHeight) { if(D('n')) NY=NY-(this.MinHeight-NH); NH=this.MinHeight; }
 
 				this.Bounds=new Rect(NX, NY, NW, NH);
-			}).on(`pointerup${this.EventNS} pointercancel${this.EventNS}`, ".ResizeHandle", (e:JQuery.TriggeredEvent) =>
+			}).on(`pointerup${this.EventNS} pointercancel${this.EventNS}`, '.ResizeHandle', (e:JQuery.TriggeredEvent) =>
 			{
 				const PE=e.originalEvent as PointerEvent|undefined;
 				if(PE && this.Drag?.PointerId===PE.pointerId)
@@ -343,7 +343,7 @@ export class Window
 					ContentChild[0].scrollWidth+(this.$Root.width()!-this.$Content.width()!)+3,
 				)
 			);
-		ContentChild.css('display', '');
+		ContentChild.css('display', StatStr.Empty);
 		const TitleText=TitleChild.text();
 		this.$Title.empty().text(TitleText);
 
@@ -353,11 +353,11 @@ export class Window
 
 abstract class WindowManager_Friend extends WindowManager implements FriendClass
 {
-	public override Register  (W:Window): void { return void this.Stub(W); }
-	public override Unregister(W:Window): void { return void this.Stub(W); }
+	public override Register  (_W:Window): void { this.Stub(); }
+	public override Unregister(_W:Window): void { this.Stub(); }
 	//Ignore these
 	protected constructor() { super(); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
 }
 
 abstract class Window_Friend extends Window implements FriendClass
@@ -365,5 +365,5 @@ abstract class Window_Friend extends Window implements FriendClass
 	public override SetActive(_Active:boolean): void { this.Stub(); }
 	//Ignore these
 	protected constructor() { super(); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
 }

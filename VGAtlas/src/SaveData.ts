@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 //noinspection JSUnusedGlobalSymbols,SpellCheckingInspection
 
-import { Util, WillBeSet } from "./SharedClasses"
-import { LoadJson } from "./JSON"
+import { StatStr, Util, WillBeSet } from './SharedClasses';
+import { LoadJson } from './JSON';
 
 class SaveDataClass
 {
@@ -51,7 +51,7 @@ class SceneDataItem <T extends boolean|number>
 }
 
 export let SaveData=new SaveDataClass();
-await ImportSaveData("Assets/SaveData.json"); //For debugging, if this file exists, use it
+await ImportSaveData('Assets/SaveData.json'); //For debugging, if this file exists, use it
 
 //Importing save data
 export async function ImportSaveData(FileURL:string): Promise<string|null>
@@ -62,7 +62,7 @@ export async function ImportSaveData(FileURL:string): Promise<string|null>
 			SaveData=CreateSaveData(NewSaveData);
 		return null;
 	} catch(e) {
-		return `Error loading save data from “${FileURL}”: ${Util.GetErrorMessage(e)}`;
+		return StatStr.NeedsTranslate+`Error loading save data from “${FileURL}”: ${Util.GetErrorMessage(e)}`;
 	}
 }
 function CreateSaveData(NewSaveData:SaveDataClass): SaveDataClass

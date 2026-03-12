@@ -1,4 +1,4 @@
-import $ from "jquery"
+import $ from 'jquery';
 
 export class Vector2
 {
@@ -56,7 +56,7 @@ export namespace Util
 		const LoadImage=new Image();
 		await new Promise<void>((Resolve, Reject) => {
 			LoadImage.onload=() => Resolve();
-			LoadImage.onerror=() => Reject(new Error("Image load failed for:\n"+ImageURL));
+			LoadImage.onerror=() => Reject(new Error("Image load failed for:"+StatStr.NewLine+ImageURL));
 			LoadImage.src=ImageURL;
 		});
 		return await createImageBitmap(LoadImage);
@@ -66,18 +66,18 @@ export namespace Util
 	{
 		return	a===null || b===null || a===undefined || b===undefined	? a===b
 			:	typeof(a)!==typeof(b)									? false
-			:	typeof(a)!=="object"									? true
+			:	typeof(a)!=='object'									? true
 			:							  								a.constructor===(b as object).constructor
 	}
 
 	export function TypeName(Val:unknown)
 	{
-		return	Val===undefined			? "undefined"
-			:	Val===null				? "null"
-			:	typeof(Val)!=="object"	? typeof(Val)
-			:	Array.isArray(Val)		? "Array"
+		return	Val===undefined			? 'undefined'
+			:	Val===null				? 'null'
+			:	typeof(Val)!=='object'	? typeof(Val)
+			:	Array.isArray(Val)		? 'Array'
 			:	Val.constructor?.name	? Val.constructor.name
-			:							  "object";
+			:							  'object';
 	}
 
 	export function GetErrorMessage(e:unknown) {
@@ -91,7 +91,7 @@ export namespace Util
 
 	export function OutputException(Name:string, e:unknown)
 	{
-		Log.Error(`${Name} failed: ${Util.GetErrorMessage(e)}`, e);
+		Log.Error(StatStr.NeedsTranslate+`${Name} failed: ${Util.GetErrorMessage(e)}`, e);
 	}
 
 	//Sets a member if Obj is not null (used to facilitate C# foo?.bar=baz)
@@ -127,8 +127,10 @@ export namespace DevStrings
 }
 
 export const enum StatStr {
-	Empty="",
-	NewLine="\n",
+	Empty='',
+	NewLine='\n',
+	//eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
+	NeedsTranslate='',
 }
 
 export class Iter<T> implements Iterable<T>
@@ -177,8 +179,8 @@ export class PopupMessage
 {
 	private static PopupMessages=new Map<Element, PopupMessage>();
 	private static Observer=new ResizeObserver(Entries => Entries.forEach(Entry => this.PopupMessages.get(Entry.target)?.ReadjustSize()));
-	private readonly Container=$('<div class=PopupMessage><div><div class=CloseMessage>Click anywhere to close this popup</div><div class=MessageText><div></div></div></div></div>').appendTo('body');
-	private readonly MessageTextEl=this.Container.find(".MessageText"); //Note: There is an extra div under this element that actually receives the text
+	private readonly Container=$('<div class=PopupMessage><div><div class=CloseMessage>'+"Click anywhere to close this popup"+'</div><div class=MessageText><div></div></div></div></div>').appendTo('body');
+	private readonly MessageTextEl=this.Container.find('.MessageText'); //Note: There is an extra div under this element that actually receives the text
 	private readonly StartTextSize=parseFloat(this.MessageTextEl.css('font-size')) || 80;
 	private HasClosed=false;
 
@@ -212,13 +214,13 @@ export class PopupMessage
 		let Min=10, Max=this.StartTextSize;
 		while(Min<=Max) {
 			const Mid=Math.floor((Min+Max)/2);
-			El.style.fontSize=Mid+"px";
+			El.style.fontSize=Mid+'px';
 			if(El.scrollWidth>Parent.clientWidth || El.scrollHeight>Parent.clientHeight)
 				Max=Mid-1;
 			else
 				Min=Mid+1;
 		}
-		El.style.fontSize=Max+"px";
+		El.style.fontSize=Max+'px';
 	}
 }
 
@@ -237,15 +239,15 @@ export class CallbackList<Args extends unknown[]>
 	{
 		for(const [CBName, CB] of this.Callbacks.entries())
 			try { CB(...Params); }
-			catch(e) { Log.Error(`Callback “${CBName}” for ${this.Name} failed: ${Util.GetErrorMessage(e)}`); }
+			catch(e) { Log.Error(StatStr.NeedsTranslate+`Callback “${CBName}” for ${this.Name} failed: ${Util.GetErrorMessage(e)}`); }
 	}
 }
 
 export namespace KeyState
 {
 	const Keys=new Map<string, boolean>();
-	window.addEventListener("keydown", e => Keys.set(e.code, true ), { passive:false });
-	window.addEventListener("keyup"  , e => Keys.set(e.code, false), { passive:false });
+	window.addEventListener('keydown', e => Keys.set(e.code, true ), { passive:false });
+	window.addEventListener('keyup'  , e => Keys.set(e.code, false), { passive:false });
 	export function GetKeyDown(Name:string) { return Keys.get(Name) ?? false; }
 }
 
@@ -268,7 +270,7 @@ Static functions WILL be called and must be passed through
 Example usage:
 class Foo {
 	protected Bar:SomeClass=new SomeClass();
-	protected Baz(Apple:number, Pear:string, Lemon:string="Sour"): number { return Apple+Pear.length+Lemon.length; }
+	protected Baz(Apple:number, Pear:string, Lemon:string='Sour'): number { return Apple+Pear.length+Lemon.length; }
 	protected static Moo(V:number): number { return V+100; }
 	private Cow() { } //Cannot be friended!
 }
@@ -278,15 +280,15 @@ abstract class Friend_Foo extends FooParent implements FriendClass {
 	public static Moo(V:number): number { return super.Moo(V); }
 
 	protected constructor() { super(); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
 }
 function Example() {
 	const Ex=new Foo();
-	console.log((Ex as Friend_Foo).Baz(5, "Green", "Yellow")); //Logs 16
+	console.log((Ex as Friend_Foo).Baz(5, 'Green', 'Yellow')); //Logs 16
 	console.log(Friend_Foo.Moo(20); //Logs 120
 }
 ```
 
 <b>This is a type-system escape hatch. It does not grant runtime encapsulation. It can make code type-check while throwing at runtime if misused.</b>
 */
-export interface FriendClass { Stub<T>(_V?:T): T; } // { throw new Error("This function is a stub"); }
+export interface FriendClass { Stub<T>(_V?:T): T; } // { throw new Error('This function is a stub'); }

@@ -1,6 +1,6 @@
-import $ from "jquery"
-import { CallbackList, FriendClass, Log, Util, Vector2, WillBeSet } from "./SharedClasses"
-import { Share } from "./Share"
+import $ from 'jquery';
+import { CallbackList, FriendClass, Log, StatStr, Util, Vector2, WillBeSet } from './SharedClasses';
+import { Share } from './Share';
 const MaxZoomOutRatio=4/3; //How much further the map can zoom past 100% fit
 
 export default class MapCanvas
@@ -73,27 +73,27 @@ export default class MapCanvas
 	}
 
 	public readonly Events={
-		Frame		:new CallbackList<[FrameNum:number					]>("MapCanvas.Frame"		),
-		Draw		:new CallbackList<[Ctx:CanvasRenderingContext2D		]>("MapCanvas.Draw"			),
-		MouseDown	:new CallbackList<[Pos:Vector2						]>("MapCanvas.MouseDown"	),
-		MouseMove	:new CallbackList<[Pos:Vector2						]>("MapCanvas.MouseMove"	),
-		MouseLeave	:new CallbackList<[									]>("MapCanvas.MouseLeave"	),
-		Click		:new CallbackList<[Pos:Vector2						]>("MapCanvas.MouseClick"	),
-		Scale		:new CallbackList<[NewScale:number, OldScale:number	]>("MapCanvas.Scale"		), //Scaling will always additionally call Moved
-		Moved		:new CallbackList<[Pos:Vector2, Scale:number		]>("MapCanvas.Moved"		),
-		UserZoom	:new CallbackList<[Pos:Vector2, {Scale:number}		]>("MapCanvas.ZoomAt"		),
+		Frame		:new CallbackList<[FrameNum:number					]>('MapCanvas.Frame'		),
+		Draw		:new CallbackList<[Ctx:CanvasRenderingContext2D		]>('MapCanvas.Draw'			),
+		MouseDown	:new CallbackList<[Pos:Vector2						]>('MapCanvas.MouseDown'	),
+		MouseMove	:new CallbackList<[Pos:Vector2						]>('MapCanvas.MouseMove'	),
+		MouseLeave	:new CallbackList<[									]>('MapCanvas.MouseLeave'	),
+		Click		:new CallbackList<[Pos:Vector2						]>('MapCanvas.MouseClick'	),
+		Scale		:new CallbackList<[NewScale:number, OldScale:number	]>('MapCanvas.Scale'		), //Scaling will always additionally call Moved
+		Moved		:new CallbackList<[Pos:Vector2, Scale:number		]>('MapCanvas.Moved'		),
+		UserZoom	:new CallbackList<[Pos:Vector2, {Scale:number}		]>('MapCanvas.ZoomAt'		),
 	};
 
 	public async Init(ImageURL:string)
 	{
 		//Initialize the canvas
-		$("#map").empty().append(
-			this.Canvas=document.createElement("canvas")
+		$('#map').empty().append(
+			this.Canvas=document.createElement('canvas')
 		);
-		this.Ctx=Util.ThrowOnNull(this.Canvas.getContext("2d"), "2D context unavailable"); //Get the canvas context
+		this.Ctx=Util.ThrowOnNull(this.Canvas.getContext('2d'), "2D context unavailable"); //Get the canvas context
 
 		this.ResizeToWindow();
-		$(window).on("resize", this.ResizeToWindow.bind(this));
+		$(window).on('resize', this.ResizeToWindow.bind(this));
 		this.Loop();
 		this._CanRender=true;
 
@@ -110,7 +110,7 @@ export default class MapCanvas
 				(this.Height-this.Image.height*this.Scale)/2,
 			);
 		} catch(e) {
-			throw new Error("Failed to load map:\n"+Util.GetErrorMessage(e));
+			throw new Error("Failed to load map:"+StatStr.NewLine+Util.GetErrorMessage(e));
 		}
 	}
 
@@ -140,16 +140,16 @@ export default class MapCanvas
 	private BindInput()
 	{
 		$(this.Canvas)
-			.on("dragstart"	 , e => e.preventDefault())
-			.on("contextmenu", e => e.preventDefault());
+			.on('dragstart'	 , e => e.preventDefault())
+			.on('contextmenu', e => e.preventDefault());
 
-		if("PointerEvent" in window)
+		if('PointerEvent' in window)
 			this.BindInputPointer();
 		else
 			this.BindInputMouse();
 
 		//Bind the wheel
-		this.Canvas.addEventListener("wheel", e => {
+		this.Canvas.addEventListener('wheel', e => {
 			e.preventDefault();
 			const ZoomAround=this.EvPos(e);
 			const ScaleAt={Scale:e.deltaY>0 ? 0.9 : 1.1};
@@ -164,7 +164,7 @@ export default class MapCanvas
 		let LastX=0, LastY=0, StartX=0, StartY=0;
 
 		$(this.Canvas)
-			.on("mousedown", e => {
+			.on('mousedown', e => {
 				if(e.which!==1)
 					return;
 				IsDragging=true;
@@ -173,14 +173,14 @@ export default class MapCanvas
 				StartY=LastY=MousePos.Y;
 				this.Events.MouseDown.Execute(MousePos);
 			})
-			.on("mouseleave", () => { IsDragging=false; this.Events.MouseLeave.Execute(); })
-			.on("mouseup", e => {
+			.on('mouseleave', () => { IsDragging=false; this.Events.MouseLeave.Execute(); })
+			.on('mouseup', e => {
 				const MousePos=this.EvPos(e);
 				IsDragging=false;
 				if(MousePos.Distance(new Vector2(StartX, StartY))<Math.sqrt(3*3+3*3))
 					this.Events.Click.Execute(MousePos);
 			})
-			.on("mousemove", e => {
+			.on('mousemove', e => {
 				const MousePos=this.EvPos(e);
 				this.Events.MouseMove.Execute(MousePos);
 
@@ -228,7 +228,7 @@ export default class MapCanvas
 		const EndPinch= () => IsPinching=false;
 
 		$(this.Canvas)
-			.on("pointerdown", e => {
+			.on('pointerdown', e => {
 				if(Pointers.size>=2)
 					return;
 
@@ -240,7 +240,7 @@ export default class MapCanvas
 					return void(BeginPinch());
 
 				if(
-					   (Pe.pointerType==="mouse" || Pe.pointerType==="pen")
+					   (Pe.pointerType==='mouse' || Pe.pointerType==='pen')
 					&& (!Pe.isPrimary || Pe.button!==0)
 				)
 					return;
@@ -250,7 +250,7 @@ export default class MapCanvas
 				StartY=LastY=MousePos.Y;
 				this.Events.MouseDown.Execute(MousePos);
 			})
-			.on("pointermove", e => {
+			.on('pointermove', e => {
 				const Pe=e.originalEvent as PointerEvent;
 				const P=Pointers.get(Pe.pointerId);
 				const MousePos=this.EvPos(Pe);
@@ -269,8 +269,8 @@ export default class MapCanvas
 				LastX=MousePos.X;
 				LastY=MousePos.Y;
 			})
-			.on("pointerleave", () => { IsDragging=false; this.Events.MouseLeave.Execute(); })
-			.on("pointerup pointercancel", e => {
+			.on('pointerleave', () => { IsDragging=false; this.Events.MouseLeave.Execute(); })
+			.on('pointerup pointercancel', e => {
 				const Pe=e.originalEvent as PointerEvent;
 				const MousePos=this.EvPos(Pe);
 				if(MousePos.Distance(new Vector2(StartX, StartY))<Math.sqrt(3*3+3*3))
@@ -290,8 +290,8 @@ export default class MapCanvas
 				}
 			});
 
-		this.Canvas.addEventListener("touchmove" , e => e.preventDefault(), {passive:false});
-		this.Canvas.addEventListener("touchstart", e => e.preventDefault(), {passive:false});
+		this.Canvas.addEventListener('touchmove' , e => e.preventDefault(), {passive:false});
+		this.Canvas.addEventListener('touchstart', e => e.preventDefault(), {passive:false});
 	}
 
 	public ZoomAt(Pos:Vector2, ScaleAmount:number)
@@ -376,9 +376,9 @@ export default class MapCanvas
 		const MaxFont=80, MinFont=10, Pad=24;
 		const Lines=Text.split(/\r?\n/);
 
-		this.Ctx.textAlign="center";
-		this.Ctx.textBaseline="middle";
-		this.Ctx.fillStyle="#fff";
+		this.Ctx.textAlign='center';
+		this.Ctx.textBaseline='middle';
+		this.Ctx.fillStyle='#fff';
 
 		const MeasureMultiline=(Size:number) => {
 			this.Ctx.font=`${Size}px sans-serif`;
@@ -429,7 +429,7 @@ abstract class MapCanvas_Friend extends MapCanvas implements FriendClass
 	public override Mover?:Mover=undefined;
 	//Ignore these
 	protected constructor() { super(-1, -1, -1, -1); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
 }
 
 class Mover
@@ -447,7 +447,7 @@ class Mover
 		public readonly ZoomTo?:number,
 	) {
 		this.Duration*=1000;
-		Share.MCanvas.Events.Draw.Add("MoveToPointAction"+this.MyUniqueID, this.OnFrame.bind(this));
+		Share.MCanvas.Events.Draw.Add('MoveToPointAction'+this.MyUniqueID, this.OnFrame.bind(this));
 
 		//If also zooming then we need to use map coordinates
 		if(this.ZoomTo!==undefined) {
@@ -487,7 +487,7 @@ class Mover
 		if(this.IsComplete)
 			return;
 		this.IsComplete=true;
-		Share.MCanvas.Events.Draw.Remove("MoveToPointAction"+this.MyUniqueID);
+		Share.MCanvas.Events.Draw.Remove('MoveToPointAction'+this.MyUniqueID);
 		(Share.MCanvas as MapCanvas_Friend).Mover=undefined;
 	}
 }

@@ -1,4 +1,4 @@
-import { DevStrings, StatStr, Util } from "./SharedClasses"
+import { DevStrings, StatStr, Util } from './SharedClasses';
 
 export class Translate
 {

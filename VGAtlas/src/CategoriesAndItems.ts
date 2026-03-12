@@ -1,15 +1,16 @@
-import { FriendClass, Log, PopupMessage, StatStr, Util, Vector2, WillBeSet } from "./SharedClasses"
-import { ExpNo, ExpYes, JsonClass, JsonConverter, JsonConverter_Generic, JsonPropsDec, LoadJson, SaveJson } from "./JSON"
-import { MapIcon, Sprite } from "./MapIcon"
-import { Languages } from "./AtlasConfig"
-import { SaveData } from "./SaveData"
-import { Translate } from "./TempClasses"
-import { Share } from "./Share"
+import { FriendClass, Log, PopupMessage, StatStr, Util, Vector2, WillBeSet } from './SharedClasses';
+import { ExpNo, ExpYes, JsonClass, JsonConverter, JsonConverter_Generic, JsonPropsDec, LoadJson, SaveJson } from './JSON';
+import { MapIcon, Sprite } from './MapIcon';
+import { Languages } from './AtlasConfig';
+import { SaveData } from './SaveData';
+import { Translate } from './TempClasses';
+import { Share } from './Share';
 
 export enum CategoryToggleState
 {
 	All=0, Incomplete, None, Unknown //Unknown must be last
 }
+const NT=StatStr.NeedsTranslate;
 
 //Category groups (title and list of categories)
 export class CategoryGroup extends Map<number, Category>
@@ -49,7 +50,7 @@ export class Category extends JsonClass
 	public static readonly MaxID=499;
 	public static IDInRange(ID:number) { return ID>=Category.MinID && ID<=Category.MaxID; }
 
-	public CallOnUpdate:(() => void)[]=[];
+	@ExpNo() public CallOnUpdate:(() => void)[]=[];
 	private Update(_Dummy:unknown)
 	{
 		for(const CB of this.CallOnUpdate)
@@ -62,19 +63,19 @@ abstract class Category_Friend extends Category implements FriendClass
 	public override set CurrentCount(_Value:number) { this.Stub(); }
 	//Ignore these
 	protected constructor() { super(-1); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
 }
 
 //Characters used for string manipulation stand-ins
 const enum LStatStr {
-	ChainItem_AmountChar="\uE002",
-	TrVarChar="\uE003", //Translation variable character - This is placed around any translation names in strings for quick variable fill-in
+	ChainItem_AmountChar='\uE002',
+	TrVarChar='\uE003', //Translation variable character - This is placed around any translation names in strings for quick variable fill-in
 }
 
 //Translation functions
 const Tr=new Translate();
-function TSan(Message:string)						: string { return Tr.TDef(Message, "ItemFields", Message, true)!; }
-function TDef(Message:string, Default:string|null)	: string { return Tr.TDef(Message, "ItemFields", Default, true)!; }
+function TSan(Message:string)						: string { return Tr.TDef(Message, 'ItemFields', Message, true)!; }
+function TDef(Message:string, Default:string|null)	: string { return Tr.TDef(Message, 'ItemFields', Default, true)!; }
 function TrVar(Name:string)							: string { return LStatStr.TrVarChar+Name+LStatStr.TrVarChar; }
 const VarDefaults:Record<string, string>={
 	SEP_AND			: ", ",
@@ -170,10 +171,10 @@ export class Item extends JsonClass
 		const CombinedExtraString=[
 			ChainListToStartWith?.ExtraStr?.StartString,
 			ChainListToCopy.ExtraStr?.StartString,
-		].filter(S => S!==undefined && S!==StatStr.Empty).join("; ");
+		].filter(S => S!==undefined && S!==StatStr.Empty).join('; ');
 
 		//Set the new chain list and return success
-		this[CType===ChainType.Reqs ? "Reqs" : "Needs"]=new ChainList(
+		this[CType===ChainType.Reqs ? 'Reqs' : 'Needs']=new ChainList(
 			this, (ListToStartWith.length>0 ? ChainListToStartWith!.StartString+'|' : StatStr.Empty)+ChainListToCopy.StartString,
 			CType, NewList, !CombinedExtraString ? undefined : new RenderedField(this, CombinedExtraString)
 		);
@@ -188,7 +189,7 @@ export class Item extends JsonClass
 		if(Value===CategoryToggleState.Unknown)
 			return;
 		this._CurrentToggleState=Value;
-		Util.SetNullable(this.MapIcon, "CTS", Value);
+		Util.SetNullable(this.MapIcon, 'CTS', Value);
 	}
 	public SetStatusFlag(ForStarted:boolean, Value:boolean)
 	{
@@ -207,7 +208,7 @@ export class Item extends JsonClass
 			return;
 		(Share.DS.Categories.get(this.CategoryID)! as Category_Friend).CurrentCount+=(Value ? 1 : -1);
 		this._IsFound=Value;
-		Util.SetNullable(this.MapIcon, "IsFound", Value);
+		Util.SetNullable(this.MapIcon, 'IsFound', Value);
 	}
 
 	@ExpNo() private _IsLinked=false;
@@ -217,7 +218,7 @@ export class Item extends JsonClass
 		if(this._IsLinked===Value)
 			return;
 		this._IsLinked=Value;
-		Util.SetNullable(this.MapIcon, "IsLinked", Value);
+		Util.SetNullable(this.MapIcon, 'IsLinked', Value);
 	}
 
 	@ExpNo() private _MapIcon?:MapIcon=undefined;
@@ -241,10 +242,10 @@ export class Item extends JsonClass
 
 abstract class Item_Friend extends Item implements FriendClass
 {
-	public override get GetLinkID(): string { return this.Stub(""); }
+	public override get GetLinkID(): string { return this.Stub(StatStr.Empty); }
 	//Ignore these
 	protected constructor() { super(-1); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
 }
 
 class StringCountPair { //Only last item in RenderParts will have SL=null
@@ -270,7 +271,7 @@ export class ChainList extends JsonClass
 			return;
 
 		//Get and remove the extra string part
-		const ExtraStrPos=ItemList.indexOf("^");
+		const ExtraStrPos=ItemList.indexOf('^');
 		if(ExtraStrPos!==-1) {
 			this.ExtraStr=new RenderedField(this.Parent, ItemList.slice(ExtraStrPos+1));
 			ItemList=ItemList.slice(0, ExtraStrPos);
@@ -278,17 +279,17 @@ export class ChainList extends JsonClass
 
 		//Parse the list
 		if(ItemList!==StatStr.Empty)
-			this.Items=ItemList.split("|").map(OrStr =>
-				OrStr.split("`").map(ItemStr =>
+			this.Items=ItemList.split('|').map(OrStr =>
+				OrStr.split('`').map(ItemStr =>
 					new ChainItem(this, ItemStr)
 				)
 			);
 	}
 
 	//--------------------String rendering--------------------
-	//StringCountPair are created such that we can essentially do a `strings.Join(RenderParts.Select(RP => RP.StrBeforeCount+RP.SL.NumCollected))`
-	private static readonly ExtractItemCounts=new RegExp(`${LStatStr.ChainItem_AmountChar}\\d+${LStatStr.ChainItem_AmountChar}`, "g");
-	private static readonly ReplaceLangVars=new RegExp(`${LStatStr.TrVarChar}([\\p{L}_]+)${LStatStr.TrVarChar}`, "gu");
+	//StringCountPair are created such that we can essentially do a `RenderParts.map(RP => RP.StrBeforeCount+RP.SL.NumCollected).join('')`
+	private static readonly ExtractItemCounts=new RegExp(`${LStatStr.ChainItem_AmountChar}\\d+${LStatStr.ChainItem_AmountChar}`, 'g');
+	private static readonly ReplaceLangVars=new RegExp(`${LStatStr.TrVarChar}([\\p{L}_]+)${LStatStr.TrVarChar}`, 'gu');
 	//@ts-expect-error Private function is used in json export
 	@ExpYes() private get ExpRenderParts() { return this.RenderParts===undefined ? {_:this.RenderedString, RP:this.RenderParts}.RP : this.RenderParts; }
 	@ExpNo() private RenderParts:StringCountPair[]=WillBeSet;
@@ -340,7 +341,7 @@ export class ChainList extends JsonClass
 		//Reformat the list
 		const Ret=
 			this.Items.map(ItemList =>
-				ItemList.map(I => (I as Category_ChainItem).RenderedStringInternal).join(`<color=${Share.DS.LinkColors.Sep_AND}>${TrVar("SEP_AND")}</color>`)
+				ItemList.map(I => (I as ChainItem_Friend).RenderedStringInternal).join(`<color=${Share.DS.LinkColors.Sep_AND}>${TrVar("SEP_AND")}</color>`)
 			).join(` <b><color=${Share.DS.LinkColors.Sep_OR}>${TrVar("SEP_OR")}</color></b> `)
 			+(this.ExtraStr===undefined ? StatStr.Empty : `; ${this.ExtraStr}`);
 
@@ -357,7 +358,7 @@ export class ChainList extends JsonClass
 			//Add to pending string as Count=1 if not a static link
 			const ID=Number.parseInt(m[0].slice(1, -1), 10);
 			if(!StaticLink.IDInRange(ID)) {
-				PendingStr+="1";
+				PendingStr+='1';
 				continue;
 			}
 
@@ -382,7 +383,7 @@ export class ChainItem extends JsonClass
 	@ExpNo() private _RenderedStringReal:string=WillBeSet; //Contains AmountChar where the live collected count will need to be inserted
 	@ExpNo() private 	get RenderedStringReal		() { return this._RenderedStringReal ??= this.FinishInternalRender(); }
 	@ExpNo() protected	get RenderedStringInternal	() { return this.GetProcessedRenderString(this.RenderedStringReal, `${LStatStr.ChainItem_AmountChar}${this.LinkID}${LStatStr.ChainItem_AmountChar}`); } //AmountChar becomes LinkID surround by AmountChar
-			 public		get RenderedString			() { return this.GetProcessedRenderString(this.RenderedStringReal, "?"); } //Changes AmountChar to a question mark
+			 public		get RenderedString			() { return this.GetProcessedRenderString(this.RenderedStringReal, '?'); } //Changes AmountChar to a question mark
 	private GetProcessedRenderString(Str:string, Replacement:string) { return this.LinkID===-1 ? Str : Str.replaceAll(LStatStr.ChainItem_AmountChar, Replacement); }
 
 	public readonly FlagNot			:boolean=false	;
@@ -441,7 +442,7 @@ export class ChainItem extends JsonClass
 
 		//If unlinked or linking failed do not make it a real link
 		if(this.LinkID===-1)
-			return [Amounts?.replace(LStatStr.ChainItem_AmountChar, StatStr.Empty) ?? StatStr.Empty, "<u>", ...Parts, this.Name, "</u>"].join(StatStr.Empty);
+			return [Amounts?.replace(LStatStr.ChainItem_AmountChar, StatStr.Empty) ?? StatStr.Empty, '<u>', ...Parts, this.Name, '</u>'].join(StatStr.Empty);
 
 		//Prepare variables for rendered string
 		const ExtraColor=
@@ -454,13 +455,13 @@ export class ChainItem extends JsonClass
 		const MakeAttr=(AttrName:string, AttrVal:unknown) => `<ATTR=${AttrName}>${AttrVal}</ATTR>`; //Sanitization not needed on use cases
 		return [
 			`<LinkID=${(this.Parent.Parent as Item_Friend).GetLinkID}>`,
-			MakeAttr("ItemID", this.LinkID),
-			ExtraColor!==undefined ? MakeAttr("NormalColor", ExtraColor) : StatStr.Empty,
+			MakeAttr('ItemID', this.LinkID),
+			ExtraColor!==undefined ? MakeAttr('NormalColor', ExtraColor) : StatStr.Empty,
 			Amounts?.replace(LStatStr.ChainItem_AmountChar, `<b><size=-4>${LStatStr.ChainItem_AmountChar}</size></b><color=white>/</color>`),
-			"<u>",
+			'<u>',
 			...Parts,
 			this.Name,
-			"</u></LinkID>",
+			'</u></LinkID>',
 		].filter(Str => Str!==undefined).join(StatStr.Empty);
 	}
 
@@ -478,7 +479,7 @@ export class ChainItem extends JsonClass
 		if(this.FlagUnlinked || !Number.isFinite(TestID))
 			return;
 
-		const RetErr=(Type:string) => Log.Error(`Invalid ${Type} ID Found in ${this.Parent.Parent.ID}.${this.Parent.Type}: ${TestID}`);
+		const RetErr=(Type:string) => Log.Error(NT+`Invalid ${Type} ID Found in ${this.Parent.Parent.ID}.${this.Parent.Type}: ${TestID}`);
 		let FoundItem:StaticLink|Item|undefined;
 		if(StaticLink.IDInRange(TestID))
 			if(!(FoundItem=Share.DS.StaticLinks.get(TestID)))	RetErr("Static Link");
@@ -488,9 +489,12 @@ export class ChainItem extends JsonClass
 		else													RetErr("Item");
 	}
 }
-class Category_ChainItem extends ChainItem
+abstract class ChainItem_Friend extends ChainItem implements FriendClass
 {
-	public override get RenderedStringInternal() { return ""; }
+	public override get RenderedStringInternal() { return this.Stub(StatStr.Empty); }
+	//Ignore these
+	protected constructor(_Parent:ChainList, _Item:string) { super(null!, null!); this.Stub(); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
 }
 
 //A string with item links inside square brackets rendered as actual links
@@ -526,7 +530,7 @@ class ItemSet extends JsonClass
 	@ExpNo() public get GetItems() { return this.ItemList.values(); }
 	@ExpNo() public get HasItems() { return this.ItemList.size>0; }
 	//@ts-expect-error Private function is used in json export
-	@ExpYes() private get ExpItemIDs() { return this.ItemList.size===0 ? null : [...this.ItemList.values()].map(I => I.ID.toString()).join(", "); }
+	@ExpYes() private get ExpItemIDs() { return this.ItemList.size===0 ? null : [...this.ItemList.values()].map(I => I.ID.toString()).join(', '); }
 
 	@ExpNo() private IsRendered=false;
 	@ExpNo() private _RenderedString?:string;
@@ -585,19 +589,19 @@ export namespace CreateItem
 		OtherLinks: new CreateItemJSC_StrArr((_, Value) => new Array<string>(...Value)),
 
 		//Handle compacted Json data from CreateJSONs.php
-		C: new CreateItemJSC_NameOnly(null, "CategoryID"),
-		T: new CreateItemJSC_NameOnly(null, "Title"		),
-		I: new CreateItemJSC_NameOnly(null, "IconID"	),
-		R: new CreateItemJSC_NameOnly(null, "Reqs"		),
-		A: new CreateItemJSC_NameOnly(null, "WhereAt"	),
-		N: new CreateItemJSC_NameOnly(null, "Needs"		),
-		W: new CreateItemJSC_NameOnly(null, "Rewards"	),
-		E: new CreateItemJSC_NameOnly(null, "Effect"	),
-		P: new CreateItemJSC_NameOnly(null, "Tip"		),
-		O: new CreateItemJSC_NameOnly(null, "Notes"		),
-		L: new CreateItemJSC_NameOnly(null, "OtherLinks"),
-		S: new CreateItemJSC_NameOnly(null, "Store"	),
-		U: new CreateItemJSC_NameOnly(null, "ImageURLs"	),
+		C: new CreateItemJSC_NameOnly(null, 'CategoryID'),
+		T: new CreateItemJSC_NameOnly(null, 'Title'		),
+		I: new CreateItemJSC_NameOnly(null, 'IconID'	),
+		R: new CreateItemJSC_NameOnly(null, 'Reqs'		),
+		A: new CreateItemJSC_NameOnly(null, 'WhereAt'	),
+		N: new CreateItemJSC_NameOnly(null, 'Needs'		),
+		W: new CreateItemJSC_NameOnly(null, 'Rewards'	),
+		E: new CreateItemJSC_NameOnly(null, 'Effect'	),
+		P: new CreateItemJSC_NameOnly(null, 'Tip'		),
+		O: new CreateItemJSC_NameOnly(null, 'Notes'		),
+		L: new CreateItemJSC_NameOnly(null, 'OtherLinks'),
+		S: new CreateItemJSC_NameOnly(null, 'Store'	),
+		U: new CreateItemJSC_NameOnly(null, 'ImageURLs'	),
 	};
 }
 
@@ -620,8 +624,8 @@ class StoreItems
 	private FinishInternalRender()
 	{
 		return this.Items.map(I =>
-			"\n- "+I.Rewards.RenderedString+TDef("STORE_FOR", " for ")+I.Needs.RenderedString+
-			(I.Reqs!==undefined ? Tr.TDef("STORE_REQ", "ItemFields", " (Required: {0})", false, I.Reqs.RenderedString) : StatStr.Empty)
+			StatStr.NewLine+'- '+I.Rewards.RenderedString+TDef("STORE_FOR", " for ")+I.Needs.RenderedString+
+			(I.Reqs!==undefined ? Tr.TDef("STORE_REQ", 'ItemFields', " (Required: {0})", false, I.Reqs.RenderedString) : StatStr.Empty)
 		).join(StatStr.Empty);
 	}
 	public Render(FieldTitle:string) { return `<b>${TSan(FieldTitle)}</b>: `+this.RenderedString; }
@@ -652,8 +656,8 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 			:	this.CountFunc!==undefined						? this.CountFunc()
 			:	this.FName===undefined							? this.SpecialCount
 			:	(V=SaveData.PlayerData.Get(this.FName))===null	? 0
-			:	typeof(V)==="number"							? V
-			:	typeof(V)==="boolean"							? (V ? 1 : 0)
+			:	typeof(V)==='number'							? V
+			:	typeof(V)==='boolean'							? (V ? 1 : 0)
 			:													  0;
 	}
 
@@ -662,7 +666,7 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 	public get ExpOverride()
 	{
 		return	this.CategoryID!==-1						? Share.DS.Categories.get(this.CategoryID)!.Title
-			:	this.ItemIDs!==undefined					? this.ItemIDs.map(ItemID => `${Share.DS.Items.get(ItemID)!.Title} [${Share.DS.Items.get(ItemID)!.ID}]`).join(", ")
+			:	this.ItemIDs!==undefined					? this.ItemIDs.map(ItemID => `${Share.DS.Items.get(ItemID)!.Title} [${Share.DS.Items.get(ItemID)!.ID}]`).join(', ')
 			:	this.CountFunc!==undefined					? this.CountFunc.name
 			:	this.FName===undefined						? this.SpecialCount.toString()
 			:												this.FName;
@@ -680,8 +684,8 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 				LineErr(P.ErrStr);
 			return [ID, new StaticLink(P.OverwriteName ?? CurName, P.CategoryID ?? -1, P.ItemIDs, P.SpecialCount ?? 0, P.FName, P.CountFunc)];
 		}
-		function LineErr(Err:string, CompleteFail:boolean=false): undefined { Log.Error(`Error on Static Link #${RemID}${(CompleteFail ? " [Skipped]" : StatStr.Empty)}: ${Err}`); return undefined; }
-		function IsValidSpecialFieldType(MemberName:string) { const T:unknown=SaveData.PlayerData.Get(MemberName); return typeof(T)==="number" || typeof(T)==="boolean"; }
+		function LineErr(Err:string, CompleteFail:boolean=false): undefined { Log.Error(NT+`Error on Static Link #${RemID}${(CompleteFail ? " [Skipped]" : StatStr.Empty)}: ${Err}`); return undefined; }
+		function IsValidSpecialFieldType(MemberName:string) { const T:unknown=SaveData.PlayerData.Get(MemberName); return typeof(T)==='number' || typeof(T)==='boolean'; }
 		function GetNum(NumStr:string): number|null { const N=Number(NumStr); return Number.isFinite(N) ? N : null; }
 
 		//Process the static links
@@ -692,19 +696,19 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 			else if(!Array.isArray(L) || L.length===0		)	LineErr("Array is empty",					true);						//No entries in the array
 			else if(typeof(CurName=L[0])!=="string"			)	yield AddSL(MyID, {OverwriteName:"???", ErrStr:"Name is not a string"});//Invalid name
 			else if(L.length===1							)	yield AddSL(MyID, {SpecialCount:1});									//Unlinked
-			else if(L.length===2 && typeof(L[1])==="string" && (Special=L[1]))															//Special check
+			else if(L.length===2 && typeof(L[1])==='string' && (Special=L[1]))															//Special check
 				if((SpecialInt=GetNum(Special)!)!==null)		yield AddSL(MyID, {SpecialCount:SpecialInt});							//Special Count Success
 				else if(StaticLink.SpecialFuncs.has(Special))	yield AddSL(MyID, {CountFunc:StaticLink.SpecialFuncs.get(Special)!});	//Special GetCount func
 				else if(SaveData.PlayerData.Has(Special))																				//Special FieldInfo Check
-					if(!IsValidSpecialFieldType(Special))		yield AddSL(MyID, {ErrStr:`PlayerData.${Special} ≠ bool/int/enum`});	//Special FieldInfo failed (not int)
+					if(!IsValidSpecialFieldType(Special))		yield AddSL(MyID, {ErrStr:NT+`PlayerData.${Special} ≠ bool/int/enum`});	//Special FieldInfo failed (not int)
 					else										yield AddSL(MyID, {FName:Special});										//Special FieldInfo success
-				else											yield AddSL(MyID, {ErrStr:`Invalid value for special: ${Special}`});	//Special FieldInfo failed (doesn’t exist)
-			else if(L.length===2 && Category.IDInRange(CatID=(typeof(L[1])==="number" ? L[1] : -1)))									//Category check
+				else											yield AddSL(MyID, {ErrStr:NT+`Invalid value for special: ${Special}`});	//Special FieldInfo failed (doesn’t exist)
+			else if(L.length===2 && Category.IDInRange(CatID=(typeof(L[1])==='number' ? L[1] : -1)))									//Category check
 				if(Categories.has(CatID))						yield AddSL(MyID, {CategoryID:CatID});									//Category success
-				else											yield AddSL(MyID, {ErrStr:`Invalid Category ID ${CatID}`});				//Category failed
+				else											yield AddSL(MyID, {ErrStr:NT+`Invalid Category ID ${CatID}`});			//Category failed
 			else												yield AddSL(MyID, {ItemIDs:												//Item list
 				L.slice(1).map(I =>
-					  typeof(I)!=="number"	? LineErr("ItemID is not a number: "		+I)
+					  typeof(I)!=='number'	? LineErr("ItemID is not a number: "		+I)
 					: !Item.IDInRange(I)	? LineErr("ItemID is not a valid Item ID: "	+I)
 					: !Items.has(I)			? LineErr("ItemID is not a valid Item: "	+I)
 					: I
@@ -713,14 +717,14 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 
 	//Other special types for use with CountFunc
 	private static readonly SpecialFuncs=new Map<string, () => number>([
-		[ "ToolSlots", StaticLink.GetToolSlots ],
+		[ 'ToolSlots', StaticLink.GetToolSlots ],
 	]);
 	private static GetToolSlots()
 	{
 		let UnlockedSlotCount=0;
 		for(const [, { Name: CrestName, Data: CrestData }] of Object.entries(SaveData.PlayerData.ToolEquips.savedData)) {
 			//Hunter crests do not count towards unlocked slot count
-			if(CrestName.startsWith("Hunter"))
+			if(CrestName.startsWith('Hunter'))
 				continue;
 
 			//Count the unlocked slots for the current crest
@@ -730,7 +734,7 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 					CurrentToolUnlockedSlotCount++;
 
 			//All crests but the Toolmaster have a Silk Skills slot we need to subtract
-			if(CrestName!=="Toolmaster" && CurrentToolUnlockedSlotCount>1)
+			if(CrestName!=='Toolmaster' && CurrentToolUnlockedSlotCount>1)
 				CurrentToolUnlockedSlotCount--;
 
 			//Add to the total

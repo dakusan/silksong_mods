@@ -1,14 +1,14 @@
-import "./Style.scss"
-import $ from "jquery"
-import MapCanvas from "./MapCanvas"
-import DataStorage from "./DataStorage"
-import MapControl from "./MapControl"
-import { WM } from "./WindowManager"
-import { FriendClass, PopupMessage, Util, WillBeSet } from "./SharedClasses"
-import { InitFuncs } from "./Misc"
-import { Share } from "./Share"
-import { MonitorSaveValues } from "./TempClasses"
-import CategoryGroupsWindow from "./DockableWindows/CategoryGroupsWindow"
+import './Style.scss';
+import $ from 'jquery';
+import MapCanvas from './MapCanvas';
+import DataStorage from './DataStorage';
+import MapControl from './MapControl';
+import { WM } from './WindowManager';
+import { FriendClass, PopupMessage, Util, WillBeSet } from './SharedClasses';
+import { InitFuncs } from './Misc';
+import { Share } from './Share';
+import { MonitorSaveValues } from './TempClasses';
+import CategoryGroupsWindow from './DockableWindows/CategoryGroupsWindow';
 
 //Mimic C++ friend / C# internal
 abstract class DataStorage_Friend extends DataStorage implements FriendClass
@@ -17,10 +17,10 @@ abstract class DataStorage_Friend extends DataStorage implements FriendClass
 	public override CompleteInit(): void { this.Stub(); }
 	//Ignore these
 	protected constructor() { super(); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error("This function is a stub"); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
 }
 
-const CurPopupMessage='Welcome to the <a href="https://silksong.castledragmire.com/" style="color:cyan; text-decoration:none">Pharloom Atlas</a>.<br>This web port is about 70% feature complete against the in-game version, and is still being worked on.<br><div style="font-size:15px">Mobile version is a bit buggy at the moment.</div><br>To navigate your item selection history, use your browsers forward and back button feature.';
+const CurPopupMessage="Welcome to the <a href='https://silksong.castledragmire.com/' style='color:cyan; text-decoration:none'>Pharloom Atlas</a>.<br>This web port is about 70% feature complete against the in-game version, and is still being worked on.<br><div style='font-size:15px'>Mobile version is a bit buggy at the moment.</div><br>To navigate your item selection history, use your browsers forward and back button feature.";
 const CurPopupMessageVersion=1;
 
 async function Main()
@@ -28,8 +28,8 @@ async function Main()
 	let MCanvas:MapCanvas=WillBeSet;
 	try {
 		//1-time popup message (until version number changes)
-		if(Number(localStorage.getItem("LastPopupMessageSeen") ?? 0)!==CurPopupMessageVersion) {
-			localStorage.setItem("LastPopupMessageSeen", String(CurPopupMessageVersion));
+		if(Number(localStorage.getItem('LastPopupMessageSeen') ?? 0)!==CurPopupMessageVersion) {
+			localStorage.setItem('LastPopupMessageSeen', String(CurPopupMessageVersion));
 			new PopupMessage(CurPopupMessage, true);
 		}
 
@@ -37,11 +37,11 @@ async function Main()
 		MCanvas=Share.MCanvas=new MapCanvas(87.7487, -87.5855, 2090, 1569);
 		Share.MSV=new MonitorSaveValues();
 		const DS=new DataStorage();
-		await MCanvas.Init("Assets/PAtlasMap.png");
+		await MCanvas.Init('Assets/PAtlasMap.png');
 		await (DS as DataStorage_Friend).Load(
-			"Assets/Categories.json",
-			"Assets/Items.json",
-			"Assets/Misc.json",
+			'Assets/Categories.json',
+			'Assets/Items.json',
+			'Assets/Misc.json',
 			Share.LC.IconSet.V,
 		);
 		Share.DS=DS; //Setting this now flags some locations that DataStorage has now completed loading so they can start their tasks
@@ -60,7 +60,7 @@ async function Main()
 		if(MCanvas?.CanRender)
 			MCanvas.ErrorMessage=Message;
 		else
-			$("#map").empty().append($("<div>").text(Message));
+			$('#map').empty().append($('<div>').text(Message));
 	}
 }
 

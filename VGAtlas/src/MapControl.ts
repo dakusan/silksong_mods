@@ -1,9 +1,9 @@
-import $ from "jquery"
-import { Item } from "./CategoriesAndItems"
-import { Window } from "./WindowManager"
-import { Iter, KeyState, Log, Rect, StatStr, Util, Vector2 } from "./SharedClasses"
-import { Share } from "./Share"
-import LinkedLabel from "./LinkedLabel"
+import $ from 'jquery';
+import { Item } from './CategoriesAndItems';
+import { Window } from './WindowManager';
+import { Iter, KeyState, Log, Rect, StatStr, Util, Vector2 } from './SharedClasses';
+import { Share } from './Share';
+import LinkedLabel from './LinkedLabel';
 
 //All functions accept/return canvas pixel coordinates
 export default class MapControl
@@ -29,19 +29,19 @@ export default class MapControl
 
 	constructor()
 	{
-		this.GameMap.Events.Scale		.Add("MapControl.ZoomScale",	NewScale => this.ZoomScale=NewScale);
-		this.GameMap.Events.UserZoom	.Add("MapControl.UserZoom",		this.UserZoom.bind(this));
-		this.GameMap.Events.MouseMove	.Add("MapControl.OnMouseMove",	this.OnMouseMove.bind(this));
-		this.GameMap.Events.Click		.Add("MapControl.OnClick",		this.OnClick.bind(this));
-		this.GameMap.Events.MouseDown	.Add("MapControl.MouseDown",	() => Share.WM.SetFocus(null));
-		this.GameMap.Events.Frame		.Add("MapControl.OnFrame",		this.OnFrame.bind(this));
-		this.GameMap.Events.MouseLeave	.Add("MapControl.MouseLeave",	() => this.SetHoverItem(undefined));
-		this.GameMap.Events.Moved		.Add("MapControl.Move",			this.OnMove.bind(this));
+		this.GameMap.Events.Scale		.Add('MapControl.ZoomScale',	NewScale => this.ZoomScale=NewScale);
+		this.GameMap.Events.UserZoom	.Add('MapControl.UserZoom',		this.UserZoom.bind(this));
+		this.GameMap.Events.MouseMove	.Add('MapControl.OnMouseMove',	this.OnMouseMove.bind(this));
+		this.GameMap.Events.Click		.Add('MapControl.OnClick',		this.OnClick.bind(this));
+		this.GameMap.Events.MouseDown	.Add('MapControl.MouseDown',	() => Share.WM.SetFocus(null));
+		this.GameMap.Events.Frame		.Add('MapControl.OnFrame',		this.OnFrame.bind(this));
+		this.GameMap.Events.MouseLeave	.Add('MapControl.MouseLeave',	() => this.SetHoverItem(undefined));
+		this.GameMap.Events.Moved		.Add('MapControl.Move',			this.OnMove.bind(this));
 		Share.MSV.UpdateAllUsedValuesOnLoad();
 
 		//Handle settings changes
-		Share.LC.IconSize.SettingChanged.Add("MapControl.SetIconSize", this.SetIconSize.bind(this));
-		Share.LC.IconSizeScalesWithZoom.SettingChanged.Add("MapControl.SetIconSize", NewVal => {
+		Share.LC.IconSize.SettingChanged.Add('MapControl.SetIconSize', this.SetIconSize.bind(this));
+		Share.LC.IconSizeScalesWithZoom.SettingChanged.Add('MapControl.SetIconSize', NewVal => {
 			this.IconSizeScalesWithZoom=NewVal;
 			this.SetIconSize(Share.LC.IconSize.V);
 		});
@@ -59,14 +59,14 @@ export default class MapControl
 	private HashUpdate(IsInitial:boolean)
 	{
 		//TODO: Support categories
-		let NewHash=(window.location.hash ?? "");
+		let NewHash=(window.location.hash ?? StatStr.Empty);
 		if(NewHash[0]==='#')
 			NewHash=NewHash.slice(1);
 		if(NewHash.length===0) {
 			if(IsInitial)
 				return;
 			this.SelectItemI(undefined, true);
-			Log.Debug(`Stack Update: Empty`);
+			Log.Debug('Stack Update: Empty');
 			return;
 		}
 
@@ -113,30 +113,30 @@ export default class MapControl
 			return;
 
 		//Deselect the previous hover item and select the new one
-		Util.SetNullable(this.HoverItem	?.MapIcon, "IsHovered", false);
-		Util.SetNullable(ClosestItem	?.MapIcon, "IsHovered", true );
+		Util.SetNullable(this.HoverItem	?.MapIcon, 'IsHovered', false);
+		Util.SetNullable(ClosestItem	?.MapIcon, 'IsHovered', true );
 		this.HoverItem=ClosestItem;
-		this.ItemTooltip.toggleClass("Active", ClosestItem!==undefined);
+		this.ItemTooltip.toggleClass('Active', ClosestItem!==undefined);
 		if(ClosestItem)
 			this.ItemTooltip
 				.empty().append($('<div/>').append(
-					$('<span class="ItemIcon I'+(ClosestItem.IconID!==-1 ? ClosestItem.IconID : Share.DS.Categories.get(ClosestItem.CategoryID)!.IconID)+'"></span>'),
+					$('<span class=\'ItemIcon I'+(ClosestItem.IconID!==-1 ? ClosestItem.IconID : Share.DS.Categories.get(ClosestItem.CategoryID)!.IconID)+'\'></span>'),
 					$('<span/>').text(`${ClosestItem?.Title} [${ClosestItem?.ID}]`),
 				));
 	}
 
 	//Handle key presses
 	private static ZoomKeysAmount=new Map<string, number>([
-		["Equal"			,  1],
-		["Minus"			, -1],
-		["NumpadAdd"		,  1],
-		["NumpadSubtract"	, -1],
+		['Equal'			,  1],
+		['Minus'			, -1],
+		['NumpadAdd'		,  1],
+		['NumpadSubtract'	, -1],
 	]);
 	private static ArrowKeyDirections=new Map<string, [number, number]>([
-		["ArrowLeft",	[ 1, 0]],
-		["ArrowRight",	[-1, 0]],
-		["ArrowUp",		[ 0, 1]],
-		["ArrowDown",	[ 0,-1]]
+		['ArrowLeft',	[ 1, 0]],
+		['ArrowRight',	[-1, 0]],
+		['ArrowUp',		[ 0, 1]],
+		['ArrowDown',	[ 0,-1]]
 	]);
 	public OnFrame()
 	{
@@ -149,7 +149,7 @@ export default class MapControl
 				this.Zoom(Direction);
 
 		//Panning
-		if(!KeyState.GetKeyDown("AltLeft") && !KeyState.GetKeyDown("AltRight"))
+		if(!KeyState.GetKeyDown('AltLeft') && !KeyState.GetKeyDown('AltRight'))
 			for(const [KeyName, Directions] of MapControl.ArrowKeyDirections.entries())
 				if(KeyState.GetKeyDown(KeyName)) {
 					const Rate=Share.LC.PanSpeed.V/this.GameMap.FPS; //Ticks per second
@@ -208,10 +208,10 @@ export default class MapControl
 		//Update browser state
 		if(!IsStackMove) {
 			const IsReplace=!this.CurrentItemWindow;
-			Log.Debug(`Stack ${IsReplace ? "Replace" : "Add"}: ${NewSelectItem ? "#"+NewSelectItem.ID : "Empty"}`);
-			history[IsReplace ? "replaceState" : "pushState"](
+			Log.Debug(`Stack ${IsReplace ? 'Replace' : 'Add'}: ${NewSelectItem ? '#'+NewSelectItem.ID : 'Empty'}`);
+			history[IsReplace ? 'replaceState' : 'pushState'](
 				null, StatStr.Empty,
-				location.pathname+location.search+(NewSelectItem ? "#"+NewSelectItem.ID : StatStr.Empty)
+				location.pathname+location.search+(NewSelectItem ? '#'+NewSelectItem.ID : StatStr.Empty)
 			);
 		}
 		document.title="VGAtlas - SilkSong - "+(NewSelectItem?.Title ?? "No item selected");
@@ -230,8 +230,8 @@ export default class MapControl
 			this.CurrentItemWindow ??= new ItemWindow(NewSelectItem);
 		}
 
-		Util.SetNullable(this.SelectedItem?.MapIcon, "IsSelected", false);
-		Util.SetNullable(NewSelectItem?.MapIcon, "IsSelected", true);
+		Util.SetNullable(this.SelectedItem?.MapIcon, 'IsSelected', false);
+		Util.SetNullable(NewSelectItem?.MapIcon, 'IsSelected', true);
 		NewSelectItem?.MapIcon?.BringToFront();
 		this.SelectedItem=NewSelectItem;
 	}
@@ -243,7 +243,7 @@ export default class MapControl
 		const I=Util.ThrowOnNull(Share.DS.Items.get(ItemID), "Invalid ItemID");
 		this.GameMap.CenterOnPoint(this.GameMap.MapToCanvas(I.Pos), Duration, NewScale);
 		this.SelectItemI(I, IsStackMove);
-		Util.SetNullable(I.MapIcon, "ForceVisibility", true); //Force the icon to be visible
+		Util.SetNullable(I.MapIcon, 'ForceVisibility', true); //Force the icon to be visible
 	}
 
 	private OnMove()
@@ -257,8 +257,8 @@ export default class MapControl
 		this.SetHoverItem(this.FindClosestItem(Pos));
 		const RealPos=Pos.Add(this.GameMap.CanvasPos);
 		this.ItemTooltip.css({
-			left:(RealPos.X+4)+"px",
-			top :(RealPos.Y+4)+"px",
+			left:(RealPos.X+4)+'px',
+			top :(RealPos.Y+4)+'px',
 		});
 	}
 	protected OnClick(Pos:Vector2)
@@ -294,32 +294,32 @@ class ItemWindow extends Window
 			AcceptsKeyboard:false,
 		});
 		const Cat=Share.DS.Categories.get(LinkedItem.CategoryID)!;
-		this.$Content.addClass("ItemContents").append($('<div>').append(
+		this.$Content.addClass('ItemContents').append($('<div>').append(
 			//Title
-			$('<div class=Title><span class=Key>Title</span>: </div>').append(
-				LinkedItem.IconID===-1 ? null! : $(`<span class="ItemIcon I${LinkedItem.IconID}"></span>`),
-				$("<span class=Value>").text(LinkedItem.Title),
+			$('<div class=Title><span class=Key>'+"Title"+'</span>: </div>').append(
+				LinkedItem.IconID===-1 ? null! : $(`<span class='ItemIcon I${LinkedItem.IconID}'></span>`),
+				$('<span class=Value>').text(LinkedItem.Title),
 			),
 
 			//Category
-			$('<div class=Category><span class=Key>Category</span>: </div>').append(
-				$(`<span class="ItemIcon I${Cat.IconID}"></span>`),
-				$("<span class=Value>").text(Cat.Title),
+			$('<div class=Category><span class=Key>'+"Category"+'</span>: </div>').append(
+				$(`<span class='ItemIcon I${Cat.IconID}'></span>`),
+				$('<span class=Value>').text(Cat.Title),
 			),
 
 			//Description and other links
 			(this.MyLabel=new LinkedLabel(
 				this.LinkedItem.Description+(
 					((LinkedItem.OtherLinks?.length ?? 0)<=0) ? StatStr.Empty :
-						"\nLinks: <b>"
+						StatStr.NewLine+"Links"+': <b>'
 						+this.LinkedItem.OtherLinks!.join(", ")
-						+"</b>"
+						+'</b>'
 				)
 			)).Init(),
 
 			//Images
 			...(LinkedItem.ImageURLs?.map(Src =>
-				$('<img alt=Screenshot src="" class=IsLoading>').attr('src', Src)
+				$('<img alt=Screenshot src=\'\' class=IsLoading>').attr('src', Src)
 			) ?? []),
 		));
 
@@ -346,8 +346,7 @@ class ItemWindow extends Window
 		if(this.SelfMove || !this.IsAttached)
 			return;
 		this.IsAttached=false;
-		this.$Root.addClass("Detached");
-		setTimeout(() => this.$Root.removeClass("Detached"), 4000);
+		this.$Root.addClass('Detached');
 	}
 	public ItemUnselected()
 	{

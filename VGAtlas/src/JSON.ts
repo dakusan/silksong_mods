@@ -1,5 +1,7 @@
-import { Util } from "./SharedClasses"
-import { Share } from "./Share"
+import { StatStr, Util } from './SharedClasses';
+import { Share } from './Share';
+
+const NT=StatStr.NeedsTranslate;
 
 //See ClassFromObj.Converters
 export class JsonConverter<
@@ -33,8 +35,8 @@ export const NullYes=()																=> (Target:object, Name:string) => SetJSP
 function SetJSProps<K extends keyof JSProps>(Target:object, Name:string, Values:Pick<JSProps, K>)
 {
 		const Ctor=(Target as JsonClass).constructor as typeof JsonClass;
-		if(!Object.prototype.hasOwnProperty.call(Ctor, "ClassJSProps"))
-			Object.defineProperty(Ctor, "ClassJSProps", {
+		if(!Object.prototype.hasOwnProperty.call(Ctor, 'ClassJSProps'))
+			Object.defineProperty(Ctor, 'ClassJSProps', {
 				value:new Map<PropertyKey, JSProps>(),
 				writable:false, enumerable:false, configurable:false,
 			});
@@ -56,14 +58,14 @@ export namespace LoadJson
 	{
 		const Result=await fetch(url);
 		if(!Result.ok)
-			throw new Error(`Failed to load ${url}: ${Result.status}`);
+			throw new Error(NT+`Failed to load ${url}: ${Result.status}`);
 		const Text=await Result.text();
-		if(Text.startsWith("<!doctype"))
-			throw new Error(`Failed to load ${url}: HTML document received`);
+		if(Text.startsWith('<!doctype'))
+			throw new Error(NT+`Failed to load ${url}: HTML document received`);
 		const Parsed=JSON.parse(Text.replace(/,(\n\t*[}\]])/g, '$1').replace(/^[ \t]*\/\/.*/m, ''));
 
 		if(!(Parsed instanceof Object))
-			throw new Error(`Failed to load ${url}: JSON is not an object`);
+			throw new Error(NT+`Failed to load ${url}: JSON is not an object`);
 		return Parsed as object;
 	}
 
@@ -93,12 +95,12 @@ export namespace LoadJson
 
 			//Make sure there is a corresponding class member and the type matches
 			if(!(K in Obj))
-				throw new Error(`Invalid ${Obj.constructor.name} field: ${String(K)}`);
+				throw new Error(NT+`Invalid ${Obj.constructor.name} field: ${String(K)}`);
 			let ExpectedType=ClassJSProps?.get(K)?.ExpectedType;
 			if(ExpectedType!==undefined || !WasConverted) {
 				ExpectedType ??= Obj[K];
 				if(!Util.SameType(ExpectedType, V))
-					throw new Error(`Mismatch ${Obj.constructor.name}.${String(K)}: ${Util.TypeName(ExpectedType)}!=${Util.TypeName(V)}`);
+					throw new Error(NT+`Mismatch ${Obj.constructor.name}.${String(K)}: ${Util.TypeName(ExpectedType)}!=${Util.TypeName(V)}`);
 			}
 
 			//Set the value
@@ -109,7 +111,7 @@ export namespace LoadJson
 		if(ClassJSProps)
 			for(const [FieldName, JP] of ClassJSProps.entries())
 				if(JP.IsRequired && !Values.hasOwnProperty(FieldName))
-					throw new Error(`Missing required field ${Obj.constructor.name}.${String(FieldName)}`);
+					throw new Error(NT+`Missing required field ${Obj.constructor.name}.${String(FieldName)}`);
 
 		//Return the finalized object
 		return Obj;
@@ -148,14 +150,14 @@ export namespace SaveJson
 				Proto=Object.getPrototypeOf(Proto) as object|null
 		)
 			for(const [Name, Desc] of Object.entries(Object.getOwnPropertyDescriptors(Proto)))
-				if(Name!=="constructor" || Desc.get)
+				if(Name!=='constructor' || Desc.get)
 					Emit(Name);
 
 		return OutObj;
 	}
 	function EncodeVal(Value:unknown): unknown
 	{
-		return	Value===null || Value===undefined || typeof(Value)!=="object" ? Value
+		return	Value===null || Value===undefined || typeof(Value)!=='object' ? Value
 			:	Array.isArray(Value) ? EncodeArr(Value)
 			:	Value instanceof Map ? EncodeMap(Value)
 			:	EncodeObj(Value as object, Object.create(null));
@@ -176,17 +178,17 @@ export namespace SaveJson
 	}
 
 	//Exporting functions
-	const PlaceholderChar="\uEE01";
+	const PlaceholderChar='\uEE01';
 	//Encodes to JSON. Classes can be handled by IExpOverride; Object fields and getters are handled according to JSProps exporting decorators.
 	//Objects maintain their member order. Getters always come after fields. Numeric keys in maps are kept in their original order.
 	export function Stringify(Data:unknown, Compact=false, TrailingCommas=true, Replacer?:(this:unknown, key:string, value:unknown) => unknown)
 	{
 		//The primary encoding process
-		let Output=JSON.stringify(EncodeVal(Data), Replacer, Compact ? undefined : "\t").replaceAll(PlaceholderChar, "");
+		let Output=JSON.stringify(EncodeVal(Data), Replacer, Compact ? undefined : '\t').replaceAll(PlaceholderChar, '');
 
 		//Post formatting
 		if(TrailingCommas)
-			Output=Output.replace(/([^,{[])(\r?\n[ \t]*)(?=[}\]])/g, "$1,$2");
+			Output=Output.replace(/([^,{[])(\r?\n[ \t]*)(?=[}\]])/g, '$1,$2');
 
 		return Output;
 	}
@@ -217,15 +219,15 @@ export namespace SaveJson
 			return Value;
 
 		//Non-integers are formatted in G17 as a string, turned back into non-strings during post-processing
-		if(typeof(Value)==="number" && Number.isFinite(Value) && !Number.isInteger(Value))
+		if(typeof(Value)==='number' && Number.isFinite(Value) && !Number.isInteger(Value))
 			return ToG17Str(Value);
 
 		//Only handle objects past here
-		if(typeof(Value)!=="object")
+		if(typeof(Value)!=='object')
 			return Value;
 
 		//Handle IExpOverride
-		if(((V): V is IExpOverride => Object.prototype.hasOwnProperty.call(V, "ExpOverride"))(Value))
+		if(((V): V is IExpOverride => Object.prototype.hasOwnProperty.call(V, 'ExpOverride'))(Value))
 			return (Value as IExpOverride).ExpOverride;
 
 		return Value;
@@ -235,7 +237,7 @@ export namespace SaveJson
 	function ToG17Str(Num:number)
 	{
 		const Str=Num.toPrecision(17);
-		return Str.includes(".") ? Str.replace(/\.?0+$/, "") : Str;
+		return Str.includes('.') ? Str.replace(/\.?0+$/, '') : Str;
 	}
 
 	//Post-encoding fixes
@@ -248,9 +250,9 @@ export namespace SaveJson
 	//For testing with rendered contents
 	async function PostFormatLikeMod_TestHTML(Str:string)
 	{
-		return new (await import("./LinkedLabel"))
+		return new (await import('./LinkedLabel'))
 			.default(PostFormatLikeMod(Str)).RenderedContents
 			.replace(/<(a|span)[^>]+>/g, m => m.replace(/"/g, '\\"'))
-			.replace(/ style=\\"--phase:[\d.]+\\"/g, "");
+			.replace(/ style='--phase:[\d.]+'/g, '');
 	}
 }

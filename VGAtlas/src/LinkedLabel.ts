@@ -1,6 +1,6 @@
-import $ from "jquery"
-import { StatStr } from "./SharedClasses"
-import { Share } from "./Share"
+import $ from 'jquery';
+import { StatStr } from './SharedClasses';
+import { Share } from './Share';
 
 const LTChar='\uEE04', RTChar='\uEE05';
 const RegEx_LinkID=/<LinkID=(?:\\")?([^ ">]+)(?:\\")?>(.*?)<\/LinkID>/isg;
@@ -8,7 +8,7 @@ const RegEx_Color=/<color=(#?\w+)>((?:(?!<color\b)[\s\S])*?)<\/color>/ig;
 const RegEx_Attr=/<ATTR=([-.\w]+)>(.*?)<\/ATTR>/ig;
 const RegEx_SafeTags=/<\/?(?:b|i|u|s|strong|em|ins|del|size(?:=-?\d+)?)>/ig;
 const RegEx_LTGT=/[<>]/g;
-const RegEx_LTGTChar=new RegExp(`[${LTChar}${RTChar}]`, "g");
+const RegEx_LTGTChar=new RegExp(`[${LTChar}${RTChar}]`, 'g');
 
 export default class LinkedLabel
 {
@@ -36,7 +36,7 @@ export default class LinkedLabel
 			if(!El.hasAttribute('href'))
 				El.setAttribute('href', '#');
 			else if(!El.getAttribute('href')!.startsWith('#'))
-				return void $(El).attr({target:"_blank", rel:"noopener"});
+				return void $(El).attr({target:'_blank', rel:'noopener'});
 
 			$(El).on('click', this.AnchorSelected.bind(this));
 		});
@@ -47,7 +47,7 @@ export default class LinkedLabel
 	private AnchorSelected(Ev:JQuery.ClickEvent)
 	{
 		const Anchor=Ev.currentTarget as HTMLAnchorElement;
-		const ItemID=$(Anchor).attr("data-ItemID");
+		const ItemID=$(Anchor).attr('data-ItemID');
 		if(!Number.isInteger(Number(ItemID))) {
 			Ev.preventDefault();
 			Ev.stopImmediatePropagation();
@@ -67,8 +67,9 @@ export default class LinkedLabel
 	private static FixTags(Str:string)
 	{
 		return Str
-			.replace(RegEx_LTGT		, F => F==="<"		? "&lt;": "&gt;")
-			.replace(RegEx_LTGTChar	, F => F===LTChar	? "<"	: ">"	);
+			.replaceAll('&', '&amp;')
+			.replace(RegEx_LTGT		, F => F==='<'		? '&lt;': '&gt;')
+			.replace(RegEx_LTGTChar	, F => F===LTChar	? '<'	: '>'	);
 	}
 
 	//Temporarily escape our allowed html tags
@@ -85,7 +86,7 @@ export default class LinkedLabel
 
 		//Replace <color> w/ span+color
 		for(let LastStr:string|undefined=undefined; Str!==LastStr; )
-			Str=(LastStr=Str).replace(RegEx_Color, `${LTChar}span style="color:$1"${RTChar}$2${LTChar}/span${RTChar}`);
+			Str=(LastStr=Str).replace(RegEx_Color, `${LTChar}span style='color:$1'${RTChar}$2${LTChar}/span${RTChar}`);
 
 		return Str;
 	}
@@ -108,38 +109,38 @@ export default class LinkedLabel
 		const Styles :string[]=[];
 		let V:string|undefined;
 		const ClearAttr	=(Name:string, _:number			) => Attrs.delete(Name);
-		const AddAttr	=(Name:string,NoDataPrefix=false) => (V=Attrs.get(Name))===undefined ? false : ClearAttr(Name, FAttrs .push((NoDataPrefix ? StatStr.Empty : "data-")+`${Name}="${V}"`));
+		const AddAttr	=(Name:string,NoDataPrefix=false) => (V=Attrs.get(Name))===undefined ? false : ClearAttr(Name, FAttrs .push((NoDataPrefix ? StatStr.Empty : 'data-')+`${Name}='${V}'`));
 		const AddStyle	=(Name:string, CSSName:string	) => (V=Attrs.get(Name))===undefined ? false : ClearAttr(Name, Styles .push(`${CSSName}:${V}`	));
 		const AddClass	=(Name:string					) => (V=Attrs.get(Name))===undefined ? false : ClearAttr(Name, Classes.push(Name				));
 
 		//Static attributes that are handled differently
 		let ItemIcon:string=StatStr.Empty;
-		FAttrs.push("data-LinkID="+LinkID);
-		if(AddAttr("ItemID")) {
-			FAttrs.push(`href="#${V}"`);
+		FAttrs.push('data-LinkID='+LinkID);
+		if(AddAttr('ItemID')) {
+			FAttrs.push(`href='#${V}'`);
 			const Item=Share.DS.Items.get(Number(V));
 			const ItemIconID=Item?.IconID;
 			const FinalIconID=((ItemIconID ?? -1)!==-1 ? ItemIconID : Share.DS.Categories.get(Item?.CategoryID ?? -1)?.IconID);
 			if(FinalIconID!==undefined)
-				ItemIcon=`${LTChar}span class="ItemIcon I${FinalIconID}"${RTChar}${LTChar}/span${RTChar}`;
+				ItemIcon=`${LTChar}span class='ItemIcon I${FinalIconID}'${RTChar}${LTChar}/span${RTChar}`;
 		} else
-			AddAttr("href", true);
-		AddStyle("NormalColor", 'color');
-		if(AddClass("Important"))
+			AddAttr('href', true);
+		AddStyle('NormalColor', 'color');
+		if(AddClass('Important'))
 			Styles.push('--phase:'+Math.floor(Math.random()*1000)/1000);
 
 		//Any remaining attributes are turned into named attributes (with a value) or classes (no value)
 		for(const [Name, Value] of Attrs.entries())
 			if(Value)
-				FAttrs.push(`data-${Name}="${Value}"`);
+				FAttrs.push(`data-${Name}='${Value}'`);
 			else
 				AddClass(Name);
 
 		//Finish combining attributes and return
 		if(Classes.length)
-			FAttrs.push(`class="${Classes.join(" ")}"`);
+			FAttrs.push(`class='${Classes.join(' ')}'`);
 		if(Styles.length)
-			FAttrs.push(`style="${Styles.join("; ")}"`);
-		return `${ItemIcon}${LTChar}a ${FAttrs.join(" ")}${RTChar}${Inner}${LTChar}/a${RTChar}`;
+			FAttrs.push(`style='${Styles.join('; ')}'`);
+		return `${ItemIcon}${LTChar}a ${FAttrs.join(' ')}${RTChar}${Inner}${LTChar}/a${RTChar}`;
 	}
 }
