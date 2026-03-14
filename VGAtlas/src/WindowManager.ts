@@ -32,6 +32,7 @@ function Clamp(n:number, min:number, max:number): number
 export class WindowManager
 {
 	private Windows:Window[]=[];
+	private SavedPositions=new Map<string, Rect>();
 	public get AllWindows(): ArrayIterator<Window> { return this.Windows.values(); }
 	private _Active:Window|null=null; public get Active() { return this._Active; } private set Active(Val) { this._Active=Val; }
 	public get ControlsKeyboard(): boolean { return !!this._Active?.AcceptsKeyboard; }
@@ -56,6 +57,8 @@ export class WindowManager
 		if(this.Active===W)
 			this.Active=null;
 	}
+	protected GetSavedPos(SaveID?:string) { return this.SavedPositions.get(SaveID!); }
+	protected SetSavedPos(SaveID:string, Bounds:Rect) { this.SavedPositions.set(SaveID, Bounds); }
 
 	public SetFocus(W:Window|null): void
 	{
@@ -84,7 +87,7 @@ export const WM=new WindowManager();
 
 type WindowInit=Partial<Pick<Window,
 	'Title'|'Parent'|'X'|'Y'|'Width'|'Height'|'MinWidth'|'MinHeight'|'CanClose'|
-	'CanResize'|'Visible'|'AcceptsKeyboard'|'OnKeyDown'|'OnKeyUp'|'OnClosing'
+	'CanResize'|'Visible'|'AcceptsKeyboard'|'OnKeyDown'|'OnKeyUp'|'OnClosing'|'SaveID'
 >>;
 export class Window
 {
@@ -100,6 +103,7 @@ export class Window
 	private _CanClose		=true			; public get CanClose		() { return this._CanClose			; }; public set CanClose		(Value) { this.SetCanClose		(this._CanClose=		Value); }
 	private _CanResize		=true			; public get CanResize		() { return this._CanResize			; }; public set CanResize		(Value) { this.SetCanResize		(this._CanResize=		Value); }
 	private _Visible		=true			; public get Visible		() { return this._Visible			; }; public set Visible			(Value) { this.SetVisible		(this._Visible=			Value); }
+	private _SaveID?:string					; public get SaveID			() { return this._SaveID			; }; private set SaveID			(Value) {						(this._SaveID=			Value); }
 	public get Pos ():Vector2 { return new Vector2	(this._X, this._Y							 ); }			 public set Pos		(Value:Vector2) { this.UpdateBounds({X:Value.X, Y:Value.Y}); }
 	public get Size():Vector2 { return new Vector2	(					this._Width, this._Height); }			 public set Size	(Value:Vector2) { this.UpdateBounds({Width:Value.X, Height:Value.Y}); }
 	public get Bounds():Rect  { return new Rect		(this._X, this._Y,	this._Width, this._Height); }			 public set Bounds	   (Value:Rect) { this.UpdateBounds(Value); }
@@ -157,7 +161,10 @@ export class Window
 
 		//Initialize parts
 		Window.AssignProps(this, Init);
-		this.UpdateBounds(undefined, false, true);
+		this.UpdateBounds(
+			(WM as WindowManager_Friend).GetSavedPos(this.SaveID),
+			false, true
+		);
 		this.SetCanClose (this.CanClose	);
 		this.SetCanResize(this.CanResize);
 		this.SetVisible  (this.Visible	);
@@ -220,6 +227,8 @@ export class Window
 		([this.$Root, this.$Titlebar, this.$Close] as JQuery[])
 			.forEach(El => El.off(this.EventNS));
 		this.$Root.remove();
+		if(this.SaveID)
+			(WM as WindowManager_Friend).SetSavedPos(this.SaveID, this.Bounds);
 		(WM as WindowManager_Friend).Unregister(this);
 	}
 
@@ -355,6 +364,8 @@ abstract class WindowManager_Friend extends WindowManager implements FriendClass
 {
 	public override Register  (_W:Window): void { this.Stub(); }
 	public override Unregister(_W:Window): void { this.Stub(); }
+	public override GetSavedPos(_SaveID?:string):Rect|undefined { return this.Stub(); }
+	public override SetSavedPos(_SaveID:string, _Bounds:Rect) { this.Stub(); }
 	//Ignore these
 	protected constructor() { super(); this.Stub(); }
 	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }

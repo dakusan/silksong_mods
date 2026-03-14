@@ -259,8 +259,11 @@ abstract class Material
 		if(X>=Material.MapKeyMultiplier || Y>=Material.MapKeyMultiplier)
 			throw new Error("Size cannot be greater than "+Material.MapKeyMultiplier);
 		let Ret=Material.CanvasList.get(Y*Material.MapKeyMultiplier+X);
-		if(!Ret)
+		if(!Ret) {
 			Material.CanvasList.set(Y*Material.MapKeyMultiplier+X, Ret=new OffscreenCanvas(X, Y));
+			//eslint-disable-next-line @typescript-eslint/naming-convention
+			Ret.getContext('2d', { willReadFrequently:true });
+		}
 		return Ret;
 	}
 
@@ -271,8 +274,7 @@ abstract class Material
 		Ctx.reset();
 		Ctx.drawImage(In, 0, 0);
 		const ImageData=Ctx.getImageData(0, 0, In.width, In.height);
-		const Data=ImageData.data;
-		this.Process(Data, In.width, In.height);
+		this.Process(ImageData.data, In.width, In.height);
 		Ctx.putImageData(ImageData, 0, 0);
 		return Canvas;
 	}

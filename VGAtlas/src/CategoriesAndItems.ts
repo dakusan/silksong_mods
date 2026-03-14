@@ -1,4 +1,4 @@
-import { FriendClass, Log, PopupMessage, StatStr, Util, Vector2, WillBeSet } from './SharedClasses';
+import { CallbackList, FriendClass, Log, PopupMessage, StatStr, Util, Vector2, WillBeSet } from './SharedClasses';
 import { ExpNo, ExpYes, JsonClass, JsonConverter, JsonConverter_Generic, JsonPropsDec, LoadJson, SaveJson } from './JSON';
 import { MapIcon, Sprite } from './MapIcon';
 import { Languages } from './AtlasConfig';
@@ -50,13 +50,8 @@ export class Category extends JsonClass
 	public static readonly MaxID=499;
 	public static IDInRange(ID:number) { return ID>=Category.MinID && ID<=Category.MaxID; }
 
-	@ExpNo() public CallOnUpdate:(() => void)[]=[];
-	private Update(_Dummy:unknown)
-	{
-		for(const CB of this.CallOnUpdate)
-			try { CB(); }
-			catch(e) { Util.OutputException("Update category callback", e); }
-	}
+	@ExpNo() public CallOnUpdate=new CallbackList<[]>('Category.OnUpdate');
+	private Update(_Dummy:unknown) { this.CallOnUpdate.Execute(); }
 }
 abstract class Category_Friend extends Category implements FriendClass
 {

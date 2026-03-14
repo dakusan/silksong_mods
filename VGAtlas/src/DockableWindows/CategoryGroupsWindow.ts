@@ -15,7 +15,7 @@ export default class CategoryGroupsWindow extends Window
 
 	constructor()
 	{
-		super({Title:"Categories", MinWidth:234, Width:707, Height:598});
+		super({Title:"Categories", MinWidth:234, Width:707, Height:598, SaveID:'CategoryGroups'});
 		this.$Content.attr('id', 'CategoryGroupsWindow');
 
 		$('<div class=CategoryGroupButtons>').appendTo(this.$Content).append(
@@ -43,7 +43,13 @@ export default class CategoryGroupsWindow extends Window
 			);
 	}
 
-	public override OnClosing() { this.Visible=false; return true; }
+	public override OnClosing()
+	{
+		for(const Row of this.Rows.values())
+			(Row as CategoryRow_Friend).Unload();
+		CategoryGroupsWindow._Self=null!;
+		return false;
+	}
 }
 
 class CategoryRow
@@ -67,7 +73,7 @@ class CategoryRow
 		).appendTo($ParentEl);
 
 		Row.on('click', this.CategoryClicked.bind(this));
-		CategoryInfo.CallOnUpdate.push(this.UpdateInfo.bind(this));
+		CategoryInfo.CallOnUpdate.Add('CatGroupsWindow', () => this.UpdateInfo());
 		this.UpdateInfo();
 	}
 	private CategoryClicked()
@@ -87,11 +93,13 @@ class CategoryRow
 			.toggleClass('StateNone'		, this.CategoryInfo.ToggleState===CategoryToggleState.None		);
 		this.$Counts.text(StatStr.NeedsTranslate+`${this.CategoryInfo.CurrentCount}/${this.CategoryInfo.TotalCount}`);
 	}
+	protected Unload() { this.CategoryInfo.CallOnUpdate.Remove('CatGroupsWindow'); }
 }
 
 abstract class CategoryRow_Friend extends CategoryRow implements FriendClass
 {
 	public static override Init($ParentEl:JQuery, CategoryInfo:Category) { return super.Init($ParentEl, CategoryInfo); }
+	public override Unload() { this.Stub(); }
 	//Ignore these
 	protected constructor(_$ParentEl:JQuery, _CategoryInfo:Category) { super(null!, null!); this.Stub(); }
 	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
