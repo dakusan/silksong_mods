@@ -4,6 +4,7 @@ import MapCanvas from './MapCanvas';
 import DataStorage from './DataStorage';
 import MapControl from './MapControl';
 import { WM } from './WindowManager';
+import  Translations from './Translations';
 import { FriendClass, PopupMessage, Util, WillBeSet } from './SharedClasses';
 import { InitFuncs } from './Misc';
 import { Share } from './Share';
@@ -27,6 +28,10 @@ async function Main()
 {
 	let MCanvas:MapCanvas=WillBeSet;
 	try {
+		//Independent libraries that can load early
+		Share.Tr=Translations.StandardCreate('Atlas');
+		Share.WM=WM;
+
 		//1-time popup message (until version number changes)
 		if(Number(localStorage.getItem('LastPopupMessageSeen') ?? 0)!==CurPopupMessageVersion) {
 			localStorage.setItem('LastPopupMessageSeen', String(CurPopupMessageVersion));
@@ -48,7 +53,6 @@ async function Main()
 		(DS as DataStorage_Friend).CompleteInit();
 
 		//Finish initializing
-		Share.WM=WM;
 		Share.MC=new MapControl();
 		for(const Fn of InitFuncs)
 			Fn();

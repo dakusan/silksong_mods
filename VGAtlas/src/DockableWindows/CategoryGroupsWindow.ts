@@ -19,11 +19,12 @@ export default class CategoryGroupsWindow extends Window
 		this.$Content.attr('id', 'CategoryGroupsWindow');
 
 		$('<div class=CategoryGroupButtons>').appendTo(this.$Content).append(
-			$(document.createElement('button')).text("Show All"			).on('click', Share.DS.SetAllCategoriesStates			.bind(Share.DS, CategoryToggleState.All			)),
-			$(document.createElement('button')).text("Show Incomplete"	).on('click', Share.DS.SetAllCategoriesStates			.bind(Share.DS, CategoryToggleState.Incomplete	)),
-			$(document.createElement('button')).text("Hide all"			).on('click', Share.DS.SetAllCategoriesStates			.bind(Share.DS, CategoryToggleState.None		)),
-			$(document.createElement('button')).text("Needed for 100%"	).on('click', Share.DS.SetCategoriesStatesFor100Percent	.bind(Share.DS									)),
+			$(document.createElement('button')).attr("data-text", "Show All"		).on('click', Share.DS.SetAllCategoriesStates			.bind(Share.DS, CategoryToggleState.All			)),
+			$(document.createElement('button')).attr("data-text", "Show Incomplete"	).on('click', Share.DS.SetAllCategoriesStates			.bind(Share.DS, CategoryToggleState.Incomplete	)),
+			$(document.createElement('button')).attr("data-text", "Hide all"		).on('click', Share.DS.SetAllCategoriesStates			.bind(Share.DS, CategoryToggleState.None		)),
+			$(document.createElement('button')).attr("data-text", "Needed for 100%"	).on('click', Share.DS.SetCategoriesStatesFor100Percent	.bind(Share.DS									)),
 		);
+		this.LanguageChanged();
 
 		for(const CatGrp of Share.DS.CategoryGroups)
 			this.InitGroup(CatGrp);
@@ -41,6 +42,13 @@ export default class CategoryGroupsWindow extends Window
 			(this.Rows as Map<number, CategoryRow>).set(Cat.ID,
 				CategoryRow_Friend.Init($CatGroup, Cat)
 			);
+	}
+
+	public override LanguageChanged()
+	{
+		this.$Content.find('.CategoryGroupButtons button').each(
+			(_, El) => void(El.innerText=Share.Tr.T(El.dataset.text as string, 'SideBarButtons'))
+		);
 	}
 
 	public override OnClosing()

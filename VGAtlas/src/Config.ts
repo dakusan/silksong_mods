@@ -26,6 +26,8 @@ export class ConfigItem<T>
 	public ResetToDefault() { this.V=this.Default; }
 }
 
+export class ConfigEnum { constructor(public readonly Key:string, public readonly Value:string) { } }
+
 export abstract class Config
 {
 	protected constructor(

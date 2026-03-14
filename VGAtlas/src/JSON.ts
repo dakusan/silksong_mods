@@ -62,7 +62,7 @@ export namespace LoadJson
 		const Text=await Result.text();
 		if(Text.startsWith('<!doctype'))
 			throw new Error(NT+`Failed to load ${url}: HTML document received`);
-		const Parsed=JSON.parse(Text.replace(/,(\n\t*[}\]])/g, '$1').replace(/^[ \t]*\/\/.*/m, ''));
+		const Parsed=JSON.parse(Text.replace(/,(\n\t*[}\]])/g, '$1').replace(/^[ \t]+/mg, '').replace(/^\/\/.*/m, '').replaceAll("\t", "\\t"));
 
 		if(!(Parsed instanceof Object))
 			throw new Error(NT+`Failed to load ${url}: JSON is not an object`);

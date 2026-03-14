@@ -1,7 +1,6 @@
-import { Config } from './Config';
+import { Config, ConfigEnum } from './Config';
 import { ColorRGBA } from './SharedClasses';
 
-export enum Languages { English }
 class LocalConfig extends Config {
 	constructor() { super('Atlas_'); }
 	public readonly CategoryToggleStates	=this.Item('CategoryToggleStates',	[[], [], []] as number[][]);
@@ -13,6 +12,7 @@ class LocalConfig extends Config {
 	public readonly IconCenterTime			=this.Item('IconCenterTime',		1.75);
 	public readonly IconCenterEase			=this.Item('IconCenterEase',		2.5);
 	public readonly IconSizeScalesWithZoom	=this.Item('IconSizeScalesWithZoom',true);
-	public readonly Language				=this.Item('Language',				Languages.English);
+	public readonly Language				=this.Item('Language',				new ConfigEnum('en', 'English'));
 }
-export const LC=new LocalConfig();
+const LC=new LocalConfig();
+export default LC;

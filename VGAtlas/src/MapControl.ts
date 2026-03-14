@@ -1,9 +1,8 @@
 import $ from 'jquery';
 import { Item } from './CategoriesAndItems';
-import { Window } from './WindowManager';
+import ItemWindow from './DockableWindows/ItemWindow';
 import { Iter, KeyState, Log, Rect, StatStr, Util, Vector2 } from './SharedClasses';
 import { Share } from './Share';
-import LinkedLabel from './LinkedLabel';
 
 //All functions accept/return canvas pixel coordinates
 export default class MapControl
@@ -214,7 +213,7 @@ export default class MapControl
 				location.pathname+location.search+(NewSelectItem ? '#'+NewSelectItem.ID : StatStr.Empty)
 			);
 		}
-		document.title="VGAtlas - SilkSong - "+(NewSelectItem?.Title ?? "No item selected");
+		document.title="VGAtlas - SilkSong"+(NewSelectItem ? ` - ${NewSelectItem.Title} [#${NewSelectItem.ID}]` : StatStr.Empty);
 
 		//Handle updating the popup item window
 		this.CurrentItemWindow?.ItemUnselected();
@@ -277,80 +276,5 @@ export default class MapControl
 		for(const Item of Share.DS.Items.values())
 			if(!Item.IsLinked)
 				Item.MapIcon!.SetIconColor();
-	}
-}
-
-class ItemWindow extends Window
-{
-	private IsAttached=true; private SelfMove=true; private IsInitializing=true;
-	public readonly MyLabel:LinkedLabel;
-	constructor(
-		public readonly LinkedItem:Item,
-	) {
-		super({
-			Title: `${LinkedItem.Title} [${LinkedItem.ID}]`,
-			Width:350,
-			MinWidth:60,
-			AcceptsKeyboard:false,
-		});
-		const Cat=Share.DS.Categories.get(LinkedItem.CategoryID)!;
-		this.$Content.addClass('ItemContents').append($('<div>').append(
-			//Title
-			$('<div class=Title><span class=Key>'+"Title"+'</span>: </div>').append(
-				LinkedItem.IconID===-1 ? null! : $(`<span class='ItemIcon I${LinkedItem.IconID}'></span>`),
-				$('<span class=Value>').text(LinkedItem.Title),
-			),
-
-			//Category
-			$('<div class=Category><span class=Key>'+"Category"+'</span>: </div>').append(
-				$(`<span class='ItemIcon I${Cat.IconID}'></span>`),
-				$('<span class=Value>').text(Cat.Title),
-			),
-
-			//Description and other links
-			(this.MyLabel=new LinkedLabel(
-				this.LinkedItem.Description+(
-					((LinkedItem.OtherLinks?.length ?? 0)<=0) ? StatStr.Empty :
-						StatStr.NewLine+"Links"+': <b>'
-						+this.LinkedItem.OtherLinks!.join(", ")
-						+'</b>'
-				)
-			)).Init(),
-
-			//Images
-			...(LinkedItem.ImageURLs?.map(Src =>
-				$('<img alt=Screenshot src=\'\' class=IsLoading>').attr('src', Src)
-			) ?? []),
-		));
-
-		this.UpdateAttachedPosition();
-		this.AutoSize(Callback => { Callback.call(this, 300, 350); this.IsInitializing=this.SelfMove=false; });
-	}
-	public UpdateAttachedPosition()
-	{
-		if(!this.IsAttached)
-			return;
-		this.SelfMove=true;
-		const NewPos=Share.MCanvas.MapToCanvas(this.LinkedItem.Pos).Add(Share.MCanvas.CanvasPos);
-		this.UpdateBounds({X:NewPos.X, Y:NewPos.Y}, true);
-		const IsVis=new Rect(0, 0, document.documentElement.clientWidth, document.documentElement.clientHeight).Intersects(this.Bounds);
-		if(this.Visible!==IsVis) {
-			this.Visible=IsVis;
-			this.UpdateBounds({X:NewPos.X, Y:NewPos.Y}, true);
-		}
-		this.SelfMove=this.IsInitializing;
-	}
-
-	public override OnMoved()
-	{
-		if(this.SelfMove || !this.IsAttached)
-			return;
-		this.IsAttached=false;
-		this.$Root.addClass('Detached');
-	}
-	public ItemUnselected()
-	{
-		if(this.IsAttached)
-			this.Close();
 	}
 }

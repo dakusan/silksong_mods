@@ -3,7 +3,6 @@ import { Category, CategoryGroup, CategoryToggleState, ChainItem, ChainList, Cre
 import { MonitorSaveValues } from './TempClasses';
 import { LoadJson } from './JSON';
 import { MapIcon, Sprite } from './MapIcon';
-import { LC } from './AtlasConfig';
 import Color, { type ColorInstance } from 'color';
 import { Share } from './Share';
 
@@ -201,7 +200,7 @@ export default class DataStorage
 			}
 		}
 		await LoadIconSet(PIconSet, IconSetPath);
-		LC.IconSet.SettingChanged.Add('DataStorage.UpdateIconSet', UpdateIconSet);
+		Share.LC.IconSet.SettingChanged.Add('DataStorage.UpdateIconSet', UpdateIconSet);
 
 		this.HandleColors();
 
@@ -461,7 +460,7 @@ export default class DataStorage
 				Cat.ToggleState=CategoryToggleState.Incomplete;
 
 			//Load the categories from the settings
-			for(const [CatToggleState, CatIDs] of LC.CategoryToggleStates.V.slice(0, CategoryToggleState.Unknown).entries())
+			for(const [CatToggleState, CatIDs] of Share.LC.CategoryToggleStates.V.slice(0, CategoryToggleState.Unknown).entries())
 				for(const CatID of CatIDs)
 					Util.SetNullable(this.Categories.get(CatID)!, 'ToggleState', CatToggleState as CategoryToggleState);
 
@@ -539,7 +538,7 @@ export default class DataStorage
 		const SaveLists:[number[], number[], number[]]=[[], [], []];
 		for(const Cat of this.Categories.values())
 			SaveLists[Cat.ToggleState as number].push(Cat.ID);
-		LC.CategoryToggleStates.V=SaveLists;
+		Share.LC.CategoryToggleStates.V=SaveLists;
 
 		for(const Item of this.Items.values())
 			Item.CurrentToggleState=this.Categories.get(Item.CategoryID)!.ToggleState;

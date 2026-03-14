@@ -1,9 +1,7 @@
 import { CallbackList, FriendClass, Log, PopupMessage, StatStr, Util, Vector2, WillBeSet } from './SharedClasses';
 import { ExpNo, ExpYes, JsonClass, JsonConverter, JsonConverter_Generic, JsonPropsDec, LoadJson, SaveJson } from './JSON';
 import { MapIcon, Sprite } from './MapIcon';
-import { Languages } from './AtlasConfig';
 import { SaveData } from './SaveData';
-import { Translate } from './TempClasses';
 import { Share } from './Share';
 
 export enum CategoryToggleState
@@ -68,10 +66,9 @@ const enum LStatStr {
 }
 
 //Translation functions
-const Tr=new Translate();
-function TSan(Message:string)						: string { return Tr.TDef(Message, 'ItemFields', Message, true)!; }
-function TDef(Message:string, Default:string|null)	: string { return Tr.TDef(Message, 'ItemFields', Default, true)!; }
-function TrVar(Name:string)							: string { return LStatStr.TrVarChar+Name+LStatStr.TrVarChar; }
+function TSan(Message:string)						: string		{ return Share.Tr.TDef(Message, 'ItemFields', Message, true); }
+function TDef(Message:string, Default:string|null)	: string|null	{ return Share.Tr.TranslateDef(Message, 'ItemFields', Default, true); }
+function TrVar(Name:string)							: string		{ return LStatStr.TrVarChar+Name+LStatStr.TrVarChar; }
 const VarDefaults:Record<string, string>={
 	SEP_AND			: ", ",
 	SEP_OR			: "OR",
@@ -289,13 +286,13 @@ export class ChainList extends JsonClass
 	@ExpYes() private get ExpRenderParts() { return this.RenderParts===undefined ? {_:this.RenderedString, RP:this.RenderParts}.RP : this.RenderParts; }
 	@ExpNo() private RenderParts:StringCountPair[]=WillBeSet;
 	@ExpNo() private RenderPartsAgnostic:string[]=WillBeSet; //Original RenderParts strings before replacing language variables
-	@ExpNo() private CurrentLang:Languages=WillBeSet;
+	@ExpNo() private CurrentLang:string=WillBeSet;
 	public get RenderedString() { return this.CompileRenderString(); }
 	private CompileRenderString()
 	{
 		//Fill in RenderParts on language change
-		if(this.CurrentLang!==Share.LC.Language.V) {
-			this.CurrentLang=Share.LC.Language.V;
+		if(this.CurrentLang!==Share.LC.Language.V.Key) {
+			this.CurrentLang=Share.LC.Language.V.Key;
 
 			//Only need to render parts and fill in RenderPartsAgnostic once
 			if(this.RenderPartsAgnostic===undefined) {
@@ -620,7 +617,7 @@ class StoreItems
 	{
 		return this.Items.map(I =>
 			StatStr.NewLine+'- '+I.Rewards.RenderedString+TDef("STORE_FOR", " for ")+I.Needs.RenderedString+
-			(I.Reqs!==undefined ? Tr.TDef("STORE_REQ", 'ItemFields', " (Required: {0})", false, I.Reqs.RenderedString) : StatStr.Empty)
+			(I.Reqs!==undefined ? Share.Tr.TDef("STORE_REQ", 'ItemFields', " (Required: {0})", false, I.Reqs.RenderedString) : StatStr.Empty)
 		).join(StatStr.Empty);
 	}
 	public Render(FieldTitle:string) { return `<b>${TSan(FieldTitle)}</b>: `+this.RenderedString; }
@@ -656,7 +653,7 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 			:													  0;
 	}
 
-	public override toString() { return this.NumCollected+" of "+this.ExpOverride; }
+	public override toString() { return this.NumCollected+'/'+this.ExpOverride; }
 
 	public get ExpOverride()
 	{
@@ -745,6 +742,6 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 		if(this.ItemIDs?.length===1 && Item.IDInRange(this.ItemIDs[0]))
 			Share.DS.Items.get(this.ItemIDs[0])!.Selected();
 		else
-			new PopupMessage(Tr.Translate("Category selection is not yet supported", undefined, true)!);
+			new PopupMessage(Share.Tr.Translate("Category selection is not yet supported", undefined, true));
 	}
 }
