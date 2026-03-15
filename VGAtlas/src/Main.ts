@@ -1,15 +1,15 @@
 import './Style.scss';
-import $ from 'jquery';
-import MapCanvas from './MapCanvas';
-import DataStorage from './DataStorage';
-import MapControl from './MapControl';
-import { WM } from './WindowManager';
-import  Translations from './Translations';
-import { FriendClass, PopupMessage, Util, WillBeSet } from './SharedClasses';
-import { InitFuncs } from './Misc';
-import { Share } from './Share';
-import { MonitorSaveValues } from './TempClasses';
-import CategoryGroupsWindow from './DockableWindows/CategoryGroupsWindow';
+import $												from 'jquery';
+import { FriendClass, PopupMessage, Util, WillBeSet }	from './Util/SharedClasses';
+import { InitFuncs }									from './Util/Misc';
+import { WM }											from './Util/WindowManager';
+import Translations										from './Util/Translations';
+import { Share }										from './Share';
+import { MonitorSaveValues }							from './TempClasses';
+import MapCanvas										from './MapCanvas';
+import MapControl										from './MapControl';
+import DataStorage										from './DataStorage';
+import CategoryGroupsWindow								from './DockableWindows/CategoryGroupsWindow';
 
 //Mimic C++ friend / C# internal
 abstract class DataStorage_Friend extends DataStorage implements FriendClass

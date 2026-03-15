@@ -1,7 +1,7 @@
 import { CallbackList, DevStrings, Log, StatStr, Util, WillBeSet } from './SharedClasses';
-import { Share } from './Share';
 import { LoadJson } from './JSON';
 import { ConfigEnum } from './Config';
+import { Share } from '../Share';
 
 class LangNames { constructor(
 	public readonly ISO:string,

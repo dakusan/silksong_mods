@@ -1,8 +1,8 @@
-import { CategoryToggleState, Item } from './CategoriesAndItems';
-import { ColorRGBA, Log, Rect, Vector2, WillBeSet } from './SharedClasses';
-import { InitFuncs } from './Misc';
-import { Share } from './Share';
 import Color from 'color';
+import { ColorRGBA, Log, Rect, Vector2, WillBeSet } from './Util/SharedClasses';
+import { InitFuncs } from './Util/Misc';
+import { Share } from './Share';
+import { CategoryToggleState, Item } from './CategoriesAndItems';
 
 class SpriteRenderInfo { constructor(public readonly Image:ImageBitmap, public readonly ImageRect:Rect, public readonly Center:Vector2) { } }
 

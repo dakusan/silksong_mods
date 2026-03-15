@@ -1,7 +1,7 @@
 import $ from 'jquery';
-import { Rect, StatStr, WillBeSet } from '../SharedClasses';
+import { Rect, StatStr, WillBeSet } from '../Util/SharedClasses';
+import { Window } from '../Util/WindowManager';
 import { Share } from '../Share';
-import { Window } from '../WindowManager';
 import LinkedLabel from '../LinkedLabel';
 import { Item } from '../CategoriesAndItems';
 
@@ -52,7 +52,7 @@ export default class ItemWindow extends Window
 
 			//Images
 			...(this.LinkedItem.ImageURLs?.map(Src =>
-				$('<img alt=Screenshot src=\'\' class=IsLoading>').attr('src', Src)
+				$('<img alt=Screenshot src=\'\'>').attr('src', Src)
 			) ?? []),
 		));
 	}

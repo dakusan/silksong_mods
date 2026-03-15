@@ -1,5 +1,5 @@
-import { Config, ConfigEnum } from './Config';
-import { ColorRGBA } from './SharedClasses';
+import { ColorRGBA } from './Util/SharedClasses';
+import { Config, ConfigEnum } from './Util/Config';
 
 class LocalConfig extends Config {
 	constructor() { super('Atlas_'); }

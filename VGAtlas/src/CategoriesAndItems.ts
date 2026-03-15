@@ -1,8 +1,8 @@
-import { CallbackList, FriendClass, Log, PopupMessage, StatStr, Util, Vector2, WillBeSet } from './SharedClasses';
-import { ExpNo, ExpYes, JsonClass, JsonConverter, JsonConverter_Generic, JsonPropsDec, LoadJson, SaveJson } from './JSON';
+import { CallbackList, FriendClass, Log, PopupMessage, StatStr, Util, Vector2, WillBeSet } from './Util/SharedClasses';
+import { ExpNo, ExpYes, JsonClass, JsonConverter, JsonConverter_Generic, JsonPropsDec, LoadJson, SaveJson } from './Util/JSON';
+import { Share } from './Share';
 import { MapIcon, Sprite } from './MapIcon';
 import { SaveData } from './SaveData';
-import { Share } from './Share';
 
 export enum CategoryToggleState
 {

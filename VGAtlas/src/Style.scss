@@ -46,7 +46,7 @@ canvas { width:100%; height:100%; touch-action:none; overscroll-behavior:none; }
 	.ItemIcon { --NewIconSize:18px; }
 	img {
 		display:block; width:100%; max-width:100%; max-height:75%; margin-top:5px; object-fit:contain;
-		@at-root .WinRoot:not(.AutoSized) .ItemContents img { width:300px; height:200px; max-width:none; max-height:none; } //Set images to static size before autosize has completed
+		@at-root .WinRoot:not(.AutoSized) .ItemContents img { width:300px; height:170px; max-width:none; max-height:none; } //Set images to static size before autosize has completed
 	}
 }
 

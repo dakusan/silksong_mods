@@ -1,8 +1,8 @@
-import $ from 'jquery';
 import './Window.scss';
-import { Share } from './Share';
+import $ from 'jquery';
 import { FriendClass, Vector2, Rect, StatStr } from './SharedClasses';
 import { InitFuncs } from './Misc';
+import { Share } from '../Share';
 
 type KeyHandler<T extends Window|null>=(this:T, e:KeyboardEvent)=>boolean|undefined;
 type ResizeDir='n'|'s'|'e'|'w'|'ne'|'nw'|'se'|'sw';

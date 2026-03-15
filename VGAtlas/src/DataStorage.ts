@@ -1,10 +1,10 @@
-import { DevStrings, FriendClass, Iter, Log, PopupMessage, Rect, StatStr, Util, Vector2, WillBeSet } from './SharedClasses';
-import { Category, CategoryGroup, CategoryToggleState, ChainItem, ChainList, CreateItem, Item, LoadMisc_StaticLink, StaticLink } from './CategoriesAndItems';
-import { MonitorSaveValues } from './TempClasses';
-import { LoadJson } from './JSON';
-import { MapIcon, Sprite } from './MapIcon';
 import Color, { type ColorInstance } from 'color';
+import { DevStrings, FriendClass, Iter, Log, PopupMessage, Rect, StatStr, Util, Vector2, WillBeSet } from './Util/SharedClasses';
+import { LoadJson } from './Util/JSON';
 import { Share } from './Share';
+import { MonitorSaveValues } from './TempClasses';
+import { MapIcon, Sprite } from './MapIcon';
+import { Category, CategoryGroup, CategoryToggleState, ChainItem, ChainList, CreateItem, Item, LoadMisc_StaticLink, StaticLink } from './CategoriesAndItems';
 
 const IconLenX		=10;
 const IconLenY		=8;

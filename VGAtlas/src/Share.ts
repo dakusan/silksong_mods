@@ -1,12 +1,12 @@
 //Primary share object
-import type DataStorage from './DataStorage';
-import type MapCanvas from './MapCanvas';
-import type MapControl from './MapControl';
-import LC from './AtlasConfig';
-import { type WindowManager } from './WindowManager';
-import type Translations from "./Translations";
-import { type MonitorSaveValues } from './TempClasses';
-import { WillBeSet } from './SharedClasses';
+import { WillBeSet }				from './Util/SharedClasses';
+import { type WindowManager }		from './Util/WindowManager';
+import type Translations			from './Util/Translations';
+import LC							from './AtlasConfig';
+import { type MonitorSaveValues }	from './TempClasses';
+import type MapCanvas				from './MapCanvas';
+import type MapControl				from './MapControl';
+import type DataStorage				from './DataStorage';
 class Shared
 {
 	public MCanvas	:MapCanvas			=WillBeSet;

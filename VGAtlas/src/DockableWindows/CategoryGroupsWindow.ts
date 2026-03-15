@@ -1,9 +1,9 @@
 import $ from 'jquery';
-import { Window } from '../WindowManager';
-import { Category, CategoryGroup, CategoryToggleState } from '../CategoriesAndItems';
-import type DataStorage from '../DataStorage';
-import { FriendClass, StatStr, WillBeSet } from '../SharedClasses';
+import { FriendClass, StatStr, WillBeSet } from '../Util/SharedClasses';
+import { Window } from '../Util/WindowManager';
 import { Share } from '../Share';
+import type DataStorage from '../DataStorage';
+import { Category, CategoryGroup, CategoryToggleState } from '../CategoriesAndItems';
 
 export default class CategoryGroupsWindow extends Window
 {

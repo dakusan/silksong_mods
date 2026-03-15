@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { StatStr } from './SharedClasses';
+import { StatStr } from './Util/SharedClasses';
 import { Share } from './Share';
 
 const LTChar='\uEE04', RTChar='\uEE05';

@@ -69,7 +69,7 @@ public class TranslatedConfig(ConfigFile CF, Translations? Tr=null)
 	public DynamicEnumConfig BindLanguage(string Title, string? Default=null) //If Default is not set, uses Translations.DefaultLang
 	{
 		//Set the default if not given
-		Default ??= Tr.DefaultLang;
+		Default ??= Translations.DefaultLang;
 
 		if(LanguageField!=null)
 			throw new InvalidOperationException($"{nameof(LanguageField)} already set");
@@ -77,7 +77,7 @@ public class TranslatedConfig(ConfigFile CF, Translations? Tr=null)
 		//Fill in the enum values
 		Dictionary<string, string> LList=Tr.GetEnum ?? [];
 		if(!LList.ContainsKey(Default))
-			LList[Default]=Default==Tr.DefaultLang ? Tr.DefaultLangName : $"Unknown {Default}";
+			LList[Default]=Default==Translations.DefaultLang ? Translations.DefaultLangName : $"Unknown {Default}";
 
 		//Create the field and handle changing the language
 		LanguageField=new DynamicEnumConfig(this, Title, Translations.LanguageAsStr, LList, Translations.PickLanguageAsStr, Default);

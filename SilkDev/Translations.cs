@@ -12,7 +12,7 @@ public class Translations
 	public const string LanguageAsStr="Language";
 	public const string PickLanguageAsStr="Pick your language";
 	public const string TranslationFileExtension=".tr.json";
-	public string DefaultLang="en", DefaultLangName="English";
+	public const string DefaultLang="en", DefaultLangName="English";
 
 	//The list of languages
 	public record class LangNames(string ISO, string Eng, string Native, string LanguageAsString, string PickLanguageAsString);

@@ -1,5 +1,5 @@
 import { StatStr, Util } from './SharedClasses';
-import { Share } from './Share';
+import { Share } from '../Share';
 
 const NT=StatStr.NeedsTranslate;
 
@@ -250,7 +250,7 @@ export namespace SaveJson
 	//For testing with rendered contents
 	async function PostFormatLikeMod_TestHTML(Str:string)
 	{
-		return new (await import('./LinkedLabel'))
+		return new (await import('../LinkedLabel'))
 			.default(PostFormatLikeMod(Str)).RenderedContents
 			.replace(/<(a|span)[^>]+>/g, m => m.replace(/"/g, '\\"'))
 			.replace(/ style='--phase:[\d.]+'/g, '');

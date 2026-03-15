@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 //noinspection JSUnusedGlobalSymbols,SpellCheckingInspection
 
-import { StatStr, Util, WillBeSet } from './SharedClasses';
-import { LoadJson } from './JSON';
+import { StatStr, Util, WillBeSet } from './Util/SharedClasses';
+import { LoadJson } from './Util/JSON';
 
 class SaveDataClass
 {

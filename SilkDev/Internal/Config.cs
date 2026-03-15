@@ -78,11 +78,11 @@ public class Config
 		ConfigEntryTKeyboardShortcut CycleLang=Con.Bind(Title, "Cycle between languages in order", new KeyboardShortcut(KeyCode.None), null, new() { IsAdvanced=true });
 		Events.GameEvents.OnUpdate += () => {
 			if(SwitchLang.IsDown())
-				Language.Value=(Language.Value==Tr.DefaultLang ? LastLanguage : Tr.DefaultLang);
+				Language.Value=(Language.Value==Translations.DefaultLang ? LastLanguage : Translations.DefaultLang);
 			else if(CycleLang.IsDown())
 				Language.Value=Tr.Languages.Keys.ElementAt((Tr.Languages.Keys.ToList().IndexOf(Language.Value)+1)%Tr.Languages.Count);
 		};
-		Language.SettingChanged += (_, _) => LastLanguage=(Language.Value==Tr.DefaultLang ? LastLanguage : Language.Value);
+		Language.SettingChanged += (_, _) => LastLanguage=(Language.Value==Translations.DefaultLang ? LastLanguage : Language.Value);
 	}
 #else
 	private void AddLangSwitchers(TranslatedConfig _, string __) { }

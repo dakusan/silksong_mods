@@ -63,7 +63,7 @@ public partial class SideBar
 			}
 
 			//Transform html tags
-			bool IsDefaultLang=(Tr.Language==Tr.DefaultLang);
+			bool IsDefaultLang=(Tr.Language==Translations.DefaultLang);
 			static string GetSettingNameTranslation(string SettingName) =>
 				  (Tr.T(SettingName, SettingTranslationSection) is string TransStr) && TransStr!=SettingName ? TransStr //Normal translation worked
 				: Tr.TDef("Sidebar "+char.ToLower(SettingName[0])+SettingName[1..], SettingTranslationSection, SettingName); //See if it’s a sidebar translation (which were named slightly differently)
