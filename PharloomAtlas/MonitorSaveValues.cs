@@ -41,12 +41,11 @@ public class MonitorSaveValues
 	//Data loaded (and written) to JSON and web
 	public readonly struct ItemFinderItem(int ID, bool ForStarting) : IEquatable<ItemFinderItem>
 	{
-		public const	int		AddForFlagForStarting				=  1_000_000_000; //This is added to the ID for the hash when ForStarting is true
 		public readonly int		ID									=  ID;
 		public readonly bool	ForStarting							=  ForStarting;
 		public			string	ToKey								=> ID.ToString()+(ForStarting ? '~' : null);
 		public override string	ToString	()						=> ID.ToString()+(ForStarting ? $" [{Tr.TDef("FLAG_STARTED", "ItemFields", "STARTED", true)}]" : null);
-		public override int		GetHashCode	()						=> ID+(ForStarting ? AddForFlagForStarting : 0);
+		public override int		GetHashCode	()						=> !ForStarting ? ID : ID*-1;
 		public override bool	Equals		(object Obj)			=> Obj is ItemFinderItem Other && Equals(Other);
 		public			bool	Equals		(ItemFinderItem Other)	=> ID==Other.ID && ForStarting==Other.ForStarting;
 		public static	bool	operator ==	(ItemFinderItem Left, ItemFinderItem Right) => Left.Equals(Right);

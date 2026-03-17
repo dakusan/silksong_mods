@@ -54,8 +54,8 @@ public class Config
 		IconSizeScalesWithZoom	=Con.Bind(Title, "Icon/Marker size scales with zoom",		true, "If true icons will always stay the same size at any zoom.", IsAdvanced);
 		Color_FoundIcon			=Con.Bind(Title, "Found icon color*",						new Color(.5f, 0, .5f, .75f), "When in “All” mode for a category, found icons are tinted this color.\nRGB is actually HSV [Hue Saturation Lightness], unless the shader fails to load, in which case, it really is RGB.", IsAdvanced);
 		Shortcut_EditMarkerLabel=Con.Bind(Title, "Shortcut: Edit Marker Label",				new KeyboardShortcut(KeyCode.KeypadPeriod));
-		AutoPanEase				=Con.Bind(Title, "Autopan ease",							2.5f, AVR(1f, 5f, "The autopan ease formula multiplier. This is used when the map is animated panning to an an icon.", IsAdvanced));
-		AutoPanTime				=Con.Bind(Title, "Autopan time",							1.75f, AVR(0.1f, 3f, "The time it takes the autopan to move between points. This is used when the map is animated panning to an an icon.", IsAdvanced));
+		AutoPanEase				=Con.Bind(Title, "Autopan ease",							2.5f, AVR(1f, 5f, "The autopan ease formula multiplier. This is used when the map is animated panning to an icon.", IsAdvanced));
+		AutoPanTime				=Con.Bind(Title, "Autopan time",							1.75f, AVR(0.1f, 3f, "The time it takes the autopan to move between points. This is used when the map is animated panning to an icon.", IsAdvanced));
 		HornetRevolvingDist		=Con.Bind(Title, "Hornet marker: Revolving: Distance",		.1f, AVR(.02f, 1f, "The distance of the revolutions", IsAdvanced));
 		HornetRevolvingClockwise=Con.Bind(Title, "Hornet marker: Revolving: Is Clockwise",	true, "The direction of the revolving", IsAdvanced);
 		HornetGrowingMax		=Con.Bind(Title, "Hornet marker: Growing: Max Size",		0.5f, AVR(0.2f, 5f, "The largest the growing effect gets", IsAdvanced));

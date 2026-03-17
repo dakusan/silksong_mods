@@ -54,15 +54,15 @@ export abstract class JsonClass { public static ClassJSProps?:Map<string, JSProp
 export namespace LoadJson
 {
 	//Loads in JSON object from a URL. Allows for JSONC comments and trailing commas
-	export async function FromURL(url:string): Promise<object>
+	export async function FromURL(url:string, ForceReload=false): Promise<object>
 	{
-		const Result=await fetch(url);
+		const Result=await fetch(url, {cache:ForceReload ? 'no-store' : 'default'});
 		if(!Result.ok)
 			throw new Error(NT+`Failed to load ${url}: ${Result.status}`);
 		const Text=await Result.text();
 		if(Text.startsWith('<!doctype'))
 			throw new Error(NT+`Failed to load ${url}: HTML document received`);
-		const Parsed=JSON.parse(Text.replace(/,(\n\t*[}\]])/g, '$1').replace(/^[ \t]+/mg, '').replace(/^\/\/.*/m, '').replaceAll("\t", "\\t"));
+		const Parsed=JSON.parse(Text.replace(/,(\n\t*[}\]])/g, '$1').replace(/^[ \t]+/mg, '').replace(/^\/\/.*/m, '').replaceAll('\t', '\\t'));
 
 		if(!(Parsed instanceof Object))
 			throw new Error(NT+`Failed to load ${url}: JSON is not an object`);

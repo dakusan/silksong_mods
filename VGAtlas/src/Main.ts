@@ -1,7 +1,7 @@
 import './Style.scss';
 import $												from 'jquery';
 import { FriendClass, PopupMessage, Util, WillBeSet }	from './Util/SharedClasses';
-import { InitFuncs }									from './Util/Misc';
+import { InitFuncs }									from './Debug';
 import { WM }											from './Util/WindowManager';
 import Translations										from './Util/Translations';
 import { Share }										from './Share';
@@ -24,14 +24,14 @@ abstract class DataStorage_Friend extends DataStorage implements FriendClass
 const CurPopupMessage="Welcome to the <a href='https://silksong.castledragmire.com/' style='color:cyan; text-decoration:none'>Pharloom Atlas</a>.<br>This web port is about 70% feature complete against the in-game version, and is still being worked on.<br><div style='font-size:15px'>Mobile version is a bit buggy at the moment.</div><br>To navigate your item selection history, use your browsers forward and back button feature.";
 const CurPopupMessageVersion=1;
 
+//Independent libraries that can load early
+Share.Tr=Translations.StandardCreate('Atlas');
+Share.WM=WM;
+
 async function Main()
 {
 	let MCanvas:MapCanvas=WillBeSet;
 	try {
-		//Independent libraries that can load early
-		Share.Tr=Translations.StandardCreate('Atlas');
-		Share.WM=WM;
-
 		//1-time popup message (until version number changes)
 		if(Number(localStorage.getItem('LastPopupMessageSeen') ?? 0)!==CurPopupMessageVersion) {
 			localStorage.setItem('LastPopupMessageSeen', String(CurPopupMessageVersion));
@@ -56,6 +56,7 @@ async function Main()
 		Share.MC=new MapControl();
 		for(const Fn of InitFuncs)
 			Fn();
+		InitFuncs.length=0;
 		MCanvas.ExtraMessage=undefined;
 		MCanvas.Refresh();
 		$('<div class=OpenCategoriesButton>').appendTo(document.body).on('click', () => CategoryGroupsWindow.Self.Visible=true);

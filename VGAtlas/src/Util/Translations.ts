@@ -1,6 +1,6 @@
 import { CallbackList, DevStrings, Log, StatStr, Util, WillBeSet } from './SharedClasses';
 import { LoadJson } from './JSON';
-import { ConfigEnum } from './Config';
+import { ConfigEnum } from '../Config/Abstract/ConfigItem';
 import { Share } from '../Share';
 
 class LangNames { constructor(

@@ -1,7 +1,7 @@
 import './Window.scss';
 import $ from 'jquery';
-import { FriendClass, Vector2, Rect, StatStr } from './SharedClasses';
-import { InitFuncs } from './Misc';
+import { FriendClass, Rect, StatStr, Util, Vector2 } from './SharedClasses';
+import { InitFuncs } from '../Debug';
 import { Share } from '../Share';
 
 type KeyHandler<T extends Window|null>=(this:T, e:KeyboardEvent)=>boolean|undefined;
@@ -22,13 +22,6 @@ class DragState
 		public StartW	:number=-1,
 		public StartH	:number=-1,
 	) { }
-}
-
-function Clamp(n:number, min:number, max:number): number
-{
-	return	n<min ? min
-		:	n>max ? max
-		:			n;
 }
 
 export class WindowManager
@@ -135,16 +128,6 @@ export class Window
 	private readonly VisibleEdge:number=24;
 	private readonly VisibleTitle:number=28;
 
-	private static AssignProps<T extends object>(Target:T, Src:Partial<T>): void
-	{
-		for(const K in Src)
-		{
-			const KK=K as keyof T;
-			const V=Src[KK];
-			if(V!==undefined)
-				Target[KK]=V;
-		}
-	}
 	public constructor(Init:WindowInit={})
 	{
 		//Build DOM
@@ -164,7 +147,7 @@ export class Window
 			this.$Root.append($('<div/>', {class:`ResizeHandle B${Dir.toUpperCase()}`}).attr('data-dir', Dir));
 
 		//Initialize parts
-		Window.AssignProps(this, Init);
+		Util.AssignProps(this, Init);
 		this.UpdateBounds(
 			(WM as WindowManager_Friend).GetSavedPos(this.SaveID),
 			false, true
@@ -201,8 +184,8 @@ export class Window
 		if(!NoBoundsCheck) {
 			NewRect.Width =Math.max(NewRect.Width , this.MinWidth );
 			NewRect.Height=Math.max(NewRect.Height, this.MinHeight);
-			NewRect.X=Clamp(NewRect.X, -(NewRect.Width-this.VisibleEdge), document.documentElement.clientWidth -this.VisibleEdge );
-			NewRect.Y=Clamp(NewRect.Y, 0								, document.documentElement.clientHeight-this.VisibleTitle);
+			NewRect.X=Util.Clamp(NewRect.X, -(NewRect.Width-this.VisibleEdge), document.documentElement.clientWidth -this.VisibleEdge );
+			NewRect.Y=Util.Clamp(NewRect.Y, 0								 , document.documentElement.clientHeight-this.VisibleTitle);
 		}
 
 		//If bounds have not changed, exit early

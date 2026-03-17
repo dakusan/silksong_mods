@@ -43,7 +43,7 @@ export class ColorRGBA
 	public static Green	=new ColorRGBA(0, 1, 0, 1);
 	public static Blue	=new ColorRGBA(0, 0, 1, 1);
 
-	private static C01(v:number) { return Math.max(Math.min(v, 1), 0); }
+	private static C01(v:number) { return Util.Clamp(v, 0, 1); }
 	private static CBy(v:number) { return ColorRGBA.C01(v/255); }
 	public static CreateClamp	 (r:number, g:number, b:number, a:number) { return new ColorRGBA(ColorRGBA.C01(r), ColorRGBA.C01(g), ColorRGBA.C01(b), ColorRGBA.C01(a)); }
 	public static CreateByteClamp(r:number, g:number, b:number, a:number) { return new ColorRGBA(ColorRGBA.CBy(r), ColorRGBA.CBy(g), ColorRGBA.CBy(b), ColorRGBA.CBy(a)); }
@@ -107,6 +107,28 @@ export namespace Util
 			throw new Error(Err);
 		return Val;
 	}
+
+	//Copies members from Src to Target. Does not copy undefined values.
+	//Compile-time checks require that Src member types match the corresponding T member types.
+	//If the Src object literal is created directly in the function call, it also checks at compile time if there are extra members in Src that do not exist in T.
+	export function AssignProps<T extends object>(Target:T, Src:Partial<T>): T
+	{
+		for(const K in Src)
+		{
+			const KK=K as keyof T;
+			const V=Src[KK];
+			if(V!==undefined)
+				Target[KK]=V;
+		}
+		return Target;
+	}
+
+	export function Clamp(n:number, min:number, max:number): number
+	{
+		return	n<min ? min
+			:	n>max ? max
+			:			n;
+	}
 }
 
 export namespace Log
@@ -139,6 +161,8 @@ export class Iter<T> implements Iterable<T>
 	public [Symbol.iterator]() { return this.MyIterable[Symbol.iterator](); }
 	public toArray() { return [...this.MyIterable]; }
 
+	private static MakeIter<U>(Fn:() => IterableIterator<U>) { return new Iter<U>({ [Symbol.iterator]: Fn }); }
+
 	public forEach(Fn:(Val:T) => void) {
 		for(const Val of this.MyIterable)
 			Fn(Val);
@@ -146,19 +170,19 @@ export class Iter<T> implements Iterable<T>
 
 	public map<U>(Fn:(Val:T) => U) {
 		const Self=this;
-		return new Iter<U>(function*() {
+		return Iter.MakeIter(function*() {
 			for(const Val of Self.MyIterable)
 				yield Fn(Val);
-		}());
+		});
 	}
 
 	public filter(Fn:(Val:T) => boolean) {
 		const Self=this;
-		return new Iter<T>(function*() {
+		return Iter.MakeIter(function*() {
 			for(const Val of Self.MyIterable)
 				if(Fn(Val))
 					yield Val;
-		}());
+		});
 	}
 
 	public skip(n:number) {
@@ -166,12 +190,19 @@ export class Iter<T> implements Iterable<T>
 			return this;
 
 		const Self=this;
-		return new Iter<T>(function*() {
+		return Iter.MakeIter(function*() {
 			let i=0;
 			for(const Val of Self.MyIterable)
 				if(++i>n)
 					yield Val;
-		}());
+		});
+	}
+
+	public every(Fn:(Val:T) => boolean) {
+		for(const Val of this.MyIterable)
+			if(!Fn(Val))
+				return false;
+		return true;
 	}
 }
 
