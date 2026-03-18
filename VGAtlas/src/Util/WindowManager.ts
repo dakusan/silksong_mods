@@ -1,8 +1,7 @@
 import './Window.scss';
 import $ from 'jquery';
-import { FriendClass, Rect, StatStr, Util, Vector2 } from './SharedClasses';
-import { InitFuncs } from '../Debug';
-import { Share } from '../Share';
+import { FriendClass, InitFuncs, Rect, StatStr, Util, Vector2 } from './SharedClasses';
+import { DefaultTr } from './Translations';
 
 type KeyHandler<T extends Window|null>=(this:T, e:KeyboardEvent)=>boolean|undefined;
 type ResizeDir='n'|'s'|'e'|'w'|'ne'|'nw'|'se'|'sw';
@@ -39,7 +38,7 @@ export class WindowManager
 		window.addEventListener('keydown', e => this.OnKey(e, 'Down'), {capture:true});
 		window.addEventListener('keyup'  , e => this.OnKey(e, 'Up'	), {capture:true});
 		window.addEventListener('resize' , ()=> this.Windows.forEach(W => W.EnsureOnScreen()));
-		InitFuncs.push(() => Share.Tr.LanguageChanged.Add('WindowManager', NewLang => this.Windows.forEach(W => W.LanguageChanged?.(NewLang))));
+		InitFuncs.push(() => DefaultTr.OnLanguageChanged.Add('WindowManager', NewLang => this.Windows.forEach(W => W.LanguageChanged?.(NewLang))));
 	}
 
 	protected Register(W:Window): void

@@ -1,6 +1,5 @@
 import Color from 'color';
-import { ColorRGBA, Log, Rect, Vector2, WillBeSet } from './Util/SharedClasses';
-import { InitFuncs } from './Debug';
+import { ColorRGBA, InitFuncs, Log, Rect, Vector2, WillBeSet } from './Util/SharedClasses';
 import { Share } from './Share';
 import { CategoryToggleState, Item } from './CategoriesAndItems';
 

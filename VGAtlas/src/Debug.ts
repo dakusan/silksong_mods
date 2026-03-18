@@ -1,24 +1,33 @@
-export const InitFuncs:(() => void)[]=[];
+export {}; //Make this a module
 
 //Browser debugging
-InitFuncs.push(async () => {
+(async () => {
 	const [{ Share }, AllShared]=await Promise.all([
-		import('../Share'),
-		import('./SharedClasses'),
+		import('./Share'),
+		import('./Util/SharedClasses'),
 	]);
 
-	(window as unknown as {Atlas:object}).Atlas={
+	//noinspection JSUnusedGlobalSymbols
+	const AtlasInfo=(window as unknown as {Atlas:object}).Atlas={
 		...Share, ...AllShared,
 		Modules:{
-			CategoriesAndItems	:await import('../CategoriesAndItems'),
-			LinkedLabel			:await import('../LinkedLabel'),
-			LoadJSON			:await import('./JSON'),
-			MapCanvas			:await import('../MapCanvas'),
-			MapIcon				:await import('../MapIcon'),
-			TempClasses			:await import('../TempClasses'),
-			SaveData			:await import('../SaveData'),
-			WindowManager		:await import('./WindowManager'),
-			CategoryGroupsWindow:await import('../DockableWindows/CategoryGroupsWindow'),
+			CategoriesAndItems	:await import('./CategoriesAndItems'),
+			LinkedLabel			:await import('./LinkedLabel'),
+			LoadJSON			:await import('./Util/JSON'),
+			Translations		:await import('./Util/Translations'),
+			MapCanvas			:await import('./MapCanvas'),
+			MapIcon				:await import('./MapIcon'),
+			TempClasses			:await import('./TempClasses'),
+			SaveData			:await import('./SaveData'),
+			WindowManager		:await import('./Util/WindowManager'),
+			CategoryGroupsWindow:await import('./DockableWindows/CategoryGroupsWindow'),
 		},
-	}
-});
+		async ExportDefaultData(TrailingCommas=true, Compact=false, MatchModOutput=false, UseTestHTMLExport=false): Promise<string>
+		{
+			return AtlasInfo.Modules.LoadJSON.SaveJson.ExportDefaultData(
+				{Categories:AtlasInfo.DS.Categories, Items:AtlasInfo.DS.Items},
+				TrailingCommas, Compact, MatchModOutput, UseTestHTMLExport
+			);
+		},
+	};
+})();

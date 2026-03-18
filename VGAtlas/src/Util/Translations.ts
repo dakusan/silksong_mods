@@ -1,7 +1,7 @@
-import { CallbackList, DevStrings, Log, StatStr, Util, WillBeSet } from './SharedClasses';
+import { CallbackList, DevStrings, Log, StatStr, Util } from './SharedClasses';
 import { LoadJson } from './JSON';
-import { ConfigEnum } from '../Config/Abstract/ConfigItem';
-import { Share } from '../Share';
+
+const DefaultModuleName='Default';
 
 class LangNames { constructor(
 	public readonly ISO:string,
@@ -23,7 +23,7 @@ export default class Translations
 
 	//The list of languages
 	public readonly Languages:Record<string, LangNames>={};
-	public get GetEnum() { return Object.values(this.Languages).map(L => new ConfigEnum(L.ISO, L.Native)); }
+	public get GetEnum() { return Object.values(this.Languages).map(L => ({Key:L.ISO, Value:L.Native})); }
 
 	//Init
 	private constructor(public readonly TranslationsPath:string) { }
@@ -50,14 +50,11 @@ export default class Translations
 				Value[2] ?? `${Key} ${Translations.LanguageAsStr}`,
 				Value[3] ?? `${Key} ${Translations.PickLanguageAsStr}`,
 			);
-
-		await this.LoadLanguage(Share.LC.Language.V.Key);
-		Share.LC.Language.SettingChanged.Add('Translations.LoadLanguage', LangName => void(this.LoadLanguage(LangName.Key)));
 	}
 
 	//Load current language
-	public Sections?:Record<string, Record<string, string> >=WillBeSet;
-	public LanguageChanged=new CallbackList<[string]>('LanguageChanged');
+	public Sections?:Record<string, Record<string, string>>;
+	public OnLanguageChanged=new CallbackList<[string]>('LanguageChanged');
 	private _Language:string=StatStr.Empty; public get Language() { return this._Language; }
 	public set Language(Value:string)
 	{
@@ -73,7 +70,7 @@ export default class Translations
 			this.Sections=undefined;
 			Log.Error("Could not load language file: "+Util.GetErrorMessage(e));
 		}
-		this.LanguageChanged.Execute(ISO); //Callbacks for after the language changes
+		this.OnLanguageChanged.Execute(ISO); //Callbacks for after the language changes
 	}
 
 	//Translation functions
@@ -117,3 +114,6 @@ export default class Translations
 		return Str;
 	}
 }
+
+//Used by utilities
+export const DefaultTr=Translations.StandardCreate(DefaultModuleName);

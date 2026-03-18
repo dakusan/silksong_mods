@@ -1,15 +1,14 @@
 import './Style.scss';
-import $												from 'jquery';
-import { FriendClass, PopupMessage, Util, WillBeSet }	from './Util/SharedClasses';
-import { InitFuncs }									from './Debug';
-import { WM }											from './Util/WindowManager';
-import Translations										from './Util/Translations';
-import { Share }										from './Share';
-import { MonitorSaveValues }							from './TempClasses';
-import MapCanvas										from './MapCanvas';
-import MapControl										from './MapControl';
-import DataStorage										from './DataStorage';
-import CategoryGroupsWindow								from './DockableWindows/CategoryGroupsWindow';
+import $							from 'jquery';
+import { FriendClass, InitFuncs,
+	PopupMessage, Util, WillBeSet }	from './Util/SharedClasses';
+import { WM }						from './Util/WindowManager';
+import Translations					from './Util/Translations';
+import { Share }					from './Share';
+import { MonitorSaveValues }		from './TempClasses';
+import MapCanvas					from './MapCanvas';
+import MapControl					from './MapControl';
+import DataStorage					from './DataStorage';
 
 //Mimic C++ friend / C# internal
 abstract class DataStorage_Friend extends DataStorage implements FriendClass
@@ -59,7 +58,9 @@ async function Main()
 		InitFuncs.length=0;
 		MCanvas.ExtraMessage=undefined;
 		MCanvas.Refresh();
-		$('<div class=OpenCategoriesButton>').appendTo(document.body).on('click', () => CategoryGroupsWindow.Self.Visible=true);
+		$('<div class=OpenCategoriesButton>').appendTo(document.body).on('click', async () => (await import('./DockableWindows/CategoryGroupsWindow')).default.Self.Visible=true);
+		if((import.meta as unknown as {env:{DEV:boolean}}).env.DEV)
+			import('./Debug');
 	} catch(e) {
 		const Message=Util.GetErrorMessage(e);
 		if(MCanvas?.CanRender)

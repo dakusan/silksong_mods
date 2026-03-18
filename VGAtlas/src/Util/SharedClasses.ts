@@ -284,6 +284,9 @@ export namespace KeyState
 
 export const WillBeSet=undefined!;
 
+//These are ran at the end of initialization
+export const InitFuncs:(() => void)[]=[];
+
 /*
 ```
 Mimic C++ friend / C# internal.

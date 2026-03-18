@@ -1,5 +1,4 @@
 import { StatStr, Util } from './SharedClasses';
-import { Share } from '../Share';
 
 const NT=StatStr.NeedsTranslate;
 
@@ -194,10 +193,10 @@ export namespace SaveJson
 	}
 
 	//Exports DS.Categories and DS.Items through Stringify. If MatchModOutput is enabled, the output from the C# module will be matched exactly.
-	export async function ExportDefaultData(TrailingCommas=true, Compact=false, MatchModOutput=false, UseTestHTMLExport=false): Promise<string>
+	export async function ExportDefaultData(Data:object, TrailingCommas=true, Compact=false, MatchModOutput=false, UseTestHTMLExport=false): Promise<string>
 	{
 		const Start=new Date();
-		let Output=Stringify({Categories:Share.DS.Categories, Items:Share.DS.Items}, Compact, TrailingCommas, MatchModOutput ? PreFormatLikeMod : undefined);
+		let Output=Stringify(Data, Compact, TrailingCommas, MatchModOutput ? PreFormatLikeMod : undefined);
 		if(MatchModOutput)
 			if(!UseTestHTMLExport)
 				Output=PostFormatLikeMod(Output);

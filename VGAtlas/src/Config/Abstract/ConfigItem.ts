@@ -31,8 +31,8 @@ export class ConfigEnum { constructor(public readonly Key:string, public readonl
 export abstract class Config
 {
 	protected constructor(
-		protected readonly Prefix:string=StatStr.Empty,
-		protected readonly Storage:Storage=localStorage,
+		public readonly Prefix:string=StatStr.Empty,
+		public readonly Storage:Storage=localStorage,
 	) { }
 	protected Item<T>(Name:string, Def:T) { return new ConfigItem<T>(this.Prefix+Name, Def, this.Storage); }
 }
