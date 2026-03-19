@@ -9,6 +9,7 @@ import { MonitorSaveValues }		from './TempClasses';
 import MapCanvas					from './MapCanvas';
 import MapControl					from './MapControl';
 import DataStorage					from './DataStorage';
+import type ConfigWindow			from './Config/ConfigWindow';
 
 //Mimic C++ friend / C# internal
 abstract class DataStorage_Friend extends DataStorage implements FriendClass
@@ -58,7 +59,7 @@ async function Main()
 		InitFuncs.length=0;
 		MCanvas.ExtraMessage=undefined;
 		MCanvas.Refresh();
-		$('<div class=OpenCategoriesButton>').appendTo(document.body).on('click', async () => (await import('./DockableWindows/CategoryGroupsWindow')).default.Self.Visible=true);
+		CreateMainMenu();
 		if((import.meta as unknown as {env:{DEV:boolean}}).env.DEV)
 			import('./Debug');
 	} catch(e) {
@@ -68,6 +69,36 @@ async function Main()
 		else
 			$('#map').empty().append($('<div>').text(Message));
 	}
+}
+
+function CreateMainMenu()
+{
+	//Popup button
+	$('#MainMenu .PopupButton').on('click', () => {
+		setTimeout(() => $('#MainMenu .Popup').show(), 0); //Timeout so that if the menu is already open it will reopen after being closed
+		const ClosePopup=() => {
+			$('#MainMenu .Popup').hide();
+			$(window).off('click', ClosePopup);
+		};
+		setTimeout(() => $(window).on('click', ClosePopup), 0); //Timeout so that this current click doesn’t fire this event
+	});
+
+	//Menu items
+	$('#MenuOpenCategories').on('click', async () => {
+		const CategoryGroupsWindow=(await import('./DockableWindows/CategoryGroupsWindow')).default;
+		CategoryGroupsWindow.Self.Visible=true;
+		CategoryGroupsWindow.Self.Focus();
+	});
+
+	let MyConfigWindow:ConfigWindow|undefined;
+	$('#MenuOpenConfig').on('click', async () => {
+		if(MyConfigWindow)
+			return MyConfigWindow.Focus();
+		const ConfigWindow=(await import('./Config/ConfigWindow')).default;
+		MyConfigWindow=new ConfigWindow(Share.LC, Share.Tr);
+		const OriginalOnClosing=MyConfigWindow.OnClosing;
+		MyConfigWindow.OnClosing=() => { OriginalOnClosing.call(MyConfigWindow); MyConfigWindow=undefined; return false; }
+	});
 }
 
 $(Main);
