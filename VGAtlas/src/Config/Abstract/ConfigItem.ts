@@ -1,38 +1,55 @@
-import { CallbackList, StatStr } from '../../Util/SharedClasses';
+import { CallbackList, WillBeSet } from '../../Util/SharedClasses';
+import ConfigItemBase, { Options } from './ConfigItemBase';
+import type Config from '../Config';
 
-export class ConfigItem<T>
+export { Options };
+
+export interface SaveAsString<T>
+{
+	ToString(): string;
+	FromString(Str:string): T;
+}
+export type ConfigItemValueTypes=string|number|boolean|SaveAsString<unknown>;
+
+export default abstract class ConfigItem<T extends ConfigItemValueTypes> extends ConfigItemBase
 {
 	public SettingChanged;
-	private Val:T;
+	private Val:T=WillBeSet;
+	private readonly IsSaveAsString:boolean;
 
-	constructor(
-		public  readonly Key:string,
-		private readonly Default:T,
-		private readonly Storage:Storage=localStorage
-	) {
-		const Raw=this.Storage.getItem(this.Key);
-		this.Val=(Raw===null ? this.Default : (JSON.parse(Raw) as T));
-		if(Raw===null)
-			this.Storage.setItem(this.Key, JSON.stringify(this.Val));
-		this.SettingChanged=new CallbackList<[Value:T, Item:ConfigItem<T>]>(`Config setting “${this.Key}”`);
+	protected constructor(Section:string, Key:string, public readonly Default:T, Opts?:Partial<Options>)
+	{
+		super(Section, Key, Opts);
+		this.SettingChanged=new CallbackList<[Value:T, Item:ConfigItem<T>]>(`Config setting “${this.Section}.${this.Key}”`);
+		this.IsSaveAsString=typeof((this.Default as Partial<SaveAsString<T>>).FromString)==='function';
+	}
+	protected override Init(Parent:Config)
+	{
+		this.Parent=Parent;
+		const Raw=this.Parent.Storage.getItem(this.Parent.Prefix+this.Key);
+		this.Val=this.Default;
+		if(Raw!==null)
+			try {
+				const Parsed=JSON.parse(Raw);
+				this.Val=
+					  this.IsSaveAsString ? (this.Default as SaveAsString<T>).FromString(Parsed as string)
+					: Parsed as T;
+			} catch { }
+		if(Raw!==this.GetStorageValue())
+			this.SaveToStorage();
 	}
 
-	public get V() { return this.Val; }
-	public set V(NewVal: T) {
+	public get V(): T { return this.Val; }
+	public set V(NewVal:T) { this.SetVal(NewVal); }
+	protected SetVal(NewVal:T)
+	{
+		if(NewVal===this.Val)
+			return;
 		this.Val=NewVal;
-		this.Storage.setItem(this.Key, JSON.stringify(NewVal));
+		this.SaveToStorage();
 		this.SettingChanged.Execute(NewVal, this);
 	}
+	private SaveToStorage() { this.Parent.Storage.setItem(this.Parent.Prefix+this.Key, this.GetStorageValue()); }
+	private GetStorageValue() { return JSON.stringify(this.IsSaveAsString ? (this.Val as SaveAsString<T>).ToString() : this.Val); }
 	public ResetToDefault() { this.V=this.Default; }
-}
-
-export class ConfigEnum { constructor(public readonly Key:string, public readonly Value:string) { } }
-
-export abstract class Config
-{
-	protected constructor(
-		public readonly Prefix:string=StatStr.Empty,
-		public readonly Storage:Storage=localStorage,
-	) { }
-	protected Item<T>(Name:string, Def:T) { return new ConfigItem<T>(this.Prefix+Name, Def, this.Storage); }
 }

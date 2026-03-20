@@ -1,5 +1,6 @@
 import Color, { type ColorInstance } from 'color';
 import { DevStrings, FriendClass, Iter, Log, PopupMessage, Rect, StatStr, Util, Vector2, WillBeSet } from './Util/SharedClasses';
+import { OtherObject } from './Config/Types/ConfigItem_Object';
 import { LoadJson } from './Util/JSON';
 import { Share } from './Share';
 import { MonitorSaveValues } from './TempClasses';
@@ -460,7 +461,7 @@ export default class DataStorage
 				Cat.ToggleState=CategoryToggleState.Incomplete;
 
 			//Load the categories from the settings
-			for(const [CatToggleState, CatIDs] of Share.LC.CategoryToggleStates.V.slice(0, CategoryToggleState.Unknown).entries())
+			for(const [CatToggleState, CatIDs] of Share.LC.CategoryToggleStates.V.Obj.slice(0, CategoryToggleState.Unknown).entries())
 				for(const CatID of CatIDs)
 					Util.SetNullable(this.Categories.get(CatID)!, 'ToggleState', CatToggleState as CategoryToggleState);
 
@@ -538,7 +539,7 @@ export default class DataStorage
 		const SaveLists:[number[], number[], number[]]=[[], [], []];
 		for(const Cat of this.Categories.values())
 			SaveLists[Cat.ToggleState as number].push(Cat.ID);
-		Share.LC.CategoryToggleStates.V=SaveLists;
+		Share.LC.CategoryToggleStates.V=new OtherObject(SaveLists);
 
 		for(const Item of this.Items.values())
 			Item.CurrentToggleState=this.Categories.get(Item.CategoryID)!.ToggleState;

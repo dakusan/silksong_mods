@@ -27,6 +27,7 @@ const CurPopupMessageVersion=1;
 //Independent libraries that can load early
 Share.Tr=Translations.StandardCreate('Atlas');
 Share.WM=WM;
+Share.LC.Language.SetTranslations(Share.Tr);
 
 async function Main()
 {

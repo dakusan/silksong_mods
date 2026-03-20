@@ -14,6 +14,7 @@ class LangNames { constructor(
 //Loads translations from $TranslationsPath/$LangIsoName$TranslationFileExtension.
 export default class Translations
 {
+	//Defaults
 	public static readonly ROOT:string				=StatStr.Empty; //The default section all translations are under
 	public static readonly LanguageAsStr			="Language";
 	public static readonly PickLanguageAsStr		="Pick your language";
@@ -21,17 +22,24 @@ export default class Translations
 	public static readonly DefaultLang				="en";
 	public static readonly DefaultLangName			="English";
 
+	//Since a lot of the functions are ran on the static class, give easy access to it
+	public get ctor() { return Translations; }
+
 	//The list of languages
 	public readonly Languages:Record<string, LangNames>={};
 	public get GetEnum() { return Object.values(this.Languages).map(L => ({Key:L.ISO, Value:L.Native})); }
+	public readonly LanguageListLoaded:Promise<void>; //Languages loaded from “Languages.json”
 
 	//Init
-	private constructor(public readonly TranslationsPath:string) { }
-	public static StandardCreate(TranslationsPathShort:string) //Path="Assets/Translations/$TranslationsPathShort/"; Languages loaded from “Languages.json”
+	constructor(
+		public readonly ModuleName:string,
+		public readonly TranslationsPath:string
+	) {
+		this.LanguageListLoaded=this.LanguageListLoad();
+	}
+	public static StandardCreate(ModuleName:string) //Path="Assets/Translations/$ModuleName/"
 	{
-		const NewTr=new Translations(`Assets/Translations/${TranslationsPathShort}`);
-		NewTr.LanguageListLoad().then();
-		return NewTr;
+		return new Translations(ModuleName, `Assets/Translations/${ModuleName}`);
 	}
 	private async LanguageListLoad()
 	{

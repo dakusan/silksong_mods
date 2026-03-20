@@ -1,6 +1,6 @@
 import type Translations from '../Util/Translations';
 import { Window } from '../Util/WindowManager';
-import { Config } from './Abstract/ConfigItem';
+import Config from './Config';
 
 export default class ConfigWindow extends Window
 {

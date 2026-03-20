@@ -291,8 +291,8 @@ export class ChainList extends JsonClass
 	private CompileRenderString()
 	{
 		//Fill in RenderParts on language change
-		if(this.CurrentLang!==Share.LC.Language.V.Key) {
-			this.CurrentLang=Share.LC.Language.V.Key;
+		if(this.CurrentLang!==Share.LC.Language.V) {
+			this.CurrentLang=Share.LC.Language.V;
 
 			//Only need to render parts and fill in RenderPartsAgnostic once
 			if(this.RenderPartsAgnostic===undefined) {

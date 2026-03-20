@@ -13,6 +13,7 @@ export {}; //Make this a module
 		Modules:{
 			CategoriesAndItems	:await import('./CategoriesAndItems'),
 			LinkedLabel			:await import('./LinkedLabel'),
+			Config				:await import('./Config/Config'),
 			LoadJSON			:await import('./Util/JSON'),
 			Translations		:await import('./Util/Translations'),
 			MapCanvas			:await import('./MapCanvas'),

@@ -318,7 +318,7 @@ export default class MapCanvas
 	{
 		const NewX=this.Width /2-(Pos.X-this.X);
 		const NewY=this.Height/2-(Pos.Y-this.Y);
-		if((Duration ??= Share.LC.IconCenterTime.V)<=0)
+		if((Duration ??= Share.LC.AutoPanTime.V)<=0)
 			return void this.UpdatePosAndScale(NewScale, NewX, NewY);
 		this.Mover?.Cancel();
 		this.Mover=new Mover(new Vector2(this.X, this.Y), new Vector2(NewX, NewY), Duration, NewScale)
@@ -468,7 +468,7 @@ class Mover
 		const LinearProgressPoint=Math.min((Date.now()-this.StartTime)/this.Duration, 1);
 		if(LinearProgressPoint===0)
 			return;
-		const EaseProgress=Mover.Ease(LinearProgressPoint, Share.LC.IconCenterEase.V);
+		const EaseProgress=Mover.Ease(LinearProgressPoint, Share.LC.AutoPanEase.V);
 		if(!(Share.MCanvas as MapCanvas_Friend).UpdatePosAndScale(
 			this.ZoomTo===undefined ? undefined : Mover.Lerp(this.StartZoom, this.ZoomTo, EaseProgress),
 			Mover.Lerp(this.Start.X, this.End.X, EaseProgress),

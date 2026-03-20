@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import { type SaveAsString } from '../Config/Abstract/ConfigItem';
 
 export class Vector2
 {
@@ -27,7 +28,7 @@ export class Rect
 	}
 }
 
-export class ColorRGBA
+export class ColorRGBA implements SaveAsString<ColorRGBA>
 {
 	constructor(public readonly r:number, public readonly g:number, public readonly b:number, public readonly a:number)
 	{
@@ -47,7 +48,29 @@ export class ColorRGBA
 	private static CBy(v:number) { return ColorRGBA.C01(v/255); }
 	public static CreateClamp	 (r:number, g:number, b:number, a:number) { return new ColorRGBA(ColorRGBA.C01(r), ColorRGBA.C01(g), ColorRGBA.C01(b), ColorRGBA.C01(a)); }
 	public static CreateByteClamp(r:number, g:number, b:number, a:number) { return new ColorRGBA(ColorRGBA.CBy(r), ColorRGBA.CBy(g), ColorRGBA.CBy(b), ColorRGBA.CBy(a)); }
+
+	public ToString()
+	{
+		return StatStr.Empty
+			+CToHex(this.r)
+			+CToHex(this.g)
+			+CToHex(this.b)
+			+CToHex(this.a);
+	}
+	public FromString(Str:string)
+	{
+		Str=(/^([0-9a-fA-F]{6,8})$/.test(Str) ? Str : this.ToString()).padEnd(8, 'F').toUpperCase();
+
+		return new ColorRGBA(
+			HexToC(Str, 0),
+			HexToC(Str, 1),
+			HexToC(Str, 2),
+			HexToC(Str, 3),
+		);
+	}
 }
+function CToHex(C:number) { return Math.round(C*255).toString(16).toUpperCase().padStart(2, '0'); }
+function HexToC(Str:string, Pos:number) { return Number.parseInt(Str.substring(Pos*2, Pos*2+2), 16)/255; }
 
 export namespace Util
 {
