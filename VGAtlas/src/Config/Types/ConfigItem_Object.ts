@@ -4,6 +4,7 @@ import ConfigItem, { Options, SaveAsString } from '../Abstract/ConfigItem';
 export default class ConfigItem_Object<T extends object> extends ConfigItem<OtherObject<T>>
 {
 	public constructor(Section:string, Key:string, Default:OtherObject<T>, Opts?:Partial<Options>) { super(Section, Key, Default, {...Opts, Hide:true}); }
+	protected override ValueSet() { }
 }
 export class OtherObject<T extends object> implements SaveAsString<OtherObject<T>>
 {

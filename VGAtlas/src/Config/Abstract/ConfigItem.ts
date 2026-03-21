@@ -35,19 +35,22 @@ export default abstract class ConfigItem<T extends ConfigItemValueTypes> extends
 					  this.IsSaveAsString ? (this.Default as SaveAsString<T>).FromString(Parsed as string)
 					: Parsed as T;
 			} catch { }
+		this.ValueSet();
 		if(Raw!==this.GetStorageValue())
 			this.SaveToStorage();
 	}
 
 	public get V(): T { return this.Val; }
 	public set V(NewVal:T) { this.SetVal(NewVal); }
-	protected SetVal(NewVal:T)
+	protected SetVal(NewVal:T, FromDOM=false)
 	{
 		if(NewVal===this.Val)
 			return;
 		this.Val=NewVal;
 		this.SaveToStorage();
 		this.SettingChanged.Execute(NewVal, this);
+		if(!FromDOM)
+			this.ValueSet();
 	}
 	private SaveToStorage() { this.Parent.Storage.setItem(this.Parent.Prefix+this.Key, this.GetStorageValue()); }
 	private GetStorageValue() { return JSON.stringify(this.IsSaveAsString ? (this.Val as SaveAsString<T>).ToString() : this.Val); }

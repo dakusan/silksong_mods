@@ -1,3 +1,4 @@
+import $ from "jquery";
 import { Util, WillBeSet } from '../../Util/SharedClasses';
 import type Config from '../Config';
 
@@ -21,4 +22,7 @@ export default abstract class ConfigItemBase
 	protected Parent:Config=WillBeSet;
 	public readonly Options:Readonly<Options>;
 	protected abstract Init(Parent:Config): void;
+
+	public readonly $DOMHolder=$(document.createElement('div'));
+	protected abstract ValueSet(): void;
 }

@@ -26,8 +26,8 @@ export default class Translations
 	public get ctor() { return Translations; }
 
 	//The list of languages
-	public readonly Languages:Record<string, LangNames>={};
-	public get GetEnum() { return Object.values(this.Languages).map(L => ({Key:L.ISO, Value:L.Native})); }
+	private readonly Languages:Record<string, LangNames>={};
+	public get LanguagesList():Readonly<typeof this.Languages> { return this.Languages; }
 	public readonly LanguageListLoaded:Promise<void>; //Languages loaded from “Languages.json”
 
 	//Init
