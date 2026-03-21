@@ -15,7 +15,7 @@ export default class CategoryGroupsWindow extends Window
 
 	constructor()
 	{
-		super({Title:"Categories", MinWidth:234, Width:707, Height:598, SaveID:'CategoryGroups'});
+		super({Title:'-', MinWidth:234, Width:707, Height:598, SaveID:'CategoryGroups'});
 		this.$Content.attr('id', 'CategoryGroupsWindow');
 
 		$('<div class=CategoryGroupButtons>').appendTo(this.$Content).append(
@@ -46,9 +46,12 @@ export default class CategoryGroupsWindow extends Window
 
 	public override LanguageChanged()
 	{
-		this.$Content.find('.CategoryGroupButtons button').each(
-			(_, El) => void(El.innerText=Share.Tr.T(El.dataset.text as string, 'SideBarButtons'))
-		);
+		Share.Tr.OnLanguageLoadedOnce(() => {
+			this.$Content.find('.CategoryGroupButtons button').each(
+				(_, El) => void(El.innerText=Share.Tr.T(El.dataset.text as string, 'SideBarButtons'))
+			);
+			this.Title=Share.Tr.T("Category States", 'SettingNames');
+		});
 	}
 
 	public override OnClosing()

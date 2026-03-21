@@ -1,0 +1,30 @@
+.ConfigTable {
+	/* 3-column table */
+	display:grid; width:100%; grid-template-columns:minmax(0, max-content) minmax(150px, 1fr) min-content;
+	align-items:center; gap:4px 8px;
+	&>tr { display:contents; }
+	&>tr>td { display:block; }
+
+	/* Center column width calculations */
+	.ConfigElCol>div { display:flex; }
+	.ConfigElCol>div>* { flex: 1 1 auto; min-width:0; }
+	input, select, .ConfigElCol button { box-sizing:border-box; }
+	.Color.Picker, .Number.Text { width:56px; flex: 0 0 auto; }
+
+	/* Section titles */
+	.SectionTitle { grid-column: 1 / -1; border:0 solid white; border-bottom-width:2px; padding-top:20px; font-size:25px; }
+	tr:first-child .SectionTitle { padding-top:0; }
+
+	/* Description popup */
+	.TitleCol { position:relative; }
+	.Description {
+		display:none; position:absolute; top:10px; left:50px; max-width:400px; padding:5px; z-index:10;
+		background-color:rgba(64, 64, 64);
+	}
+	.TitleCol:hover .Description { display:block; }
+
+	/* Other */
+	input, select, button { color:black; white-space:nowrap; }
+	.IsHidden { display:none !important; }
+	.IsAdvanced { color:yellow; }
+}

@@ -72,8 +72,10 @@ export default class ItemWindow extends Window
 	}
 	public override LanguageChanged()
 	{
-		this.$Content.children().remove();
-		this.UpdateContents();
+		Share.Tr.OnLanguageLoadedOnce(() => {
+			this.$Content.children().remove();
+			this.UpdateContents();
+		});
 	}
 
 	public override OnMoved()

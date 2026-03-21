@@ -62,23 +62,33 @@ export default class Translations
 
 	//Load current language
 	public Sections?:Record<string, Record<string, string>>;
-	public OnLanguageChanged=new CallbackList<[string]>('LanguageChanged');
 	private _Language:string=StatStr.Empty; public get Language() { return this._Language; }
 	public set Language(Value:string)
 	{
 		if(Value && this._Language!==Value)
-			this.LoadLanguage(Value).then();
+			this.LanguageLoaded=this.LoadLanguage(this._Language=Value).then();
 	}
 	private async LoadLanguage(ISO:string)
 	{
-		this._Language=ISO;
 		try {
 			this.Sections=await LoadJson.FromURL(`${this.TranslationsPath}/${ISO}${Translations.TranslationFileExtension}`) as Record<string, Record<string, string>>;
 		} catch (e) {
 			this.Sections=undefined;
 			Log.Error("Could not load language file: "+Util.GetErrorMessage(e));
 		}
+		this.LanguageLoaded=undefined;
 		this.OnLanguageChanged.Execute(ISO); //Callbacks for after the language changes
+	}
+
+	//Sending events when language has changed
+	public OnLanguageChanged=new CallbackList<[string]>('LanguageChanged');
+	public LanguageLoaded?:Promise<void>; //Undefined if language load has complete, otherwise returns the promise for the language loading routine
+	public OnLanguageLoadedOnce(CB:(NewLang:string) => void)
+	{
+		if(this.LanguageLoaded===undefined)
+			CB(this.Language!);
+		else
+			this.LanguageLoaded.finally(() => CB(this.Language!));
 	}
 
 	//Translation functions
