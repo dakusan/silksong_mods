@@ -27,4 +27,5 @@ export default class ConfigItem_Languages extends ConfigItem_Enum
 		this.$SelectBox.val(this.Tr.Language=this.V);
 		this.SettingChanged.Add('ConfigItem_Languages', V => this.Tr.Language=V);
 	}
+	protected override LanguageChanged() { } //Text not changed on language change
 }

@@ -131,4 +131,5 @@ export default class ConfigItem_ShortcutKey extends ConfigItem<ShortcutKey>
 	}
 
 	protected override ValueSet() { this.$Button.text(this.V.DisplayString()); }
+	protected override LanguageChanged() { if(this.V.KeyCode===NoKeySet) this.ValueSet(); }
 }

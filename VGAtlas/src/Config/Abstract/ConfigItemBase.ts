@@ -25,4 +25,7 @@ export default abstract class ConfigItemBase
 
 	public readonly $DOMHolder=$(document.createElement('div'));
 	protected abstract ValueSet(): void;
+
+	public GetTranslation?(TransKey:string): string|undefined; //Instance function
+	protected LanguageChanged?(): void; //Class overridden function
 }

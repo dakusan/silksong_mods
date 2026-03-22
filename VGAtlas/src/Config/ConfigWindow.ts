@@ -120,9 +120,17 @@ class ConfigWindowRow
 		this.$TitleText.text(this.Parent.Parent.TranslateFunc('CONFIG_KEY', this.ConfigItem.Key, this.ConfigItem));
 		this.$DescriptionEl?.text(this.Parent.Parent.TranslateFunc('CONFIG_DESCRIPTION', this.ConfigItem.Key, this.ConfigItem));
 		this.$ConfigResetButton.text(DefaultTr.T("Reset", 'ConfigWindow'));
+		(this.ConfigItem as ConfigItemBase_Friend).LanguageChanged?.();
 	}
 }
 
+abstract class ConfigItemBase_Friend extends ConfigItemBase implements FriendClass
+{
+	public override LanguageChanged?(): void;
+	//Ignore these
+	protected constructor() { super(null!, null!, null!); this.Stub(); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
+}
 abstract class ConfigWindowSection_Friend extends ConfigWindowSection implements FriendClass
 {
 	public override LanguageChanged() { this.Stub(); }

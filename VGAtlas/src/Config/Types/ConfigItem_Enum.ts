@@ -14,6 +14,7 @@ export default class ConfigItem_Enum extends ConfigItem<string>
 				this.SetVal(this.$SelectBox.val() as string, true)
 			);
 		this.AddList(List);
+		this.LanguageChanged();
 	}
 	public AddList(List:Map<string, string>|Record<string, string>)
 	{
@@ -28,4 +29,13 @@ export default class ConfigItem_Enum extends ConfigItem<string>
 		this.EnumValues.set(Key, Value);
 	}
 	protected override ValueSet() { this.$SelectBox.val(this.V); }
+	protected override LanguageChanged()
+	{
+		this.$SelectBox.children('option:not(.NoVal)').each((_, El) =>
+			void($(El).text(
+				   this.GetTranslation?.($(El).val() as string)
+				?? this.EnumValues.get($(El).val() as string)!
+			))
+		);
+	}
 }

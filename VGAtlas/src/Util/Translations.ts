@@ -11,6 +11,19 @@ class LangNames { constructor(
 	public readonly PickLanguageAsString:string,
 ) { } }
 
+//Immediately call the callback on adding in case the language has already loaded
+type Callback<Args extends unknown[]=unknown[]> = (...args: Args) => void;
+class LanguagesChangedCallbackList extends CallbackList<[string]>
+{
+	constructor(private readonly Tr:Translations) { super('LanguageChanged') }
+	public override Add(Name: string, CB:Callback<[string]>)
+	{
+		super.Add(Name, CB);
+		if(this.Tr.Language)
+			this.Tr.OnLanguageLoadedOnce(() => CB(this.Tr.Language!));
+	}
+}
+
 //Loads translations from $TranslationsPath/$LangIsoName$TranslationFileExtension.
 export default class Translations
 {
@@ -25,6 +38,10 @@ export default class Translations
 	//Since a lot of the functions are ran on the static class, give easy access to it
 	public get ctor() { return Translations; }
 
+	//Store modules so their language can be synced
+	private static Modules=new Map<string, Translations>;
+	public static get ModulesList(): ReadonlyMap<string, Translations> { return this.Modules; }
+
 	//The list of languages
 	private readonly Languages:Record<string, LangNames>={};
 	public get LanguagesList():Readonly<typeof this.Languages> { return this.Languages; }
@@ -35,6 +52,7 @@ export default class Translations
 		public readonly ModuleName:string,
 		public readonly TranslationsPath:string
 	) {
+		Translations.Modules.set(this.ModuleName, this);
 		this.LanguageListLoaded=this.LanguageListLoad();
 	}
 	public static StandardCreate(ModuleName:string) //Path="Assets/Translations/$ModuleName/"
@@ -43,7 +61,7 @@ export default class Translations
 	}
 	private async LanguageListLoad()
 	{
-		let LList:Record<string, string[]>={en:["English", "English", "Language", "Pick your language"]}; //LList={ISO:[Eng, Native, LanguageAsString, PickLanguageAsString], ...}
+		let LList:Record<string, string[]>={[this.ctor.DefaultLang]:[this.ctor.DefaultLangName, this.ctor.DefaultLangName, this.ctor.LanguageAsStr, this.ctor.PickLanguageAsStr]}; //LList={ISO:[Eng, Native, LanguageAsString, PickLanguageAsString], ...}
 		try {
 			 LList=await LoadJson.FromURL(this.TranslationsPath+'/Languages.json') as Record<string, string[]>;
 		} catch (e) {
@@ -62,7 +80,7 @@ export default class Translations
 
 	//Load current language
 	public Sections?:Record<string, Record<string, string>>;
-	private _Language:string=StatStr.Empty; public get Language() { return this._Language; }
+	private _Language?:string; public get Language(): string|undefined { return this._Language; }
 	public set Language(Value:string)
 	{
 		if(Value && this._Language!==Value)
@@ -70,18 +88,23 @@ export default class Translations
 	}
 	private async LoadLanguage(ISO:string)
 	{
+		//Sync the languages of other translations
+		for(const M of this.ctor.Modules.values())
+			if(M.Language!==this.Language)
+				M.Language=this.Language!;
+
 		try {
 			this.Sections=await LoadJson.FromURL(`${this.TranslationsPath}/${ISO}${Translations.TranslationFileExtension}`) as Record<string, Record<string, string>>;
 		} catch (e) {
 			this.Sections=undefined;
-			Log.Error("Could not load language file: "+Util.GetErrorMessage(e));
+			Log.Error(StatStr.NeedsTranslate+`Could not load language file “${ISO}” for module “${this.ModuleName}”: `+Util.GetErrorMessage(e));
 		}
 		this.LanguageLoaded=undefined;
 		this.OnLanguageChanged.Execute(ISO); //Callbacks for after the language changes
 	}
 
 	//Sending events when language has changed
-	public OnLanguageChanged=new CallbackList<[string]>('LanguageChanged');
+	public OnLanguageChanged=new LanguagesChangedCallbackList(this); //Called when changed language load completes
 	public LanguageLoaded?:Promise<void>; //Undefined if language load has complete, otherwise returns the promise for the language loading routine
 	public OnLanguageLoadedOnce(CB:(NewLang:string) => void)
 	{
