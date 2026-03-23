@@ -25,6 +25,7 @@ const CurPopupMessage="Welcome to the <a href='https://silksong.castledragmire.c
 const CurPopupMessageVersion=1;
 
 //Independent libraries that can load early
+Translations.DefaultDOMModule='Atlas';
 Share.Tr=Translations.StandardCreate('Atlas');
 Share.WM=WM;
 Share.LC.Language.SetTranslations(Share.Tr);

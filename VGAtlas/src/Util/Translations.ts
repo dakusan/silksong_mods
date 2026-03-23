@@ -101,6 +101,7 @@ export default class Translations
 		}
 		this.LanguageLoaded=undefined;
 		this.OnLanguageChanged.Execute(ISO); //Callbacks for after the language changes
+		this.UpdateDOMSubElements();
 	}
 
 	//Sending events when language has changed
@@ -153,6 +154,34 @@ export default class Translations
 		for(const [Index, Value] of Args.entries())
 			Str=Str.replaceAll(`{${Index}}`, Value?.toString() ?? StatStr.Empty);
 		return Str;
+	}
+
+	//Update translation DOM elements via their dataset attributes
+	public static DefaultDOMModule=DefaultModuleName;
+	public UpdateDOMSubElements(RootSearchDOMElement:HTMLElement=document.body)
+	{
+		for(const El of RootSearchDOMElement.getElementsByClassName('TranslationEl'))
+			if(El instanceof HTMLElement && (El.dataset.translationModule ?? this.ctor.DefaultDOMModule)===this.ModuleName)
+				this.UpdateDOMElement(El);
+	}
+	public UpdateDOMElement(El:HTMLElement)
+	{
+		const FinalText=this.TranslateDef(El.dataset.translationKey!, El.dataset.translationSection, El.dataset.translationDefault ?? El.dataset.translationKey ?? null);
+		if(FinalText!==null)
+			El[El.dataset.translationHtml ? 'innerHTML' : 'innerText']=FinalText;
+		return FinalText!==null;
+	}
+	public static CreateTranslationElement(Element:HTMLElement, Key:string, Section?:string, DefaultTextOverride?:string, AllowHTML=false, Module?:string)
+	{
+		Element.classList.add('TranslationEl');
+		Element.innerText=(DefaultTextOverride ?? Key);
+		Object.entries({Key, Section, Module, Default:DefaultTextOverride, Html:AllowHTML ? "true" : null})
+			.filter(([_, Value]) => Value!==null && Value!==undefined)
+			.forEach(([Name, Value]) => Element.setAttribute('data-translation-'+Name.toLowerCase(), Value!));
+	}
+	public CreateTranslationElement(Element:HTMLElement, Key:string, Section?:string, DefaultTextOverride?:string, AllowHTML=false, OverrideModule?:string)
+	{
+		return Translations.CreateTranslationElement(Element, Key, Section, DefaultTextOverride, AllowHTML, OverrideModule ?? this.ModuleName);
 	}
 }
 

@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import { DefaultTr } from '../../Util/Translations';
 import ConfigItem, { Options } from '../Abstract/ConfigItem';
 
 export default class ConfigItem_Enum extends ConfigItem<string>
@@ -9,12 +10,13 @@ export default class ConfigItem_Enum extends ConfigItem<string>
 	{
 		super(Section, Key, Default, Opts);
 		this.$SelectBox
-			.append($('<option class=NoVal selected disabled>').text("Select A Value"))
+			.append($('<option class="NoVal TranslationEl" selected disabled data-translation-key="Select A Value" data-translation-section=ConfigWindow data-translation-module=Default>'))
 			.on('change', () =>
 				this.SetVal(this.$SelectBox.val() as string, true)
 			);
 		this.AddList(List);
 		this.LanguageChanged();
+		DefaultTr.UpdateDOMSubElements(this.$SelectBox[0]);
 	}
 	public AddList(List:Map<string, string>|Record<string, string>)
 	{
