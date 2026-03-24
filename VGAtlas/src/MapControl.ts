@@ -125,12 +125,6 @@ export default class MapControl
 	}
 
 	//Handle key presses
-	private static ZoomKeysAmount=new Map<string, number>([
-		['Equal'			,  1],
-		['Minus'			, -1],
-		['NumpadAdd'		,  1],
-		['NumpadSubtract'	, -1],
-	]);
 	private static ArrowKeyDirections=new Map<string, [number, number]>([
 		['ArrowLeft',	[ 1, 0]],
 		['ArrowRight',	[-1, 0]],
@@ -143,9 +137,13 @@ export default class MapControl
 			return;
 
 		//Handle zooming
-		for(const [KeyName, Direction] of MapControl.ZoomKeysAmount.entries())
-			if(KeyState.GetKeyDown(KeyName))
-				this.Zoom(Direction);
+		if(Share.WM.Active===null || Share.WM.Active instanceof ItemWindow) {
+			const ZoomAmount=
+				 (Share.LC.Shortcut_ZoomIn .IsActive() ?  1 : 0)
+				+(Share.LC.Shortcut_ZoomOut.IsActive() ? -1 : 0);
+			if(ZoomAmount!==0)
+				this.Zoom(ZoomAmount);
+		}
 
 		//Panning
 		if(!KeyState.GetKeyDown('AltLeft') && !KeyState.GetKeyDown('AltRight'))

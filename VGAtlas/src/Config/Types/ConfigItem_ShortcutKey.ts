@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { Iter, Util } from '../../Util/SharedClasses';
+import { CallbackList, Iter, KeyState, Util } from '../../Util/SharedClasses';
 import { DefaultTr } from '../../Util/Translations';
 import ConfigItem, { Options, SaveAsString } from '../Abstract/ConfigItem';
 
@@ -19,13 +19,14 @@ class ToggleKeyInfo<K extends ToggleKeyID=ToggleKeyID>
 		public readonly ID:K,
 		public readonly Name:string,
 		public readonly EventToggleName:EventToggleNames,
+		public readonly KeyCodes:readonly string[],
 	) { }
 }
 const ToggleKeyInfos=new Map<ToggleKeyID, ToggleKeyInfo>([
-	['Ctrl'	, new ToggleKeyInfo('Ctrl'	, 'Control'	, 'ctrlKey'	)],
-	['Alt'	, new ToggleKeyInfo('Alt'	, 'Alt'		, 'altKey'	)],
-	['Shift', new ToggleKeyInfo('Shift'	, 'Shift'	, 'shiftKey')],
-	['Meta'	, new ToggleKeyInfo('Meta'	, 'Meta'	, 'metaKey'	)],
+	['Ctrl'	, new ToggleKeyInfo('Ctrl'	, 'Control'	, 'ctrlKey'	, ['ControlLeft', 'ControlRight'])],
+	['Alt'	, new ToggleKeyInfo('Alt'	, 'Alt'		, 'altKey'	, ['AltLeft'	, 'AltRight'	])],
+	['Shift', new ToggleKeyInfo('Shift'	, 'Shift'	, 'shiftKey', ['ShiftLeft'	, 'ShiftRight'	])],
+	['Meta'	, new ToggleKeyInfo('Meta'	, 'Meta'	, 'metaKey'	, ['MetaLeft'	, 'MetaRight'	])],
 ]);
 
 const SkipKeyNames=new Set([...new Iter(ToggleKeyInfos.values()).map(TKI => TKI.Name), 'Dead', 'Unidentified']);
@@ -83,12 +84,14 @@ export default class ConfigItem_ShortcutKey extends ConfigItem<ShortcutKey>
 {
 	private static AnyCapturing=false;
 	protected readonly $Button=$(document.createElement('button')).addClass('ShortcutKey').appendTo(this.$DOMHolder);
+	public OnKeypress=new CallbackList<[Item:ConfigItem_ShortcutKey, e:KeyboardEvent], boolean>(`Config OnKeypress “${this.Section}.${this.Key}”`);
 	private readonly BoundListenForKey=(e:KeyboardEvent) => this.ListenForKey(e);
 	private readonly BoundEndKeyListen=() => this.EndKeyListen();
 
 	constructor(Section:string, Key:string, Default:ShortcutKey, Opts?:Partial<Options>)
 	{
 		super(Section, Key, Default, Opts);
+		ConfigItem_ShortcutKey.AllMyConfigs.push(this);
 
 		this.$Button.on('click', () =>
 		{
@@ -132,4 +135,31 @@ export default class ConfigItem_ShortcutKey extends ConfigItem<ShortcutKey>
 
 	protected override ValueSet() { this.$Button.text(this.V.DisplayString()); }
 	protected override LanguageChanged() { if(this.V.KeyCode===NoKeySet) this.ValueSet(); }
+
+	//Handle keypress monitoring
+	private static AllMyConfigs:ConfigItem_ShortcutKey[]=[];
+	static { window.addEventListener('keydown', e => this.GlobalListenForKey(e), true); }
+	private static GlobalListenForKey(e:KeyboardEvent)
+	{
+		if(!this.AnyCapturing)
+			this.AllMyConfigs.forEach(C => C.ConfirmKeyboardEvent(e));
+	}
+	private ConfirmKeyboardEvent(e:KeyboardEvent)
+	{
+		if(
+			   e.code===this.V.KeyCode
+			&& new Iter(ToggleKeyInfos.values()).every(TKI => this.V.ToggleKeys[TKI.ID]===e[TKI.EventToggleName])
+			&& this.OnKeypress.ExecuteWithRetCB(B => B, this, e)
+		) {
+			e.stopImmediatePropagation();
+			e.preventDefault();
+		}
+	}
+	public IsActive()
+	{
+		return KeyState.GetKeyDown(this.V.KeyCode)
+			&& new Iter(ToggleKeyInfos.values()).every(TKI =>
+				this.V.ToggleKeys[TKI.ID]===TKI.KeyCodes.some(KC => KeyState.GetKeyDown(KC))
+			)
+	}
 }

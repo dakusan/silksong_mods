@@ -1,5 +1,5 @@
 import { ColorRGBA } from './Util/SharedClasses';
-import Config, { ConfigItem_Boolean, ConfigItem_Color, ConfigItem_Enum, ConfigItem_Languages, ConfigItem_Number, ConfigItem_Object, OtherObject } from './Config/Config';
+import Config, { ConfigItem_Boolean, ConfigItem_Color, ConfigItem_Enum, ConfigItem_Languages, ConfigItem_Number, ConfigItem_Object, ConfigItem_ShortcutKey, OtherObject, ShortcutKey } from './Config/Config';
 
 const PanSpeedMultiplier=25;
 
@@ -15,6 +15,8 @@ class LocalConfig extends Config {
 
 	public readonly ZoomSpeed				=new ConfigItem_Number		("Map Controls", "Zoom Speed",								1.03, 1.01, 1.5, 2);
 	public readonly PanSpeed				=new ConfigItem_Number		("Map Controls", "Pan Speed",								12*PanSpeedMultiplier, Math.max(1)*PanSpeedMultiplier, 40*PanSpeedMultiplier, 0);
+	public readonly Shortcut_ZoomIn			=new ConfigItem_ShortcutKey	("Map Controls", "Shortcut Key: Zoom In",					new ShortcutKey('Equal', '='));
+	public readonly Shortcut_ZoomOut		=new ConfigItem_ShortcutKey	("Map Controls", "Shortcut Key: Zoom out",					new ShortcutKey('Minus', '-'));
 
 	public readonly Language				=new ConfigItem_Languages	("Interface customization");
 

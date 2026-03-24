@@ -278,22 +278,34 @@ export class PopupMessage
 	}
 }
 
-type Callback<Args extends unknown[]=unknown[]> = (...args: Args) => void;
-export class CallbackList<Args extends unknown[]>
+type Callback<Args extends unknown[]=unknown[], TRet=void> = (...args: Args) => TRet;
+export class CallbackList<Args extends unknown[], TRet=void>
 {
 	constructor(
 		public readonly Name:string,
 	) { }
 
-	private readonly Callbacks=new Map<string, Callback<Args>>();
-	public Add		(Name:string, CB:Callback<Args>	) {			this.Callbacks.set		(Name, CB	); }
-	public Remove	(Name:string					) { return	this.Callbacks.delete	(Name		); }
-	public Has		(Name:string					) { return	this.Callbacks.has		(Name		); }
+	private readonly Callbacks=new Map<string, Callback<Args, TRet>>();
+	public Add		(Name:string, CB:Callback<Args, TRet>	) {			this.Callbacks.set		(Name, CB	); }
+	public Remove	(Name:string							) { return	this.Callbacks.delete	(Name		); }
+	public Has		(Name:string							) { return	this.Callbacks.has		(Name		); }
 	public Execute(...Params:Args)
 	{
 		for(const [CBName, CB] of this.Callbacks.entries())
 			try { CB(...Params); }
 			catch(e) { Log.Error(StatStr.NeedsTranslate+`Callback “${CBName}” for ${this.Name} failed: ${Util.GetErrorMessage(e)}`); }
+	}
+
+	//RetCB is called with each callback’s return value. If RetCB returns true, execution stops and this method returns true. Otherwise, it continues and returns false if all callbacks ran.
+	public ExecuteWithRetCB(RetCB:(RetVal:TRet) => boolean, ...Params:Args)
+	{
+		for(const [CBName, CB] of this.Callbacks.entries())
+			try {
+				if(RetCB(CB(...Params))===true)
+					return true;
+			}
+			catch(e) { Log.Error(StatStr.NeedsTranslate+`Callback “${CBName}” for ${this.Name} failed: ${Util.GetErrorMessage(e)}`); }
+		return false;
 	}
 }
 
