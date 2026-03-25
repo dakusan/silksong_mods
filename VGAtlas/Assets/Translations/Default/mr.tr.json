@@ -1,0 +1,10 @@
+//See default.tr.json for line and section descriptions
+{
+	"ConfigWindow":{
+		"Configure": "सेटिंग्ज",
+		"Select A Value": "मूल्य निवडा",
+		"NoKeySet": "काहीही नाही",
+		"Press shortcut": "शॉर्टकट दाबा",
+		"Reset": "रीसेट",
+	},
+}

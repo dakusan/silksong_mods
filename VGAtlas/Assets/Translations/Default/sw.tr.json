@@ -1,0 +1,10 @@
+//See default.tr.json for line and section descriptions
+{
+	"ConfigWindow":{
+		"Configure": "Mipangilio",
+		"Select A Value": "Chagua thamani",
+		"NoKeySet": "Hakuna",
+		"Press shortcut": "Bonyeza njia ya mkato",
+		"Reset": "Weka upya",
+	},
+}

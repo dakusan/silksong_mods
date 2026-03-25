@@ -1,0 +1,10 @@
+//See default.tr.json for line and section descriptions
+{
+	"ConfigWindow":{
+		"Configure": "ترتیبات",
+		"Select A Value": "ایک قدر منتخب کریں",
+		"NoKeySet": "کوئی نہیں",
+		"Press shortcut": "شارٹ کٹ دبائیں",
+		"Reset": "ری سیٹ",
+	},
+}

@@ -1,0 +1,10 @@
+//See default.tr.json for line and section descriptions
+{
+	"ConfigWindow":{
+		"Configure": "Einstellungen",
+		"Select A Value": "Wert auswählen",
+		"NoKeySet": "Keine",
+		"Press shortcut": "Tastenkürzel drücken",
+		"Reset": "Zurücksetzen",
+	},
+}

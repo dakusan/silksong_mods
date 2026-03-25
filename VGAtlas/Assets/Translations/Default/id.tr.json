@@ -1,0 +1,10 @@
+//See default.tr.json for line and section descriptions
+{
+	"ConfigWindow":{
+		"Configure": "Pengaturan",
+		"Select A Value": "Pilih nilai",
+		"NoKeySet": "Tidak ada",
+		"Press shortcut": "Tekan pintasan",
+		"Reset": "Setel ulang",
+	},
+}

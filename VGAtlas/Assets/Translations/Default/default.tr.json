@@ -1,0 +1,10 @@
+//NOTE: Do not include this in the release. It is only here to help generate other translation files ✓
+{
+	"ConfigWindow":{
+		"Configure": "Settings", //The title of the configuration window
+		"Select A Value": "Select A Value", //When a selectbox has no value yet set
+		"NoKeySet": "None", //When a keyboard shortcut is unset, display this
+		"Press shortcut": "Press shortcut", //What the interface is waiting for the user to press a keyset to set a shortcut key
+		"Reset": "Reset", //The title of reset buttons that change a setting back to its default
+	},
+}

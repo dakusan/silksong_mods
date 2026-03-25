@@ -1,0 +1,10 @@
+//See default.tr.json for line and section descriptions
+{
+	"ConfigWindow":{
+		"Configure": "설정",
+		"Select A Value": "값 선택",
+		"NoKeySet": "없음",
+		"Press shortcut": "단축키 누르기",
+		"Reset": "재설정",
+	},
+}

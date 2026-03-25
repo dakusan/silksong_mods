@@ -1,0 +1,10 @@
+//See default.tr.json for line and section descriptions
+{
+	"ConfigWindow":{
+		"Configure": "அமைப்புகள்",
+		"Select A Value": "ஒரு மதிப்பைத் தேர்ந்தெடுக்கவும்",
+		"NoKeySet": "எதுவும் இல்லை",
+		"Press shortcut": "குறுக்கு விசையை அழுத்தவும்",
+		"Reset": "மீட்டமை",
+	},
+}
