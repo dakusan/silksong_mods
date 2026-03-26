@@ -1,17 +1,19 @@
+@use "../Assets/Themes/Base" as *;
+
 button, input, select, textarea { color:inherit; font-family:inherit; }
 canvas { width:100%; height:100%; touch-action:none; overscroll-behavior:none; } //Stops pinch-zoom/pan from being handled by the page
 
 .PopupMessage {
-	position:absolute; z-index:100000; display:flex; inset:0; justify-content:center; align-items:center; background-color:#333333C0;
+	position:absolute; z-index:100000; display:flex; inset:0; justify-content:center; align-items:center; background:var(--popup-surround-background, rgba(51, 51, 51, 0.75));
 	padding:clamp(0px, calc((100dvh - 150px)/2), 40px) clamp(0px, calc((100vw - 150px)/2), 40px);
-	>div { display:flex; flex-direction:column; width:100%; height:100%; padding:10px; border-radius:20px; background-color:rgba(24, 24, 24, 0.8); box-shadow:0 10px 30px rgba(0, 0, 0, 0.45); }
+	>div { display:flex; flex-direction:column; width:100%; height:100%; padding:10px; border-radius:20px; background:var(--popup-background, rgba(24, 24, 24, 0.8)); box-shadow:var(--box-shadow); }
 	.CloseMessage { flex:0 0 auto; text-align:center; color:red; font-size:120%; }
-	.MessageText { flex:1 1 auto; display:flex; justify-content:center; align-items:center; overflow:hidden; text-align:center; font-size:80px; color:#eee; }
+	.MessageText { flex:1 1 auto; display:flex; justify-content:center; align-items:center; overflow:hidden; text-align:center; font-size:80px; color:var(--text-color, #eee); }
 }
 
 #ItemTooltip {
-	position:absolute; box-sizing:border-box; border:1px solid rgba(255, 255, 255, 0.25);
-	background-color:rgba(64, 64, 64, 0.8); color:#eee; box-shadow:0 10px 30px rgba(0, 0, 0, 0.45);
+	position:absolute; box-sizing:border-box; border:1px solid var(--window-border, rgba(255, 255, 255, 0.25));
+	background:var(--tooltip-bg, rgba(64, 64, 64, 0.8)); color:var(--text-color, #eee); box-shadow:var(--box-shadow);
 	display:none; z-index:20000; white-space:nowrap;
 	padding:3px;
 	&.Active { display:block; }
@@ -75,8 +77,8 @@ canvas { width:100%; height:100%; touch-action:none; overscroll-behavior:none; }
 #ItemTooltip .ItemIcon { position:relative; top:6px; --NewIconSize:22px; margin-top:-7px; }
 
 .WinRoot.Detached {
-	@keyframes DetachedBorderBlink	{ to { border-color :green; } }
-	@keyframes DetachedOutlineBlink	{ to { outline-color:green; } }
+	@keyframes DetachedBorderBlink	{ to { border-color :var(--window-detach-border, green); } }
+	@keyframes DetachedOutlineBlink	{ to { outline-color:var(--window-detach-border, green); } }
 	 			animation:DetachedBorderBlink	1s ease-in-out 4 alternate;
 	&.Active {	animation:DetachedOutlineBlink	1s ease-in-out 4 alternate; }
 }
@@ -85,16 +87,16 @@ canvas { width:100%; height:100%; touch-action:none; overscroll-behavior:none; }
 	min-height:0; overflow:auto; column-width:220px; column-fill:auto; column-gap:10px; width:100%; flex:1 1 auto; font-size:14px; white-space:nowrap;
 	button { background-color:transparent; border-width:0; font-size:inherit; }
 	.Title {
-		margin-bottom:2px; font-size:18px; color:#e6e6e6;
-		&:hover { color:blue; }
+		margin-bottom:2px; font-size:18px; color:var(--category-group-title, #e6e6e6);
+		&:hover { color:var(--category-group-title-hover, cyan); }
 	}
 	.Group { break-inside:avoid; page-break-inside:avoid; margin-bottom:10px; }
 	.Row {
-		text-align:left; display:block; width:100%; position:relative; padding:2px 2px; margin-bottom:1px; color:#808080;
-		&:hover { color:white; }
+		text-align:left; display:block; width:100%; position:relative; padding:2px 2px; margin-bottom:1px; color:var(--category-title, #808080);
+		&:hover { color:var(--category-title-hover, white); }
 		&.Completed {
-			color:lime;
-			&:hover { color:rgb(160, 255, 0); }
+			color:var(--category-title-completed, lime);
+			&:hover { color:var(--category-title-completed-hover, rgb(160, 255, 0)); }
 		}
 	}
 	.Category {
@@ -103,7 +105,7 @@ canvas { width:100%; height:100%; touch-action:none; overscroll-behavior:none; }
 		&.StateNone::before {
 			$StrikeHeight:1px;
 			position:absolute; left:0; top:calc(50% - $StrikeHeight / 2); width:100%; height:$StrikeHeight;
-			content:''; background:white; pointer-events:none; z-index:2;
+			content:''; background:var(--category-strike, white); pointer-events:none; z-index:2;
 		}
 
 		.ItemIcon { position:relative; top:4px; margin-top:-6px; --NewIconSize:20px; }
@@ -113,14 +115,14 @@ canvas { width:100%; height:100%; touch-action:none; overscroll-behavior:none; }
 }
 
 #CategoryGroupsWindow {
-	display:flex; flex-direction:column; background-color:rgba(0, 0, 0, 0.52); user-select:none;
+	display:flex; flex-direction:column; background:var(--category-window-background, rgba(0, 0, 0, 0.52)); user-select:none;
 	button { cursor:pointer; }
 
 	.CategoryGroupButtons {
 		display:flex; flex-wrap:wrap; gap:6px; justify-content:space-evenly; align-items:center; flex:0 0 auto;
 		>button {
 			flex:0 1 auto; border-width:0; border-radius:6px; padding:3px 4px 4px 4px;
-			white-space:nowrap; background-color:#0000A0; color:white;
+			white-space:nowrap; background:var(--category-window-button-background, #0000A0); color:var(--category-window-button-text, white);
 			&:active { transform:translateY(1px); }
 		}
 	}
@@ -130,19 +132,19 @@ body #MainMenu { display:block; }
 #MainMenu {
 	position:absolute; top:15px; left:15px;
 	.PopupButton {
-		font-size:28px; color:#808080;
-		&:hover { color:white; }
-		&:before { content:'☰'; }
+		font-size:28px; color:var(--main-menu-button, #808080);
+		&:hover { color:var(--main-menu-button-hover, white); }
+		&:before { content:var(--main-menu-icon, '☰'); }
 		&:active { transform:translateY(1px); }
 	}
 	.Popup {
-		display:none; position:absolute; top:10px; left:15px; border:1px solid rgba(255, 255, 255, 0.25); border-radius:8px; padding:0 5px;
-		background-color:rgba(20, 20, 20, 0.94); color:#eee; box-shadow:0 10px 30px rgba(0, 0, 0, 0.45);
+		display:none; position:absolute; top:10px; left:15px; border:1px solid var(--window-border, rgba(255, 255, 255, 0.25)); border-radius:8px; padding:0 5px;
+		background:var(--window-background, rgba(20, 20, 20, 0.94)); color:var(--text-color, #eee); box-shadow:var(--box-shadow);
 		.MenuItem {
 			margin:7px 0 8px; padding:3px 5px; border-radius:5px;
 			white-space:nowrap; cursor:pointer;
-			&:not(:last-child)::after { content:''; display:block; position:absolute; margin-top:7px; width:calc(100% - 10px * 2); height:1px; background-color:#eee; }
-			&:hover { background-color:#FFFFFF20; }
+			&:not(:last-child)::after { content:''; display:block; position:absolute; margin-top:7px; width:calc(100% - 10px * 2); height:1px; background:var(--line-separator, white); }
+			&:hover { background:var(--main-menu-item-hover, #FFFFFF20); }
 		}
 	}
 }

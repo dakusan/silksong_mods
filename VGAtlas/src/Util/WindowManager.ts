@@ -98,7 +98,7 @@ export class Window
 	private _CanClose		=true			; public get CanClose		() { return this._CanClose			; }; public set CanClose		(Value) { this.SetCanClose		(this._CanClose=		Value); }
 	private _CanResize		=true			; public get CanResize		() { return this._CanResize			; }; public set CanResize		(Value) { this.SetCanResize		(this._CanResize=		Value); }
 	private _Visible		=true			; public get Visible		() { return this._Visible			; }; public set Visible			(Value) { this.SetVisible		(this._Visible=			Value); }
-	private _SaveID?:string					; public get SaveID			() { return this._SaveID			; }; private set SaveID			(Value) {						(this._SaveID=			Value); }
+	public readonly SaveID?:string;
 	public get Pos ():Vector2 { return new Vector2	(this._X, this._Y							 ); }			 public set Pos		(Value:Vector2) { this.UpdateBounds({X:Value.X, Y:Value.Y}); }
 	public get Size():Vector2 { return new Vector2	(					this._Width, this._Height); }			 public set Size	(Value:Vector2) { this.UpdateBounds({Width:Value.X, Height:Value.Y}); }
 	public get Bounds():Rect  { return new Rect		(this._X, this._Y,	this._Width, this._Height); }			 public set Bounds	   (Value:Rect) { this.UpdateBounds(Value); }

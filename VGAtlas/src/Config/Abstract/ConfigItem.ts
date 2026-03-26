@@ -4,12 +4,12 @@ import type Config from '../Config';
 
 export { Options };
 
-export interface SaveAsString<T>
+export interface ConfigSerializer<T>
 {
-	ToString(): string;
-	FromString(Str:string): T;
+	ConfigSerialize(): string;
+	ConfigDeserialize(Str:string): T;
 }
-export type ConfigItemValueTypes=string|number|boolean|SaveAsString<unknown>;
+export type ConfigItemValueTypes=string|number|boolean|ConfigSerializer<unknown>;
 
 export default abstract class ConfigItem<T extends ConfigItemValueTypes> extends ConfigItemBase
 {
@@ -21,7 +21,7 @@ export default abstract class ConfigItem<T extends ConfigItemValueTypes> extends
 	{
 		super(Section, Key, Opts);
 		this.SettingChanged=new CallbackList<[Value:T, Item:ConfigItem<T>]>(`Config setting “${this.Section}.${this.Key}”`);
-		this.IsSaveAsString=typeof((this.Default as Partial<SaveAsString<T>>).FromString)==='function';
+		this.IsSaveAsString=typeof((this.Default as Partial<ConfigSerializer<T>>).ConfigDeserialize)==='function';
 	}
 	protected override Init(Parent:Config)
 	{
@@ -32,7 +32,7 @@ export default abstract class ConfigItem<T extends ConfigItemValueTypes> extends
 			try {
 				const Parsed=JSON.parse(Raw);
 				this.Val=
-					  this.IsSaveAsString ? (this.Default as SaveAsString<T>).FromString(Parsed as string)
+					  this.IsSaveAsString ? (this.Default as ConfigSerializer<T>).ConfigDeserialize(Parsed as string)
 					: Parsed as T;
 			} catch { }
 		this.ValueSet();
@@ -53,6 +53,6 @@ export default abstract class ConfigItem<T extends ConfigItemValueTypes> extends
 			this.ValueSet();
 	}
 	private SaveToStorage() { this.Parent.Storage.setItem(this.Parent.Prefix+this.Key, this.GetStorageValue()); }
-	private GetStorageValue() { return JSON.stringify(this.IsSaveAsString ? (this.Val as SaveAsString<T>).ToString() : this.Val); }
+	private GetStorageValue() { return JSON.stringify(this.IsSaveAsString ? (this.Val as ConfigSerializer<T>).ConfigSerialize() : this.Val); }
 	public ResetToDefault() { this.V=this.Default; }
 }

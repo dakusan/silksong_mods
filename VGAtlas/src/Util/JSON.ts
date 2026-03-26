@@ -30,6 +30,7 @@ class JSProps
 export const JsonPropsDec=(IsRequired:boolean=false, ExpectedType:unknown=undefined)=> (Target:object, Name:string) => SetJSProps(Target, Name, {IsRequired, ExpectedType	});
 export const ExpNo	=()																=> (Target:object, Name:string) => SetJSProps(Target, Name, {ExpNo	:true				});
 export const ExpYes	=()																=> (Target:object, Name:string) => SetJSProps(Target, Name, {ExpYes	:true				});
+//noinspection JSUnusedGlobalSymbols
 export const NullYes=()																=> (Target:object, Name:string) => SetJSProps(Target, Name, {NullYes:true				});
 function SetJSProps<K extends keyof JSProps>(Target:object, Name:string, Values:Pick<JSProps, K>)
 {

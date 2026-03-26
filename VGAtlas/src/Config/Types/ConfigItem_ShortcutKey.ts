@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import { CallbackList, Iter, KeyState, Util } from '../../Util/SharedClasses';
 import { DefaultTr } from '../../Util/Translations';
-import ConfigItem, { Options, SaveAsString } from '../Abstract/ConfigItem';
+import ConfigItem, { Options, ConfigSerializer } from '../Abstract/ConfigItem';
 
 class ToggleKeys
 {
@@ -32,7 +32,7 @@ const ToggleKeyInfos=new Map<ToggleKeyID, ToggleKeyInfo>([
 const SkipKeyNames=new Set([...new Iter(ToggleKeyInfos.values()).map(TKI => TKI.Name), 'Dead', 'Unidentified']);
 const NoKeySet='-NO_KEY-';
 
-export class ShortcutKey implements SaveAsString<ShortcutKey>
+export class ShortcutKey implements ConfigSerializer<ShortcutKey>
 {
 	//Members
 	constructor(
@@ -45,7 +45,7 @@ export class ShortcutKey implements SaveAsString<ShortcutKey>
 	public ToggleKeys:Readonly<ToggleKeys>;
 
 	//Convert to/from string for ConfigItem saving
-	public ToString()
+	public ConfigSerialize()
 	{
 		return [
 			...new Iter(ToggleKeyInfos.values()).filter(TKI => this.ToggleKeys[TKI.ID]).map(TKI => TKI.ID),
@@ -53,7 +53,7 @@ export class ShortcutKey implements SaveAsString<ShortcutKey>
 		].join('+')+','+this.KeyName;
 	}
 	private static ParseShortcutKey=/^(?:(?<ToggleKeys>[^,]+)\+)?(?<KeyCode>[^,+]+),(?<KeyName>.*)$/;
-	public FromString(Str:string)
+	public ConfigDeserialize(Str:string)
 	{
 		const Match=ShortcutKey.ParseShortcutKey.exec(Str);
 		if(!Match?.groups)

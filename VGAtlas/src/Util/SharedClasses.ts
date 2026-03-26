@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { type SaveAsString } from '../Config/Abstract/ConfigItem';
+import { type ConfigSerializer } from '../Config/Abstract/ConfigItem';
 
 export class Vector2
 {
@@ -28,7 +28,7 @@ export class Rect
 	}
 }
 
-export class ColorRGBA implements SaveAsString<ColorRGBA>
+export class ColorRGBA implements ConfigSerializer<ColorRGBA>
 {
 	constructor(public readonly r:number, public readonly g:number, public readonly b:number, public readonly a:number)
 	{
@@ -49,7 +49,7 @@ export class ColorRGBA implements SaveAsString<ColorRGBA>
 	public static CreateClamp	 (r:number, g:number, b:number, a:number) { return new ColorRGBA(ColorRGBA.C01(r), ColorRGBA.C01(g), ColorRGBA.C01(b), ColorRGBA.C01(a)); }
 	public static CreateByteClamp(r:number, g:number, b:number, a:number) { return new ColorRGBA(ColorRGBA.CBy(r), ColorRGBA.CBy(g), ColorRGBA.CBy(b), ColorRGBA.CBy(a)); }
 
-	public ToString()
+	public ConfigSerialize()
 	{
 		return StatStr.Empty
 			+CToHex(this.r)
@@ -57,9 +57,9 @@ export class ColorRGBA implements SaveAsString<ColorRGBA>
 			+CToHex(this.b)
 			+CToHex(this.a);
 	}
-	public FromString(Str:string)
+	public ConfigDeserialize(Str:string)
 	{
-		Str=(/^([0-9a-fA-F]{6,8})$/.test(Str) ? Str : this.ToString()).padEnd(8, 'F').toUpperCase();
+		Str=(/^([0-9a-fA-F]{6,8})$/.test(Str) ? Str : this.ConfigSerialize()).padEnd(8, 'F').toUpperCase();
 
 		return new ColorRGBA(
 			HexToC(Str, 0),
@@ -301,6 +301,7 @@ export class CallbackList<Args extends unknown[], TRet=void>
 	{
 		for(const [CBName, CB] of this.Callbacks.entries())
 			try {
+				//noinspection PointlessBooleanExpressionJS :: Need to actually confirm the result is true and not just truthy
 				if(RetCB(CB(...Params))===true)
 					return true;
 			}

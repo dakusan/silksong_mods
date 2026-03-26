@@ -23,7 +23,7 @@ export default class ConfigItem_Color extends ConfigItem<ColorRGBA>
 	private UpdateSaveValue()
 	{
 		this.SetVal(
-			this.Default.FromString(
+			this.Default.ConfigDeserialize(
 				String(this.$Color.val()).substring(1)+(
 					  !this.ShowAlpha ? 'FF'
 					: Util.Clamp(Number.parseInt(this.$Alpha.val() as string) ?? 255, 0, 255).toString(16).toUpperCase().padStart(2, '0')
@@ -35,7 +35,7 @@ export default class ConfigItem_Color extends ConfigItem<ColorRGBA>
 
 	protected override ValueSet()
 	{
-		this.$Color.val('#'+this.V.ToString().substring(0, 6));
+		this.$Color.val('#'+this.V.ConfigSerialize().substring(0, 6));
 		this.$Alpha.val(Math.round(this.V.a*255));
 	}
 }

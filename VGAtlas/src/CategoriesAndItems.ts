@@ -375,6 +375,7 @@ export class ChainItem extends JsonClass
 	@ExpNo() private _RenderedStringReal:string=WillBeSet; //Contains AmountChar where the live collected count will need to be inserted
 	@ExpNo() private 	get RenderedStringReal		() { return this._RenderedStringReal ??= this.FinishInternalRender(); }
 	@ExpNo() protected	get RenderedStringInternal	() { return this.GetProcessedRenderString(this.RenderedStringReal, `${LStatStr.ChainItem_AmountChar}${this.LinkID}${LStatStr.ChainItem_AmountChar}`); } //AmountChar becomes LinkID surround by AmountChar
+		//noinspection JSUnusedGlobalSymbols
 			 public		get RenderedString			() { return this.GetProcessedRenderString(this.RenderedStringReal, '?'); } //Changes AmountChar to a question mark
 	private GetProcessedRenderString(Str:string, Replacement:string) { return this.LinkID===-1 ? Str : Str.replaceAll(LStatStr.ChainItem_AmountChar, Replacement); }
 

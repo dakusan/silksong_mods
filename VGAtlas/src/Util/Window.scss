@@ -1,3 +1,5 @@
+@use "../../Assets/Themes/Base" as *;
+
 @mixin emit-border($left, $right, $top, $bottom, $width, $height, $cursor) {
 	@if $left   != null { left:		$left;	}
 	@if $right  != null { right:	$right;	}
@@ -9,18 +11,18 @@
 }
 
 .WinRoot {
-	position:absolute; display:flex; flex-direction:column; box-sizing:border-box; border:1px solid rgba(255, 255, 255, 0.25); border-radius:8px; overflow:hidden;
-	background:rgba(20, 20, 20, 0.94); color:#eee; box-shadow:0 10px 30px rgba(0, 0, 0, 0.45);
+	position:absolute; display:flex; flex-direction:column; box-sizing:border-box; border:1px solid var(--window-border, rgba(255, 255, 255, 0.25)); border-radius:8px; overflow:hidden;
+	background:var(--window-background, rgba(20, 20, 20, 0.94)); color:var(--text-color, #eee); box-shadow:var(--box-shadow);
 	user-select:none;
 
-	&.Active { outline:2px solid rgba(120, 160, 255, 0.55); }
+	&.Active { outline:2px solid var(--window-border-active, rgba(120, 160, 255, 0.55)); }
 	&.NoResize .ResizeHandle { cursor:not-allowed !important; }
 	&.Invisible { display:none; pointer-events:none; }
 
 	.Titlebar {
 		display:flex; flex:0 0 auto; align-items:center; gap:8px; padding:2px 4px 2px 8px;
-		border-bottom:1px solid rgba(255, 255, 255, 0.12);
-		background:rgba(255, 255, 255, 0.04); cursor:grab;
+		border-bottom:1px solid var(--window-titlebar-border-bottom, rgba(255, 255, 255, 0.12));
+		background:var(--window-titlebar-background, rgba(255, 255, 255, 0.04)); cursor:grab;
 		&:Active { cursor:grabbing; }
 
 		.Title {
@@ -28,17 +30,20 @@
 			font-weight:600; font-size:13px; line-height:1.2;
 			white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 		}
-	}
-	.Buttons {
-		display:flex; align-items:center; gap:6px;
 
-		.Close {
-			width:26px; height:22px; border-radius:6px; border:1px solid rgba(255, 255, 255, 0.18);
-			background:rgba(255, 255, 255, 0.06); color:#eee; cursor:pointer;
-			font-weight:700; font-size:12px; line-height:1;
-			&:hover:not( .Disabled) { background:rgba(255, 255, 255, 0.10); }
-			&:active:not(.Disabled) { background:rgba(255, 255, 255, 0.14); }
-			&.Disabled { opacity:0.45; cursor:not-allowed; }
+		.Buttons {
+			display:flex; align-items:center; gap:6px;
+
+			button {
+				height:22px; border-radius:6px; border:1px solid var(--window-titlebar-button-border, rgba(255, 255, 255, 0.18));
+				background:var(--window-titlebar-button-background, rgba(255, 255, 255, 0.06)); color:var(--window-titlebar-button-text, #eee); cursor:pointer;
+				font-weight:700; font-size:12px; line-height:1;
+				&:hover:not( .Disabled) { background:var(--window-titlebar-button-bg-hover, rgba(255, 255, 255, 0.10)); }
+				&:active:not(.Disabled) { background:var(--window-titlebar-button-bg-active, rgba(255, 255, 255, 0.14)); }
+				&.Disabled { opacity:0.45; cursor:not-allowed; }
+			}
+
+			.Close { width:26px; }
 		}
 	}
 
@@ -47,9 +52,9 @@
 		user-select:text;
 
 		&::-webkit-scrollbar { width:10px; }
-		&::-webkit-scrollbar-track { background:rgba(255, 255, 255, 0.06); border-radius:8px; }
-		&::-webkit-scrollbar-thumb { background:rgba(255, 255, 255, 0.25); border-radius:8px; border:2px solid transparent; background-clip:content-box; }
-		&::-webkit-scrollbar-thumb:hover { background:rgba(255, 255, 255, 0.4); }
+		&::-webkit-scrollbar-track { background:var(--window-scrollbar-track, rgba(255, 255, 255, 0.06)); border-radius:8px; }
+		&::-webkit-scrollbar-thumb { background:var(--window-scrollbar-thumb, rgba(255, 255, 255, 0.25)); border-radius:8px; border:2px solid transparent; background-clip:content-box; }
+		&::-webkit-scrollbar-thumb:hover { background:var(--window-scrollbar-thumb-hover, rgba(255, 255, 255, 0.4)); background-clip:content-box; }
 	}
 
 	.ResizeHandle {

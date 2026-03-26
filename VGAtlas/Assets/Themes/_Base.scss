@@ -1,0 +1,43 @@
+.ThemeBase {
+	--body-bg:			black;
+	--text-color:		#eee;
+	--line-separator:	white;
+	--tooltip-bg:		rgba(64, 64, 64, 0.8);
+	--button-text:		black;
+
+	--box-shadow:10px 10px 15px 3px rgba(0, 0, 0, 0.45);
+
+	--window-background:				rgba(20, 20, 20, 0.94);
+	--window-border:					rgba(255, 255, 255, 0.25);
+	--window-border-active:				rgba(120, 160, 255, 0.55);
+	--window-titlebar-background:		rgba(255, 255, 255, 0.04);
+	--window-titlebar-border-bottom:	rgba(255, 255, 255, 0.12);
+	--window-titlebar-button-text:		#eee;
+	--window-titlebar-button-background:rgba(255, 255, 255, 0.06);
+	--window-titlebar-button-bg-hover:	rgba(255, 255, 255, 0.10);
+	--window-titlebar-button-bg-active:	rgba(255, 255, 255, 0.14);
+	--window-titlebar-button-border:	rgba(255, 255, 255, 0.18);
+	--window-scrollbar-track:			rgba(255, 255, 255, 0.06);
+	--window-scrollbar-thumb:			rgba(255, 255, 255, 0.25);
+	--window-scrollbar-thumb-hover:		rgba(255, 255, 255, 0.4);
+
+	--window-detach-border:				green;
+	--category-window-background:		rgba(0, 0, 0, 0.52);
+	--category-window-button-background:#0000A0;
+	--category-window-button-text:		white;
+	--category-group-title:				#e6e6e6;
+	--category-group-title-hover:		cyan;
+	--category-title:					#808080;
+	--category-title-hover:				white;
+	--category-title-completed:			lime;
+	--category-title-completed-hover:	rgb(160, 255, 0);
+	--category-strike:					white;
+
+	--main-menu-button:					#808080;
+	--main-menu-button-hover:			white;
+	--main-menu-icon:					'☰';
+	--main-menu-item-hover:				#FFFFFF20;
+
+	--popup-surround-background:		rgba(51, 51, 51, 0.75);
+	--popup-background:					rgba(24, 24, 24, 0.8);
+}
