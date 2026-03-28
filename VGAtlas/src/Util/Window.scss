@@ -48,6 +48,7 @@
 	}
 
 	.Content {
+		border-image:var(--window-content-border-image, none);
 		flex:1 1 auto; padding:8px; overflow-y:auto;
 		user-select:text;
 
