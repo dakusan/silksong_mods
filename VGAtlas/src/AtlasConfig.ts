@@ -1,5 +1,6 @@
-import { ColorRGBA } from './Util/SharedClasses';
+import { ColorRGBA, InitFuncs } from './Util/SharedClasses';
 import Config, { ConfigItem_Boolean, ConfigItem_Color, ConfigItem_Enum, ConfigItem_Languages, ConfigItem_Number, ConfigItem_Object, ConfigItem_ShortcutKey, OtherObject, ShortcutKey } from './Config/Config';
+import { type Share } from './Share';
 
 const PanSpeedMultiplier=25;
 
@@ -19,6 +20,7 @@ class LocalConfig extends Config {
 	public readonly Shortcut_ZoomOut		=new ConfigItem_ShortcutKey	("Map Controls", "Shortcut Key: Zoom out",					new ShortcutKey('Minus', '-'));
 
 	public readonly Language				=new ConfigItem_Languages	("Interface customization");
+	public readonly Theme					=new ConfigItem_Enum		("Interface customization", "Theme",						Object.keys(GetThemes())[0], GetThemes());
 
 	public readonly CategoryToggleStates	=new ConfigItem_Object		(Config.IgnoreSection, "Category States", new OtherObject<number[][]>([[], [], []]));
 }
@@ -32,3 +34,30 @@ function GetIconFiles()
 		'Assets/Icons-Circles.png':'Circle',
 	};
 }
+
+function GetThemes()
+{
+	return {
+		'Base':'Default',
+		'Forest':'Forest',
+	};
+}
+
+let CurrentTheme='Base';
+function SetupThemeSwap(ShareObj:typeof Share)
+{
+	function SwapTheme(NewTheme:string)
+	{
+		document.body.classList.remove('Theme'+CurrentTheme);
+		document.body.classList.add('Theme'+NewTheme);
+		import(`../Assets/Themes/_${CurrentTheme=NewTheme}.scss`);
+	}
+
+	ShareObj.LC.Theme.SettingChanged.Add('ThemeSwap', NewTheme => SwapTheme(NewTheme));
+	SwapTheme(ShareObj.LC.Theme.V);
+}
+
+InitFuncs.push(async () => {
+	const ShareObj=(await import('./Share')).Share;
+	SetupThemeSwap(ShareObj);
+});

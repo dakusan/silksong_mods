@@ -1,5 +1,3 @@
-@use "../../Assets/Themes/Base" as *;
-
 @mixin emit-border($left, $right, $top, $bottom, $width, $height, $cursor) {
 	@if $left   != null { left:		$left;	}
 	@if $right  != null { right:	$right;	}
