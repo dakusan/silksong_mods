@@ -10,7 +10,7 @@ class LocalConfig extends Config {
 	public readonly IconSet					=new ConfigItem_Enum		("Markers", "Icon set",								Object.keys(GetIconFiles())[0], GetIconFiles(), {Description:"Pick your favorite icon set or create your own!"});
 	public readonly IconSize				=new ConfigItem_Number		("Markers", "Icon/Marker size",						0.75, 0.3, 2.5, 2, {Description:"The size of the icons on the map"});
 	public readonly IconSizeScalesWithZoom	=new ConfigItem_Boolean		("Markers", "Icon/Marker size scales with zoom",	true, {Description:"If true icons will always stay the same size at any zoom.", IsAdvanced:true});
-	public readonly Color_FoundIcon			=new ConfigItem_Color		("Markers", "Found icon color*",					new ColorRGBA(0.5, 0, 0.5, 0.75), true, {Description:"When in “All” mode for a category, found icons are tinted this color.\nRGB is actually HSV [Hue Saturation Lightness], unless the shader fails to load, in which case, it really is RGB.", IsAdvanced:true});
+	public readonly Color_FoundIcon			=new ConfigItem_Color		("Markers", "Found icon color*",					new ColorRGBA(0.5, 0, 0.5, 0.75), false, true, true, {Description:"When in “All” mode for a category, found icons are tinted this color.\nRGB is actually HSV [Hue Saturation Lightness], unless the shader fails to load, in which case, it really is RGB.", IsAdvanced:true});
 	public readonly AutoPanEase				=new ConfigItem_Number		("Markers", "Autopan ease",							2.5, 1, 5, 1, {Description:"The autopan ease formula multiplier. This is used when the map is animated panning to an icon.", IsAdvanced:true});
 	public readonly AutoPanTime				=new ConfigItem_Number		("Markers", "Autopan time",							1.75, 0.1, 3, 2, {Description:"The time it takes the autopan to move between points. This is used when the map is animated panning to an icon.", IsAdvanced:true});
 
@@ -57,7 +57,31 @@ function SetupThemeSwap(ShareObj:typeof Share)
 	SwapTheme(ShareObj.LC.Theme.V);
 }
 
+function Init_Color_FoundIcon_Demo()
+{
+	const DemoIconContainer=document.createElement('div');
+	const DemoIcon=document.createElement('div');
+	DemoIconContainer.classList.add('DemoIcon');
+	DemoIcon.classList.add('ItemIcon', 'I14');
+	DemoIconContainer.append(DemoIcon);
+	LC.Color_FoundIcon.$DOMHolder.append(DemoIconContainer);
+
+	function UpdateDemoIcon()
+	{
+		const RGBA=LC.Color_FoundIcon.V;
+		DemoIcon.style=[
+			`filter: hue-rotate(${(RGBA.r*360+180)%360}deg)`,
+			`saturate(${RGBA.g*100}%)`,
+			`brightness(${RGBA.b*200}%)`,
+			`opacity(${RGBA.a})`,
+		].join(' ');
+	}
+	UpdateDemoIcon();
+	LC.Color_FoundIcon.SettingChanged.Add('UpdateDemoIcon', UpdateDemoIcon);
+}
+
 InitFuncs.push(async () => {
 	const ShareObj=(await import('./Share')).Share;
 	SetupThemeSwap(ShareObj);
+	Init_Color_FoundIcon_Demo();
 });
