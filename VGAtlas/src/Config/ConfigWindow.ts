@@ -20,12 +20,52 @@ export default class ConfigWindow extends Window
 		public readonly Tr?:Translations,
 	) {
 		super({SaveID:'Config'+Config.Prefix, Width:750, Height:550});
+		this.AddViewableToggles();
 		this.$ConfigTable.appendTo(this.$Content);
 		for(const [SectionName, Entries] of this.Config.Sections)
 			if(SectionName!==ConfigWindow.IgnoreSection)
 				this.Sections.push(new ConfigWindowSection(this, SectionName, Entries, this.$ConfigTable));
 
 		this.LanguageChanged();
+	}
+	private AddViewableToggles()
+	{
+		const ToggleViews={Configure:"Settings", Shortcuts:"Keyboard Shortcuts"};
+		let CurrentToggleView=localStorage.Config_ViewSection ?? Object.keys(ToggleViews)[0];
+		const CreateLabeledOption=(Key:string, Default:string|null, El:JQuery) =>
+			$('<label>').append(
+				El,
+				$('<span class=TranslationEl>')
+					.attr('data-translation-key', Key)
+					.attr('data-translation-section', 'ConfigWindow')
+					.attr('data-translation-module', 'Default')
+					.attr('data-translation-default', Default ?? Key),
+			);
+
+		DefaultTr.UpdateDOMSubElements($('<div class=ConfigViewableToggles>').appendTo(this.$Content).append(
+			...Object.entries(ToggleViews).map(([ToggleID, SettingDefault]) =>
+				CreateLabeledOption(ToggleID, SettingDefault,
+					$(`<input type=radio name=ConfigToggleView class=ConfigToggleView value=${ToggleID}>`)
+						.prop('checked', ToggleID===CurrentToggleView)
+						.on('change', e => {
+							if($(e.currentTarget).is(':checked'))
+								this.$ConfigTable
+									.toggleClass('View_'+CurrentToggleView, false)
+									.toggleClass('View_'+(localStorage.Config_ViewSection=CurrentToggleView=$(e.currentTarget).val() as string), true);
+						}).trigger('change'),
+				),
+			),
+			CreateLabeledOption("Advanced", null,
+				$('<input type=checkbox>')
+					.prop('checked', localStorage.Config_ShowAdvanced==='true')
+					.on('change', e => {
+						const Checked=$(e.currentTarget).is(':checked');
+						this.$ConfigTable.toggleClass('ShowAdvanced', Checked);
+						localStorage.Config_ShowAdvanced=String(Checked);
+					})
+					.trigger('change'),
+			),
+		)[0]);
 	}
 
 	public TranslateFunc(Section:string, Key:string, ConfigItem?:ConfigItemBase)
@@ -77,7 +117,7 @@ class ConfigWindowSection
 		ConfigItems:ConfigItemBase[],
 		$Table:JQuery,
 	) {
-		$Table.append($('<tr>').append(this.$Title));
+		$Table.append($('<tr class=TitleRow>').append(this.$Title));
 		for(const ConfigItem of ConfigItems)
 			this.Rows.push(new ConfigWindowRow(this, ConfigItem, $Table));
 	}
@@ -91,7 +131,7 @@ class ConfigWindowSection
 }
 class ConfigWindowRow
 {
-	public readonly $Row=$(document.createElement('tr'));
+	public readonly $Row=$(document.createElement('tr')).addClass('ItemRow');
 	public readonly $TitleCol=$(document.createElement('td')).appendTo(this.$Row).addClass('TitleCol');
 	public readonly $TitleText=$(document.createElement('div')).appendTo(this.$TitleCol).addClass('TitleText');
 	public readonly $DescriptionEl?:JQuery;
