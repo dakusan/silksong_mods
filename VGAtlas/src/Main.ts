@@ -92,12 +92,15 @@ function CreateMainMenu()
 		CategoryGroupsWindow.Self.Focus();
 	});
 
-	let MyConfigWindow:ConfigWindow|undefined;
+	let MyConfigWindow:ConfigWindow|undefined|null; //Null while loading
 	$('#MenuOpenConfig').on('click', async () => {
 		if(MyConfigWindow)
 			return MyConfigWindow.Focus();
-		const ConfigWindow=(await import('./Config/ConfigWindow')).default;
-		MyConfigWindow=new ConfigWindow(Share.LC, Share.Tr);
+		if(MyConfigWindow===null)
+			return;
+		MyConfigWindow=null;
+
+		MyConfigWindow=new (await import('./Config/ConfigWindow')).default(Share.LC, Share.Tr);
 		const OriginalOnClosing=MyConfigWindow.OnClosing;
 		MyConfigWindow.OnClosing=() => { OriginalOnClosing.call(MyConfigWindow); MyConfigWindow=undefined; return false; }
 	});

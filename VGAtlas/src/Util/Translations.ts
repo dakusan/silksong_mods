@@ -10,6 +10,7 @@ class LangNames { constructor(
 	public readonly LanguageAsString:string,
 	public readonly PickLanguageAsString:string,
 ) { } }
+type SectionListType=Record<string, Record<string, string>>;
 
 //Immediately call the callback on adding in case the language has already loaded
 type Callback<Args extends unknown[]=unknown[]> = (...args: Args) => void;
@@ -79,7 +80,7 @@ export default class Translations
 	}
 
 	//Load current language
-	public Sections?:Record<string, Record<string, string>>;
+	public Sections?:SectionListType;
 	private _Language?:string; public get Language(): string|undefined { return this._Language; }
 	public set Language(Value:string)
 	{
@@ -93,12 +94,21 @@ export default class Translations
 			if(M.Language!==this.Language)
 				M.Language=this.Language!;
 
-		try {
-			this.Sections=await LoadJson.FromURL(`${this.TranslationsPath}/${ISO}${Translations.TranslationFileExtension}`) as Record<string, Record<string, string>>;
-		} catch (e) {
-			this.Sections=undefined;
-			Log.Error(StatStr.NeedsTranslate+`Could not load language file “${ISO}” for module “${this.ModuleName}”: `+Util.GetErrorMessage(e));
-		}
+		const NewSections:[SectionListType|undefined, SectionListType|undefined]=[undefined, undefined];
+		await Promise.all([
+			LoadJson.FromURL(`${this.TranslationsPath}/${ISO}${Translations.TranslationFileExtension}`)
+				.then(RetObj => NewSections[0]=RetObj as SectionListType)
+				.catch(e => Log.Error(StatStr.NeedsTranslate+`Could not load language file “${ISO}” for module “${this.ModuleName}”: `+Util.GetErrorMessage(e))),
+			LoadJson.FromURL(`${this.TranslationsPath}/Merge/${ISO}${Translations.TranslationFileExtension}`)
+				.then(RetObj => NewSections[1]=RetObj as SectionListType)
+				.catch(() => {}),
+		]);
+
+		this.Sections=NewSections[0] ?? NewSections[1];
+		if(NewSections[0] && NewSections[1])
+			for(const [SectionName, NewTranslations] of Object.entries(NewSections[1]))
+				this.Sections![SectionName]={...(this.Sections![SectionName] ?? {}), ...NewTranslations};
+
 		this.LanguageLoaded=undefined;
 		this.OnLanguageChanged.Execute(ISO); //Callbacks for after the language changes
 		this.UpdateDOMSubElements();

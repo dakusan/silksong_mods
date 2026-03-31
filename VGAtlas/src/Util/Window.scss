@@ -5,7 +5,7 @@
 	@if $bottom != null { bottom:	$bottom;}
 	@if $width  != null { width:	$width;	}
 	@if $height != null { height:	$height;}
-	cursor: $cursor;
+	cursor:$cursor;
 }
 
 .WinRoot {
@@ -18,7 +18,7 @@
 	&.Invisible { display:none; pointer-events:none; }
 
 	.Titlebar {
-		display:flex; flex:0 0 auto; align-items:center; gap:8px; padding:2px 4px 2px 8px;
+		position:relative; display:flex; flex:0 0 auto; align-items:center; gap:8px; padding:2px 4px 2px 8px;
 		border-bottom:1px solid var(--window-titlebar-border-bottom, rgba(255, 255, 255, 0.12));
 		background:var(--window-titlebar-background, rgba(255, 255, 255, 0.04)); cursor:grab;
 		&:Active { cursor:grabbing; }

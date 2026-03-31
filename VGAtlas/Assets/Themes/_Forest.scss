@@ -37,9 +37,12 @@
 	--main-menu-button:					#b8caa8;
 	--main-menu-button-hover:			#eff7e7;
 	--main-menu-icon:					'🌳';
-	#MainMenu .PopupButton:before { filter: grayscale(1); }
+	#MainMenu .PopupButton:before { filter:grayscale(1); }
 	--main-menu-item-hover:				rgba(182, 218, 148, 0.12);
 
 	--popup-surround-background:		rgba(19, 29, 20, 0.72);
 	--popup-background:					rgba(16, 23, 15, 0.86);
+
+	.WinRoot .Content { padding:22px; }
+	.WinRoot .Content.ItemContents { padding:8px; border-image-outset:14px; }
 }

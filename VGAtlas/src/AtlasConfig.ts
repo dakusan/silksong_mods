@@ -44,7 +44,7 @@ function GetThemes()
 }
 
 let CurrentTheme='Base';
-function SetupThemeSwap(ShareObj:typeof Share)
+function SetupThemeSwap()
 {
 	function SwapTheme(NewTheme:string)
 	{
@@ -53,8 +53,14 @@ function SetupThemeSwap(ShareObj:typeof Share)
 		import(`../Assets/Themes/_${CurrentTheme=NewTheme}.scss`);
 	}
 
-	ShareObj.LC.Theme.SettingChanged.Add('ThemeSwap', NewTheme => SwapTheme(NewTheme));
-	SwapTheme(ShareObj.LC.Theme.V);
+	LC.Theme.SettingChanged.Add('ThemeSwap', NewTheme => SwapTheme(NewTheme));
+	SwapTheme(LC.Theme.V);
+}
+
+function SetupEnumTranslations(ShareObj:typeof Share)
+{
+	for(const ConfItem of [LC.IconSet, LC.Theme])
+		ConfItem.GetTranslation=(TKey => ShareObj.Tr.T(TKey, 'SettingEnums'));
 }
 
 function Init_Color_FoundIcon_Demo()
@@ -82,6 +88,7 @@ function Init_Color_FoundIcon_Demo()
 
 InitFuncs.push(async () => {
 	const ShareObj=(await import('./Share')).Share;
-	SetupThemeSwap(ShareObj);
+	SetupThemeSwap();
+	SetupEnumTranslations(ShareObj);
 	Init_Color_FoundIcon_Demo();
 });

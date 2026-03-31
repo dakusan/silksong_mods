@@ -82,7 +82,7 @@ export const WM=new WindowManager();
 
 type WindowInit=Partial<Pick<Window,
 	'Title'|'Parent'|'X'|'Y'|'Width'|'Height'|'MinWidth'|'MinHeight'|'CanClose'|
-	'CanResize'|'Visible'|'AcceptsKeyboard'|'OnKeyDown'|'OnKeyUp'|'OnClosing'|'SaveID'
+	'CanResize'|'Visible'|'AcceptsKeyboard'|'OnKeyDown'|'OnKeyUp'|'OnClosing'|'OnMoved'|'LanguageChanged'|'SaveID'
 >>;
 export class Window
 {
@@ -156,6 +156,8 @@ export class Window
 		this.SetVisible  (this.Visible	);
 		this.Title=this.Title;
 		this.Parent=this.Parent;
+		if(this.SaveID)
+			this.$Root.addClass('WinID_'+this.SaveID);
 
 		this.WireEvents();
 		(WM as WindowManager_Friend).Register(this);
