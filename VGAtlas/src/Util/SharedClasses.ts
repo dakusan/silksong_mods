@@ -154,11 +154,30 @@ export namespace Util
 	}
 }
 
-export namespace Log
+class LogLine
 {
-	export function Debug(...Objs:unknown[]) { console.debug(...Objs); }
-	export function Info (...Objs:unknown[]) { console.info	(...Objs); }
-	export function Error(...Objs:unknown[]) { console.error(...Objs); }
+	public readonly Time=new Date();
+	constructor(public readonly LogInfo:unknown[], public readonly IsError:boolean) {}
+}
+class LogClass
+{
+	private LogLines:LogLine[]=[];
+	public get AllLogLines():readonly LogLine[] { return this.LogLines; }
+	public readonly OnLog=new CallbackList<[LogLine]>('OnLog');
+	public MaxStoredLogLines=0; //LogLines not shortened until next Add()
+	private Add(Info:unknown[], IsError:boolean)
+	{
+		if(this.LogLines.length>this.MaxStoredLogLines-1)
+			this.LogLines=this.LogLines.slice(-(this.MaxStoredLogLines-1));
+		const NewLine=new LogLine(Info, IsError);
+		this.LogLines.push(NewLine);
+		this.OnLog.Execute(NewLine);
+		return Info;
+	}
+
+	public Debug(...Objs:unknown[]) { console.debug	(...Objs); }
+	public Info (...Objs:unknown[]) { console.info	(...this.Add(Objs, false)); }
+	public Error(...Objs:unknown[]) { console.error	(...this.Add(Objs, true )); }
 }
 
 export namespace DevStrings
@@ -319,6 +338,7 @@ export namespace KeyState
 }
 
 export const WillBeSet=undefined!;
+export const Log=new LogClass();
 
 //These are ran at the end of initialization
 export const InitFuncs:(() => void)[]=[];

@@ -1,9 +1,10 @@
 import './Style.scss';
 import $							from 'jquery';
-import { FriendClass, InitFuncs,
+import { FriendClass, InitFuncs, Log,
 	PopupMessage, Util, WillBeSet }	from './Util/SharedClasses';
 import { WM }						from './Util/WindowManager';
 import Translations					from './Util/Translations';
+import { type Window }				from './Util/WindowManager';
 import { Share }					from './Share';
 import { MonitorSaveValues }		from './TempClasses';
 import MapCanvas					from './MapCanvas';
@@ -64,6 +65,7 @@ async function Main()
 		CreateMainMenu();
 		if((import.meta as unknown as {env:{DEV:boolean}}).env.DEV)
 			import('./Debug');
+		Log.Info('Load complete');
 	} catch(e) {
 		const Message=Util.GetErrorMessage(e);
 		if(MCanvas?.CanRender)
@@ -103,6 +105,40 @@ function CreateMainMenu()
 		MyConfigWindow=new (await import('./Config/ConfigWindow')).default(Share.LC, Share.Tr);
 		const OriginalOnClosing=MyConfigWindow.OnClosing;
 		MyConfigWindow.OnClosing=() => { OriginalOnClosing.call(MyConfigWindow); MyConfigWindow=undefined; return false; }
+	});
+
+	//Add log lines to the log window
+	Log.MaxStoredLogLines=1000;
+	let MyLogWindow:Window|undefined|null; //Null while loading
+	function AddLogLine(LL:(typeof Log.AllLogLines)[number])
+	{
+		if(!MyLogWindow)
+			return;
+		MyLogWindow.$Content.children().slice(Log.MaxStoredLogLines-1).remove();
+		$('<div class=LogLine>').append([
+			$('<span class=Time>').text(new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'})),
+			$('<span class=Contents>').text(String(LL.LogInfo[0])),
+		])
+			.toggleClass('IsError', LL.IsError)
+			.prependTo(MyLogWindow.$Content);
+	}
+	Log.OnLog.Add('LogWindow', AddLogLine);
+
+	//Open the log window
+	$('#MenuOpenLogs').on('click', async () => {
+		if(MyLogWindow)
+			return MyLogWindow.Focus();
+		if(MyLogWindow===null)
+			return;
+		MyLogWindow=null;
+		MyLogWindow=new (await import('./Util/WindowManager')).Window({
+			OnClosing:() => { MyLogWindow=undefined; return false; },
+			LanguageChanged:() => Share.Tr.OnLanguageLoadedOnce(() => MyLogWindow!.Title=Share.Tr.T('Logs')),
+			SaveID:'Logs',
+		});
+		MyLogWindow.LanguageChanged!(undefined!);
+		for(const LL of Log.AllLogLines)
+			AddLogLine(LL);
 	});
 }
 

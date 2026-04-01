@@ -152,3 +152,13 @@ body #MainMenu { display:block; }
 	display:block; width:$DemoIconSize; height:$DemoIconSize; flex:0 0 auto !important; background-color:green;
 	>div { position:relative; width:100%; height:100%; --NewIconSize:#{$DemoIconSize}; left:0; top:0; margin:0; }
 }
+
+.WinRoot .LogLine {
+	white-space:pre-wrap;
+	&:hover { background:var(--line-item-hover, rgba(255, 255, 255, 0.25)); }
+	&.IsError { color:red; }
+	.Time {
+		color:var(--line-item-date, cyan);
+		&:after { content:': '; }
+	}
+}
