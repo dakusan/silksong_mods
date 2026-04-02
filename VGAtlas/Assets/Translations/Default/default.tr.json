@@ -6,5 +6,7 @@
 		"NoKeySet": "None", //When a keyboard shortcut is unset, display this
 		"Press shortcut": "Press shortcut", //What the interface is waiting for the user to press a keyset to set a shortcut key
 		"Reset": "Reset", //The title of reset buttons that change a setting back to its default
+		"Shortcuts": "Keyboard Shortcuts", //Toggle viewing of keyboard shortcuts
+		"Advanced": "Advanced", //Toggle viewing of advanced configurations
 	},
 }

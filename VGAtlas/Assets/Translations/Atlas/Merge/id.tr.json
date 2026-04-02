@@ -1,0 +1,15 @@
+//See default.tr.json for line and section descriptions
+{
+	"":{
+		"Logs": "Log",
+	},
+	"SettingNames":{
+		"Theme": "Tema",
+	},
+	"SettingEnums":{
+		"Assets/Icons-FromGame.png": "Dari game",
+		"Assets/Icons-Circles.png": "Lingkaran",
+		"Base": "Default",
+		"Forest": "Hutan",
+	},
+}

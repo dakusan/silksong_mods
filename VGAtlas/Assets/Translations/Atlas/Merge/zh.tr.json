@@ -1,0 +1,15 @@
+//See default.tr.json for line and section descriptions
+{
+	"":{
+		"Logs": "日志",
+	},
+	"SettingNames":{
+		"Theme": "主题",
+	},
+	"SettingEnums":{
+		"Assets/Icons-FromGame.png": "来自游戏",
+		"Assets/Icons-Circles.png": "圆形",
+		"Base": "默认",
+		"Forest": "森林",
+	},
+}

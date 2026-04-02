@@ -1,0 +1,15 @@
+//See default.tr.json for line and section descriptions
+{
+	"":{
+		"Logs": "பதிவுகள்",
+	},
+	"SettingNames":{
+		"Theme": "தீம்",
+	},
+	"SettingEnums":{
+		"Assets/Icons-FromGame.png": "விளையாட்டிலிருந்து",
+		"Assets/Icons-Circles.png": "வட்டங்கள்",
+		"Base": "இயல்புநிலை",
+		"Forest": "காடு",
+	},
+}

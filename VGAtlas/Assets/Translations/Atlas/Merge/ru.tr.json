@@ -1,0 +1,15 @@
+//See default.tr.json for line and section descriptions
+{
+	"":{
+		"Logs": "Журналы",
+	},
+	"SettingNames":{
+		"Theme": "Тема",
+	},
+	"SettingEnums":{
+		"Assets/Icons-FromGame.png": "Из игры",
+		"Assets/Icons-Circles.png": "Круги",
+		"Base": "По умолчанию",
+		"Forest": "Лес",
+	},
+}

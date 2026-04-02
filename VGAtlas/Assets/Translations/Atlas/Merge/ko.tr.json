@@ -1,0 +1,15 @@
+//See default.tr.json for line and section descriptions
+{
+	"":{
+		"Logs": "로그",
+	},
+	"SettingNames":{
+		"Theme": "테마",
+	},
+	"SettingEnums":{
+		"Assets/Icons-FromGame.png": "게임에서",
+		"Assets/Icons-Circles.png": "원형",
+		"Base": "기본값",
+		"Forest": "숲",
+	},
+}

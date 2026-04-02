@@ -1,0 +1,15 @@
+//NOTE: Do not include this in the release. It is only here to help generate other translation files ✓
+{
+	"":{
+		"Logs": "Logs", //Title of the log window
+	},
+	"SettingNames":{ //Individual setting/config names
+		"Theme": "Theme", //The css theme of the interface
+	},
+	"SettingEnums":{
+		"Assets/Icons-FromGame.png": "From Game", //The name of an icon set, with icons that came from within the game
+		"Assets/Icons-Circles.png": "Circles", //The name of an icon set, with icons that are just circles with abstract white icons
+		"Base": "Default", //The name of a css theme. This is the default theme
+		"Forest": "Forest", //The name of a css theme. This is a forest theme
+	},
+}

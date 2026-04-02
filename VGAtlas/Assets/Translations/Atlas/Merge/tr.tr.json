@@ -1,0 +1,15 @@
+//See default.tr.json for line and section descriptions
+{
+	"":{
+		"Logs": "Günlükler",
+	},
+	"SettingNames":{
+		"Theme": "Tema",
+	},
+	"SettingEnums":{
+		"Assets/Icons-FromGame.png": "Oyundan",
+		"Assets/Icons-Circles.png": "Daireler",
+		"Base": "Varsayılan",
+		"Forest": "Orman",
+	},
+}

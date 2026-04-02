@@ -1,0 +1,15 @@
+//See default.tr.json for line and section descriptions
+{
+	"":{
+		"Logs": "లాగ్స్",
+	},
+	"SettingNames":{
+		"Theme": "థీమ్",
+	},
+	"SettingEnums":{
+		"Assets/Icons-FromGame.png": "గేమ్ నుండి",
+		"Assets/Icons-Circles.png": "వృత్తాలు",
+		"Base": "డిఫాల్ట్",
+		"Forest": "అడవి",
+	},
+}

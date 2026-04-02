@@ -1,0 +1,15 @@
+//See default.tr.json for line and section descriptions
+{
+	"":{
+		"Logs": "Nhật ký",
+	},
+	"SettingNames":{
+		"Theme": "Chủ đề",
+	},
+	"SettingEnums":{
+		"Assets/Icons-FromGame.png": "Từ trò chơi",
+		"Assets/Icons-Circles.png": "Hình tròn",
+		"Base": "Mặc định",
+		"Forest": "Rừng",
+	},
+}

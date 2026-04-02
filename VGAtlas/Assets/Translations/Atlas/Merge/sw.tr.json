@@ -1,0 +1,15 @@
+//See default.tr.json for line and section descriptions
+{
+	"":{
+		"Logs": "Kumbukumbu",
+	},
+	"SettingNames":{
+		"Theme": "Mandhari",
+	},
+	"SettingEnums":{
+		"Assets/Icons-FromGame.png": "Kutoka kwenye mchezo",
+		"Assets/Icons-Circles.png": "Miduara",
+		"Base": "Chaguo-msingi",
+		"Forest": "Msitu",
+	},
+}
