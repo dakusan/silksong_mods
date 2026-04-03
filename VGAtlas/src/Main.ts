@@ -75,6 +75,40 @@ async function Main()
 	}
 }
 
+class SingleInstanceWindow<TWin extends Window>
+{
+	private OriginalOnClosing?:() => boolean=WillBeSet;
+	public MyWin:TWin|undefined|null; //Null while loading
+
+	constructor(
+		protected readonly CreateWin:() => Promise<TWin>,
+		protected readonly OnClosing?:() => boolean,
+	) { }
+	public async FocusWin()
+	{
+		//Only open once
+		if(this.MyWin)
+			return this.MyWin.Focus();
+		if(this.MyWin===null)
+			return;
+		this.MyWin=null;
+
+		this.MyWin=await this.CreateWin();
+		this.OriginalOnClosing=this.MyWin.OnClosing;
+		this.MyWin.OnClosing=() => this.RunOnClosing();
+	}
+	private RunOnClosing()
+	{
+		//Stop if callback says to stop
+		if(this.OnClosing?.call(this.MyWin))
+			return true;
+
+		this.OriginalOnClosing?.call(this.MyWin);
+		this.MyWin=undefined;
+		return false;
+	}
+}
+
 function CreateMainMenu()
 {
 	//Popup button
@@ -87,59 +121,54 @@ function CreateMainMenu()
 		setTimeout(() => $(window).on('click', ClosePopup), 0); //Timeout so that this current click doesn’t fire this event
 	});
 
-	//Menu items
+	//-----------Menu items-----------
+	//Categories window
 	$('#MenuOpenCategories').on('click', async () => {
 		const CategoryGroupsWindow=(await import('./DockableWindows/CategoryGroupsWindow')).default;
 		CategoryGroupsWindow.Self.Visible=true;
 		CategoryGroupsWindow.Self.Focus();
 	});
 
-	let MyConfigWindow:ConfigWindow|undefined|null; //Null while loading
-	$('#MenuOpenConfig').on('click', async () => {
-		if(MyConfigWindow)
-			return MyConfigWindow.Focus();
-		if(MyConfigWindow===null)
-			return;
-		MyConfigWindow=null;
+	//Config window
+	const MyConfigWindow=new SingleInstanceWindow<ConfigWindow>(
+		async () => new (await import('./Config/ConfigWindow')).default(Share.LC, Share.Tr),
+	);
+	$('#MenuOpenConfig').on('click', async () => MyConfigWindow.FocusWin());
 
-		MyConfigWindow=new (await import('./Config/ConfigWindow')).default(Share.LC, Share.Tr);
-		const OriginalOnClosing=MyConfigWindow.OnClosing;
-		MyConfigWindow.OnClosing=() => { OriginalOnClosing.call(MyConfigWindow); MyConfigWindow=undefined; return false; }
-	});
+	//Log window
+	const MyLogWindow=new SingleInstanceWindow(
+		async () => {
+			const NewWin=new (await import('./Util/WindowManager')).Window({
+				LanguageChanged:() => Share.Tr.OnLanguageLoadedOnce(() => MyLogWindow.MyWin!.Title=Share.Tr.T('Logs')),
+				SaveID:'Logs',
+			});
+
+			setTimeout(() => {
+				MyLogWindow.MyWin!.LanguageChanged!(undefined!);
+				for(const LL of Log.AllLogLines)
+					AddLogLine(LL);
+			}, 0);
+
+			return NewWin;
+		},
+	);
+	$('#MenuOpenLogs').on('click', async () => MyLogWindow.FocusWin());
 
 	//Add log lines to the log window
 	Log.MaxStoredLogLines=1000;
-	let MyLogWindow:Window|undefined|null; //Null while loading
 	function AddLogLine(LL:(typeof Log.AllLogLines)[number])
 	{
-		if(!MyLogWindow)
+		if(!MyLogWindow.MyWin)
 			return;
-		MyLogWindow.$Content.children().slice(Log.MaxStoredLogLines-1).remove();
+		MyLogWindow.MyWin.$Content.children().slice(Log.MaxStoredLogLines-1).remove();
 		$('<div class=LogLine>').append([
 			$('<span class=Time>').text(new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'})),
 			$('<span class=Contents>').text(String(LL.LogInfo[0])),
 		])
 			.toggleClass('IsError', LL.IsError)
-			.prependTo(MyLogWindow.$Content);
+			.prependTo(MyLogWindow.MyWin.$Content);
 	}
 	Log.OnLog.Add('LogWindow', AddLogLine);
-
-	//Open the log window
-	$('#MenuOpenLogs').on('click', async () => {
-		if(MyLogWindow)
-			return MyLogWindow.Focus();
-		if(MyLogWindow===null)
-			return;
-		MyLogWindow=null;
-		MyLogWindow=new (await import('./Util/WindowManager')).Window({
-			OnClosing:() => { MyLogWindow=undefined; return false; },
-			LanguageChanged:() => Share.Tr.OnLanguageLoadedOnce(() => MyLogWindow!.Title=Share.Tr.T('Logs')),
-			SaveID:'Logs',
-		});
-		MyLogWindow.LanguageChanged!(undefined!);
-		for(const LL of Log.AllLogLines)
-			AddLogLine(LL);
-	});
 }
 
 $(Main);
