@@ -157,7 +157,7 @@ export class Window
 		this.Title=this.Title;
 		this.Parent=this.Parent;
 		if(this.SaveID)
-			this.$Root.addClass('WinID_'+this.SaveID);
+			this.$Root.attr('id', 'WinID_'+this.SaveID);
 
 		this.WireEvents();
 		(WM as WindowManager_Friend).Register(this);

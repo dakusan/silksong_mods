@@ -60,7 +60,7 @@ function SetupThemeSwap()
 function SetupEnumTranslations(ShareObj:typeof Share)
 {
 	for(const ConfItem of [LC.IconSet, LC.Theme])
-		ConfItem.GetTranslation=(TKey => ShareObj.Tr.T(TKey, 'SettingEnums'));
+		ConfItem.GetTranslation=(TKey => ShareObj.Tr.TranslateNull(TKey, 'SettingEnums')!);
 }
 
 function Init_Color_FoundIcon_Demo()

@@ -5,6 +5,7 @@
       <w>lerp</w>
       <w>ltgt</w>
       <w>noopener</w>
+      <w>preallocated</w>
       <w>titlebar</w>
       <w>toolmaster</w>
       <w>tseslint</w>

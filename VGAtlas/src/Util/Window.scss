@@ -1,3 +1,4 @@
+@use '../../Assets/Themes/_Shared' as *;
 @mixin emit-border($left, $right, $top, $bottom, $width, $height, $cursor) {
 	@if $left   != null { left:		$left;	}
 	@if $right  != null { right:	$right;	}
@@ -33,12 +34,8 @@
 			display:flex; align-items:center; gap:6px;
 
 			button {
-				height:22px; border-radius:6px; border:1px solid var(--window-titlebar-button-border, rgba(255, 255, 255, 0.18));
-				background:var(--window-titlebar-button-background, rgba(255, 255, 255, 0.06)); color:var(--window-titlebar-button-text, #eee); cursor:pointer;
+				height:22px; @include win-button;
 				font-weight:700; font-size:12px; line-height:1;
-				&:hover:not( .Disabled) { background:var(--window-titlebar-button-bg-hover, rgba(255, 255, 255, 0.10)); }
-				&:active:not(.Disabled) { background:var(--window-titlebar-button-bg-active, rgba(255, 255, 255, 0.14)); }
-				&.Disabled { opacity:0.45; cursor:not-allowed; }
 			}
 
 			.Close { width:26px; }

@@ -24,7 +24,7 @@
 	.TitleCol:hover .Description { display:block; }
 
 	/* Other */
-	input, select, button { color:var(--button-text, black); white-space:nowrap; }
+	input, select, button { white-space:nowrap; }
 
 	/* Display Sections and Advanced */
 	.IsHidden { display:none !important; }

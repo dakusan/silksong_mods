@@ -1,5 +1,9 @@
-button, input, select, textarea { color:inherit; font-family:inherit; }
+@use '../Assets/Themes/_Shared' as *;
 canvas { width:100%; height:100%; touch-action:none; overscroll-behavior:none; } //Stops pinch-zoom/pan from being handled by the page
+
+option { background:var(--tooltip-bg, rgba(64, 64, 64, 0.8)); color:var(--text-color, #eee); }
+.AddInputStyles, .ConfigTable { input, select, button { @include win-button; } }
+.WinButton { @include win-button; }
 
 .PopupMessage {
 	position:absolute; z-index:100000; display:flex; inset:0; justify-content:center; align-items:center; background:var(--popup-surround-background, rgba(51, 51, 51, 0.75));
@@ -84,6 +88,7 @@ canvas { width:100%; height:100%; touch-action:none; overscroll-behavior:none; }
 .CategoryGroups {
 	min-height:0; overflow:auto; column-width:220px; column-fill:auto; column-gap:10px; width:100%; flex:1 1 auto; font-size:14px; white-space:nowrap;
 	button { background-color:transparent; border-width:0; font-size:inherit; }
+	button, input { color:inherit; font-family:inherit; }
 	.Title {
 		margin-bottom:2px; font-size:18px; color:var(--category-group-title, #e6e6e6);
 		&:hover { color:var(--category-group-title-hover, cyan); }
@@ -149,13 +154,14 @@ body #MainMenu { display:block; }
 
 .ConfigTable .DemoIcon {
 	$DemoIconSize:52px;
-	display:block; width:$DemoIconSize; height:$DemoIconSize; flex:0 0 auto !important; background-color:green;
+	display:block; width:$DemoIconSize; height:$DemoIconSize; flex:0 0 auto !important;
+	background:conic-gradient(#00000050 25%, #FFFFFF50 0 50%, #00000050 0 75%, #FFFFFF50 0) 0 0 / 18px 18px;
 	>div { position:relative; width:100%; height:100%; --NewIconSize:#{$DemoIconSize}; left:0; top:0; margin:0; }
 }
 
-.WinRoot .LogLine {
+#WinID_Logs .LogLine {
 	white-space:pre-wrap;
-	&:hover { background:var(--line-item-hover, rgba(255, 255, 255, 0.25)); }
+	&:hover { color:var(--hl-text-color, #eee); background:var(--line-item-hover, rgba(255, 255, 255, 0.25)); }
 	&.IsError { color:red; }
 	.Time {
 		color:var(--line-item-date, cyan);

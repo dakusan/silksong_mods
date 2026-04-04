@@ -1,0 +1,7 @@
+@mixin win-button {
+	border-radius:6px; border:1px solid var(--window-titlebar-button-border, rgba(255, 255, 255, 0.18));
+	background:var(--window-titlebar-button-background, rgba(255, 255, 255, 0.06)); color:var(--window-titlebar-button-text, #eee); cursor:pointer;
+	&:hover:not( .Disabled) { background:var(--window-titlebar-button-bg-hover, rgba(255, 255, 255, 0.10)); }
+	&:active:not(.Disabled) { background:var(--window-titlebar-button-bg-active, rgba(255, 255, 255, 0.14)); }
+	&.Disabled { opacity:0.45; cursor:not-allowed; }
+}

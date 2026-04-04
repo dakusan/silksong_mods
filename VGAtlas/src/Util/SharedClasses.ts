@@ -188,6 +188,11 @@ export namespace DevStrings
 		ConvertEl.innerText=Str;
 		return ConvertEl.innerHTML;
 	}
+	export function HtmlToText(Html:string): string
+	{
+		ConvertEl.innerHTML=Html;
+		return ConvertEl.innerText;
+	}
 }
 
 export const enum StatStr {
@@ -237,6 +242,30 @@ export class Iter<T> implements Iterable<T>
 			for(const Val of Self.MyIterable)
 				if(++i>n)
 					yield Val;
+		});
+	}
+
+	public take(n:number) {
+		if(n<=0)
+			return this;
+
+		const Self=this;
+		return Iter.MakeIter(function*() {
+			let i=0;
+			for(const Val of Self.MyIterable)
+				if(++i<=n)
+					yield Val;
+				else
+					break;
+		});
+	}
+
+	public concat(...Items:Iterable<T>[]) {
+		const Self=this;
+		return Iter.MakeIter(function*() {
+			yield* Self.MyIterable;
+			for(const I of Items)
+				yield* I;
 		});
 	}
 
@@ -327,6 +356,24 @@ export class CallbackList<Args extends unknown[], TRet=void>
 			catch(e) { Log.Error(StatStr.NeedsTranslate+`Callback “${CBName}” for ${this.Name} failed: ${Util.GetErrorMessage(e)}`); }
 		return false;
 	}
+}
+
+export class PreallocatedPusher<T>
+{
+	private readonly Arr: T[];
+	private Len=0;
+	constructor(Capacity:number) { this.Arr=new Array<T>(Capacity); }
+	public push(Item:T)
+	{
+		if(this.Len<this.Arr.length)
+			this.Arr[this.Len]=Item;
+		else
+			this.Arr.push(Item);
+		this.Len++;
+	}
+	public get length(): number { return this.Len; }
+	public get raw(): T[] { return this.Arr; }
+	public get finalize(): T[] { this.Arr.length=this.Len; return this.Arr; }
 }
 
 export namespace KeyState
