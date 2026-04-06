@@ -135,6 +135,12 @@ function CreateMainMenu()
 	);
 	$('#MenuOpenConfig').on('click', async () => MyConfigWindow.FocusWin());
 
+	//Search window
+	const MySearchWindow=new SingleInstanceWindow(
+		async () => new (await import('./SearchWindow')).default(),
+	);
+	$('#MenuOpenSearch').on('click', async () => MySearchWindow.FocusWin());
+
 	//Log window
 	const MyLogWindow=new SingleInstanceWindow(
 		async () => {

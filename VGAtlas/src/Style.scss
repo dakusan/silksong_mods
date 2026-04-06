@@ -168,3 +168,20 @@ body #MainMenu { display:block; }
 		&:after { content:': '; }
 	}
 }
+
+#WinID_Search {
+	.SearchContainer { position:relative; padding:6px; }
+	.SearchBox {
+		display:block; width:100%; margin-bottom:3px;
+		&::placeholder { text-align:center; }
+	}
+	.NumResults { position:absolute; margin-top:1px; right:22px; font-size:90%; color:magenta; }
+	.Results>* {
+		position:relative; overflow:hidden; cursor:pointer; white-space:pre-wrap;
+		&.Clipped:not(:hover)::before { content:'▼'; position:absolute; right:8px; bottom:6px; pointer-events:none; z-index:1; }
+		&:hover { color:var(--hl-text-color, #eee); background:var(--line-item-hover, rgba(255, 255, 255, 0.25)); max-height:none !important; }
+		&.Separator { height:1px; margin:4px; background:var(--line-separator, white); }
+		&.Separator:last-child { display:none; }
+	}
+	.Results.DoClip>* { max-height:130px; }
+}
