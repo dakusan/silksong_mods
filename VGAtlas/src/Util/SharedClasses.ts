@@ -200,6 +200,7 @@ export const enum StatStr {
 	NewLine='\n',
 	//eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
 	NeedsTranslate='',
+	PrivateChar='\uE000', //First character in private use area
 }
 
 export class Iter<T> implements Iterable<T>
@@ -374,6 +375,9 @@ export class PreallocatedPusher<T>
 	public get length(): number { return this.Len; }
 	public get raw(): T[] { return this.Arr; }
 	public get finalize(): T[] { this.Arr.length=this.Len; return this.Arr; }
+	public get FinalizeSlice(): T[] { return this.Arr.slice(0, this.Len); }
+	public Reset(Capacity:number) { this.Arr.length=Capacity; this.Len=0; }
+	public ResetLen() { this.Len=0; }
 }
 
 export namespace KeyState

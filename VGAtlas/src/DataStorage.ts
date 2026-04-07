@@ -360,7 +360,6 @@ export default class DataStorage
 		public Sep_AND			=new StringColor('white',		null!); //Separator for boolean AND “, ”
 		public Strike_Found		=new StringColor('white',		null!); //Straight line through link when item has been found
 		public Strike_Started	=new StringColor('silver',		null!); //Wavy line through link when item has been started (and not found)
-		public Search_Highlight	=new StringColor('green',		null!); //Highlighting searched string
 		public CollectedCounts	=new StringColor('grey',		null!); //Amounts the player has and needs to finish an item
 	};
 	public readonly LinkColors=new DataStorage.LinkColorsT().Init();

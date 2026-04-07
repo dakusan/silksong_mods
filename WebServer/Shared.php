@@ -18,10 +18,11 @@ function GetVariable(string $Name, string $Pattern, int $MaxFieldLen=100): strin
 	return
 		 	!is_string($Val=($_REQUEST[$Name] ?? null))	? ErrAndDie("Missing variable: $Name", null, 400)
 		: (	!mb_check_encoding($Val, 'UTF-8')			? ErrAndDie("Improperly encoded variable: $Name", null, 400)
+		: ( preg_match('/[\x{0080}-\x{009F}]/u', $Val)  ? ErrAndDie("Variable has an invalid control character: $Name", null, 400)
 		: (	mb_strlen($Val)>$MaxFieldLen				? ErrAndDie("Variable is too long: $Name", null, 400)
 		: (	!preg_match($Pattern, $Val)					? ErrAndDie("Variable is not in the proper format or is too long: $Name", null, 400)
 		:	$Val
-		)));
+		))));
 }
 
 function GetSteamUsername(string $FieldName='Username'): string //SteamName=3-32 characters

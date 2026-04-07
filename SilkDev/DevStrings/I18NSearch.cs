@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 namespace SilkDev;
 public static partial class DevStrings { //Namespace hack since Namespace and class name cannot coincide
 
-	//Searching with i18n. If using the primary constructor make sure StartSearchTerms have been ran through SafeRich (if UseSafeRich=true)
+	//Searching with i18n. If using the primary constructor make sure StartSearchTerms have been run through SafeRich (if UseSafeRich=true)
 	public class I18NSearch<T>(string[] StartSearchTerms, I18NSearch<T>.FuncItemTransformer? ItemTransformer=null, bool UseSafeRich=true)
 	{
 		public static readonly Regex RegEx_RemoveHTMLTags=new(@"</?\w[^>]+>", RegexOptions.Compiled);
@@ -43,7 +43,7 @@ public static partial class DevStrings { //Namespace hack since Namespace and cl
 			if(ItemStr==null)
 				return false;
 			if(UseSafeRich)
-				ItemStr=RegEx_RemoveHTMLTags.Replace(ItemStr, string.Empty);
+				ItemStr=RegEx_RemoveHTMLTags.Replace(ItemStr, ((char)0x0086).ToString());
 			ItemStr=NormalizeForSearch(ItemStr);
 
 			//If any search terms do not match, return false

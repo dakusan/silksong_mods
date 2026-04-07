@@ -61,8 +61,8 @@ abstract class Category_Friend extends Category implements FriendClass
 
 //Characters used for string manipulation stand-ins
 const enum LStatStr {
-	ChainItem_AmountChar='\uE002',
-	TrVarChar='\uE003', //Translation variable character - This is placed around any translation names in strings for quick variable fill-in
+	ChainItem_AmountChar='\u0082',
+	TrVarChar='\u0083', //Translation variable character - This is placed around any translation names in strings for quick variable fill-in
 }
 
 //Translation functions

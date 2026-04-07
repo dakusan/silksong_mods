@@ -51,7 +51,8 @@ export default class Translations
 	//Init
 	constructor(
 		public readonly ModuleName:string,
-		public readonly TranslationsPath:string
+		public readonly TranslationsPath:string,
+		public HasFallbacks=true,
 	) {
 		Translations.Modules.set(this.ModuleName, this);
 		this.LanguageListLoaded=this.LanguageListLoad();
@@ -99,7 +100,8 @@ export default class Translations
 			LoadJson.FromURL(`${this.TranslationsPath}/${ISO}${Translations.TranslationFileExtension}`)
 				.then(RetObj => NewSections[0]=RetObj as SectionListType)
 				.catch(e => Log.Error(StatStr.NeedsTranslate+`Could not load language file “${ISO}” for module “${this.ModuleName}”: `+Util.GetErrorMessage(e))),
-			LoadJson.FromURL(`${this.TranslationsPath}/Merge/${ISO}${Translations.TranslationFileExtension}`)
+			  !this.HasFallbacks ? null
+			: LoadJson.FromURL(`${this.TranslationsPath}/Merge/${ISO}${Translations.TranslationFileExtension}`)
 				.then(RetObj => NewSections[1]=RetObj as SectionListType)
 				.catch(() => {}),
 		]);

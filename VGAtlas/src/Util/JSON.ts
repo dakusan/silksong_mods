@@ -177,8 +177,11 @@ export namespace SaveJson
 		return OutObj;
 	}
 
+	//Note: This character will be wiped from JSON strings. If you are encoding binary data, change this to something in the private range that will not be used, like \uE000
+	//eslint-disable-next-line prefer-const
+	export let PlaceholderChar='\u0081';
+
 	//Exporting functions
-	const PlaceholderChar='\uEE01';
 	//Encodes to JSON. Classes can be handled by IExpOverride; Object fields and getters are handled according to JSProps exporting decorators.
 	//Objects maintain their member order. Getters always come after fields. Numeric keys in maps are kept in their original order.
 	export function Stringify(Data:unknown, Compact=false, TrailingCommas=true, Replacer?:(this:unknown, key:string, value:unknown) => unknown)

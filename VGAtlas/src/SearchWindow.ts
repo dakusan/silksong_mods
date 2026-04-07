@@ -55,7 +55,7 @@ export default class SearchWindow extends Window
 				String(I.ID), I.Description,
 				DevStrings.SafeRich(I.Title),
 				DevStrings.SafeRich(Cats.get(I.CategoryID)!.Title),
-			].join('\uEE06');
+			].join('\u0088');
 		};
 
 		//Get a list of items with exact ID matches
@@ -107,7 +107,7 @@ export default class SearchWindow extends Window
 			return false;
 		}
 
-		const ColorTag=`<b><color=${Share.DS.LinkColors.Search_Highlight}>`, ColorEndTag='</color></b>';
+		const ColorTag=`<b><color=SEARCH_HIGHLIGHT>`, ColorEndTag='</color></b>';
 		return `<size=-2>${Share.Tr.T(Title, 'ItemFields', true)}</size>: `+DoSearch.ReplaceSearchTerms(
 			Info,
 			(FindIndex, FindValue) => InTag(FindIndex) ? FindValue : ColorTag+FindValue+ColorEndTag
@@ -120,7 +120,7 @@ export default class SearchWindow extends Window
 		this.$SearchResults.removeClass('DoClip');
 		for(const SI of this.SearchedItems) {
 			const El=$('<div>')
-				.html(new LinkedLabel(SI.RichText).Init().html())
+				.html(new LinkedLabel(SI.RichText).Init().html().replace(/<span style="color:SEARCH_HIGHLIGHT">/g, '<span class=SearchHighlight>'))
 				.on('click', () => Share.MC.SelectAndCenterItem(SI.ID));
 
 			El.add('<div class=Separator>').appendTo(this.$SearchResults);

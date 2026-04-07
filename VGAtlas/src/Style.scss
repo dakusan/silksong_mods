@@ -184,4 +184,23 @@ body #MainMenu { display:block; }
 		&.Separator:last-child { display:none; }
 	}
 	.Results.DoClip>* { max-height:130px; }
+	.SearchHighlight { color:var(--search-highlight, lime); font-weight:bold; }
+}
+
+.FontSize {
+	&.F1  { font-size:xx-small;	}
+	&.F2  { font-size:small;	}
+	&.F3  { font-size:medium;	}
+	&.F4  { font-size:large;	}
+	&.F5  { font-size:x-large;	}
+	&.FN1 { font-size:90%;		}
+	&.FN2 { font-size:80%;		}
+	&.FN3 { font-size:70%;		}
+	&.FN4 { font-size:60%;		}
+	&.FN5 { font-size:50%;		}
+	&.FP1 { font-size:110%;		}
+	&.FP2 { font-size:120%;		}
+	&.FP3 { font-size:130%;		}
+	&.FP4 { font-size:140%;		}
+	&.FP5 { font-size:150%;		}
 }

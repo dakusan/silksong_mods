@@ -3,6 +3,7 @@ import  { DevStrings, Iter, PreallocatedPusher, StatStr } from './SharedClasses'
 export type FuncItemTransformer<T>=(Item:T) => string|null; //Return null to skip searching item
 export type ReplaceWithFunc=(FindIndex:number, FindValue:string) => string|null; //Index is based off the original string
 class FoldedString { constructor(public readonly Folded:string, public readonly OrigStarts:number[]) {} }
+const SeperatorChar='\u0087';
 
 //Searching with i18n. If using the array constructor make sure StartSearchTerms have been run through SafeRich (if UseSafeRich=true)
 export default class I18NSearch<T>
@@ -51,7 +52,7 @@ export default class I18NSearch<T>
 		if(ItemStr===null)
 			return false;
 		if(this.UseSafeRich)
-			ItemStr=DevStrings.HtmlToText(ItemStr.replace(I18NSearch.RegEx_RemoveHTMLTags, '\uEE07'));
+			ItemStr=DevStrings.HtmlToText(ItemStr.replaceAll(SeperatorChar, StatStr.PrivateChar).replace(I18NSearch.RegEx_RemoveHTMLTags, SeperatorChar));
 		ItemStr=this.NormalizeForSearch(ItemStr);
 
 		//If any search terms do not match, return false

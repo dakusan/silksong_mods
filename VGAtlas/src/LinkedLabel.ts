@@ -2,11 +2,12 @@ import $ from 'jquery';
 import { StatStr } from './Util/SharedClasses';
 import { Share } from './Share';
 
-const LTChar='\uEE04', RTChar='\uEE05';
+const LTChar='\u0084', RTChar='\u0086';
 const RegEx_LinkID=/<LinkID=(?:\\")?([^ ">]+)(?:\\")?>(.*?)<\/LinkID>/isg;
 const RegEx_Color=/<color=(#?\w+)>((?:(?!<color\b)[\s\S])*?)<\/color>/ig;
+const RegEx_Size=/<size=([-+]?)([1-5])>((?:(?!<size\b)[\s\S])*?)<\/size>/ig;
 const RegEx_Attr=/<ATTR=([-.\w]+)>(.*?)<\/ATTR>/ig;
-const RegEx_SafeTags=/<\/?(?:b|i|u|s|strong|em|ins|del|size(?:=-?\d+)?)>/ig;
+const RegEx_SafeTags=/<\/?(?:b|i|u|s|strong|em|ins|del)>/ig;
 const RegEx_LTGT=/[<>]/g;
 const RegEx_LTGTChar=new RegExp(`[${LTChar}${RTChar}]`, 'g');
 
@@ -19,7 +20,7 @@ export default class LinkedLabel
 	constructor(
 		public readonly StartContents:string,
 	) {
-		let Ret=StartContents.replace(RegEx_LTGTChar, '\uE000'); //If used, change our private range escape characters to the character at the start of the private range.
+		let Ret=StartContents.replace(RegEx_LTGTChar, StatStr.PrivateChar); //If used, change our private range escape characters to the character at the start of the private range.
 		Ret=LinkedLabel.UnityRichTextToHTML(Ret);
 		Ret=LinkedLabel.KeepSafeHTMLTags(Ret);
 		Ret=LinkedLabel.FixTags(Ret);
@@ -87,6 +88,9 @@ export default class LinkedLabel
 		//Replace <color> w/ span+color
 		for(let LastStr:string|undefined=undefined; Str!==LastStr; )
 			Str=(LastStr=Str).replace(RegEx_Color, `${LTChar}span style='color:$1'${RTChar}$2${LTChar}/span${RTChar}`);
+		//Replace <size> w/ span+FontSize
+		for(let LastStr:string|undefined=undefined; Str!==LastStr; )
+			Str=(LastStr=Str).replace(RegEx_Size, (_, Sign, Num, Text) => `${LTChar}span class='FontSize F${Sign==='+' ? 'P' : Sign==='-' ? 'N' : ''}${Num}'${RTChar}${Text}${LTChar}/span${RTChar}`);
 
 		return Str;
 	}

@@ -70,7 +70,7 @@ public class Item: Exporter.IExpFieldOrder
 	internal Item() { } //Must be created through CreateItem
 
 	public const int MinID=100_001, MaxID=int.MaxValue;
-	private const char TrVarChar=(char)0xE003; //Translation variable character - This is placed around any translation names in strings for quick variable fill-in
+	private const char TrVarChar=(char)0x0083; //Translation variable character - This is placed around any translation names in strings for quick variable fill-in
 	public enum ChainType { Reqs, Needs, Rewards }
 	public static bool IDInRange(int ID) => ID is >=MinID and <=MaxID;
 	private static string TSan(string Message) => Tr.TDef(Message, "ItemFields", Message, true);
@@ -261,7 +261,7 @@ public class Item: Exporter.IExpFieldOrder
 	//A single item in a ChainList
 	public class ChainItem: Exporter.IExpFieldOrder
 	{
-		internal static string AmountChar=((char)0xE002).ToString();
+		internal static string AmountChar=((char)0x0082).ToString();
 		[ExpNo] public readonly ChainList Parent;
 		public readonly string StartString;
 		private  string RenderedStringReal		=> field ??= FinishInternalRender(); //Contains AmountChar where the live collected count will need to be inserted
