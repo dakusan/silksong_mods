@@ -1,5 +1,6 @@
 import $ from 'jquery';
-import { DevStrings, StatStr } from './Util/SharedClasses';
+import { DevStrings, Iter, StatStr } from './Util/SharedClasses';
+import I18NSearch from './Util/I18NSearch';
 import { Window } from './Util/WindowManager';
 import { Share } from './Share';
 import { type Item } from './CategoriesAndItems';
@@ -40,36 +41,38 @@ export default class SearchWindow extends Window
 	//Split the search text into terms and find any item that has all search terms
 	public RunSearch()
 	{
-		const SearchText=this.SearchText.trim();
-		if(!SearchText) {
-			this._HadOverflow=false;
-			this._SearchedItems=[];
-			return;
-		}
-
-		const Terms=SearchText.split(/\s+/g);
-		function Matches(Str:string)
-		{
-			for(const T of Terms)
-				if(Str.indexOf(T)===-1)
-					return false;
-			return true;
-		}
-
+		//Search item string transformer
+		const YieldedMatchedIds=new Set<number>(), MatchingIDs=new Set<number>();
 		const Cats=Share.DS.Categories;
-		const NewItems:Item[]=[];
-		for(const I of Share.DS.Items.values()) {
-			const SearchText=[
+
+		const SearchTransformer=(I:Item):string|null => {
+			if(MatchingIDs.has(I.ID))
+				if(YieldedMatchedIds.has(I.ID))
+					return null;
+				else
+					YieldedMatchedIds.add(I.ID);
+			return [
 				String(I.ID), I.Description,
 				DevStrings.SafeRich(I.Title),
 				DevStrings.SafeRich(Cats.get(I.CategoryID)!.Title),
 			].join('\uEE06');
-			if(Matches(SearchText)) {
-				NewItems.push(I);
-				if(NewItems.length>=this.MaxSearchResults)
-					break;
-			}
+		};
+
+		//Get a list of items with exact ID matches
+		const DoSearch=new I18NSearch<Item>(this.SearchText, SearchTransformer);
+		for(const Str of DoSearch.OriginalTerms) {
+			const ID=Number.parseInt(Str, 10);
+			if(!Number.isNaN(ID) && Share.DS.Items.has(ID))
+				MatchingIDs.add(ID);
 		}
+
+		//Run the search
+		const NewItems=[...new Iter(DoSearch.Execute(
+			new Iter(MatchingIDs.values())
+				.map(ItemID => Share.DS.Items.get(ItemID)!)
+				.concat(Share.DS.Items.values())
+			)).take(this.MaxSearchResults+1)
+		];
 
 		//Account for overflow
 		if((this._HadOverflow=(NewItems.length>this.MaxSearchResults)))
@@ -77,19 +80,38 @@ export default class SearchWindow extends Window
 
 		//Transform the items into rich strings and store with their IDs
 		this._SearchedItems=NewItems.map(I => new SearchedItem(I.ID, [
-			 	SearchWindow.MakeItemInfoLine(			"Title",		DevStrings.SafeRich(I.Title)+` <size=-4>[${I.ID}]</size>`),
-				SearchWindow.MakeItemInfoLine(			"Category",		DevStrings.SafeRich(Cats.get(I.CategoryID)!.Title)),
+			 	SearchWindow.MakeItemInfoLine(			"Title",		DevStrings.SafeRich(I.Title)+` <size=-4>[${I.ID}]</size>`,	DoSearch),
+				SearchWindow.MakeItemInfoLine(			"Category",		DevStrings.SafeRich(Cats.get(I.CategoryID)!.Title),			DoSearch),
 			I.Description===StatStr.Empty ? null :
-				SearchWindow.MakeItemInfoLine(			"Description",	I.Description),
+				SearchWindow.MakeItemInfoLine(			"Description",	I.Description,												DoSearch),
 		].filter(S => S).join(StatStr.NewLine)));
 	}
 
 	//Create a string with sized down title and Info with highlighted search terms
-	private static MakeItemInfoLine(Title:string, Info:string):string|null
+	private static MakeItemInfoLine(Title:string, Info:string, DoSearch:I18NSearch<Item>):string|null
 	{
 		if(!Info)
 			return null;
-		return `<b>${Title}</b>: ${Info}`;
+
+		const TagEnum=Info.matchAll(I18NSearch.RegEx_RemoveHTMLTags);
+		let CurTag=TagEnum.next();
+		function InTag(Pos:number)
+		{
+			while(!CurTag.done) {
+				if(Pos<CurTag.value.index)
+					return false;
+				if(Pos<CurTag.value.index+CurTag.value[0].length)
+					return true;
+				CurTag=TagEnum.next();
+			}
+			return false;
+		}
+
+		const ColorTag=`<b><color=${Share.DS.LinkColors.Search_Highlight}>`, ColorEndTag='</color></b>';
+		return `<size=-2>${Share.Tr.T(Title, 'ItemFields', true)}</size>: `+DoSearch.ReplaceSearchTerms(
+			Info,
+			(FindIndex, FindValue) => InTag(FindIndex) ? FindValue : ColorTag+FindValue+ColorEndTag
+		);
 	}
 
 	public RefreshSearch()

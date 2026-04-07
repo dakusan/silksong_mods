@@ -4,6 +4,7 @@
       <w>autopan</w>
       <w>lerp</w>
       <w>ltgt</w>
+      <w>nfkd</w>
       <w>noopener</w>
       <w>preallocated</w>
       <w>titlebar</w>
