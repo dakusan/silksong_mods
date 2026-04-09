@@ -1,43 +1,197 @@
-import  { DevStrings, Iter, PreallocatedPusher, StatStr } from './SharedClasses';
+import  { Iter, PreallocatedPusher, StatStr, WillBeSet } from './SharedClasses';
 
-export type FuncItemTransformer<T>=(Item:T) => string|null; //Return null to skip searching item
-export type ReplaceWithFunc=(FindIndex:number, FindValue:string) => string|null; //Index is based off the original string
-class FoldedString { constructor(public readonly Folded:string, public readonly OrigStarts:number[]) {} }
-const SeperatorChar='\u0087';
+export class StringSlicePos
+{
+	constructor(
+		public readonly Start:number,
+		public readonly End:number,
+	) { }
+}
 
-//Searching with i18n. If using the array constructor make sure StartSearchTerms have been run through SafeRich (if UseSafeRich=true)
+/*Creates a normalized mapping of the given haystack strings for searching.
+String normalization process:
+ - Same process as I18NSearch.NormalizeForSearch
+ - Optionally has HTML tags removed
+	- If you use this, it is highly recommended both your search needles and haystacks match the encodings from EncodeHTMLSimple for non-html tags
+*/
+export class FoldedStrings
+{
+	public		readonly Haystacks		:readonly string[];
+	//JoinedHaystacks=Haystacks.join(FoldedStrings.SectionSeparator)
+	protected	readonly HaystacksPos	:readonly StringSlicePos[]; //Where the haystacks are in JoinedHaystacks
+	public		readonly FoldedMap		:Readonly<Uint8Array|Uint16Array|Uint32Array>; //Map Folded position back onto JoinedHaystacks positions
+	public		readonly Folded			:string; //JoinedHaystacks after normalization
+
+	private static GetCPoint(Str:string, PointInStr:number) { return Str.codePointAt(PointInStr)!>0xFFFF ? Str.slice(PointInStr, PointInStr+2) : Str[PointInStr]; }
+	public static readonly SectionSeparator='\u0087'; //If found in search string, this character will be replaced with StatStr.PrivateChar
+
+	constructor(
+		Culture:string,
+		RemoveHTML:boolean,		//If true, anything in between < and > inclusively is removed for searching and considered word boundaries. However, HTML tags are maintained in returns from UpdateFromSlices()
+		...Haystacks:string[]	//Strings to search through
+	) {
+		//Get Haystacks Starts and Ends
+		const HaystacksPos=new Array<StringSlicePos>(Haystacks.length);
+		for(let i=0, Pos=0; i<Haystacks.length; i++, Pos+=FoldedStrings.SectionSeparator.length)
+			HaystacksPos[i]=new StringSlicePos(Pos, Pos+=Haystacks[i].length);
+		this.Haystacks=Haystacks;
+		this.HaystacksPos=HaystacksPos;
+
+		//Create Folded and FoldedMap
+		const JoinedHaystacks=Haystacks.join(FoldedStrings.SectionSeparator);
+		const FoldedBuf=new PreallocatedPusher<string>(JoinedHaystacks.length);
+		const FoldedMap=new PreallocatedPusher<number>(JoinedHaystacks.length);
+		for(let StrPos=0; StrPos<JoinedHaystacks.length;) {
+			let C=FoldedStrings.GetCPoint(JoinedHaystacks, StrPos);
+
+			//Remove HTML tags when requested
+			if(RemoveHTML && C==='<') {
+				const StartPos=StrPos;
+				do {
+					StrPos+=C.length;
+					C=FoldedStrings.GetCPoint(JoinedHaystacks, StrPos)
+				} while(StrPos<JoinedHaystacks.length && C!=='>');
+				FoldedBuf.push(FoldedStrings.SectionSeparator);
+				FoldedMap.push(StartPos);
+				StrPos+=(C?.length ?? 0);
+				continue;
+			}
+
+			//Emit normalized character(s)
+			for(const NC of C.normalize('NFKD')) {
+				if(I18NSearch.RegEx_IsCombiningMark.test(NC))
+					continue;
+				const Out=NC.toLocaleUpperCase(Culture);
+				FoldedBuf.push(Out);
+				//eslint-disable-next-line @typescript-eslint/prefer-for-of -- This has to be normal for loop as foreach would loop over the Unicode code points
+				for(let j=0; j<Out.length; j++)
+					FoldedMap.push(StrPos);
+			}
+			StrPos+=C.length;
+		}
+
+		//Store final copies of Folded and FoldedMap
+		this.Folded=FoldedBuf.finalize.join(StatStr.Empty);
+			 if(JoinedHaystacks.length<(1<<8 ))	this.FoldedMap=new Uint8Array (FoldedMap.finalize);
+		else if(JoinedHaystacks.length<(1<<16))	this.FoldedMap=new Uint16Array(FoldedMap.finalize);
+		else									this.FoldedMap=new Uint32Array(FoldedMap.finalize);
+	}
+
+	private AppendOrigSlice(
+		HaystackResults:string[], CurrentHaystackParts:PreallocatedPusher<string>, JoinedHaystacks:string,
+		OrigStart:number, OrigEnd:number, LastHaystackIndex:number, CurHaystackIndex:number
+	) {
+		for(let i=LastHaystackIndex; i<=CurHaystackIndex; i++) {
+			const PartStart=Math.max(OrigStart, this.HaystacksPos[i].Start);
+			const PartEnd=Math.min(OrigEnd, this.HaystacksPos[i].End);
+			if(PartStart<PartEnd)
+				CurrentHaystackParts.push(JoinedHaystacks.slice(PartStart, PartEnd));
+
+			if(i<CurHaystackIndex) {
+				HaystackResults[i]=CurrentHaystackParts.FinalizeSlice.join(StatStr.Empty);
+				CurrentHaystackParts.ResetLen();
+			}
+		}
+	}
+
+	//Returns the original haystacks with search terms (via StringSlicePos) replaced from the ReplaceCB callback
+	//Note: You should generally only be using StringSlicePos generated through I18NSearch.GetSearchTermPositions() for this specific FoldedStrings.Folded
+	public UpdateFromSlices(Slices:StringSlicePos[], ReplaceCB:(this:FoldedStrings, Term:string, SP:StringSlicePos) => string)
+	{
+		if(Slices.length===0)
+			return [...this.Haystacks];
+		if(Slices[0].Start<0)
+			throw new Error("First slice must start at >=0");
+
+		const JoinedHaystacks=this.Haystacks.join(FoldedStrings.SectionSeparator);
+		const HaystackResults=new Array<string>(this.Haystacks.length).fill(StatStr.Empty);
+		const CurrentHaystackParts=new PreallocatedPusher<string>(Slices.length*2+1);
+		let LastOrigEnd=0, LastHaystackIndex=0;
+		for(let i=0; i<Slices.length; i++) {
+			const Slice=Slices[i];
+			if(Slice.Start>=Slice.End)
+				throw new Error(StatStr.NeedsTranslate+`Slice end (${Slice.End}) must be greater than slice start (${Slice.Start})`);
+			else if(i>0 && Slice.Start<Slices[i-1].End)
+				throw new Error(StatStr.NeedsTranslate+`Slice start (${Slice.Start}) must not be less than end of previous slice (${Slices[i-1].End})`);
+			else if(Slice.End>this.Folded.length)
+				throw new Error(StatStr.NeedsTranslate+`Slice.End (${Slice.End}) cannot be greater than Folded string length (${this.Folded.length})`);
+
+			const OrigStart=this.FoldedMap[Slice.Start];
+			const OrigEnd=this.FoldedMap[Slice.End] ?? JoinedHaystacks.length;
+
+			//Get Haystack Index From StrPos
+			let CurHaystackIndex=-1;
+			for(let i=LastHaystackIndex; i<this.HaystacksPos.length; i++)
+				if(OrigStart<=this.HaystacksPos[i].End) {
+					CurHaystackIndex=i;
+					break;
+				}
+
+			//Slices must stay within a single original source string; folded section separators are boundaries
+			if(CurHaystackIndex<0 || OrigEnd>this.HaystacksPos[CurHaystackIndex].End)
+				throw new Error(StatStr.NeedsTranslate+`Replacement section (${OrigStart}-${OrigEnd}) cannot span multiple source strings`);
+
+			this.AppendOrigSlice(HaystackResults, CurrentHaystackParts, JoinedHaystacks, LastOrigEnd, OrigStart, LastHaystackIndex, CurHaystackIndex);
+			CurrentHaystackParts.push(ReplaceCB.call(this, JoinedHaystacks.slice(OrigStart, OrigEnd), Slice));
+			LastOrigEnd=OrigEnd;
+			LastHaystackIndex=CurHaystackIndex;
+		}
+		this.AppendOrigSlice(HaystackResults, CurrentHaystackParts, JoinedHaystacks, LastOrigEnd, JoinedHaystacks.length, LastHaystackIndex, this.Haystacks.length-1);
+		HaystackResults[this.Haystacks.length-1]=CurrentHaystackParts.finalize.join(StatStr.Empty);
+
+		return HaystackResults;
+	}
+
+	//HTML encodes 3 characters: & < >
+	private static readonly RegEx_LTGT=/[<>]/g;
+	public static EncodeHTMLSimple(Str:string)
+	{
+		return Str
+			.replaceAll('&', '&amp;')
+			.replace(this.RegEx_LTGT, F => F==='<' ? '&lt;': '&gt;');
+	}
+}
+
+//Searching with i18n.
 export default class I18NSearch<T>
 {
-	public static readonly RegEx_RemoveHTMLTags=/<[^>]+>/g;
-	public static readonly RegEx_SplitAroundSpaces=/\s+/g;
+	private static readonly RegEx_SplitAroundSpaces=/\s+/g;
 	public static readonly RegEx_IsCombiningMark=/\p{M}/u;
 
-	public readonly OriginalTerms:string[];
+	public readonly OriginalTerms:readonly string[];
 	private readonly Terms:string[]=[];
 	public get SearchTerms(): readonly string[] { return this.Terms; }
 
+	private _Culture:string=WillBeSet;
 	public get Culture() { return this._Culture; }
 	public set Culture(NewCulture:string)
 	{
 		if(this._Culture===NewCulture)
 			return;
 		this._Culture=NewCulture;
+
+		//Format search terms
 		this.Terms.length=0;
-		this.Terms.push(...I18NSearch.FormatSearchTerms(this.OriginalTerms, NewCulture));
+		const Seen=new Set<string>();
+		for(const Term of this.OriginalTerms) {
+			const Fixed=I18NSearch.NormalizeForSearch(Term, NewCulture).trim();
+			if(Fixed && !Seen.has(Fixed))
+				Seen.add(Fixed);
+		}
+		this.Terms.push(...Seen);
 	}
 
 	public constructor(
-		SearchTextOrTerms:string|string[],
-		public readonly ItemTransformer:FuncItemTransformer<T>=(Str => Str?.toString() ?? StatStr.Empty),
-		public readonly UseSafeRich=true,
-		private _Culture:string=Intl.DateTimeFormat().resolvedOptions().locale || 'en-US'
+		SearchTermsStringOrList:string|string[], //Search terms will be run through NormalizeForSearch. Make sure to use the same encoding as the haystack strings
+		public ItemTransformer:(Item:T) => FoldedStrings|null=(MyItem => new FoldedStrings(this.Culture, true, String(MyItem))), //Return null to skip searching the item
+		Culture:string=Intl.DateTimeFormat().resolvedOptions().locale || 'en-US'
 	) {
-		const StartSearchTerms=Array.isArray(SearchTextOrTerms)
-			? SearchTextOrTerms
-			: I18NSearch.RegEx_SplitAroundSpaces[Symbol.split](SearchTextOrTerms);
+		const StartSearchTerms=Array.isArray(SearchTermsStringOrList)
+			? SearchTermsStringOrList
+			: I18NSearch.RegEx_SplitAroundSpaces[Symbol.split](SearchTermsStringOrList);
 
-		this.OriginalTerms=[...StartSearchTerms];
-		this.Terms.push(...I18NSearch.FormatSearchTerms(StartSearchTerms, _Culture));
+		this.OriginalTerms=StartSearchTerms.map(S => S.replaceAll(FoldedStrings.SectionSeparator, StatStr.PrivateChar));
+		this.Culture=Culture;
 	}
 
 	public Execute(SearchItems:Iterable<T>): Iterable<T>
@@ -48,12 +202,9 @@ export default class I18NSearch<T>
 	public SearchItemMatches(Item:T): boolean
 	{
 		//Get the fixed up search term (return early if null)
-		let ItemStr=this.ItemTransformer(Item);
+		const ItemStr=this.ItemTransformer(Item)?.Folded ?? null;
 		if(ItemStr===null)
 			return false;
-		if(this.UseSafeRich)
-			ItemStr=DevStrings.HtmlToText(ItemStr.replaceAll(SeperatorChar, StatStr.PrivateChar).replace(I18NSearch.RegEx_RemoveHTMLTags, SeperatorChar));
-		ItemStr=this.NormalizeForSearch(ItemStr);
 
 		//If any search terms do not match, return false
 		for(const Term of this.Terms)
@@ -64,6 +215,13 @@ export default class I18NSearch<T>
 		return true;
 	}
 
+	/*
+	YOU DO NOT NEED TO CALL THIS FUNCTION. Strings are always normalized internally. This is just provided for utility.
+	Processes to normalize search haystacks and terms:
+	 - Unicode normalized through NFKD
+	 - CombiningMarks removed
+	 - Uppercased (locale dependent)
+	*/
 	public NormalizeForSearch(Str:string) { return I18NSearch.NormalizeForSearch(Str, this.Culture); }
 	public static NormalizeForSearch(Str:string, Culture:string): string
 	{
@@ -78,115 +236,66 @@ export default class I18NSearch<T>
 		return Buf.join('');
 	}
 
-	private static *FormatSearchTerms(SearchTerms:string[], Culture:string): Iterable<string>
-	{
-		const Seen=new Set<string>();
-		for(const Str of SearchTerms) {
-			const Fixed=I18NSearch.NormalizeForSearch(Str, Culture).trim();
-			if(!Fixed || Seen.has(Fixed))
-				continue;
-			Seen.add(Fixed);
-			yield Fixed;
-		}
-	}
-
-	public ReplaceSearchTerms(Haystack:string, ReplaceWith:ReplaceWithFunc)
-	{
-		return I18NSearch.ReplaceSearchTerms(Haystack, this.Terms, ReplaceWith, this.Culture);
-	}
-
 	/*
-	Replaces occurrences of any term in SearchTerms found in Haystack using the same matching semantics as the search:
-	IgnoreCase+IgnoreNonSpace (diacritic-insensitive), returning the caller-provided replacement for each match.
+	Returns positions from the SearchString where search terms are found.
+	If using the result from this function with FoldedStrings.UpdateFromSlices(), SearchString must be the FoldedStrings.Folded.
 	Notes:
 	  - Longest-match wins at the same index.
 	  - Never produces overlapping matches: after a match, scanning continues at matchEnd.
 	*/
-	public static ReplaceSearchTerms(Haystack:string, SearchTerms:readonly string[], ReplaceWith:ReplaceWithFunc, Culture:string, NormalizeSearchTerms=false): string
+	public GetSearchTermPositions(SearchString:string): StringSlicePos[]
 	{
 		//Parameter checks
-		if(Haystack		==null) throw new Error('Haystack is null');
-		if(SearchTerms	==null) throw new Error('SearchTerms is null');
-		if(ReplaceWith	==null) throw new Error('ReplaceWith is null');
-		if(Culture		==null) throw new Error('Culture is null');
-		const TermCount=SearchTerms.length;
-		if(TermCount===0 || Haystack.length===0)
-			return Haystack;
-
-		const FoldedHaystack=I18NSearch.BuildFoldedString(Haystack, Culture);
+		const TermCount=this.Terms.length;
+		if(TermCount===0 || !SearchString)
+			return [];
 
 		//Precompute per-term next match index (cursor). -1 means no further matches
 		const NextIndexes	:number[]=new Array(TermCount);
 		const NextLens		:number[]=new Array(TermCount);
-		const FoldedTerms	:string[]=new Array(TermCount);
-		for(let Index=0; Index<TermCount; Index++) {
-			const FoldedTerm=FoldedTerms[Index]=(NormalizeSearchTerms ? I18NSearch.NormalizeForSearch(SearchTerms[Index], Culture) : SearchTerms[Index]);
+		for(let Index=0; Index<TermCount; Index++)
 			NextIndexes[Index]=
-				  (NextLens[Index]=FoldedTerm.length)===0 ? -1
-				: FoldedHaystack.Folded.indexOf(FoldedTerm, 0);
-		}
+				  (NextLens[Index]=this.Terms[Index].length)===0 ? -1
+				: SearchString.indexOf(this.Terms[Index]);
 
 		//No matches at all
 		if(!NextIndexes.some(I => I>-1))
-			return Haystack;
+			return [];
 
-		//Run the search/replacements
-		const Out:string[]=[];
+		//Run the search
+		const Out:StringSlicePos[]=[];
 		let CurPos=0;
 		while(true) {
 			//Pick earliest next match
 			let BestTerm=-1, BestAt=Number.MAX_SAFE_INTEGER, BestLen=0;
 			for(let TermIndex=0; TermIndex<NextIndexes.length; TermIndex++) {
-				const TermPos=NextIndexes[TermIndex], OTermPos=FoldedHaystack.OrigStarts[TermPos];
-				if(
-					   (TermPos<0 ? Number.MAX_SAFE_INTEGER : OTermPos)<BestAt			//TermPos inclusive between 0 and BestAt-1
-					|| (TermPos>-1 && OTermPos===BestAt && NextLens[TermIndex]>BestLen)	//On tie, prefer the longest term
-				)
-					[BestAt, BestTerm, BestLen]=[OTermPos, TermIndex, NextLens[TermIndex]];
+				const TermPos=NextIndexes[TermIndex];
+				if(!(
+					   (TermPos<0 ? Number.MAX_SAFE_INTEGER : TermPos)<BestAt	//TermPos inclusive between 0 and BestAt-1
+					|| (TermPos===BestAt && NextLens[TermIndex]>BestLen)		//On tie, prefer the longest term
+				))
+					continue;
+				BestAt=TermPos;
+				BestTerm=TermIndex;
+				BestLen=NextLens[TermIndex];
 			}
 
 			//No more matches
-			if(BestTerm<0) {
-				Out.push(Haystack.slice(CurPos));
+			if(BestTerm<0)
 				break;
-			}
 
-			//Add leading text and replacement from user
-			if(BestAt>CurPos)
-				Out.push(Haystack.slice(CurPos, BestAt));
-			const NextFoldedPos=NextIndexes[BestTerm]+BestLen;
-			CurPos=FoldedHaystack.OrigStarts[NextFoldedPos] ?? Haystack.length;
-			Out.push(ReplaceWith(BestAt, Haystack.slice(BestAt, CurPos)) ?? StatStr.Empty);
+			Out.push(new StringSlicePos(BestAt, CurPos=BestAt+BestLen));
 
 			//Break when string exhausted
-			if(CurPos>=Haystack.length)
+			if(CurPos>=SearchString.length)
 				break;
 
 			//Advance cursors
-			for(let TermIndex=0; TermIndex<NextIndexes.length; TermIndex++)
-				if(NextIndexes[TermIndex]>-1 && FoldedHaystack.OrigStarts[NextIndexes[TermIndex]]<CurPos)
-					NextIndexes[TermIndex]=FoldedHaystack.Folded.indexOf(FoldedTerms[TermIndex], NextFoldedPos);
+			for(let TermIndex=0, TermPos=NextIndexes[0]; TermIndex<NextIndexes.length; TermPos=NextIndexes[++TermIndex])
+				if(TermPos>-1 && TermPos<CurPos)
+					NextIndexes[TermIndex]=SearchString.indexOf(this.Terms[TermIndex], CurPos);
 		}
 
-		return Out.join(StatStr.Empty);
-	}
-
-	private static BuildFoldedString(Str:string, Culture:string)
-	{
-		const FoldedBuf=new PreallocatedPusher<string>(Str.length);
-		const OrigStarts=new PreallocatedPusher<number>(Str.length);
-		for(let I=0; I<Str.length;) {
-			const C=Str.codePointAt(I)!>0xFFFF ? Str.slice(I, I+2) : Str[I];
-			const Norm=C.normalize('NFKD');
-			for(const NC of Norm) {
-				if(I18NSearch.RegEx_IsCombiningMark.test(NC))
-					continue;
-				FoldedBuf.push(NC.toLocaleUpperCase(Culture));
-				OrigStarts.push(I);
-			}
-			I+=C.length;
-		}
-
-		return new FoldedString(FoldedBuf.finalize.join(''), OrigStarts.finalize);
+		return Out;
 	}
 }

@@ -1,6 +1,6 @@
 import $ from 'jquery';
-import { DevStrings, Iter, StatStr } from './Util/SharedClasses';
-import I18NSearch from './Util/I18NSearch';
+import { Iter, StatStr, WillBeSet } from './Util/SharedClasses';
+import I18NSearch, { FoldedStrings } from './Util/I18NSearch';
 import { Window } from './Util/WindowManager';
 import { Share } from './Share';
 import { type Item } from './CategoriesAndItems';
@@ -39,27 +39,41 @@ export default class SearchWindow extends Window
 	}
 
 	//Split the search text into terms and find any item that has all search terms
+	private FoldedStrings=new Map<Item, FoldedStrings>();
 	public RunSearch()
 	{
 		//Search item string transformer
 		const YieldedMatchedIds=new Set<number>(), MatchingIDs=new Set<number>();
 		const Cats=Share.DS.Categories;
 
-		const SearchTransformer=(I:Item):string|null => {
+		let MyCulture:string=WillBeSet;
+		const SearchTransformer=(I:Item):FoldedStrings|null => {
+			//Store the folded string for the current language for future searches
+			let ItemFS=this.FoldedStrings.get(I);
+			if(!ItemFS)
+				this.FoldedStrings.set(I, ItemFS=new FoldedStrings(
+					MyCulture, true,
+					String(I.ID), new LinkedLabel(I.Description).Init().html(),
+					FoldedStrings.EncodeHTMLSimple(I.Title),
+					FoldedStrings.EncodeHTMLSimple(Cats.get(I.CategoryID)!.Title),
+				));
+
+			//Matching IDs processed first. Make sure they aren’t processed again after that
 			if(MatchingIDs.has(I.ID))
 				if(YieldedMatchedIds.has(I.ID))
 					return null;
 				else
 					YieldedMatchedIds.add(I.ID);
-			return [
-				String(I.ID), I.Description,
-				DevStrings.SafeRich(I.Title),
-				DevStrings.SafeRich(Cats.get(I.CategoryID)!.Title),
-			].join('\u0088');
+
+			return ItemFS;
 		};
 
+		//Create the search and exit if no search terms detected
+		const DoSearch=new I18NSearch<Item>(FoldedStrings.EncodeHTMLSimple(this.SearchText), SearchTransformer);
+		if(!DoSearch.SearchTerms.length)
+			return void([this._HadOverflow, this._SearchedItems]=[false, []]);
+
 		//Get a list of items with exact ID matches
-		const DoSearch=new I18NSearch<Item>(this.SearchText, SearchTransformer);
 		for(const Str of DoSearch.OriginalTerms) {
 			const ID=Number.parseInt(Str, 10);
 			if(!Number.isNaN(ID) && Share.DS.Items.has(ID))
@@ -67,6 +81,7 @@ export default class SearchWindow extends Window
 		}
 
 		//Run the search
+		MyCulture=DoSearch.Culture;
 		const NewItems=[...new Iter(DoSearch.Execute(
 			new Iter(MatchingIDs.values())
 				.map(ItemID => Share.DS.Items.get(ItemID)!)
@@ -78,40 +93,23 @@ export default class SearchWindow extends Window
 		if((this._HadOverflow=(NewItems.length>this.MaxSearchResults)))
 			NewItems.pop();
 
-		//Transform the items into rich strings and store with their IDs
-		this._SearchedItems=NewItems.map(I => new SearchedItem(I.ID, [
-			 	SearchWindow.MakeItemInfoLine(			"Title",		DevStrings.SafeRich(I.Title)+` <size=-4>[${I.ID}]</size>`,	DoSearch),
-				SearchWindow.MakeItemInfoLine(			"Category",		DevStrings.SafeRich(Cats.get(I.CategoryID)!.Title),			DoSearch),
-			I.Description===StatStr.Empty ? null :
-				SearchWindow.MakeItemInfoLine(			"Description",	I.Description,												DoSearch),
-		].filter(S => S).join(StatStr.NewLine)));
-	}
+		//Create a string with sized down title and Info with highlighted search terms
+		const MakeItemInfoLine=(Title:string, Info:string):string|null =>
+			!Info ? null : `<span class='FontSize FN2'>${Share.Tr.T(Title, 'ItemFields', true)}</span>: `+Info;
 
-	//Create a string with sized down title and Info with highlighted search terms
-	private static MakeItemInfoLine(Title:string, Info:string, DoSearch:I18NSearch<Item>):string|null
-	{
-		if(!Info)
-			return null;
+		//Store search results with Item ID and text with search terms highlighted
+		this._SearchedItems=NewItems.map(I => {
+			const ItemFS=this.FoldedStrings.get(I)!;
+			const ColorTag='<span class=SearchHighlight>', ColorEndTag='</span>';
+			const ItemStrs=ItemFS.UpdateFromSlices(DoSearch.GetSearchTermPositions(ItemFS.Folded), FindValue => ColorTag+FindValue+ColorEndTag);
 
-		const TagEnum=Info.matchAll(I18NSearch.RegEx_RemoveHTMLTags);
-		let CurTag=TagEnum.next();
-		function InTag(Pos:number)
-		{
-			while(!CurTag.done) {
-				if(Pos<CurTag.value.index)
-					return false;
-				if(Pos<CurTag.value.index+CurTag.value[0].length)
-					return true;
-				CurTag=TagEnum.next();
-			}
-			return false;
-		}
-
-		const ColorTag=`<b><color=SEARCH_HIGHLIGHT>`, ColorEndTag='</color></b>';
-		return `<size=-2>${Share.Tr.T(Title, 'ItemFields', true)}</size>: `+DoSearch.ReplaceSearchTerms(
-			Info,
-			(FindIndex, FindValue) => InTag(FindIndex) ? FindValue : ColorTag+FindValue+ColorEndTag
-		);
+			return new SearchedItem(I.ID, [
+				 	MakeItemInfoLine(		"Title",		`${ItemStrs[2]} <span class='FontSize FN4'>[${ItemStrs[0]}]</span>`),
+					MakeItemInfoLine(		"Category",		ItemStrs[3]),
+				I.Description===StatStr.Empty ? null :
+					MakeItemInfoLine(		"Description",	ItemStrs[1]),
+			].filter(S => S).join(StatStr.NewLine))
+		});
 	}
 
 	public RefreshSearch()
@@ -120,7 +118,7 @@ export default class SearchWindow extends Window
 		this.$SearchResults.removeClass('DoClip');
 		for(const SI of this.SearchedItems) {
 			const El=$('<div>')
-				.html(new LinkedLabel(SI.RichText).Init().html().replace(/<span style="color:SEARCH_HIGHLIGHT">/g, '<span class=SearchHighlight>'))
+				.html(SI.RichText)
 				.on('click', () => Share.MC.SelectAndCenterItem(SI.ID));
 
 			El.add('<div class=Separator>').appendTo(this.$SearchResults);
@@ -137,6 +135,7 @@ export default class SearchWindow extends Window
 		Share.Tr.OnLanguageLoadedOnce(() => {
 			this.Title=Share.Tr.TDef("SearchWindow.Title", undefined, "Search");
 			this.$SearchBox.attr('placeholder', Share.Tr.T('Type in here to search'));
+			this.FoldedStrings.clear();
 			this.RunSearch();
 			this.RefreshSearch();
 		});
