@@ -7,6 +7,7 @@ import { type Item } from './CategoriesAndItems';
 import LinkedLabel from './LinkedLabel';
 
 class SearchedItem { constructor(public readonly ID:number, public readonly RichText:string) { } }
+type SearchFields='ID'|'Description'|'Title'|'Category';
 
 export default class SearchWindow extends Window
 {
@@ -39,7 +40,7 @@ export default class SearchWindow extends Window
 	}
 
 	//Split the search text into terms and find any item that has all search terms
-	private FoldedStrings=new Map<Item, FoldedStrings>();
+	private FoldedStrings=new Map<Item, FoldedStrings<Record<SearchFields, string>>>();
 	public RunSearch()
 	{
 		//Search item string transformer
@@ -47,15 +48,17 @@ export default class SearchWindow extends Window
 		const Cats=Share.DS.Categories;
 
 		let MyCulture:string=WillBeSet;
-		const SearchTransformer=(I:Item):FoldedStrings|null => {
+		const SearchTransformer=(I:Item):FoldedStrings<Record<SearchFields, string>>|null => {
 			//Store the folded string for the current language for future searches
 			let ItemFS=this.FoldedStrings.get(I);
 			if(!ItemFS)
 				this.FoldedStrings.set(I, ItemFS=new FoldedStrings(
-					MyCulture, true,
-					String(I.ID), new LinkedLabel(I.Description).Init().html(),
-					FoldedStrings.EncodeHTMLSimple(I.Title),
-					FoldedStrings.EncodeHTMLSimple(Cats.get(I.CategoryID)!.Title),
+					MyCulture, true, {
+						ID:String(I.ID),
+						Description:new LinkedLabel(I.Description).Init().html(),
+						Title:FoldedStrings.EncodeHTMLSimple(I.Title),
+						Category:FoldedStrings.EncodeHTMLSimple(Cats.get(I.CategoryID)!.Title),
+					},
 				));
 
 			//Matching IDs processed first. Make sure they aren’t processed again after that
@@ -104,10 +107,10 @@ export default class SearchWindow extends Window
 			const ItemStrs=ItemFS.UpdateFromSlices(DoSearch.GetSearchTermPositions(ItemFS.Folded), FindValue => ColorTag+FindValue+ColorEndTag);
 
 			return new SearchedItem(I.ID, [
-				 	MakeItemInfoLine(		"Title",		`${ItemStrs[2]} <span class='FontSize FN4'>[${ItemStrs[0]}]</span>`),
-					MakeItemInfoLine(		"Category",		ItemStrs[3]),
+				 	MakeItemInfoLine(		"Title",		`${ItemStrs.Title} <span class='FontSize FN4'>[${ItemStrs.ID}]</span>`),
+					MakeItemInfoLine(		"Category",		ItemStrs.Category),
 				I.Description===StatStr.Empty ? null :
-					MakeItemInfoLine(		"Description",	ItemStrs[1]),
+					MakeItemInfoLine(		"Description",	ItemStrs.Description),
 			].filter(S => S).join(StatStr.NewLine))
 		});
 	}

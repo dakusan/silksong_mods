@@ -7,6 +7,8 @@ export class StringSlicePos
 		public readonly End:number,
 	) { }
 }
+type StartHSTypes=string|unknown[]|Record<string, unknown>;
+type RetTypes<T extends StartHSTypes>=T extends string ? string : T extends unknown[] ? string[] : Record<string, string>;
 
 /*Creates a normalized mapping of the given haystack strings for searching.
 String normalization process:
@@ -14,22 +16,33 @@ String normalization process:
  - Optionally has HTML tags removed
 	- If you use this, it is highly recommended both your search needles and haystacks match the encodings from EncodeHTMLSimple for non-html tags
 */
-export class FoldedStrings
+export class FoldedStrings<StartHSType extends StartHSTypes>
 {
 	public		readonly Haystacks		:readonly string[];
 	//JoinedHaystacks=Haystacks.join(FoldedStrings.SectionSeparator)
 	protected	readonly HaystacksPos	:readonly StringSlicePos[]; //Where the haystacks are in JoinedHaystacks
 	public		readonly FoldedMap		:Readonly<Uint8Array|Uint16Array|Uint32Array>; //Map Folded position back onto JoinedHaystacks positions
 	public		readonly Folded			:string; //JoinedHaystacks after normalization
+	private /*readonly*/ ObjNames		:StartHSType extends string ? undefined : StartHSType extends unknown[] ? number : string[]=WillBeSet;
 
 	private static GetCPoint(Str:string, PointInStr:number) { return Str.codePointAt(PointInStr)!>0xFFFF ? Str.slice(PointInStr, PointInStr+2) : Str[PointInStr]; }
 	public static readonly SectionSeparator='\u0087'; //If found in search string, this character will be replaced with StatStr.PrivateChar
 
 	constructor(
 		Culture:string,
-		RemoveHTML:boolean,		//If true, anything in between < and > inclusively is removed for searching and considered word boundaries. However, HTML tags are maintained in returns from UpdateFromSlices()
-		...Haystacks:string[]	//Strings to search through
+		RemoveHTML:boolean,				//If true, anything in between < and > inclusively is removed for searching and considered word boundaries. However, HTML tags are maintained in returns from UpdateFromSlices()
+		HaystackStrOrObj:StartHSType	//String(s) to search through. If an object, all Object.entries are turned into strings for searching
 	) {
+		//Generate Haystacks:string[] (and this.ObjNames) from HaystackStrOrObj
+			 if(typeof(HaystackStrOrObj)!=='object')(this as FoldedStrings<string					>).ObjNames=undefined;
+		else if(Array.isArray(HaystackStrOrObj))	(this as FoldedStrings<unknown[]				>).ObjNames=-1;
+		else										(this as FoldedStrings<Record<string, unknown>	>).ObjNames=Object.keys(HaystackStrOrObj ?? {});
+		const Haystacks=
+			   typeof(HaystackStrOrObj)!=='object'	? [String(HaystackStrOrObj)]
+			: (Array.isArray(HaystackStrOrObj)		? HaystackStrOrObj.map(String)
+			: (this as FoldedStrings<Record<string, unknown>>).ObjNames.map(Key => String(HaystackStrOrObj[Key]))
+			);
+
 		//Get Haystacks Starts and Ends
 		const HaystacksPos=new Array<StringSlicePos>(Haystacks.length);
 		for(let i=0, Pos=0; i<Haystacks.length; i++, Pos+=FoldedStrings.SectionSeparator.length)
@@ -94,12 +107,20 @@ export class FoldedStrings
 		}
 	}
 
-	//Returns the original haystacks with search terms (via StringSlicePos) replaced from the ReplaceCB callback
+	//Returns the original haystacks (in their original shape) with search terms (via StringSlicePos) replaced from the ReplaceCB callback
 	//Note: You should generally only be using StringSlicePos generated through I18NSearch.GetSearchTermPositions() for this specific FoldedStrings.Folded
-	public UpdateFromSlices(Slices:StringSlicePos[], ReplaceCB:(this:FoldedStrings, Term:string, SP:StringSlicePos) => string)
+	public UpdateFromSlices(Slices:StringSlicePos[], ReplaceCB:(this:FoldedStrings<StartHSType>, Term:string, SP:StringSlicePos) => string): RetTypes<StartHSType>
 	{
+		function VerifyType<VT extends string|string[]|Record<string, string>>(_Me:FoldedStrings<VT>, Var:VT): VT { return Var; }
+		const FormatReturn=(Result:string[], MakeCopy=false) =>
+			(
+				    typeof(this.ObjNames)==='number' ?	VerifyType(this as FoldedStrings<string[]				>, MakeCopy ? [...Result] : Result)
+				: ( this.ObjNames!==undefined ?			VerifyType(this as FoldedStrings<Record<string, string>	>, Object.fromEntries(this.ObjNames.map((Key, Index) => [Key, Result[Index]])))
+				:										VerifyType(this as FoldedStrings<string					>, Result[0])
+			)) as RetTypes<StartHSType>; //Had to force the type here. No other way to do it
+
 		if(Slices.length===0)
-			return [...this.Haystacks];
+			return FormatReturn(this.Haystacks as string[], typeof(this.ObjNames)==='number'); //Make a copy if returning the array directly
 		if(Slices[0].Start<0)
 			throw new Error("First slice must start at >=0");
 
@@ -139,7 +160,7 @@ export class FoldedStrings
 		this.AppendOrigSlice(HaystackResults, CurrentHaystackParts, JoinedHaystacks, LastOrigEnd, JoinedHaystacks.length, LastHaystackIndex, this.Haystacks.length-1);
 		HaystackResults[this.Haystacks.length-1]=CurrentHaystackParts.finalize.join(StatStr.Empty);
 
-		return HaystackResults;
+		return FormatReturn(HaystackResults);
 	}
 
 	//HTML encodes 3 characters: & < >
@@ -183,7 +204,7 @@ export default class I18NSearch<T>
 
 	public constructor(
 		SearchTermsStringOrList:string|string[], //Search terms will be run through NormalizeForSearch. Make sure to use the same encoding as the haystack strings
-		public ItemTransformer:(Item:T) => FoldedStrings|null=(MyItem => new FoldedStrings(this.Culture, true, String(MyItem))), //Return null to skip searching the item
+		public ItemTransformer:(Item:T) => FoldedStrings<StartHSTypes>|null=(MyItem => new FoldedStrings(this.Culture, true, String(MyItem))), //Return null to skip searching the item
 		Culture:string=Intl.DateTimeFormat().resolvedOptions().locale || 'en-US'
 	) {
 		const StartSearchTerms=Array.isArray(SearchTermsStringOrList)
