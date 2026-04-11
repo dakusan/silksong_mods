@@ -152,6 +152,16 @@ export namespace Util
 			:	n>max ? max
 			:			n;
 	}
+
+	export function IsMobileWidth()
+	{
+		let MobileWidth=Number.parseInt(getComputedStyle(document.documentElement).getPropertyValue('--mobile-width'));
+		if(!Number.isFinite(MobileWidth))
+			MobileWidth=599;
+		return window.outerWidth<=MobileWidth;
+	}
+
+	export function IsMobile() { return matchMedia('(pointer:coarse)').matches; }
 }
 
 class LogLine

@@ -10,6 +10,17 @@
 	.ConfigElCol>div>* { flex:1 1 auto; min-width:0; }
 	input, select, .ConfigElCol button { box-sizing:border-box; }
 	.Color.Picker, .Number.Text { width:56px; flex:0 0 auto; }
+	.SliderContainer {
+		display:flex; flex-wrap:wrap; container-type:inline-size;
+		>input { flex:1 1 0; min-width:0; }
+
+		/* If >=3 inputs then force them to wrap onto a second line */
+		@container(max-width:184px) {
+			&:has(>input:nth-child(3)) >input {
+				flex:0 0 calc(50% - 2px * 2); /* Margin=2px per side */
+			}
+		}
+	}
 
 	/* Section titles */
 	.SectionTitle { grid-column:1 / -1; border:0 solid var(--line-separator, white); border-bottom-width:2px; padding-top:20px; font-size:25px; }

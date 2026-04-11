@@ -1,5 +1,5 @@
 @use '../Assets/Themes/_Shared' as *;
-canvas { width:100%; height:100%; touch-action:none; overscroll-behavior:none; } //Stops pinch-zoom/pan from being handled by the page
+canvas { display:block; width:100%; height:100%; touch-action:none; overscroll-behavior:none; } //Stops pinch-zoom/pan from being handled by the page
 
 option { background:var(--tooltip-bg, rgba(64, 64, 64, 0.8)); color:var(--text-color, #eee); }
 .AddInputStyles, .ConfigTable { input, select, button { @include win-button; } }
@@ -203,4 +203,8 @@ body #MainMenu { display:block; }
 	&.FP3 { font-size:130%;		}
 	&.FP4 { font-size:140%;		}
 	&.FP5 { font-size:150%;		}
+}
+
+@media(max-width:#{$MobileWidth}px) {
+	#MainMenu { z-index:1500; }
 }

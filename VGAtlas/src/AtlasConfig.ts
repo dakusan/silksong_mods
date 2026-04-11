@@ -13,6 +13,8 @@ class LocalConfig extends Config {
 	public readonly Color_FoundIcon			=new ConfigItem_Color		("Markers", "Found icon color*",					new ColorRGBA(0.5, 0, 0.5, 0.75), false, true, true, {Description:"When in “All” mode for a category, found icons are tinted this color.\nRGB is actually HSV [Hue Saturation Lightness], unless the shader fails to load, in which case, it really is RGB.", IsAdvanced:true});
 	public readonly AutoPanEase				=new ConfigItem_Number		("Markers", "Autopan ease",							2.5, 1, 5, 1, {Description:"The autopan ease formula multiplier. This is used when the map is animated panning to an icon.", IsAdvanced:true});
 	public readonly AutoPanTime				=new ConfigItem_Number		("Markers", "Autopan time",							1.75, 0.1, 3, 2, {Description:"The time it takes the autopan to move between points. This is used when the map is animated panning to an icon.", IsAdvanced:true});
+	public readonly Shortcut_SelStack_Next	=new ConfigItem_ShortcutKey	("Markers", "Next item in selection stack",			new ShortcutKey('KeyN', 'n'));
+	public readonly Shortcut_SelStack_Prev	=new ConfigItem_ShortcutKey	("Markers", "Previous item in selection stack",		new ShortcutKey('KeyP', 'p'));
 
 	public readonly ZoomSpeed				=new ConfigItem_Number		("Map Controls", "Zoom Speed",								1.03, 1.01, 1.5, 2);
 	public readonly PanSpeed				=new ConfigItem_Number		("Map Controls", "Pan Speed",								12*PanSpeedMultiplier, Math.max(1)*PanSpeedMultiplier, 40*PanSpeedMultiplier, 0);

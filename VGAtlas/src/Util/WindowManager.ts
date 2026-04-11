@@ -148,7 +148,12 @@ export class Window
 		//Initialize parts
 		Util.AssignProps(this, Init);
 		this.UpdateBounds(
-			(WM as WindowManager_Friend).GetSavedPos(this.SaveID),
+			Util.IsMobileWidth()
+				? new Rect(
+					0, 0,
+					window.visualViewport?.width	?? document.documentElement.clientWidth,
+					window.visualViewport?.height	?? document.documentElement.clientHeight,
+				) : (WM as WindowManager_Friend).GetSavedPos(this.SaveID),
 			false, true
 		);
 		this.SetCanClose (this.CanClose	);

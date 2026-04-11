@@ -50,10 +50,27 @@ export default class MapControl
 	}
 
 	//Handle state change for choosing icons
+	private CurrentHistoryIndex=0;
+	private MaxHistoryIndex=0;
 	private InitURLHashes()
 	{
+		history.replaceState({Index:0}, StatStr.Empty, location.pathname+location.search+location.hash);
 		this.HashUpdate(true);
 		window.addEventListener('hashchange', () => this.HashUpdate(false));
+		window.addEventListener('popstate', e => {
+			const State=e.state as {Index:number} ?? null;
+			if(State)
+				this.CurrentHistoryIndex=State.Index;
+		});
+		const ExecStackMove=(MoveAllowed:boolean, MoveFunc:() => void) =>
+		{
+			const IsSuccess=!Share.WM.ControlsKeyboard && MoveAllowed;
+			if(IsSuccess)
+				MoveFunc();
+			return IsSuccess;
+		};
+		Share.LC.Shortcut_SelStack_Prev.OnKeypress.Add('Shortcut_SelStack_Prev', () => ExecStackMove(this.CurrentHistoryIndex>0,					() => history.back()	));
+		Share.LC.Shortcut_SelStack_Next.OnKeypress.Add('Shortcut_SelStack_Next', () => ExecStackMove(this.CurrentHistoryIndex<this.MaxHistoryIndex,	() => history.forward()	));
 	}
 	private HashUpdate(IsInitial:boolean)
 	{
@@ -108,7 +125,7 @@ export default class MapControl
 	//Set the hovered item
 	private SetHoverItem(ClosestItem?:Item)
 	{
-		if(ClosestItem===this.HoverItem)
+		if(ClosestItem===this.HoverItem || Util.IsMobile())
 			return;
 
 		//Deselect the previous hover item and select the new one
@@ -133,17 +150,15 @@ export default class MapControl
 	]);
 	public OnFrame()
 	{
-		if(Share.WM.ControlsKeyboard)
+		if(Share.WM.ControlsKeyboard || Util.IsMobile())
 			return;
 
 		//Handle zooming
-		if(Share.WM.Active===null || Share.WM.Active instanceof ItemWindow) {
-			const ZoomAmount=
-				 (Share.LC.Shortcut_ZoomIn .IsActive() ?  1 : 0)
-				+(Share.LC.Shortcut_ZoomOut.IsActive() ? -1 : 0);
-			if(ZoomAmount!==0)
-				this.Zoom(ZoomAmount);
-		}
+		const ZoomAmount=
+			 (Share.LC.Shortcut_ZoomIn .IsActive() ?  1 : 0)
+			+(Share.LC.Shortcut_ZoomOut.IsActive() ? -1 : 0);
+		if(ZoomAmount!==0)
+			this.Zoom(ZoomAmount);
 
 		//Panning
 		if(!KeyState.GetKeyDown('AltLeft') && !KeyState.GetKeyDown('AltRight'))
@@ -207,7 +222,7 @@ export default class MapControl
 			const IsReplace=!this.CurrentItemWindow;
 			Log.Debug(`Stack ${IsReplace ? 'Replace' : 'Add'}: ${NewSelectItem ? '#'+NewSelectItem.ID : 'Empty'}`);
 			history[IsReplace ? 'replaceState' : 'pushState'](
-				null, StatStr.Empty,
+				{Index:IsReplace ? this.CurrentHistoryIndex : this.MaxHistoryIndex=++this.CurrentHistoryIndex}, StatStr.Empty,
 				location.pathname+location.search+(NewSelectItem ? '#'+NewSelectItem.ID : StatStr.Empty)
 			);
 		}
@@ -251,6 +266,8 @@ export default class MapControl
 	//Handle mouse events
 	protected OnMouseMove(Pos:Vector2)
 	{
+		if(Util.IsMobile())
+			return;
 		this.SetHoverItem(this.FindClosestItem(Pos));
 		const RealPos=Pos.Add(this.GameMap.CanvasPos);
 		this.ItemTooltip.css({
@@ -260,8 +277,10 @@ export default class MapControl
 	}
 	protected OnClick(Pos:Vector2)
 	{
-		this.SetHoverItem(this.FindClosestItem(Pos));
-		this.SelectItemI(this.HoverItem);
+		const ClosestItem=this.FindClosestItem(Pos);
+		if(!Util.IsMobile())
+			this.SetHoverItem(ClosestItem);
+		this.SelectItemI(ClosestItem);
 	}
 
 	//Toggle showing if icons have been found yet

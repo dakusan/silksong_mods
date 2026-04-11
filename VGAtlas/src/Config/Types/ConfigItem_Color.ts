@@ -10,6 +10,7 @@ const CCMax=255;
 export default class ConfigItem_Color extends ConfigItem<ColorRGBA>
 {
 	protected readonly $Picker?:JQuery;
+	protected readonly $SlidersContainer?:JQuery;
 	protected readonly Sliders:Partial<Record<ColorChannel, JQuery>> ={};
 
 	constructor(
@@ -28,6 +29,8 @@ export default class ConfigItem_Color extends ConfigItem<ColorRGBA>
 					const C=this.Default.ConfigDeserialize(String(this.$Picker!.val()).substring(1));
 					this.UpdateSaveValue({r:C.r, g:C.g, b:C.b});
 				});
+		if(this.ShowColorSliders || this.ShowAlpha)
+			this.$SlidersContainer=$('<div class=SliderContainer>').appendTo(this.$DOMHolder);
 		if(this.ShowColorSliders)
 			for(const CC of RGBList)
 				this.CreateSlider(CC);
@@ -38,7 +41,7 @@ export default class ConfigItem_Color extends ConfigItem<ColorRGBA>
 	{
 		const Me=this.Sliders[CC]=
 			$(`<input type=range min=0 max=${CCMax} step=1 value=${CCMax} class='Color ${CC}'>`)
-				.appendTo(this.$DOMHolder)
+				.appendTo(this.$SlidersContainer!)
 				.on('input', () => this.UpdateSaveValue({[CC]:Util.Clamp(Number(Me.val()), 0, CCMax)/CCMax}));
 	}
 	private UpdateSaveValue(NewVals:Partial<Record<ColorChannel, number>>)

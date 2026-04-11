@@ -5,3 +5,6 @@
 	&:active:not(.Disabled) { background:var(--window-titlebar-button-bg-active, rgba(255, 255, 255, 0.14)); }
 	&.Disabled { opacity:0.45; cursor:not-allowed; }
 }
+
+$MobileWidth:525;
+:root { --mobile-width:#{$MobileWidth}; }
