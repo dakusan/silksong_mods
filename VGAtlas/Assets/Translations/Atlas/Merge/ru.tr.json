@@ -2,6 +2,7 @@
 {
 	"":{
 		"Logs": "Журналы",
+		"OneTimeMessage": "Добро пожаловать в <a href='https://silksong.castledragmire.com/' style='color:cyan; text-decoration:none'>Pharloom Atlas</a>.<br>Эта веб-версия примерно на 95% соответствует внутриигровой версии по функциональности и всё ещё находится в разработке.",
 	},
 	"SettingNames":{
 		"Theme": "Тема",

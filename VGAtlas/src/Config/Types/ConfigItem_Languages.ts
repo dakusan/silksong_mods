@@ -7,7 +7,7 @@ export default class ConfigItem_Languages extends ConfigItem_Enum
 	protected Tr:Translations=WillBeSet;
 	constructor(Section:string, Tr?:Translations) //If this.Tr is not set here, call SetTranslations when it is available
 	{
-		super(Section, Translations.LanguageAsStr, DefaultTr.ctor.DefaultLang, {}, {Description:'-'});
+		super(Section, Translations.LanguageAsStr, '*UNSET*', {}, {Description:'-'});
 		this.$SelectBox.addClass('Language');
 		(this.Tr=Tr!)?.LanguageListLoaded.finally(() => this.FinishLoad());
 	}
@@ -22,6 +22,13 @@ export default class ConfigItem_Languages extends ConfigItem_Enum
 		//Add the rest of the languages
 		for(const [LangKey, LangInfo] of Object.entries(this.Tr.LanguagesList))
 			this.Add(LangKey, LangInfo.Native);
+
+		//If the language is not yet set, or is invalid, get it from the browser, or use the default
+		const OverrideLang=() => (navigator.languages?.[0] || navigator.language)?.slice(0, 2).toLowerCase() ?? StatStr.Empty; //TODO: May need to update this depending on languages that require 3 letters
+		if(!this.Tr.LanguagesList.hasOwnProperty(this.V))
+			this.V=
+				this.Tr.LanguagesList.hasOwnProperty(OverrideLang()) ? OverrideLang()
+				: DefaultTr.ctor.DefaultLang;
 
 		this.Tr.OnLanguageChanged.Add(StatStr.NeedsTranslate+`Config languages: ${this.Tr.ModuleName}.${this.Section}.${this.Key}`, NewLang => this.V=NewLang);
 		this.$SelectBox.val(this.Tr.Language=this.V);

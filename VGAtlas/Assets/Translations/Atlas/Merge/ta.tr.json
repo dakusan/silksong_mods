@@ -2,6 +2,7 @@
 {
 	"":{
 		"Logs": "பதிவுகள்",
+		"OneTimeMessage": "<a href='https://silksong.castledragmire.com/' style='color:cyan; text-decoration:none'>Pharloom Atlas</a> இற்கு வரவேற்கிறோம்.<br>இந்த வலைப் பதிப்பு, விளையாட்டு உள்ள பதிப்புடன் ஒப்பிடும்போது சுமார் 95% அம்சங்கள் முழுமையாக உள்ளது, மேலும் இன்னும் வளர்ச்சியில் உள்ளது.",
 	},
 	"SettingNames":{
 		"Theme": "தீம்",

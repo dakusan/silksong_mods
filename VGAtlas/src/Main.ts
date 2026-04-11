@@ -22,9 +22,6 @@ abstract class DataStorage_Friend extends DataStorage implements FriendClass
 	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
 }
 
-const CurPopupMessage="Welcome to the <a href='https://silksong.castledragmire.com/' style='color:cyan; text-decoration:none'>Pharloom Atlas</a>.<br>This web port is about 70% feature complete against the in-game version, and is still being worked on.<br><div style='font-size:15px'>Mobile version is a bit buggy at the moment.</div><br>To navigate your item selection history, use your browsers forward and back button feature.";
-const CurPopupMessageVersion=1;
-
 //Set up translations
 Translations.DefaultDOMModule='Atlas';
 DefaultTr.HasFallbacks=false;
@@ -33,17 +30,12 @@ Share.LC.Language.SetTranslations(Share.Tr);
 
 //Independent libraries that can or have loaded early
 Share.WM=WM;
+try { SetupOneTimeMessage(); } catch { }
 
 async function Main()
 {
 	let MCanvas:MapCanvas=WillBeSet;
 	try {
-		//1-time popup message (until version number changes)
-		if(Number(localStorage.getItem('LastPopupMessageSeen') ?? 0)!==CurPopupMessageVersion) {
-			localStorage.setItem('LastPopupMessageSeen', String(CurPopupMessageVersion));
-			new PopupMessage(CurPopupMessage, true);
-		}
-
 		//Primary map and icon functionality
 		MCanvas=Share.MCanvas=new MapCanvas(87.7487, -87.5855, 2090, 1569);
 		Share.MSV=new MonitorSaveValues();
@@ -76,6 +68,41 @@ async function Main()
 		else
 			$('#map').empty().append($('<div>').text(Message));
 	}
+}
+
+function SetupOneTimeMessage()
+{
+	//If very first load, show popup message immediately with temporary message
+	let PM:PopupMessage;
+	if(!localStorage.getItem('LastPopupMessageSeen'))
+		PM=new PopupMessage('LOADING MESSAGE');
+
+	//If the popup message has changed, then show it
+	function HashString(Str:string)
+	{
+		let Hash=0;
+		for(let i=0; i<Str.length; i++)
+			Hash=(Hash*31+Str.charCodeAt(i))|0;
+		return Hash.toString(16);
+	}
+	function ShowNewMessage()
+	{
+		const NewMessage=Share.Tr.TDef('OneTimeMessage', undefined, 'Failed to load one time message');
+		const Hash=HashString(NewMessage);
+		if(Hash===localStorage.getItem('LastPopupMessageSeen'))
+			return;
+		localStorage.setItem('LastPopupMessageSeen', Hash);
+		if(PM)
+			PM.HTML=NewMessage;
+		else
+			new PopupMessage(NewMessage, true);
+	}
+
+	//Wait for the current language to load to see if the popup message has changed
+	Share.Tr.LanguageListLoaded.finally(() => setTimeout(
+		() => Share.Tr.OnLanguageLoadedOnce(ShowNewMessage),
+		10 //Delay until after Share.Tr.LanguageListLoaded has fired the ConfigItem_Languages load
+	));
 }
 
 class SingleInstanceWindow<TWin extends Window>

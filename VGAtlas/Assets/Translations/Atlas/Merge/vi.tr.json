@@ -2,6 +2,7 @@
 {
 	"":{
 		"Logs": "Nhật ký",
+		"OneTimeMessage": "Chào mừng bạn đến với <a href='https://silksong.castledragmire.com/' style='color:cyan; text-decoration:none'>Pharloom Atlas</a>.<br>Phiên bản web này đạt khoảng 95% tính năng so với phiên bản trong game và vẫn đang được phát triển.",
 	},
 	"SettingNames":{
 		"Theme": "Chủ đề",

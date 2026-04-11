@@ -2,6 +2,7 @@
 {
 	"":{
 		"Logs": "로그",
+		"OneTimeMessage": "<a href='https://silksong.castledragmire.com/' style='color:cyan; text-decoration:none'>Pharloom Atlas</a>에 오신 것을 환영합니다.<br>이 웹 버전은 게임 내 버전 대비 약 95% 기능이 완성되었으며, 아직 개발 중입니다.",
 	},
 	"SettingNames":{
 		"Theme": "테마",

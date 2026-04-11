@@ -2,6 +2,7 @@
 {
 	"":{
 		"Logs": "Registros",
+		"OneTimeMessage": "Bienvenido a <a href='https://silksong.castledragmire.com/' style='color:cyan; text-decoration:none'>Pharloom Atlas</a>.<br>Esta versión web está completa en aproximadamente un 95 % respecto a la versión del juego, y aún está en desarrollo.",
 	},
 	"SettingNames":{
 		"Theme": "Tema",

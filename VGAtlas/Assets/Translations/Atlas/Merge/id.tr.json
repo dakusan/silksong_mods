@@ -2,6 +2,7 @@
 {
 	"":{
 		"Logs": "Log",
+		"OneTimeMessage": "Selamat datang di <a href='https://silksong.castledragmire.com/' style='color:cyan; text-decoration:none'>Pharloom Atlas</a>.<br>Port web ini sekitar 95% lengkap fiturnya dibandingkan versi dalam game, dan masih dalam pengembangan.",
 	},
 	"SettingNames":{
 		"Theme": "Tema",
