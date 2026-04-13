@@ -153,6 +153,18 @@ export default class Translations
 		this.FormatParameters[Section===undefined || Section===Translations.ROOT ? Key : `${Section}/${Key}`]=List;
 	}
 
+	public TranslatePassthrough(PT:TranslatePassthrough)
+	{
+		return this.TranslateDef(PT.Key, PT.Section, PT.Default ?? PT.Key, PT.SafeRich, ...PT.FormatList);
+	}
+
+	//Translates a TranslatePassthrough.AsError(), or otherwise uses Util.GetErrorMessage
+	public TranslatePassthroughError(Err:Error|unknown)
+	{
+		const PT=(Err as Error)?.cause;
+		return PT instanceof TranslatePassthrough ? this.TranslatePassthrough(PT) : Util.GetErrorMessage(Err);
+	}
+
 	//Translate the string with the default values
 	public GetDefault(Key:string, Section?:string): string
 	{
@@ -194,6 +206,24 @@ export default class Translations
 	public CreateTranslationElement(Element:HTMLElement, Key:string, Section?:string, DefaultTextOverride?:string, AllowHTML=false, OverrideModule?:string)
 	{
 		return Translations.CreateTranslationElement(Element, Key, Section, DefaultTextOverride, AllowHTML, OverrideModule ?? this.ModuleName);
+	}
+}
+
+//Create a passthrough object that can be translated later
+export class TranslatePassthrough
+{
+	public readonly FormatList:Util.Primitive[];
+	constructor(
+		public readonly Key:string,
+		public readonly Section?:string,
+		public readonly Default:string|null=null, //If null then the Key will be used
+		public readonly SafeRich=false,
+		...FormatList:Util.Primitive[]
+	) { this.FormatList=FormatList; }
+
+	public AsError()
+	{
+		return new Error(this.Default ?? this.Key, {cause:this});
 	}
 }
 

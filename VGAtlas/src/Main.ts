@@ -2,11 +2,10 @@ import './Style.scss';
 import $							from 'jquery';
 import { FriendClass, InitFuncs, Log,
 	PopupMessage, Util, WillBeSet }	from './Util/SharedClasses';
-import { WM }						from './Util/WindowManager';
+import { WM, Window }				from './Util/WindowManager';
 import Translations, { DefaultTr }	from './Util/Translations';
-import { type Window }				from './Util/WindowManager';
 import { Share }					from './Share';
-import { MonitorSaveValues }		from './TempClasses';
+import MonitorSaveValues			from './MonitorSaveValues';
 import MapCanvas					from './MapCanvas';
 import MapControl					from './MapControl';
 import DataStorage					from './DataStorage';
@@ -22,14 +21,25 @@ abstract class DataStorage_Friend extends DataStorage implements FriendClass
 	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
 }
 
+//Update Share readonly members during initialization
+interface SettableShare
+{
+	MCanvas	:MapCanvas;
+	DS		:DataStorage;
+	MC		:MapControl;
+	WM		:typeof WM;
+	MSV		:MonitorSaveValues;
+	Tr		:Translations;
+}
+
 //Set up translations
 Translations.DefaultDOMModule='Atlas';
 DefaultTr.HasFallbacks=false;
-Share.Tr=Translations.StandardCreate('Atlas');
+(Share as SettableShare).Tr=Translations.StandardCreate('Atlas');
 Share.LC.Language.SetTranslations(Share.Tr);
 
 //Independent libraries that can or have loaded early
-Share.WM=WM;
+(Share as SettableShare).WM=WM;
 try { SetupOneTimeMessage(); } catch { }
 
 async function Main()
@@ -37,8 +47,8 @@ async function Main()
 	let MCanvas:MapCanvas=WillBeSet;
 	try {
 		//Primary map and icon functionality
-		MCanvas=Share.MCanvas=new MapCanvas(87.7487, -87.5855, 2090, 1569);
-		Share.MSV=new MonitorSaveValues();
+		MCanvas=(Share as SettableShare).MCanvas=new MapCanvas(87.7487, -87.5855, 2090, 1569);
+		(Share as SettableShare).MSV=new MonitorSaveValues();
 		const DS=new DataStorage();
 		await MCanvas.Init('Assets/PAtlasMap.png');
 		await (DS as DataStorage_Friend).Load(
@@ -47,11 +57,14 @@ async function Main()
 			'Assets/Misc.json',
 			Share.LC.IconSet.V,
 		);
-		Share.DS=DS; //Setting this now flags some locations that DataStorage has now completed loading so they can start their tasks
+		(Share as SettableShare).DS=DS; //Setting this now flags some locations that DataStorage has now completed loading so they can start their tasks
 		(DS as DataStorage_Friend).CompleteInit();
 
 		//Finish initializing
-		Share.MC=new MapControl();
+		if(localStorage.getItem('SaveData'))
+			try { Share.SaveData=Share.SaveData.ctor.CreateFrom_JSONString(localStorage.getItem('SaveData')!); }
+			catch(e) { HandleLoadSaveFileError(e, localStorage.getItem('SaveDataFileName') ?? "Unknown filename"); }
+		(Share as SettableShare).MC=new MapControl();
 		for(const Fn of InitFuncs)
 			Fn();
 		InitFuncs.length=0;
@@ -111,7 +124,7 @@ class SingleInstanceWindow<TWin extends Window>
 	public MyWin:TWin|undefined|null; //Null while loading
 
 	constructor(
-		protected readonly CreateWin:() => Promise<TWin>,
+		protected readonly CreateWin:() => TWin|Promise<TWin>,
 		protected readonly OnClosing?:() => boolean,
 	) { }
 	public async FocusWin()
@@ -163,18 +176,18 @@ function CreateMainMenu()
 	const MyConfigWindow=new SingleInstanceWindow<ConfigWindow>(
 		async () => new (await import('./Config/ConfigWindow')).default(Share.LC, Share.Tr),
 	);
-	$('#MenuOpenConfig').on('click', async () => MyConfigWindow.FocusWin());
+	$('#MenuOpenConfig').on('click', () => void(MyConfigWindow.FocusWin()));
 
 	//Search window
 	const MySearchWindow=new SingleInstanceWindow(
 		async () => new (await import('./SearchWindow')).default(),
 	);
-	$('#MenuOpenSearch').on('click', async () => MySearchWindow.FocusWin());
+	$('#MenuOpenSearch').on('click', () => void(MySearchWindow.FocusWin()));
 
 	//Log window
 	const MyLogWindow=new SingleInstanceWindow(
-		async () => {
-			const NewWin=new (await import('./Util/WindowManager')).Window({
+		() => {
+			const NewWin=new Window({
 				LanguageChanged:() => Share.Tr.OnLanguageLoadedOnce(() => MyLogWindow.MyWin!.Title=Share.Tr.T('Logs')),
 				SaveID:'Logs',
 			});
@@ -188,7 +201,7 @@ function CreateMainMenu()
 			return NewWin;
 		},
 	);
-	$('#MenuOpenLogs').on('click', async () => MyLogWindow.FocusWin());
+	$('#MenuOpenLogs').on('click', () => void(MyLogWindow.FocusWin()));
 
 	//Add log lines to the log window
 	Log.MaxStoredLogLines=1000;
@@ -205,6 +218,77 @@ function CreateMainMenu()
 			.prependTo(MyLogWindow.MyWin.$Content);
 	}
 	Log.OnLog.Add('LogWindow', AddLogLine);
+
+	const LoadSaveWindow=new SingleInstanceWindow(SetupLoadSaveFileWindow);
+	$('#MenuLoadSave').on('click', () => void(LoadSaveWindow.FocusWin()));
+}
+
+function HandleLoadSaveFileError(e:unknown, FileName:string)
+{
+	const Err=Share.Tr.TDef("ERROR_LOADING", 'LoadSaveFile', "Error loading save data from “{0}”: {1}", false, FileName, Share.Tr.TranslatePassthroughError(e));
+	Log.Error(Err);
+	new PopupMessage(Err);
+}
+
+function SetupLoadSaveFileWindow()
+{
+	const NewWin=new Window({
+		LanguageChanged:() => Share.Tr.OnLanguageLoadedOnce(() => NewWin.Title=Share.Tr.TDef('WINDOW_TITLE', 'LoadSaveFile', "Load Save")),
+		SaveID:'LoadSaveFile',
+	});
+	NewWin.LanguageChanged!(undefined!);
+
+	//Create the DOM content
+	NewWin.$Content.append(`
+<input type=file class=SafeHide id=LoadSaveFileButton>
+<div>
+	<label for=LoadSaveFileButton class='TranslationEl WinButton' data-translation-key="SELECT_FILE_LABEL" data-translation-section=LoadSaveFile data-translation-default="Select your save file"></label>
+	<button id=UnloadSaveFileButton class='TranslationEl WinButton' data-translation-key="CLEAR_SELECTED_FILE" data-translation-section=LoadSaveFile data-translation-default="Unload save file"></button>
+</div>
+<div>
+	<span class=TranslationEl data-translation-key="CURRENT_SELECTED_FILE" data-translation-section=LoadSaveFile data-translation-default="Currently selected file: "></span>
+	<span id=CurrentlySelectedFile></span>
+</div>
+	`);
+	Share.Tr.UpdateDOMSubElements(NewWin.$Content[0]);
+
+	//Setup CurrentlySelectedFile
+	const CurrentlySelectedFile=$('#CurrentlySelectedFile');
+	const Get_NO_FILE_LOADED=() => Share.Tr.TDef("NO_FILE_LOADED", 'LoadSaveFile', "None");
+	CurrentlySelectedFile.text(localStorage.getItem('SaveDataFileName') ?? Get_NO_FILE_LOADED());
+
+	//Set up other buttons
+	const UploadButton=<JQuery<HTMLInputElement>>
+		$('#LoadSaveFileButton')
+		.on('change', async () => {
+			const File=UploadButton[0].files?.[0];
+			if (!File)
+				return;
+
+			try {
+				Share.SaveData=await Share.SaveData.ctor.CreateFrom_File(File);
+				CurrentlySelectedFile.text(File.name);
+				localStorage.setItem('SaveData', JSON.stringify(Share.SaveData));
+				localStorage.setItem('SaveDataFileName', File.name);
+				Share.MSV.UpdateAllUsedValuesOnLoad();
+			}
+			catch(e) {
+				HandleLoadSaveFileError(e, File.name);
+			}
+
+			UploadButton.val(null!);
+		})
+		.appendTo(NewWin.$Content);
+
+	$('#UnloadSaveFileButton').on('click', () => {
+		Share.SaveData=Share.SaveData.ctor.CreateEmptySave();
+		CurrentlySelectedFile.text(Get_NO_FILE_LOADED());
+		localStorage.removeItem('SaveData');
+		localStorage.removeItem('SaveDataFileName');
+		Share.MSV.UpdateAllUsedValuesOnLoad();
+	});
+
+	return NewWin;
 }
 
 $(Main);

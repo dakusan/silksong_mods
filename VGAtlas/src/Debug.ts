@@ -10,18 +10,16 @@ export {}; //Make this a module
 	//noinspection JSUnusedGlobalSymbols
 	const AtlasInfo=(window as unknown as {Atlas:object}).Atlas={
 		...Share, ...AllShared,
+		Share:Share,
 		Modules:{
 			CategoriesAndItems	:await import('./CategoriesAndItems'),
-			LinkedLabel			:await import('./LinkedLabel'),
+			LinkedLabel			:(await import('./LinkedLabel')).default,
 			Config				:await import('./Config/Config'),
 			LoadJSON			:await import('./Util/JSON'),
 			Translations		:await import('./Util/Translations'),
-			MapCanvas			:await import('./MapCanvas'),
 			MapIcon				:await import('./MapIcon'),
-			TempClasses			:await import('./TempClasses'),
-			SaveData			:await import('./SaveData'),
 			WindowManager		:await import('./Util/WindowManager'),
-			CategoryGroupsWindow:await import('./DockableWindows/CategoryGroupsWindow'),
+			CategoryGroupsWindow:(await import('./DockableWindows/CategoryGroupsWindow')).default,
 		},
 		async ExportDefaultData(TrailingCommas=true, Compact=false, MatchModOutput=false, UseTestHTMLExport=false): Promise<string>
 		{
@@ -31,4 +29,6 @@ export {}; //Make this a module
 			);
 		},
 	};
+
+	delete (AtlasInfo as {SaveData:unknown}).SaveData; //Since this variable is mutable, do not keep it in AtlasInfo
 })();

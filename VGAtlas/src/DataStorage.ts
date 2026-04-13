@@ -3,7 +3,7 @@ import { DevStrings, FriendClass, Iter, Log, PopupMessage, Rect, StatStr, Util, 
 import { OtherObject } from './Config/Types/ConfigItem_Object';
 import { LoadJson } from './Util/JSON';
 import { Share } from './Share';
-import { MonitorSaveValues } from './TempClasses';
+import MonitorSaveValues from './MonitorSaveValues';
 import { MapIcon, Sprite } from './MapIcon';
 import { Category, CategoryGroup, CategoryToggleState, ChainItem, ChainList, CreateItem, Item, LoadMisc_StaticLink, StaticLink } from './CategoriesAndItems';
 

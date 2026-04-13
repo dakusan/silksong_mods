@@ -13,4 +13,13 @@
 		"Base": "Default", //The name of a css theme. This is the default theme
 		"Forest": "Forest", //The name of a css theme. This is a forest theme
 	},
+	"LoadSaveFile":{
+		"WINDOW_TITLE": "Load Save",
+		"File is too small": "File is too small",
+		"ERROR_LOADING": "Error loading save data from “{0}”: {1}",
+		"SELECT_FILE_LABEL": "Select your save file",
+		"CURRENT_SELECTED_FILE": "Currently selected file: ",
+		"CLEAR_SELECTED_FILE": "Unload save file",
+		"NO_FILE_LOADED": "None",
+	},
 }

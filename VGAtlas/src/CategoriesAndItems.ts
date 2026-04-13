@@ -2,7 +2,6 @@ import { CallbackList, FriendClass, Log, PopupMessage, StatStr, Util, Vector2, W
 import { ExpNo, ExpYes, JsonClass, JsonConverter, JsonConverter_Generic, JsonPropsDec, LoadJson, SaveJson } from './Util/JSON';
 import { Share } from './Share';
 import { type MapIcon, type Sprite } from './MapIcon';
-import { SaveData } from './SaveData';
 
 export enum CategoryToggleState
 {
@@ -642,6 +641,7 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 
 	public get NumCollected(): number
 	{
+		const SaveData=Share.SaveData;
 		let V:ReturnType<typeof SaveData.PlayerData.Get>;
 		//noinspection SuspiciousTypeOfGuard
 		return	this.CategoryID!==-1							? Share.DS.Categories.get(this.CategoryID)!.CurrentCount
@@ -669,6 +669,7 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 	public static *Process(StaticLinks:Record<string, LoadMisc_StaticLink>, Items:Map<number, Item>, Categories:Map<number, Category>): Generator<[number, StaticLink]>
 	{
 		//Shortcut functions
+		const SaveData=Share.SaveData;
 		let CurName:string=WillBeSet, RemID:string=WillBeSet;
 		let CatID:number;
 		function AddSL(ID:number, P:{CategoryID?:number, ItemIDs?:number[], SpecialCount?:number, FName?:string, CountFunc?(): number, OverwriteName?:string, ErrStr?:string}): [number, StaticLink]
@@ -715,7 +716,7 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 	private static GetToolSlots()
 	{
 		let UnlockedSlotCount=0;
-		for(const [, { Name: CrestName, Data: CrestData }] of Object.entries(SaveData.PlayerData.ToolEquips.savedData)) {
+		for(const [, { Name: CrestName, Data: CrestData }] of Object.entries(Share.SaveData.PlayerData.ToolEquips.savedData)) {
 			//Hunter crests do not count towards unlocked slot count
 			if(CrestName.startsWith('Hunter'))
 				continue;
