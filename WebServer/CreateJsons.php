@@ -1,6 +1,8 @@
 <?php
 require_once(__DIR__.'/Shared.php');
 require_once(__DIR__.'/SimpleSQL.php');
+ini_set('precision', '14');
+ini_set('serialize_precision', '-1');
 
 //Check for request variables
 $CompactJSON=false;

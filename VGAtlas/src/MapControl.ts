@@ -10,7 +10,7 @@ export default class MapControl
 	//Public members
 	public get GameMap() { return Share.MCanvas; }
 	private _HoverItem		?:Item=undefined; public get HoverItem	 () { return this._HoverItem	; } private set HoverItem	(Val) { this._HoverItem		=Val; }
-	private _SelectedItem	?:Item=undefined; public get SelectedItem() { return this._SelectedItem	; } private set SelectedItem(Val) { this._SelectedItem	=Val; }
+	private _SelectedItem	?:Item=null!;	  public get SelectedItem() { return this._SelectedItem	; } private set SelectedItem(Val) { this._SelectedItem	=Val; }
 	private CurrentItemWindow?:ItemWindow;
 
 	//Private members
@@ -79,10 +79,9 @@ export default class MapControl
 		if(NewHash[0]==='#')
 			NewHash=NewHash.slice(1);
 		if(NewHash.length===0) {
-			if(IsInitial)
-				return;
 			this.SelectItemI(undefined, true);
-			Log.Debug('Stack Update: Empty');
+			if(!IsInitial)
+				Log.Debug('Stack Update: Empty');
 			return;
 		}
 

@@ -30,7 +30,11 @@ export default class ConfigItem_Languages extends ConfigItem_Enum
 				this.Tr.LanguagesList.hasOwnProperty(OverrideLang()) ? OverrideLang()
 				: DefaultTr.ctor.DefaultLang;
 
-		this.Tr.OnLanguageChanged.Add(StatStr.NeedsTranslate+`Config languages: ${this.Tr.ModuleName}.${this.Section}.${this.Key}`, NewLang => this.V=NewLang);
+		//TODO: Rapidly changing languages can cause an infinite callback loop. Commenting this out was the easiest way of taking care of it.
+		//Though if the Translations language was changed through other means, this wouldn’t catch it. The proper fix would probably involve a timeout.
+		//Also, language loads are a race condition on which language loads first, if rapidly changing them.
+		//this.Tr.OnLanguageChanged.Add(StatStr.NeedsTranslate+`Config languages: ${this.Tr.ModuleName}.${this.Section}.${this.Key}`, NewLang => this.V=NewLang);
+
 		this.$SelectBox.val(this.Tr.Language=this.V);
 		this.SettingChanged.Add('ConfigItem_Languages', V => this.Tr.Language=V);
 	}
