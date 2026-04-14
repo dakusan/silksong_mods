@@ -252,6 +252,48 @@ INSERT INTO Misc VALUES
 ('OtherLinkPrefix',	'!',			'~^(.*)$~https://ex.com/Articles/$1|MySiteName $1',
 												'Changes “!NAME” to “https://ex.com/Articles/NAME|MySiteName: NAME”');
 
+DROP TABLE IF EXISTS TranslationSections;
+CREATE TABLE TranslationSections (
+  ID int UNSIGNED NOT NULL AUTO_INCREMENT,
+  Module enum('PharloomAtlas', 'SilkDev', 'PinFinder', 'NoClip', 'VGAtlas', 'VGAtlas_Utils') CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  Section varchar(50) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  `Order` int UNSIGNED NOT NULL,
+  Comment varchar(100) NULL,
+
+  PRIMARY KEY (ID),
+  UNIQUE KEY (Module, Section),
+  UNIQUE KEY (Module, `Order`)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS TranslationKeys;
+CREATE TABLE TranslationKeys (
+  ID int UNSIGNED NOT NULL AUTO_INCREMENT,
+  Module enum('PharloomAtlas', 'SilkDev', 'PinFinder', 'NoClip', 'VGAtlas', 'VGAtlas_Utils') CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  Section varchar(50) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  `Order` int UNSIGNED NOT NULL,
+  TKey varchar(100) NOT NULL,
+  `Default` text NOT NULL,
+  PreComment text NULL,
+  Comment varchar(255) NULL,
+
+  PRIMARY KEY (ID),
+  UNIQUE KEY (Module, Section, `Order`),
+  UNIQUE KEY (Module, Section, TKey),
+  KEY (Module, `Order`)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS Translations;
+CREATE TABLE Translations (
+  ID int UNSIGNED NOT NULL AUTO_INCREMENT,
+  TranslationKeyID int UNSIGNED NOT NULL,
+  Language enum('ar', 'bn', 'de', 'en', 'es', 'fr', 'hi', 'id', 'it', 'ja', 'ko', 'mr', 'pt', 'ru', 'sw', 'ta', 'te', 'tr', 'ur', 'vi', 'zh') CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  Translation text NOT NULL,
+
+  PRIMARY KEY (ID),
+  UNIQUE KEY (TranslationKeyID, Language),
+  FOREIGN KEY (TranslationKeyID) REFERENCES TranslationKeys (ID)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 DROP PROCEDURE TempSetTableComment;
 
 SET FOREIGN_KEY_CHECKS=1;

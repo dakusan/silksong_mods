@@ -58,7 +58,7 @@ foreach my $File (@FileList)
 	}
 
 	#Check for missing trailing commas in json
-	if($File =~ /(?:\.json)$/ && $File !~ /(package-lock\.json|package\.json)$/ && $FileContents =~ s/([^,{\[])(\r?\n[ \t]*)(?=[}\]])/$1,$2/g) {
+	if($File =~ /(?:\.json)$/ && $File !~ /(package-lock\.json|package\.json|default\.tr\.json)$/ && $FileContents =~ s/([^,{\[])(\r?\n[ \t]*)(?=[}\]])/$1,$2/g) {
 		$FileContentsChanged=1;
 		push(@Warnings, "$File trailing commas added");
 	}
