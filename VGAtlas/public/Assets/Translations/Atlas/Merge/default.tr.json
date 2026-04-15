@@ -15,11 +15,11 @@
 	},
 	"LoadSaveFile":{
 		"WINDOW_TITLE": "Load Save",
-		"File is too small": "File is too small",
-		"ERROR_LOADING": "Error loading save data from “{0}”: {1}",
-		"SELECT_FILE_LABEL": "Select your save file",
+		"File is too small": "File is too small", //This is an error message
+		"ERROR_LOADING": "Error loading save data from “{0}”: {1}", //{0} is the filename and {1} is the error message given
+		"SELECT_FILE_LABEL": "Select your save file", //Button label
 		"CURRENT_SELECTED_FILE": "Currently selected file: ",
-		"CLEAR_SELECTED_FILE": "Unload save file",
-		"NO_FILE_LOADED": "None",
+		"CLEAR_SELECTED_FILE": "Unload save file", //Button label
+		"NO_FILE_LOADED": "None", //Value shown after CURRENT_SELECTED_FILE if there is no file selected
 	},
 }

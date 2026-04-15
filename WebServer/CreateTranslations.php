@@ -2,20 +2,40 @@
 require_once(__DIR__.'/Shared.php');
 require_once(__DIR__.'/SimpleSQL.php');
 
-$Langs=['en', 'ar', 'bn', 'de', 'es', 'fr', 'hi', 'id', 'it', 'ja', 'ko', 'mr', 'pt', 'ru', 'sw', 'ta', 'te', 'tr', 'ur', 'vi', 'zh'];
+//Settings
+$DefaultLang='en';
+$Langs=[$DefaultLang, 'ar', 'bn', 'de', 'es', 'fr', 'hi', 'id', 'it', 'ja', 'ko', 'mr', 'pt', 'ru', 'sw', 'ta', 'te', 'tr', 'ur', 'vi', 'zh'];
+$SkippableLanguages=['ko'];
+
+//Fixing JSONC
 $PregReplaces=[
 	'~^(\t".*":) \{$~m' => '$1{',
 	'~(\n\t*[}\]])~m' => ',$1'
 ];
 
-foreach([
+//Need to make sure this is run from the command line
+if(!isset($argv))
+	ErrAndDie('This script is only callable from command line');
+
+$Projects=[
 	'PharloomAtlas' => '../PharloomAtlas/Assets/Translations/',
 	'SilkDev' => '../SilkDev/Assets/Translations/',
 	'PinFinder' => '../PinFinder/Assets/Translations/',
 	'NoClip' => '../NoClip/Assets/Translations/',
 	'VGAtlas' => '../VGAtlas/public/Assets/Translations/Atlas/Merge/',
 	'VGAtlas_Utils' => '../VGAtlas/public/Assets/Translations/Default/',
-] as $Module => $Dir)
+];
+
+//Only do 1 project if given
+if(isset($argv[1])) {
+	if(!isset($Projects[$argv[1]]))
+		ErrAndDie('Invalid project name: '.$argv[1]);
+	ProcessModule($argv[1], $Projects[$argv[1]]);
+	return;
+}
+
+//Otherwise, do all projects
+foreach($Projects as $Module => $Dir)
 	ProcessModule($Module, $Dir);
 
 function ProcessModule($Module, $Dir): void
@@ -25,6 +45,7 @@ function ProcessModule($Module, $Dir): void
 	$Translations=[];
 	foreach(Query('SELECT Section, TKey, `Default`, PreComment, Comment, ID FROM TranslationKeys WHERE Module=? ORDER BY `Order` ASC', $Module) as $Data)
 		$Translations[$Data->Section][$Data->TKey]=$Data;
+	printf("Processing module “%s” with %d sections and %d translations\n", $Module, count($Translations), count($Translations, COUNT_RECURSIVE)-count($Translations));
 
 	$TranslationIDs=[];
 	$Output=['//NOTE: Do not include this in the release. It is only here to help generate other translation files ✓', '{'];
@@ -52,10 +73,11 @@ function ProcessModule($Module, $Dir): void
 
 function ProcessLang($Lang, $Dir, $Module, $Sections, $Translations, $TranslationIDs): void
 {
+	global $DefaultLang, $SkippableLanguages;
 	$LangTrans=QueryKVP('SELECT TranslationKeyID, Translation FROM Translations WHERE Language=? AND TranslationKeyID IN ('.implode(', ', $TranslationIDs).')', $Lang);
 	if(!count($LangTrans)) {
-		if($Lang!=='ko')
-			if($Lang==='en')
+		if(!in_array($Lang, $SkippableLanguages))
+			if($Lang===$DefaultLang)
 				file_put_contents($Dir.$Lang.'.tr.json', "{\n\t\"PLACE_HOLDER\":{\n\t\t\"PLACE_HOLDER\": \"✓\",\n\t},\n}");
 			else
 				fwrite(STDERR, "Missing language data for Module/Lang $Module/$Lang\n");
@@ -68,7 +90,7 @@ function ProcessLang($Lang, $Dir, $Module, $Sections, $Translations, $Translatio
 		foreach($Translations[$SectionName] as $KeyName => $Data)
 			if(($Trans=$LangTrans[$Data->ID] ?? null)!==null)
 				$SectionTrans[$KeyName]=$LangTrans[$Data->ID] ?? $Trans;
-			else if($Lang!=='en')
+			else if($Lang!==$DefaultLang)
 				fwrite(STDERR, "Missing translation for Module/Lang/SectionName/Key $Module/$Lang/$SectionName/$KeyName\n");
 		if(count($SectionTrans))
 			$Output[$SectionName]=$SectionTrans;

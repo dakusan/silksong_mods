@@ -294,6 +294,35 @@ CREATE TABLE Translations (
   FOREIGN KEY (TranslationKeyID) REFERENCES TranslationKeys (ID)
 ) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE OR REPLACE VIEW TranslationsView AS
+SELECT
+	TK.ID AS TranslationKeyID, TK.Module, TK.Section, TK.TKey, TK.Default,
+	MAX(CASE WHEN TR.Language='ar' THEN TR.Translation END) AS ar,
+	MAX(CASE WHEN TR.Language='bn' THEN TR.Translation END) AS bn,
+	MAX(CASE WHEN TR.Language='de' THEN TR.Translation END) AS de,
+	MAX(CASE WHEN TR.Language='en' THEN TR.Translation END) AS en,
+	MAX(CASE WHEN TR.Language='es' THEN TR.Translation END) AS es,
+	MAX(CASE WHEN TR.Language='fr' THEN TR.Translation END) AS fr,
+	MAX(CASE WHEN TR.Language='hi' THEN TR.Translation END) AS hi,
+	MAX(CASE WHEN TR.Language='id' THEN TR.Translation END) AS id,
+	MAX(CASE WHEN TR.Language='it' THEN TR.Translation END) AS it,
+	MAX(CASE WHEN TR.Language='ja' THEN TR.Translation END) AS ja,
+	MAX(CASE WHEN TR.Language='ko' THEN TR.Translation END) AS ko,
+	MAX(CASE WHEN TR.Language='mr' THEN TR.Translation END) AS mr,
+	MAX(CASE WHEN TR.Language='pt' THEN TR.Translation END) AS pt,
+	MAX(CASE WHEN TR.Language='ru' THEN TR.Translation END) AS ru,
+	MAX(CASE WHEN TR.Language='sw' THEN TR.Translation END) AS sw,
+	MAX(CASE WHEN TR.Language='ta' THEN TR.Translation END) AS ta,
+	MAX(CASE WHEN TR.Language='te' THEN TR.Translation END) AS te,
+	MAX(CASE WHEN TR.Language='tr' THEN TR.Translation END) AS tr,
+	MAX(CASE WHEN TR.Language='ur' THEN TR.Translation END) AS ur,
+	MAX(CASE WHEN TR.Language='vi' THEN TR.Translation END) AS vi,
+	MAX(CASE WHEN TR.Language='zh' THEN TR.Translation END) AS zh
+FROM TranslationKeys AS TK
+LEFT JOIN Translations AS TR ON TR.TranslationKeyID=TK.ID
+GROUP BY TK.ID, TK.Order #Adding TK.Order here is just so the engine doesn’t complain about the ORDER BY
+ORDER BY TK.Order ASC;
+
 DROP PROCEDURE TempSetTableComment;
 
 SET FOREIGN_KEY_CHECKS=1;
