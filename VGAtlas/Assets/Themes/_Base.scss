@@ -24,7 +24,7 @@
 
 	--window-detach-border:				green;
 	--category-window-background:		rgba(0, 0, 0, 0.52);
-	--category-window-button-background:#0000A0;
+	--category-window-button-background:#007070;
 	--category-window-button-text:		white;
 	--category-group-title:				#e6e6e6;
 	--category-group-title-hover:		cyan;
@@ -38,10 +38,23 @@
 	--main-menu-button-hover:			white;
 	--main-menu-icon:					'☰';
 	--main-menu-item-hover:				#FFFFFF20;
-	--line-item-hover:					rgba(255, 255, 255, 0.25);
-	--line-item-date:					cyan;
 
+	/* Searching */
+	--line-item-hover:					#4678C880; /* Box color for the entire label when mouse over (in the search box); Desaturated, mid-luminance blue goes well with: red, teal, plum, yellow, cyan, white, black, green */
+	--line-item-alt:					lime;	/* Log window date */
 	--search-highlight:					lime;
+
+	/* Item Contents */
+	--ItemContentsLink-StrikeFound:		line-through solid white; /* “text-decoration”: Straight line through link when item has been found */
+	--ItemContentsLink-StrikeStarted:	line-through wavy silver; /* “text-decoration”: Wavy line through link when item has been started (and not found) */
+	--ItemContentsLink-Default:			cyan;	/* Default link color */
+	--ItemContentsLink-Hover:			yellow; /* Color when a link has the mouse over it */
+	--ItemContentsLink-FlagNot:			red;	/* Flag color (precedence=0) for NOT */
+	--ItemContentsLink-FlagStarted:		teal;	/* Flag color (precedence=1) for STARTED */
+	--ItemContentsLink-FlagRecommended:	plum;	/* Flag color (precedence=2) for RECOMMENDED */
+	--VarColor-SepOR:					purple;	/* Separator for boolean OR “ OR ” */
+	--VarColor-SepAND:					white;	/* Separator for boolean AND “, ” */
+	--VarColor-CollectedCounts:			grey;	/* Amounts the player has and needs to finish an item */
 
 	--popup-surround-background:		rgba(51, 51, 51, 0.75);
 	--popup-background:					rgba(24, 24, 24, 0.8);

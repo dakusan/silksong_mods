@@ -22,7 +22,7 @@ export default class SearchWindow extends Window
 	protected $Container=$('<div class=SearchContainer>').appendTo(this.$Content);
 	protected $NumResults=$('<span class=NumResults>').appendTo(this.$Container);
 	protected $SearchBox=$('<input type=search class=\'SearchBox WinButton\' placeholder="-">').appendTo(this.$Container);
-	protected $SearchResults=$('<div class=Results>').appendTo(this.$Container);
+	protected $SearchResults=$('<div class="Results ItemContents">').appendTo(this.$Container);
 	constructor()
 	{
 		super({SaveID:'Search', Width:750, Height:550});

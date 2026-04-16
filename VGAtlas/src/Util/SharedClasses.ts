@@ -162,6 +162,18 @@ export namespace Util
 	}
 
 	export function IsMobile() { return matchMedia('(pointer:coarse)').matches; }
+
+	export function GetNumber(Str:string, AsInt=false): number|null
+	{
+		if(!Str.trim())
+			return null;
+		const Num=Number(Str);
+		return (
+			  !Number.isFinite(Num)	? null
+			: AsInt					? Math.trunc(Num)
+			:						  Num
+		);
+	}
 }
 
 class LogLine

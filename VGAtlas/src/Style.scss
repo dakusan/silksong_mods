@@ -25,7 +25,24 @@ button, input { color:inherit; font-family:inherit; }
 
 .ItemContents {
 	white-space:pre-wrap;
-	>div { height:100%; } //This is a container needed for auto sizing
+	&:not(.Results)>div { height:100%; } //This is a container needed for auto sizing
+
+	a {
+		&.StrikeFound	{ text-decoration:var(--ItemContentsLink-StrikeFound	, line-through solid white); } /* Straight line through link when item has been found */
+		&.StrikeStarted { text-decoration:var(--ItemContentsLink-StrikeStarted	, line-through wavy silver); } /* Wavy line through link when item has been started (and not found) */
+	}
+
+	a, a:visited {
+		 					  color:var(--ItemContentsLink-Default			, cyan		);	  /* Default link color */
+		&.FlagRecommended	{ color:var(--ItemContentsLink-FlagRecommended	, plum		);	} /* Flag color (precedence=2) for RECOMMENDED */
+		&.FlagStarted		{ color:var(--ItemContentsLink-FlagStarted		, teal		);	} /* Flag color (precedence=1) for STARTED */
+		&.FlagNot			{ color:var(--ItemContentsLink-FlagNot			, red		);	} /* Flag color (precedence=0) for NOT */
+	}
+	a:hover, a:hover *		{ color:var(--ItemContentsLink-Hover	, yellow) !important;	} /* Color when a link has the mouse over it */
+	.VC_SepOR				{ color:var(--VarColor-SepOR			, purple) !important;	} /* Separator for boolean OR “ OR ” */
+	.VC_SepAND				{ color:var(--VarColor-SepAND			, white	) !important;	} /* Separator for boolean AND “, ” */
+	.VC_CollectedCounts		{ color:var(--VarColor-CollectedCounts	, grey	) !important;	} /* Amounts the player has and needs to finish an item */
+
 
 	.Important {
 		text-decoration:none;
@@ -126,7 +143,7 @@ button, input { color:inherit; font-family:inherit; }
 		display:flex; flex-wrap:wrap; gap:6px; justify-content:space-evenly; align-items:center; flex:0 0 auto;
 		>button {
 			flex:0 1 auto; border-width:0; border-radius:6px; padding:3px 4px 4px 4px;
-			white-space:nowrap; background:var(--category-window-button-background, #0000A0); color:var(--category-window-button-text, white);
+			white-space:nowrap; background:var(--category-window-button-background, #007070); color:var(--category-window-button-text, white);
 			&:active { transform:translateY(1px); }
 		}
 	}
@@ -147,6 +164,7 @@ body #MainMenu { display:block; }
 		.MenuItem {
 			margin:7px 0 8px; padding:3px 5px; border-radius:5px;
 			white-space:nowrap; cursor:pointer; user-select:none;
+			a { color:inherit; text-decoration:none; }
 			&:not(:last-child)::after { content:''; display:block; position:absolute; margin-top:7px; width:calc(100% - 10px * 2); height:1px; background:var(--line-separator, white); }
 			&:hover { background:var(--main-menu-item-hover, #FFFFFF20); }
 		}
@@ -165,7 +183,7 @@ body #MainMenu { display:block; }
 	&:hover { color:var(--hl-text-color, #eee); background:var(--line-item-hover, rgba(255, 255, 255, 0.25)); }
 	&.IsError { color:red; }
 	.Time {
-		color:var(--line-item-date, cyan);
+		color:var(--line-item-alt, cyan);
 		&:after { content:': '; }
 	}
 }

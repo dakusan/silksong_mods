@@ -4,7 +4,7 @@ import { Share } from './Share';
 
 const LTChar='\u0084', RTChar='\u0086';
 const RegEx_LinkID=/<LinkID=(?:\\")?([^ ">]+)(?:\\")?>(.*?)<\/LinkID>/isg;
-const RegEx_Color=/<color=(#?\w+)>((?:(?!<color\b)[\s\S])*?)<\/color>/ig;
+const RegEx_Color=/<color=(?:--VarColor-(\w+)-)?(#?\w+)>((?:(?!<color\b)[\s\S])*?)<\/color>/ig;
 const RegEx_Size=/<size=([-+]?)([1-5])>((?:(?!<size\b)[\s\S])*?)<\/size>/ig;
 const RegEx_Attr=/<ATTR=([-.\w]+)>(.*?)<\/ATTR>/ig;
 const RegEx_SafeTags=/<\/?(?:b|i|u|s|strong|em|ins|del)>/ig;
@@ -87,7 +87,7 @@ export default class LinkedLabel
 
 		//Replace <color> w/ span+color
 		for(let LastStr:string|undefined=undefined; Str!==LastStr; )
-			Str=(LastStr=Str).replace(RegEx_Color, `${LTChar}span style='color:$1'${RTChar}$2${LTChar}/span${RTChar}`);
+			Str=(LastStr=Str).replace(RegEx_Color, (_, VC, Color, Text) => `${LTChar}span style='color:${Color}'${VC ? ' class=VC_'+VC : ''}${RTChar}${Text}${LTChar}/span${RTChar}`);
 		//Replace <size> w/ span+FontSize
 		for(let LastStr:string|undefined=undefined; Str!==LastStr; )
 			Str=(LastStr=Str).replace(RegEx_Size, (_, Sign, Num, Text) => `${LTChar}span class='FontSize F${Sign==='+' ? 'P' : Sign==='-' ? 'N' : ''}${Num}'${RTChar}${Text}${LTChar}/span${RTChar}`);
@@ -127,6 +127,8 @@ export default class LinkedLabel
 			const FinalIconID=((ItemIconID ?? -1)!==-1 ? ItemIconID : Share.DS.Categories.get(Item?.CategoryID ?? -1)?.IconID);
 			if(FinalIconID!==undefined)
 				ItemIcon=`${LTChar}span class='ItemIcon I${FinalIconID}'${RTChar}${LTChar}/span${RTChar}`;
+			if(Item?.IsFound || Item?.IsStarted)
+				Classes.push(Item.IsFound ? 'StrikeFound' : 'StrikeStarted');
 		} else
 			AddAttr('href', true);
 		AddStyle('NormalColor', 'color');

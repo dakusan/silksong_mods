@@ -1,4 +1,3 @@
-import Color, { type ColorInstance } from 'color';
 import { DevStrings, FriendClass, Iter, Log, PopupMessage, Rect, StatStr, Util, Vector2, WillBeSet } from './Util/SharedClasses';
 import { OtherObject } from './Config/Types/ConfigItem_Object';
 import { LoadJson } from './Util/JSON';
@@ -14,15 +13,6 @@ const IconHeight	=65;
 const IconPadding	=1;
 const NewIconSize	=18;
 const NT=StatStr.NeedsTranslate;
-
-//Color type that stores it HTML string and RGB color
-class StringColor extends Object {
-	constructor(
-		public readonly Value:string,
-		public readonly AsColor:ColorInstance
-	) { super(); }
-	public override toString() { return this.Value; }
-}
 
 //Shapes when loading from JSON
 type LoadMisc_Set=Record<string, Record<string, string|LoadMisc_StaticLink>>;
@@ -203,30 +193,11 @@ export default class DataStorage
 		await LoadIconSet(PIconSet, IconSetPath);
 		Share.LC.IconSet.SettingChanged.Add('DataStorage.UpdateIconSet', UpdateIconSet);
 
-		this.HandleColors();
-
 		//Create the sprites
 		for(const Category of this.Categories.values())
 			(Category as Category_Friend).Sprite=this.MyIconSprites.Get(Category.IconID);
 
 		this.LoadCategoryToggleStates(true);
-	}
-
-	//Store link colors in HTML
-	private HandleColors()
-	{
-		const ColorsStylesheet=document.createElement('style');
-		const UpdateColors=(_:unknown, ColorName:string) => {
-			if(ColorName!=='Default' && ColorName!=='LinkHover')
-				return;
-			ColorsStylesheet.textContent=`
-.ItemContents a, .ItemContents a:visited	{ color:${this.LinkColors.Default.Value		}; }
-.ItemContents a:hover						{ color:${this.LinkColors.LinkHover.Value	}; }
-			`;
-		};
-		document.head.appendChild(ColorsStylesheet);
-		UpdateColors(null, 'Default');
-		this.LinkColors.Callbacks.push(UpdateColors);
 	}
 
 	//Distribute chain system items
@@ -280,95 +251,10 @@ export default class DataStorage
 		this.LoadIcons();
 	}
 
-	//In case I decide to store more colors like this, I decided to make it an abstract class
-	//Note: Do not add public properties to subclass unless they are colors
-	public static readonly CColorsSet=class ColorsSet
-	{
-		protected readonly DefaultColors=new Map<string, string>();
-		private HasInitialized=false;
-
-		public constructor() {
-			return new Proxy(this, {
-				set:(Target, Prop:string|symbol, Value:unknown, Receiver:unknown) => {
-					if(typeof(Prop)!=='string' || !Target.HasInitialized)
-						return Reflect.set(Target, Prop, Value, Receiver);
-					if(Target.DefaultColors.has(Prop))
-						return Target.SetColor(Prop, String(Value));
-					else if(Prop in Target)
-						return Reflect.set(Target, Prop, Value, Receiver);
-					throw new Error("Invalid property name: "+Prop);
-				}
-			});
-		}
-		public Init()
-		{
-			if(this.HasInitialized)
-				return this;
-			this.HasInitialized=true;
-
-			//Harvest defaults from derived-class instance fields that are StringColor
-			for(const [ColorName, ColorDefault] of Object.entries(this))
-				if(ColorDefault instanceof(StringColor))
-					this.DefaultColors.set(ColorName, ColorDefault.Value);
-
-			//Normalize all members (parse defaults into AsColor, etc.)
-			for(const [ColorName, ColorDefault] of this.DefaultColors) {
-				try { Color(ColorDefault); }
-				catch { throw new Error("Could not parse default color: "+ColorDefault); }
-				this.SetColor(ColorName, ColorDefault);
-			}
-
-			return this;
-		}
-		public get ColorNames() { return this.DefaultColors.keys(); }
-
-		private SetColor(ColorName:string, RequestedValue:string): true
-		{
-			//Get the new color (or use default if invalid)
-			let NewColorStr=RequestedValue;
-			let NewColorRGB;
-			try { NewColorRGB=Color(RequestedValue); }
-			catch { NewColorRGB=Color(NewColorStr=this.DefaultColors.get(ColorName)!); }
-
-			//Set the new value
-			const NewColorFinal=new StringColor(NewColorStr, NewColorRGB);
-			(this as unknown as Record<string, StringColor>)[ColorName]=NewColorFinal;
-
-			//Call the callback
-			for(const Callback of this.Callbacks)
-				try { Callback(NewColorFinal, ColorName, (this as unknown as Record<string, StringColor>)[ColorName], RequestedValue); }
-				catch(e) { Util.OutputException("Set color callback", e); }
-
-			return true;
-		}
-
-		public Callbacks:((NewValue:StringColor, ColorName:string, PreviousValue:StringColor, RequestedValue:string) => void)[]=[];
-	};
-
-	//Link colors. Do not add any other public properties unless they are colors
-	public static readonly LinkColorsT=class LinkColorsT extends DataStorage.CColorsSet
-	{
-		//The following of these are set statically so realtime changing is not supported (for now): Flag_{NOT,STARTED,RECOMMENDED}, Sep_{OR,AND}
-		public constructor() { super(); }
-		public Default			=new StringColor('cyan',		null!); //Default link color
-		public LinkHover		=new StringColor('yellow',		null!); //Color when a link has the mouse over it
-		public LabelHover		=new StringColor('#4678C880',	null!); //Box color for the entire label when mouse over (in the search box); Desaturated, mid-luminance blue goes well with: red, teal, plum, yellow, cyan, white, black, green
-		public Flag_NOT			=new StringColor('red',			null!); //Flag color (precedence=0) for NOT
-		public Flag_STARTED		=new StringColor('teal',		null!); //Flag color (precedence=1) for STARTED
-		public Flag_RECOMMENDED	=new StringColor('#dda0dd',		null!); //Flag color (precedence=2) for RECOMMENDED [#=plum]
-		public Sep_OR			=new StringColor('purple',		null!); //Separator for boolean OR “ OR ”
-		public Sep_AND			=new StringColor('white',		null!); //Separator for boolean AND “, ”
-		public Strike_Found		=new StringColor('white',		null!); //Straight line through link when item has been found
-		public Strike_Started	=new StringColor('silver',		null!); //Wavy line through link when item has been started (and not found)
-		public CollectedCounts	=new StringColor('grey',		null!); //Amounts the player has and needs to finish an item
-	};
-	public readonly LinkColors=new DataStorage.LinkColorsT().Init();
-
 	//noinspection ExceptionCaughtLocallyJS
 	private static readonly LoadMisc=class LoadMisc
 	{
 		private StaticLinks		:Record<string, LoadMisc_StaticLink>=WillBeSet;
-		private LinkColors		:Record<string, string>=WillBeSet;
 		private ImagePrefix		:Record<string, string>=WillBeSet;
 		private OtherLinkPrefix	:Record<string, string>=WillBeSet;
 
@@ -426,18 +312,12 @@ export default class DataStorage
 		public Process(DS:DataStorage, Obj:LoadMisc_Set)
 		{
 			this.StaticLinks	=(Obj.StaticLinks		as Record<string, LoadMisc_StaticLink>);
-			this.LinkColors		=(Obj.LinkColors		as Record<string, string>) ?? {};
 			this.ImagePrefix	=(Obj.ImagePrefix		as Record<string, string>) ?? {};
 			this.OtherLinkPrefix=(Obj.OtherLinkPrefix	as Record<string, string>) ?? {};
 
 			//StaticLinks
 			for(const [K, V] of StaticLink.Process(this.StaticLinks, DS.Items, DS.Categories))
 				DS.StaticLinks.set(K, V);
-
-			//LinkColors
-			for(const ColorName of DS.LinkColors.ColorNames)
-				if(this.LinkColors.hasOwnProperty(ColorName))
-					(DS.LinkColors as unknown as Record<string, string>)[ColorName]=this.LinkColors[ColorName];
 
 			//Rewrite from Image and OtherLink prefixes
 			LoadMisc.RewriteList(this.ImagePrefix,	 	new Iter(DS.Items.values()).filter(I => !!I.ImageURLs ?.length).map(I => [I, I.ImageURLs !]));

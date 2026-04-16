@@ -332,8 +332,8 @@ export class ChainList extends JsonClass
 		//Reformat the list
 		const Ret=
 			this.Items.map(ItemList =>
-				ItemList.map(I => (I as ChainItem_Friend).RenderedStringInternal).join(`<color=${Share.DS.LinkColors.Sep_AND}>${TrVar("SEP_AND")}</color>`)
-			).join(` <b><color=${Share.DS.LinkColors.Sep_OR}>${TrVar("SEP_OR")}</color></b> `)
+				ItemList.map(I => (I as ChainItem_Friend).RenderedStringInternal).join(`<color=--VarColor-SepAND-white>${TrVar("SEP_AND")}</color>`)
+			).join(` <b><color=--VarColor-SepOR-purple>${TrVar("SEP_OR")}</color></b> `)
 			+(this.ExtraStr===undefined ? StatStr.Empty : `; ${this.ExtraStr}`);
 
 		//Extract ExtractItemCounts sections as StringCountPair. Only StaticLinks are used since items cannot have a count and are just set as “1”
@@ -429,7 +429,7 @@ export class ChainItem extends JsonClass
 		if(this.FlagRecommend) Parts.push(`<i>${TrVar("FLAG_RECOMMENDED")	}</i> `);
 		const Amounts=
 			  this.FlagAmount===1 ? undefined
-			: `<color=${Share.DS.LinkColors.CollectedCounts}>`+(this.Parent.Type!==ChainType.Rewards ? LStatStr.ChainItem_AmountChar : StatStr.Empty)
+			: `<color=--VarColor-CollectedCounts-grey>`+(this.Parent.Type!==ChainType.Rewards ? LStatStr.ChainItem_AmountChar : StatStr.Empty)
 			+ `<b>${this.FlagAmount}</b>×</color>`;
 
 		//If unlinked or linking failed do not make it a real link
@@ -437,10 +437,10 @@ export class ChainItem extends JsonClass
 			return [Amounts?.replace(LStatStr.ChainItem_AmountChar, StatStr.Empty) ?? StatStr.Empty, '<u>', ...Parts, this.Name, '</u>'].join(StatStr.Empty);
 
 		//Prepare variables for rendered string
-		const ExtraColor=
-			  this.FlagNot		? Share.DS.LinkColors.Flag_NOT			.Value
-			: this.FlagStarted	? Share.DS.LinkColors.Flag_STARTED		.Value
-			: this.FlagRecommend? Share.DS.LinkColors.Flag_RECOMMENDED	.Value
+		const ExtraClass=
+			  this.FlagNot		? 'FlagNot'
+			: this.FlagStarted	? 'FlagStarted'
+			: this.FlagRecommend? 'FlagRecommended'
 			: undefined;
 
 		//Render as a linked item
@@ -448,7 +448,7 @@ export class ChainItem extends JsonClass
 		return [
 			`<LinkID=${(this.Parent.Parent as Item_Friend).GetLinkID}>`,
 			MakeAttr('ItemID', this.LinkID),
-			ExtraColor!==undefined ? MakeAttr('NormalColor', ExtraColor) : StatStr.Empty,
+			ExtraClass!==undefined ? MakeAttr(ExtraClass, StatStr.Empty) : StatStr.Empty,
 			Amounts?.replace(LStatStr.ChainItem_AmountChar, `<b><size=-4>${LStatStr.ChainItem_AmountChar}</size></b><color=white>/</color>`),
 			'<u>',
 			...Parts,
@@ -539,7 +539,7 @@ class ItemSet extends JsonClass
 		return	this.ItemList.size===0 ? undefined
 			:	[...this.ItemList].map(Item =>
 					`<LinkID=UL-${Item.ID}-${(this.Parent as Item_Friend).GetLinkID}><ATTR=ItemID>${Item.ID}</ATTR><u>${Item.Title}</u></LinkID>`
-				).join(`<color=${Share.DS.LinkColors.Sep_AND}>${TDef("SEP_AND", VarDefaults.SEP_AND)}</color>`);
+				).join(`<color=--VarColor-SepAND-white>${TDef("SEP_AND", VarDefaults.SEP_AND)}</color>`);
 	}
 	public Render(FieldTitle:string): string|undefined { return this.ItemList.size===0 ? undefined : `<b>${TSan(FieldTitle)}</b>: ${this.RenderedString}`; }
 }
@@ -680,18 +680,17 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 		}
 		function LineErr(Err:string, CompleteFail:boolean=false): undefined { Log.Error(NT+`Error on Static Link #${RemID}${(CompleteFail ? " [Skipped]" : StatStr.Empty)}: ${Err}`); return undefined; }
 		function IsValidSpecialFieldType(MemberName:string) { const T:unknown=SaveData.PlayerData.Get(MemberName); return typeof(T)==='number' || typeof(T)==='boolean'; }
-		function GetNum(NumStr:string): number|null { const N=Number(NumStr); return Number.isFinite(N) ? N : null; }
 
 		//Process the static links
 		let MyID:number, Special:string, SpecialInt:number;
 		for(const [ID, L] of Object.entries(StaticLinks))
-			if     ((MyID=GetNum(RemID=ID)!)===null			)	LineErr("ID is not an int",					true);						//ID is not an int
+			if     ((MyID=Util.GetNumber(RemID=ID)!)===null	)	LineErr("ID is not an int",					true);						//ID is not an int
 			else if(!StaticLink.IDInRange(MyID)				)	LineErr("ID is not valid for a Static Link",true);						//ID not in StaticLink range
 			else if(!Array.isArray(L) || L.length===0		)	LineErr("Array is empty",					true);						//No entries in the array
 			else if(typeof(CurName=L[0])!=="string"			)	yield AddSL(MyID, {OverwriteName:"???", ErrStr:"Name is not a string"});//Invalid name
 			else if(L.length===1							)	yield AddSL(MyID, {SpecialCount:1});									//Unlinked
 			else if(L.length===2 && typeof(L[1])==='string' && (Special=L[1]))															//Special check
-				if((SpecialInt=GetNum(Special)!)!==null)		yield AddSL(MyID, {SpecialCount:SpecialInt});							//Special Count Success
+				if((SpecialInt=Util.GetNumber(Special)!)!==null)yield AddSL(MyID, {SpecialCount:SpecialInt});							//Special Count Success
 				else if(StaticLink.SpecialFuncs.has(Special))	yield AddSL(MyID, {CountFunc:StaticLink.SpecialFuncs.get(Special)!});	//Special GetCount func
 				else if(SaveData.PlayerData.Has(Special))																				//Special FieldInfo Check
 					if(!IsValidSpecialFieldType(Special))		yield AddSL(MyID, {ErrStr:NT+`PlayerData.${Special} ≠ bool/int/enum`});	//Special FieldInfo failed (not int)
