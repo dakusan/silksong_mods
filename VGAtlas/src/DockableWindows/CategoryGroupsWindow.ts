@@ -15,7 +15,7 @@ export default class CategoryGroupsWindow extends Window
 
 	constructor()
 	{
-		super({Title:'-', MinWidth:234, Width:707, Height:598, SaveID:'CategoryGroups'});
+		super({Title:'-', Type:'CategoryGroups', MinWidth:234, Width:707, Height:598, SaveID:'CategoryGroups'});
 		this.$Content.attr('id', 'CategoryGroupsWindow');
 
 		function CreateSBTransButton(TranslationKey:string, ClickFunc:() => void)
@@ -29,6 +29,7 @@ export default class CategoryGroupsWindow extends Window
 			CreateSBTransButton("Show Incomplete"	, Share.DS.SetAllCategoriesStates			.bind(Share.DS, CategoryToggleState.Incomplete	)),
 			CreateSBTransButton("Hide all"			, Share.DS.SetAllCategoriesStates			.bind(Share.DS, CategoryToggleState.None		)),
 			CreateSBTransButton("Needed for 100%"	, Share.DS.SetCategoriesStatesFor100Percent	.bind(Share.DS									)),
+			CreateSBTransButton("Show Unlinked"		, this.UpdateShowLinked						.bind(this, 									)).attr('ID', 'ShowUnlinkedButton').attr('state', 'off'),
 		);
 
 		for(const CatGrp of Share.DS.CategoryGroups)
@@ -63,6 +64,17 @@ export default class CategoryGroupsWindow extends Window
 			(Row as CategoryRow_Friend).Unload();
 		CategoryGroupsWindow._Self=null!;
 		return false;
+	}
+
+	private UpdateShowLinked()
+	{
+		const Btn=$('#ShowUnlinkedButton');
+		const TurnOn=Btn.attr('state')==='off';
+		Share.Tr.UpdateDOMElement(Btn.attr({
+			'data-translation-key': TurnOn ? "Hide Unlinked" : "Show Unlinked",
+			state:TurnOn ? 'on' : 'off'
+		})[0]);
+		Share.MC.ShowLinkedStatus=TurnOn;
 	}
 }
 

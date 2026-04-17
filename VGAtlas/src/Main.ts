@@ -189,7 +189,7 @@ function CreateMainMenu()
 		() => {
 			const NewWin=new Window({
 				LanguageChanged:() => Share.Tr.OnLanguageLoadedOnce(() => MyLogWindow.MyWin!.Title=Share.Tr.T('Logs')),
-				SaveID:'Logs',
+				SaveID:'Logs', Type:'Logs',
 			});
 
 			setTimeout(() => {
@@ -234,7 +234,7 @@ function SetupLoadSaveFileWindow()
 {
 	const NewWin=new Window({
 		LanguageChanged:() => Share.Tr.OnLanguageLoadedOnce(() => NewWin.Title=Share.Tr.TDef('WINDOW_TITLE', 'LoadSaveFile', "Load Save")),
-		SaveID:'LoadSaveFile',
+		SaveID:'LoadSaveFile', Type:'LoadSaveFile',
 	});
 	NewWin.LanguageChanged!(undefined!);
 

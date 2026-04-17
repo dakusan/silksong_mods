@@ -25,7 +25,7 @@ export default class SearchWindow extends Window
 	protected $SearchResults=$('<div class="Results ItemContents">').appendTo(this.$Container);
 	constructor()
 	{
-		super({SaveID:'Search', Width:750, Height:550});
+		super({SaveID:'Search', Type:'Search', Width:750, Height:550});
 
 		this.$SearchBox.on('input', () => {
 			const NewText=String(this.$SearchBox.val()).trim();
@@ -142,5 +142,13 @@ export default class SearchWindow extends Window
 			this.RunSearch();
 			this.RefreshSearch();
 		});
+	}
+
+	public override Refresh()
+	{
+		this.FoldedStrings.clear();
+		this.RunSearch();
+		this.RefreshSearch();
+		super.Refresh();
 	}
 }

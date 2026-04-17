@@ -15,7 +15,8 @@ export default class ItemWindow extends Window
 		public readonly LinkedItem:Item,
 	) {
 		super({
-			Title: `${LinkedItem.Title} [${LinkedItem.ID}]`,
+			Title:`${LinkedItem.Title} [${LinkedItem.ID}]`,
+			Type:'Item',
 			Width:350,
 			MinWidth:60,
 			AcceptsKeyboard:false,
@@ -89,5 +90,12 @@ export default class ItemWindow extends Window
 	{
 		if(this.IsAttached)
 			this.Close();
+	}
+
+	public override Refresh()
+	{
+		this.$Content.empty();
+		this.UpdateContents();
+		super.Refresh();
 	}
 }

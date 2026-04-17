@@ -1,6 +1,6 @@
 import './Window.scss';
 import $ from 'jquery';
-import { FriendClass, InitFuncs, Rect, StatStr, Util, Vector2 } from './SharedClasses';
+import { FriendClass, InitFuncs, Log, Rect, StatStr, Util, Vector2 } from './SharedClasses';
 import { DefaultTr } from './Translations';
 
 type KeyHandler<T extends Window|null>=(this:T, e:KeyboardEvent)=>boolean|undefined;
@@ -78,16 +78,17 @@ export class WindowManager
 		e.stopPropagation();
 	}
 }
-export const WM=new WindowManager();
+export const WM=Util.OneTimeInit('WindowManager', () => new WindowManager());
 
 type WindowInit=Partial<Pick<Window,
-	'Title'|'Parent'|'X'|'Y'|'Width'|'Height'|'MinWidth'|'MinHeight'|'CanClose'|
+	'Title'|'Type'|'Parent'|'X'|'Y'|'Width'|'Height'|'MinWidth'|'MinHeight'|'CanClose'|
 	'CanResize'|'Visible'|'AcceptsKeyboard'|'OnKeyDown'|'OnKeyUp'|'OnClosing'|'OnMoved'|'LanguageChanged'|'SaveID'
 >>;
 export class Window
 {
 	//Settable properties
-	private _Title			="Window"		; public get Title			() { return this._Title				; }; public set Title			(Value) { this.$Title.text		(this._Title=			Value); }
+	private _Title			='Window'		; public get Title			() { return this._Title				; }; public set Title			(Value) { this.$Title.text		(this._Title=			Value); }
+	private _Type?:string	=undefined		; public get Type			() { return this._Type				; }; public set Type			(Value) { 						(this._Type=			Value); }
 	private _Parent			=document.body	; public get Parent			() { return this._Parent			; }; public set Parent			(Value) { $(this.$Root).appendTo(this._Parent=			Value); }
 	private _X				=80				; public get X				() { return this._X					; }; public set X				(Value) { this.UpdateBounds		({X:					Value}); }
 	private _Y				=80				; public get Y				() { return this._Y					; }; public set Y				(Value) { this.UpdateBounds		({Y:					Value}); }
@@ -168,6 +169,7 @@ export class Window
 		(WM as WindowManager_Friend).Register(this);
 	}
 
+	public		Refresh			():						void { Log.Debug(`Refreshing window “${this.Type}” :: “${this.Title}”`); }
 	public		Close			():						void { this.TryDispose(); }
 	public		EnsureOnScreen	():						void { this.UpdateBounds(); }
 	public		Focus			(): 					void { WM.SetFocus(this); }

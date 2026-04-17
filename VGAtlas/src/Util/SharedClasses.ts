@@ -1,16 +1,23 @@
 import $ from 'jquery';
 import { type ConfigSerializer } from '../Config/Abstract/ConfigItem';
 
-export class Vector2
+export interface Equatable<T>
+{
+	Equals(Other?:T): boolean;
+}
+
+export class Vector2 implements Equatable<Vector2>
 {
 	constructor(public X:number, public Y:number) { }
+
+	public Equals(Other?:Vector2) { return Other?.X===this.X && Other.Y===this.Y; }
 	public Distance(Vec:Vector2) { return Vector2.Distance(this, Vec); }
 	public static Distance(a:Vector2, b:Vector2) { return Math.hypot(a.X-b.X, a.Y-b.Y); }
 	public Add(Vec:Vector2) { return new Vector2(this.X+Vec.X, this.Y+Vec.Y); }
 	public Sub(Vec:Vector2) { return new Vector2(this.X-Vec.X, this.Y-Vec.Y); }
 }
 
-export class Rect
+export class Rect implements Equatable<Rect>
 {
 	constructor(public X:number, public Y:number, public Width:number, public Height:number) { }
 	public Equals(Other?:Rect) { return Other?.X===this.X && Other.Y===this.Y && Other.Width===this.Width && Other.Height===this.Height; }
@@ -28,7 +35,7 @@ export class Rect
 	}
 }
 
-export class ColorRGBA implements ConfigSerializer<ColorRGBA>
+export class ColorRGBA implements ConfigSerializer<ColorRGBA>, Equatable<ColorRGBA>
 {
 	constructor(public readonly r:number, public readonly g:number, public readonly b:number, public readonly a:number)
 	{
@@ -48,6 +55,7 @@ export class ColorRGBA implements ConfigSerializer<ColorRGBA>
 	private static CBy(v:number) { return ColorRGBA.C01(v/255); }
 	public static CreateClamp	 (r:number, g:number, b:number, a:number) { return new ColorRGBA(ColorRGBA.C01(r), ColorRGBA.C01(g), ColorRGBA.C01(b), ColorRGBA.C01(a)); }
 	public static CreateByteClamp(r:number, g:number, b:number, a:number) { return new ColorRGBA(ColorRGBA.CBy(r), ColorRGBA.CBy(g), ColorRGBA.CBy(b), ColorRGBA.CBy(a)); }
+	public Equals(Other?:ColorRGBA) { return Other?.r===this.r && Other.g===this.g && Other.b===this.b && Other.a===this.a; }
 
 	public ConfigSerialize()
 	{
@@ -173,6 +181,13 @@ export namespace Util
 			: AsInt					? Math.trunc(Num)
 			:						  Num
 		);
+	}
+
+	//This function helps guard against HMR graph version updates
+	export function OneTimeInit<T>(Name:string, InitVal:() => T): T
+	{
+		const Glob=globalThis as typeof globalThis & Record<symbol, T|undefined>;
+		return Glob[Symbol.for('__OneTimeInit__'+Name)] ??= InitVal();
 	}
 }
 
@@ -411,7 +426,7 @@ export namespace KeyState
 }
 
 export const WillBeSet=undefined!;
-export const Log=new LogClass();
+export const Log=Util.OneTimeInit('Log', () => new LogClass());
 
 //These are ran at the end of initialization
 export const InitFuncs:(() => void)[]=[];

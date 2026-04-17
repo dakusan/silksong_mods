@@ -1,5 +1,5 @@
 //Primary share object
-import { WillBeSet }				from './Util/SharedClasses';
+import { Util, WillBeSet } from './Util/SharedClasses';
 import { type WindowManager }		from './Util/WindowManager';
 import type Translations			from './Util/Translations';
 import LC							from './AtlasConfig';
@@ -19,4 +19,4 @@ class Shared
 	public readonly	LC							=LC;
 	public			SaveData:SaveDataClass		=SaveDataClass.CreateEmptySave();
 }
-export const Share=new Shared();
+export const Share=Util.OneTimeInit('Share', () => new Shared());

@@ -19,7 +19,7 @@ export default class ConfigWindow extends Window
 		public readonly Config:Config,
 		public readonly Tr?:Translations,
 	) {
-		super({SaveID:'Config'+Config.Prefix, Width:750, Height:550});
+		super({SaveID:'Config'+Config.Prefix, Type:'Config', Width:750, Height:550});
 		this.AddViewableToggles();
 		this.$ConfigTable.appendTo(this.$Content);
 		for(const [SectionName, Entries] of this.Config.Sections)

@@ -1,5 +1,5 @@
 import Color from 'color';
-import { ColorRGBA, InitFuncs, Log, Rect, Vector2, WillBeSet } from './Util/SharedClasses';
+import { ColorRGBA, Equatable, InitFuncs, Log, Rect, Vector2, WillBeSet } from './Util/SharedClasses';
 import { Share } from './Share';
 import { CategoryToggleState, Item } from './CategoriesAndItems';
 
@@ -40,6 +40,14 @@ export class Sprite extends Versioned
 	}
 }
 
+//type UpdatableSettableFields=Partial<Pick<GameObject, '_Color'|'_Active'|'_LocalScale'|'_Pos'>>; //Unfortunately, cannot use this style on private fields
+type UpdatableSettableFields={
+	_Color?:	ColorRGBA;
+	_Active:	boolean;
+	_LocalScale:Vector2;
+	_Pos:		Vector2;
+};
+
 //Emulates a UnityObject sprite
 class GameObject extends Versioned
 {
@@ -56,10 +64,23 @@ class GameObject extends Versioned
 	}
 	static { InitFuncs.push(GameObject.InitClass); }
 
-	private _Color?:ColorRGBA	=undefined; public get Color		() { return this._Color		; }; public set Color		(Val) { this._Color		=Val; this.OnChange		(); }
-	private _Active				=true	  ; public get Active		() { return this._Active	; }; public set Active		(Val) { this._Active	=Val; this.RefreshCanvas(); }
-	private _LocalScale:Vector2	=WillBeSet; public get LocalScale	() { return this._LocalScale; }; public set LocalScale	(Val) { this._LocalScale=Val; this.RefreshCanvas(); }
-	private _Pos:Vector2				  ; public get Pos			() { return this._Pos		; }; public set Pos			(Val) { this._Pos		=Val; this.RefreshCanvas(); }
+	private UpdateSettableVal<K extends keyof UpdatableSettableFields>(ValName:K, NewVal:UpdatableSettableFields[K], Callback:() => void)
+	{
+		const Self=this as GameObject & UpdatableSettableFields;
+		if(
+			   Self[ValName]===NewVal
+			|| (Self[ValName] as Equatable<UpdatableSettableFields[K]|undefined>)?.Equals?.(NewVal)
+		)
+			return;
+
+		(Self as {[P in K]: UpdatableSettableFields[P]})[ValName]=NewVal;
+		Callback.call(this);
+	}
+	private _Color?:ColorRGBA	=undefined; public get Color		() { return this._Color		; }; public set Color		(Val) { this.UpdateSettableVal('_Color',		Val, this.OnChange		); }
+	private _Active				=true	  ; public get Active		() { return this._Active	; }; public set Active		(Val) { this.UpdateSettableVal('_Active',		Val, this.RefreshCanvas	); }
+	private _LocalScale:Vector2	=WillBeSet; public get LocalScale	() { return this._LocalScale; }; public set LocalScale	(Val) { this.UpdateSettableVal('_LocalScale',	Val, this.RefreshCanvas	); }
+	//noinspection TypeScriptFieldCanBeMadeReadonly :: Field is set in Pos.setter→UpdateVal
+	private _Pos:Vector2				  ; public get Pos			() { return this._Pos		; }; public set Pos			(Val) { this.UpdateSettableVal('_Pos',			Val, this.RefreshCanvas	); }
 	private _Material?:Material	=undefined; public get Material		() { return this._Material	; }; public set Material	(Val) {
 		this._Material?.Deregister(this);
 		this._Material=Val;

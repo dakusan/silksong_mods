@@ -202,6 +202,7 @@ export default class I18NSearch<T>
 		this.Terms.push(...Seen);
 	}
 
+	//noinspection JSUnusedGlobalSymbols :: ... ItemTransformer is used, just not inside the constructor
 	public constructor(
 		SearchTermsStringOrList:string|string[], //Search terms will be run through NormalizeForSearch. Make sure to use the same encoding as the haystack strings
 		public ItemTransformer:(Item:T) => FoldedStrings<StartHSTypes>|null=(MyItem => new FoldedStrings(this.Culture, true, String(MyItem))), //Return null to skip searching the item

@@ -228,4 +228,4 @@ export class TranslatePassthrough
 }
 
 //Used by utilities
-export const DefaultTr=Translations.StandardCreate(DefaultModuleName);
+export const DefaultTr=Util.OneTimeInit('DefaultTr', () => Translations.StandardCreate(DefaultModuleName));

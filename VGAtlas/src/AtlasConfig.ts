@@ -1,4 +1,4 @@
-import { ColorRGBA, InitFuncs } from './Util/SharedClasses';
+import { ColorRGBA, InitFuncs, Util } from './Util/SharedClasses';
 import Config, { ConfigItem_Boolean, ConfigItem_Color, ConfigItem_Enum, ConfigItem_Languages, ConfigItem_Number, ConfigItem_Object, ConfigItem_ShortcutKey, OtherObject, ShortcutKey } from './Config/Config';
 import { type Share } from './Share';
 
@@ -26,7 +26,7 @@ class LocalConfig extends Config {
 
 	public readonly CategoryToggleStates	=new ConfigItem_Object		(Config.IgnoreSection, "Category States", new OtherObject<number[][]>([[], [], []]));
 }
-const LC=new LocalConfig();
+const LC=Util.OneTimeInit('LocalConfig', () => new LocalConfig());
 export default LC;
 
 function GetIconFiles()
