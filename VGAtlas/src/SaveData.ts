@@ -35,17 +35,20 @@ export default class SaveDataClass
 
 class PlayerData
 {
-	public Get(Name:string): number|boolean|null
+	public Get(Name:string): number|boolean|string[]|null
 	{
 		return	!this.hasOwnProperty(Name) ? null
-			:	this[Name as keyof this] as number|boolean;
+			:	this[Name as keyof this] as number|boolean|string[];
 	}
 	public Has(Name:string): boolean { return this.hasOwnProperty(Name); }
+
+	//Members used in Misc.json StaticLinks MUST be listed here
 	public geo=0;
 	public ShellShards=0;
 	public act2Started=false;
 	public act3_wokeUp=false;
 	public permadeathMode=false;
+
 	//eslint-disable-next-line @typescript-eslint/array-type
 	public ToolEquips:{savedData:Array<{Name:string, Data:{IsUnlocked:boolean, Slots:Array<{EquippedTool:string, IsUnlocked:boolean}>}}>}={savedData:[]};
 }
@@ -62,6 +65,13 @@ class SerializedList<T extends boolean|number>
 {
 	private serializedList:SceneDataItem<T>[]=[];
 	public get SerializedList() { return this.serializedList; }
+	public GetValue(SceneName:string, ID:string): T|null
+	{
+		for(const SL of this.serializedList)
+			if(SL.SceneName===SceneName && SL.ID===ID)
+				return SL.Value;
+		return null;
+	}
 }
 class SceneDataItem <T extends boolean|number>
 {

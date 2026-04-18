@@ -49,6 +49,7 @@ async function Main()
 		//Primary map and icon functionality
 		MCanvas=(Share as SettableShare).MCanvas=new MapCanvas(87.7487, -87.5855, 2090, 1569);
 		(Share as SettableShare).MSV=new MonitorSaveValues();
+		Share.MSV.Load().then();
 		const DS=new DataStorage();
 		await MCanvas.Init('Assets/PAtlasMap.png');
 		await (DS as DataStorage_Friend).Load(

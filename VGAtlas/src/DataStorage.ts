@@ -2,7 +2,6 @@ import { DevStrings, FriendClass, Iter, Log, PopupMessage, Rect, StatStr, Util, 
 import { OtherObject } from './Config/Types/ConfigItem_Object';
 import { LoadJson } from './Util/JSON';
 import { Share } from './Share';
-import MonitorSaveValues from './MonitorSaveValues';
 import { MapIcon, Sprite } from './MapIcon';
 import { Category, CategoryGroup, CategoryToggleState, ChainItem, ChainList, CreateItem, Item, LoadMisc_StaticLink, StaticLink } from './CategoriesAndItems';
 
@@ -154,9 +153,7 @@ export default class DataStorage
 				this.Items.set(NewID, CreateItem.Process(NewID, V));
 			} catch(e) { Log.Error(NT+`Could not load item ${K}: ${Util.GetErrorMessage(e)}`); }
 
-		const MatchedIcons=Share.MSV.GetMatchedIcons;
 		for(const [ItemID, ItemData] of this.Items.entries()) {
-			ItemData.IsLinked=MatchedIcons.has(MonitorSaveValues.GetItemIDHash(ItemID, false));
 			if(this.Categories.has(ItemData.CategoryID))
 				continue;
 
