@@ -2,7 +2,7 @@ import { DevStrings, FriendClass, Iter, Log, PopupMessage, Rect, StatStr, Util, 
 import { OtherObject } from './Config/Types/ConfigItem_Object';
 import { LoadJson } from './Util/JSON';
 import { Share } from './Share';
-import { MapIcon, Sprite } from './MapIcon';
+import { MapIcon, Sprite, DefaultSSV } from './MapIcon';
 import { Category, CategoryGroup, CategoryToggleState, ChainItem, ChainList, CreateItem, Item, LoadMisc_StaticLink, StaticLink } from './CategoriesAndItems';
 
 const IconLenX		=10;
@@ -61,16 +61,10 @@ class IconSprites
 	}
 
 	//Set the sprites image
-	private IconPicsTex?:ImageBitmap=undefined;
 	protected SetIconPics(IconPicsTex:ImageBitmap, ImageURL:string)
 	{
-		this.IconPicsTex=IconPicsTex;
-		for(const MySprite of this.SpriteList.values())
-			if(MySprite!==null)
-				MySprite.Image=IconPicsTex;
-
-		//Update URL sprite sheet
-		this.CSSSpriteURL.textContent=`.ItemIcon:before { background-image:url('${ImageURL}'); }`;
+		MapIcon.UpdateDefaultSpriteSheet(IconPicsTex);
+		this.CSSSpriteURL.textContent=`.ItemIcon:before { background-image:url('${ImageURL}'); }`; //Update URL sprite sheet
 	}
 
 	private static GetIconRectByID(IconID:number)
@@ -84,7 +78,7 @@ class IconSprites
 		);
 	}
 
-	private CreateSprite(IconRect:Rect) { return new Sprite(this.IconPicsTex, IconRect, new Vector2(0.5, 0.5)); }
+	private CreateSprite(IconRect:Rect) { return new Sprite(DefaultSSV, IconRect, new Vector2(0.5, 0.5)); }
 }
 
 //noinspection ExceptionCaughtLocallyJS
