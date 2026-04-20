@@ -1,5 +1,6 @@
 import Color from 'color';
 import { ColorRGBA, Equatable, InitFuncs, Log, Rect, Util, Vector2, WillBeSet } from './Util/SharedClasses';
+import { HSVAShader, RGBAShader, TintShader } from './Util/PixelShader';
 import { Share } from './Share';
 import { CategoryToggleState, Item } from './CategoriesAndItems';
 
@@ -246,27 +247,27 @@ abstract class Material
 	//noinspection JSUnusedGlobalSymbols
 	public readonly ChangesEachFrame=false;
 
-	//Keep a canvas ready for any x*y multiplier
-	private static readonly MapKeyMultiplier=10_000;
-	private static CanvasList=new Map<number, OffscreenCanvas>();
-	protected static GetCanvas(X:number, Y:number)
-	{
-		if(X<=0 || Y<=0)
-			throw new Error("Size must be greater than 0");
-		if(X>=Material.MapKeyMultiplier || Y>=Material.MapKeyMultiplier)
-			throw new Error("Size cannot be greater than "+Material.MapKeyMultiplier);
-		let Ret=Material.CanvasList.get(Y*Material.MapKeyMultiplier+X);
-		if(!Ret) {
-			Material.CanvasList.set(Y*Material.MapKeyMultiplier+X, Ret=new OffscreenCanvas(X, Y));
-			Ret.getContext('2d', WillReadFrequently);
-		}
-		return Ret;
-	}
-
 	public Run(In:OffscreenCanvas)
 	{
-		const Canvas=Material.GetCanvas(In.width, In.height);
-		const Ctx=Canvas.getContext('2d', WillReadFrequently)!;
+		if(this.GPUShader===undefined)
+			try { this.GPUShader=this.GetGPUShader(In.width, In.height); }
+			catch(e) {
+				Log.Error("Error creating shader. Falling back to CPU shader: "+Util.GetErrorMessage(e));
+				this.GPUShader=null;
+			}
+
+		if(this.GPUShader)
+			try {
+				this.PrepGPUShader(this.GPUShader);
+				this.GPUShader.Render(In);
+				return this.GPUShader.Canvas;
+			} catch(e) {
+				Log.Error("GPU Shader failed. Falling back to CPU shader: "+Util.GetErrorMessage(e));
+			}
+
+		const Canvas=new OffscreenCanvas(In.width, In.height);
+		//eslint-disable-next-line @typescript-eslint/naming-convention
+		const Ctx=Canvas.getContext('2d', {willReadFrequently:true})!;
 		Ctx.reset();
 		Ctx.drawImage(In, 0, 0);
 		const ImageData=Ctx.getImageData(0, 0, In.width, In.height);
@@ -276,6 +277,10 @@ abstract class Material
 	}
 
 	protected abstract Process(Pixels:Uint8ClampedArray, Width:number, Height:number): void;
+
+	private GPUShader:RGBAShader|undefined|null;
+	protected abstract GetGPUShader(Width:number, Height:number): RGBAShader|null;
+	protected abstract PrepGPUShader(Shader:RGBAShader): void;
 }
 
 class HSVShader extends Material
@@ -298,6 +303,16 @@ class HSVShader extends Material
 			Pixels[i+3]*=this.Alpha;
 		}
 	}
+	protected override GetGPUShader(Width:number, Height:number) { return new RGBAShader(HSVAShader, Width, Height); }
+	protected override PrepGPUShader(Shader:RGBAShader)
+	{
+		Shader.C={
+			r:this.Hue,
+			g:this.Sat,
+			b:this.Val,
+			a:this.Alpha,
+		} as ColorRGBA;
+	}
 }
 
 class RGBTintShader extends Material
@@ -314,6 +329,8 @@ class RGBTintShader extends Material
 			Pixels[i+3]*=C.a;
 		}
 	}
+	protected override GetGPUShader(Width:number, Height:number) { return new RGBAShader(TintShader, Width, Height); }
+	protected override PrepGPUShader(Shader:RGBAShader) { Shader.C=this.C; }
 }
 
 //Note: Items used to each have their own canvas with their current sprite (which is how the C# engine basically handled things). And when GameObject.ReRender() was called, it actually rerendered!
@@ -337,18 +354,41 @@ class SpriteSheetVariation
 			NewMats.push(Material);
 		this.Shaders=NewMats;
 	}
-	public Rerender(IB:ImageBitmap) {
+
+	//If only 1 shader, returns what’s needed to finalize the process. This allows for parallel processing of the GPU data
+	public Rerender(IB:ImageBitmap): RenderExecution {
 		if(this.Canvas?.width!==IB.width || this.Canvas.height!==IB.height)
 			this._Canvas=new OffscreenCanvas(IB.width, IB.height);
 
 		const Ctx=this.Canvas!.getContext('2d')!;
 		Ctx.reset();
 		Ctx.drawImage(IB, 0, 0);
+
+		if(this.Shaders.length===0)
+			return new RenderExecution();
+		if(this.Shaders.length===1)
+			return new RenderExecution(this.Shaders[0].Run(this.Canvas!), Ctx);
+
 		for(const Shader of this.Shaders) {
 			const UpdatedImage=Shader.Run(this.Canvas!);
 			Ctx.reset();
 			Ctx.drawImage(UpdatedImage, 0, 0);
 		}
+		return new RenderExecution();
+	}
+}
+class RenderExecution
+{
+	constructor(
+		public readonly Rendered?:OffscreenCanvas,
+		public readonly Ctx?:OffscreenCanvasRenderingContext2D,
+	) { }
+	public Complete()
+	{
+		if(!this.Rendered)
+			return;
+		this.Ctx!.reset();
+		this.Ctx!.drawImage(this.Rendered, 0, 0);
 	}
 }
 const SSVDefault='Default';
@@ -369,10 +409,12 @@ class SpriteSheetVariations
 		Vars[SSVDefault]=new SpriteSheetVariation(); //Default is required
 	}
 
-	public Update(IB:ImageBitmap) { this._IB=IB; Object.values(this.Vars).forEach(SSV => SSV.Rerender(IB)); }
-	public Rerender(Var:SSVVar) { if(this._IB) this.Vars[Var]?.Rerender(this._IB); }
+	public Update(IB:ImageBitmap)
+	{
+		this._IB=IB;
+		const Renders=Object.values(this.Vars).map(SSV => SSV.Rerender(IB));
+		Renders.forEach(R => R.Complete());
+	}
+	public Rerender(Var:SSVVar) { if(this._IB) this.Vars[Var]?.Rerender(this._IB).Complete(); }
 }
 export const DefaultSSV=Util.OneTimeInit('SpriteSheetVariations', () => new SpriteSheetVariations());
-
-//eslint-disable-next-line @typescript-eslint/naming-convention
-const WillReadFrequently={willReadFrequently:true};
