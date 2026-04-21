@@ -79,7 +79,7 @@ function Init_Color_FoundIcon_Demo()
 		const RGBA=LC.Color_FoundIcon.V;
 		DemoIcon.style=[
 			`filter: hue-rotate(${(RGBA.r*360+180)%360}deg)`,
-			`saturate(${RGBA.g*100}%)`,
+			`saturate(${RGBA.g*200}%)`,
 			`brightness(${RGBA.b*200}%)`,
 			`opacity(${RGBA.a})`,
 		].join(' ');

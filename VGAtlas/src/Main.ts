@@ -103,7 +103,7 @@ function SetupOneTimeMessage()
 	{
 		const NewMessage=Share.Tr.TDef('OneTimeMessage', undefined, 'Failed to load one time message');
 		const Hash=HashString(NewMessage);
-		if(Hash===localStorage.getItem('LastPopupMessageSeen'))
+		if(Hash===localStorage.getItem('LastPopupMessageSeen') || !NewMessage)
 			return;
 		localStorage.setItem('LastPopupMessageSeen', Hash);
 		if(PM)

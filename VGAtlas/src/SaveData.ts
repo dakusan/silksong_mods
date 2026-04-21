@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 //noinspection JSUnusedGlobalSymbols,SpellCheckingInspection
 
-import CryptoJS from 'crypto-js';
 import { WillBeSet } from './Util/SharedClasses';
 import { TranslatePassthrough } from './Util/Translations';
 
@@ -20,14 +19,14 @@ export default class SaveDataClass
 	private constructor() { }
 	public get ctor() { return SaveDataClass; }
 	public static		CreateEmptySave			(					): SaveDataClass			{ return new SaveDataClass(); }
-	public static async	CreateFrom_File			(File:File			): Promise<SaveDataClass>	{ return this.CreateFrom_FileBytes(new Uint8Array(await File.arrayBuffer())); }
-	public static		CreateFrom_Base64String	(Base64String:string): SaveDataClass			{ return CreateSaveData(JSON.parse(DecryptSaveFile(Base64String)) as SaveDataClass); }
+	public static async	CreateFrom_File			(File:File			): Promise<SaveDataClass>	{ return await this.CreateFrom_FileBytes(new Uint8Array(await File.arrayBuffer())); }
+	public static async	CreateFrom_Base64String	(Base64String:string): Promise<SaveDataClass>	{ return CreateSaveData(JSON.parse(await DecryptSaveFile(Base64String)) as SaveDataClass); }
 	public static		CreateFrom_JSONString	(JSONString:string	): SaveDataClass			{ return CreateSaveData(JSON.parse(JSONString) as SaveDataClass); }
-	public static		CreateFrom_FileBytes	(Bytes:Uint8Array	): SaveDataClass			{
+	public static async	CreateFrom_FileBytes	(Bytes:Uint8Array	): Promise<SaveDataClass>	{
 		if(Bytes.length<BeginningBytes+EndBytes)
 			throw new TranslatePassthrough("File is too small", 'LoadSaveFile').AsError();
 
-		return this.CreateFrom_Base64String(new TextDecoder('latin1').decode(
+		return await this.CreateFrom_Base64String(new TextDecoder('latin1').decode(
 			Bytes.subarray(BeginningBytes, Bytes.length-EndBytes)
 		));
 	}
@@ -92,9 +91,10 @@ function CreateSaveData(NewSaveData:SaveDataClass): SaveDataClass
 	return NewSaveData;
 }
 
-function DecryptSaveFile(Base64String:string): string
+async function DecryptSaveFile(Base64String:string): Promise<string>
 {
 	//Decrypt AES-256-ECB with PKCS7 padding
+	const CryptoJS=(await import('crypto-js')).default;
 	const Decrypted=CryptoJS.AES.decrypt(
 		CryptoJS.lib.CipherParams.create({ ciphertext:CryptoJS.enc.Base64.parse(Base64String) }),
 		CryptoJS.enc.Utf8.parse(KeyString),

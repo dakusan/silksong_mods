@@ -264,7 +264,7 @@ public class MonitorSaveValues
 					ForStarting,
 					   IF.MatchedIcons.TryGetValue(new(I.ID, ForStarting), out string GameName)												//Match was found
 					&& ((Parts=GameName.Split('.')).Length==2 || Misc.PassThru(() => Log.Error($"Invalid name found: {GameName}"), false))	//Match value is in proper format (dot separated)
-					&& IsValueCompleted(GetLiveCompletedValue(new(Parts[0], Parts[1])))														//Is value completed
+					&& GetLiveCompletedValue(new(Parts[0], Parts[1]))																		//Is value completed
 				);
 	}
 
@@ -406,7 +406,7 @@ public class MonitorSaveValues
 				_=DS.Items.Get(PreviousMatch2.ID)?.IsLinked=false;
 			_=IF.MatchedIcons.Remove(PreviousMatch2);
 		}
-		SelectedItem.IsFound=IsValueCompleted(GetLiveCompletedValue(SelectedValue.FromName));
+		SelectedItem.IsFound=GetLiveCompletedValue(SelectedValue.FromName);
 		SelectedItem.IsLinked=true;
 
 		//Update the dictionaries

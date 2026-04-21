@@ -1,4 +1,4 @@
-import Color from 'color';
+import type Color from 'color';
 import { ColorRGBA, Equatable, InitFuncs, Log, Rect, Util, Vector2, WillBeSet } from './Util/SharedClasses';
 import { HSVAShader, RGBAShader, TintShader } from './Util/PixelShader';
 import { Share } from './Share';
@@ -26,7 +26,7 @@ export class Sprite extends Versioned
 		//noinspection SpellCheckingInspection
 		const Res=await fetch('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADcAAAA2AQMAAABZSZOgAAAABlBMVEX/ANwAAAAtIRQiAAAAIElEQVR4AWNgsH/A/4P5H8X0/wPyH9j/MFBKj7oHPw0AR228KREmCC0AAAAASUVORK5CYII=');
 		const NewErrImage=new SpriteSheetVariations();
-		NewErrImage.Update(await createImageBitmap(await Res.blob()));
+		await NewErrImage.Update(await createImageBitmap(await Res.blob()));
 		this.ErrImage=NewErrImage;
 	}
 
@@ -228,9 +228,10 @@ export class MapIcon
 
 	public static UpdateDefaultSpriteSheet(IB:ImageBitmap)
 	{
-		DefaultSSV.Update(IB);
-		for(const I of (Share.DS?.Items.values() ?? []))
-			I.MapIcon?.IconGO.SpriteUpdated();
+		DefaultSSV.Update(IB).then(() => {
+			for(const I of (Share.DS?.Items.values() ?? []))
+				I.MapIcon?.IconGO.SpriteUpdated();
+		});
 	}
 
 	public BringToFront() { this.IconGO.BringToFront(); }
@@ -289,10 +290,21 @@ class HSVShader extends Material
 	public Sat	:number=0.5;
 	public Val	:number=0.5;
 	public Alpha:number=1.0;
+	private static ColorClass?:typeof Color;
+	private static LoadColorClass?:Promise<void>;
 	protected override Process(Pixels:Uint8ClampedArray)
 	{
+		if(!HSVShader.ColorClass)
+			if(HSVShader.LoadColorClass)
+				throw new Error('PROMISE', {cause:HSVShader.LoadColorClass});
+			else
+				throw new Error('PROMISE', {cause:HSVShader.LoadColorClass=new Promise<void>(async Resolve => {
+					HSVShader.ColorClass=(await import('color')).default;
+					Resolve();
+				})});
+
 		for(let i=0; i<Pixels.length; i+=4) {
-			const C=Color({ r:Pixels[i], g:Pixels[i+1], b:Pixels[i+2] }).hsv();
+			const C=HSVShader.ColorClass({ r:Pixels[i], g:Pixels[i+1], b:Pixels[i+2] }).hsv();
 			const NewColor=C
 				.rotate(this.Hue*360)
 				.saturationv(Math.min(100, C.saturationv()*this.Sat))
@@ -356,7 +368,8 @@ class SpriteSheetVariation
 	}
 
 	//If only 1 shader, returns what’s needed to finalize the process. This allows for parallel processing of the GPU data
-	public Rerender(IB:ImageBitmap): RenderExecution {
+	public Rerender(IB:ImageBitmap): RenderExecution
+	{
 		if(this.Canvas?.width!==IB.width || this.Canvas.height!==IB.height)
 			this._Canvas=new OffscreenCanvas(IB.width, IB.height);
 
@@ -409,10 +422,22 @@ class SpriteSheetVariations
 		Vars[SSVDefault]=new SpriteSheetVariation(); //Default is required
 	}
 
-	public Update(IB:ImageBitmap)
+	public async Update(IB:ImageBitmap)
 	{
 		this._IB=IB;
-		const Renders=Object.values(this.Vars).map(SSV => SSV.Rerender(IB));
+		let Renders:RenderExecution[];
+
+		//If an error is thrown with a promise, wait for it and then process again
+		try {
+			Renders=Object.values(this.Vars).map(SSV => SSV.Rerender(IB));
+		} catch(e) {
+			if((e as Error)?.message!=='PROMISE') {
+				Log.Error("Error during shader processing: "+Util.GetErrorMessage(e));
+				return;
+			}
+			await ((e as Error).cause as Promise<void>);
+			Renders=Object.values(this.Vars).map(SSV => SSV.Rerender(IB));
+		}
 		Renders.forEach(R => R.Complete());
 	}
 	public Rerender(Var:SSVVar) { if(this._IB) this.Vars[Var]?.Rerender(this._IB).Complete(); }
