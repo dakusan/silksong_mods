@@ -1,13 +1,6 @@
 //noinspection SpellCheckingInspection
 /* eslint-disable @typescript-eslint/naming-convention */
-import REGL from 'regl';
-import { ColorRGBA, WillBeSet } from './SharedClasses';
-
-type Attributes={position:number[]};
-type Props={
-	UImage:REGL.Texture2D;
-	UColor:[number, number, number, number];
-};
+import { ColorRGBA } from './SharedClasses';
 
 const VertShader=`
 precision mediump float;
@@ -75,31 +68,72 @@ void main()
 
 export class RGBAShader
 {
-	private readonly REGL:REGL.Regl;
-	private Texture?:REGL.Texture2D;
+	public Canvas:OffscreenCanvas;
+	private readonly GL:WebGLRenderingContext;
+	private readonly Program:WebGLProgram;
+	private readonly PositionBuffer:WebGLBuffer;
+	private readonly Texture:WebGLTexture;
+	private readonly AttrPosition:number;
+	private readonly UniformUImage:WebGLUniformLocation;
+	private readonly UniformUColor:WebGLUniformLocation;
 	public C:ColorRGBA=new ColorRGBA(1, 1, 1, 1);
-	private readonly Draw:REGL.DrawCommand;
-	public Canvas:OffscreenCanvas=WillBeSet;
 
 	public constructor(PixelShader:string, Width:number, Height:number) {
-		this.REGL=REGL({
-			canvas:(this.Canvas=new OffscreenCanvas(Width, Height)) as unknown as HTMLCanvasElement,
-			attributes:{
-				alpha:true, depth:false, stencil:false, antialias:false,
-				premultipliedAlpha:false, preserveDrawingBuffer:true,
-			},
-		});
+		function ThrowOnNull<T>(Str:string): T { throw new Error(Str); }
+		function CompileShader(GL:WebGLRenderingContext, Type:number, Source:string): WebGLShader
+		{
+			const Shader=GL.createShader(Type) ?? ThrowOnNull<WebGLShader>("Could not create shader");
+			GL.shaderSource(Shader, Source);
+			GL.compileShader(Shader);
+			if(GL.getShaderParameter(Shader, GL.COMPILE_STATUS))
+				return Shader;
+			const Info=GL.getShaderInfoLog(Shader);
+			GL.deleteShader(Shader);
+			throw new Error(`Shader compile failed: ${Info ?? "Unknown error"}`);
+		}
+		function CreateProgram(GL:WebGLRenderingContext, VertSource:string, FragSource:string): WebGLProgram
+		{
+			const Vert=CompileShader(GL, GL.VERTEX_SHADER, VertSource);
+			const Frag=CompileShader(GL, GL.FRAGMENT_SHADER, FragSource);
+			const Program=GL.createProgram() ?? ThrowOnNull("Could not create program");
 
-		this.Draw=this.REGL<Props, Attributes, Props>({
-			vert:VertShader,
-			frag:PixelShader,
-			attributes:{position:[-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]},
-			uniforms:{
-				UImage:this.REGL.prop<Props, 'UImage'>('UImage'),
-				UColor:this.REGL.prop<Props, 'UColor'>('UColor'),
-			},
-			count:6,
-		});
+			try {
+				GL.attachShader(Program, Vert);
+				GL.attachShader(Program, Frag);
+				GL.linkProgram(Program);
+				if(!GL.getProgramParameter(Program, GL.LINK_STATUS))
+					throw new Error(`Program link failed: ${GL.getProgramInfoLog(Program) ?? "Unknown error"}`);
+			} finally {
+				GL.deleteShader(Vert);
+				GL.deleteShader(Frag);
+			}
+
+			return Program;
+		}
+
+		this.Canvas=new OffscreenCanvas(Width, Height);
+		const GL=this.GL=this.Canvas.getContext('webgl', {
+			alpha:true, depth:false, stencil:false, antialias:false, premultipliedAlpha:false,
+		}) ?? ThrowOnNull("Could not create WebGL context");
+
+		this.Program=CreateProgram(GL, VertShader, PixelShader);
+		this.AttrPosition=GL.getAttribLocation(this.Program, 'position');
+		if(this.AttrPosition<0)
+			throw new Error("Could not find attribute position");
+
+		this.UniformUImage=GL.getUniformLocation(this.Program, 'UImage') ?? ThrowOnNull("Could not find uniform UImage");
+		this.UniformUColor=GL.getUniformLocation(this.Program, 'UColor') ?? ThrowOnNull("Could not find uniform UColor");
+
+		this.PositionBuffer=GL.createBuffer() ?? ThrowOnNull("Could not create position buffer");
+		GL.bindBuffer(GL.ARRAY_BUFFER, this.PositionBuffer);
+		GL.bufferData(GL.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), GL.STATIC_DRAW);
+
+		this.Texture=GL.createTexture() ?? ThrowOnNull("Could not create texture");
+		GL.bindTexture(GL.TEXTURE_2D, this.Texture);
+		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
+		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
+		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
+		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
 	}
 
 	public Render(Image:OffscreenCanvas):OffscreenCanvas
@@ -107,30 +141,31 @@ export class RGBAShader
 		if(this.Canvas.width!==Image.width || this.Canvas.height!==Image.height)
 			throw new Error("Image size cannot change");
 
-		if(this.Texture===undefined)
-			this.Texture=this.REGL.texture({
-				data:Image as unknown as REGL.TextureImageData,
-				width:Image.width, height:Image.height,
-				flipY:false, premultiplyAlpha:false, min:'nearest', mag:'nearest', wrap:'clamp',
-			});
-		else
-			this.Texture({data:Image as unknown as REGL.TextureImageData});
+		const GL=this.GL;
+		GL.viewport(0, 0, this.Canvas.width, this.Canvas.height);
+		GL.useProgram(this.Program);
 
-		this.REGL.clear({color:[0, 0, 0, 0], depth:1, stencil:0});
-		this.Draw({
-			UImage:this.Texture,
-			UColor:[this.C.r, this.C.g, this.C.b, this.C.a],
-		});
+		GL.activeTexture(GL.TEXTURE0);
+		GL.bindTexture(GL.TEXTURE_2D, this.Texture);
+		GL.pixelStorei(GL.UNPACK_FLIP_Y_WEBGL, false);
+		GL.pixelStorei(GL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+		GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, Image);
+
+		GL.uniform1i(this.UniformUImage, 0);
+		GL.uniform4f(this.UniformUColor, this.C.r, this.C.g, this.C.b, this.C.a);
+
+		GL.bindBuffer(GL.ARRAY_BUFFER, this.PositionBuffer);
+		GL.enableVertexAttribArray(this.AttrPosition);
+		GL.vertexAttribPointer(this.AttrPosition, 2, GL.FLOAT, false, 0, 0);
+		GL.drawArrays(GL.TRIANGLES, 0, 6);
 
 		return this.Canvas;
 	}
 
 	public Dispose()
 	{
-		if(this.Texture) {
-			this.Texture.destroy();
-			this.Texture=undefined;
-		}
-		this.REGL.destroy();
+		this.GL.deleteTexture(this.Texture);
+		this.GL.deleteBuffer(this.PositionBuffer);
+		this.GL.deleteProgram(this.Program);
 	}
 }

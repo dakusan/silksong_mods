@@ -33,7 +33,6 @@
 	"dependencies": {
 		"color": "^5.0.3",
 		"crypto-js": "^4.2.0",
-		"jquery": "^4.0.0",
-		"regl": "^2.1.1"
+		"jquery": "^4.0.0"
 	}
 }
