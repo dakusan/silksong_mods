@@ -93,8 +93,30 @@ function CreateSaveData(NewSaveData:SaveDataClass): SaveDataClass
 
 async function DecryptSaveFile(Base64String:string): Promise<string>
 {
+	//Instead of using import('crypto-js'), this does the same thing but only pulls in the needed modules, drastically reducing the module’s output chunk size
+	const LoadParams={
+		CryptoJS:	import('crypto-js/core'			),
+		AES:		import('crypto-js/aes'			),
+		Base64:		import('crypto-js/enc-base64'	),
+		Utf8:		import('crypto-js/enc-utf8'		),
+		ECB:		import('crypto-js/mode-ecb'		),
+		Pkcs7:		import('crypto-js/pad-pkcs7'	),
+	} as const;
+	type LoadedModules={[K in keyof typeof LoadParams]: Awaited<(typeof LoadParams)[K]>['default']};
+	const Mods=await Promise.all(
+		Object.entries(LoadParams).map(async ([k, v]) =>
+			[k, (await v).default] as const
+		)
+	).then(Entries => Object.fromEntries(Entries) as LoadedModules);
+	const CryptoJS={
+		...Mods.CryptoJS,
+		AES:Mods.AES,
+		enc:{Base64:Mods.Base64, Utf8:Mods.Utf8},
+		mode:{ECB:Mods.ECB},
+		pad:{Pkcs7:Mods.Pkcs7}
+	};
+
 	//Decrypt AES-256-ECB with PKCS7 padding
-	const CryptoJS=(await import('crypto-js')).default;
 	const Decrypted=CryptoJS.AES.decrypt(
 		CryptoJS.lib.CipherParams.create({ ciphertext:CryptoJS.enc.Base64.parse(Base64String) }),
 		CryptoJS.enc.Utf8.parse(KeyString),

@@ -1,4 +1,3 @@
-import type Color from 'color';
 import { ColorRGBA, Equatable, InitFuncs, Log, Rect, Util, Vector2, WillBeSet } from './Util/SharedClasses';
 import { HSVAShader, RGBAShader, TintShader } from './Util/PixelShader';
 import { Share } from './Share';
@@ -290,7 +289,7 @@ class HSVShader extends Material
 	public Sat	:number=0.5;
 	public Val	:number=0.5;
 	public Alpha:number=1.0;
-	private static ColorClass?:typeof Color;
+	private static ColorClass?:typeof import('./Util/Color');
 	private static LoadColorClass?:Promise<void>;
 	protected override Process(Pixels:Uint8ClampedArray)
 	{
@@ -299,19 +298,21 @@ class HSVShader extends Material
 				throw new Error('PROMISE', {cause:HSVShader.LoadColorClass});
 			else
 				throw new Error('PROMISE', {cause:HSVShader.LoadColorClass=new Promise<void>(async Resolve => {
-					HSVShader.ColorClass=(await import('color')).default;
+					HSVShader.ColorClass=(await import('./Util/Color'));
 					Resolve();
 				})});
 
 		for(let i=0; i<Pixels.length; i+=4) {
-			const C=HSVShader.ColorClass({ r:Pixels[i], g:Pixels[i+1], b:Pixels[i+2] }).hsv();
-			const NewColor=C
-				.rotate(this.Hue*360)
-				.saturationv(Math.min(100, C.saturationv()*this.Sat))
-				.value(Math.min(100, C.value()*this.Val));
-			Pixels[i  ]=NewColor.red();
-			Pixels[i+1]=NewColor.green();
-			Pixels[i+2]=NewColor.blue();
+			const HSV=HSVShader.ColorClass.rgb2hsv(Pixels[i]/255, Pixels[i+1]/255, Pixels[i+2]/255);
+			HSV.h+=this.Hue;
+			const NewColor=HSVShader.ColorClass.hsv2rgb(
+				HSV.h-Math.floor(HSV.h),
+				Math.min(1, HSV.s*this.Sat),
+				Math.min(1, HSV.v*this.Val)
+			);
+			Pixels[i  ]=NewColor.r*255;
+			Pixels[i+1]=NewColor.g*255;
+			Pixels[i+2]=NewColor.b*255;
 			Pixels[i+3]*=this.Alpha;
 		}
 	}
