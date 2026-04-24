@@ -1,7 +1,7 @@
 import './Style.scss';
 import $							from 'jquery';
-import { FriendClass, InitFuncs, Log,
-	PopupMessage, Util, WillBeSet }	from './Util/SharedClasses';
+import { DevStrings, FriendClass, InitFuncs, Log, PopupMessage,
+	StatStr, Util, WillBeSet }	from './Util/SharedClasses';
 import { WM, Window }				from './Util/WindowManager';
 import Translations, { DefaultTr }	from './Util/Translations';
 import { Share }					from './Share';
@@ -81,16 +81,13 @@ async function Main()
 			MCanvas.ErrorMessage=Message;
 		else
 			$('#map').empty().append($('<div>').text(Message));
+	} finally {
+		document.body.classList.remove('Loading');
 	}
 }
 
 function SetupOneTimeMessage()
 {
-	//If very first load, show popup message immediately with temporary message
-	let PM:PopupMessage;
-	if(!localStorage.getItem('LastPopupMessageSeen'))
-		PM=new PopupMessage('LOADING MESSAGE');
-
 	//If the popup message has changed, then show it
 	function HashString(Str:string)
 	{
@@ -106,10 +103,7 @@ function SetupOneTimeMessage()
 		if(Hash===localStorage.getItem('LastPopupMessageSeen') || !NewMessage)
 			return;
 		localStorage.setItem('LastPopupMessageSeen', Hash);
-		if(PM)
-			PM.HTML=NewMessage;
-		else
-			new PopupMessage(NewMessage, true);
+		new PopupMessage(NewMessage, true);
 	}
 
 	//Wait for the current language to load to see if the popup message has changed
@@ -250,13 +244,48 @@ function SetupLoadSaveFileWindow()
 	<span class=TranslationEl data-translation-key="CURRENT_SELECTED_FILE" data-translation-section=LoadSaveFile data-translation-default="Currently selected file: "></span>
 	<span id=CurrentlySelectedFile></span>
 </div>
+<div id=SaveFileContents>
+	<button class='CopyButton WinButton'></button>
+	<div class=Text></div>
+</div>
 	`);
 	Share.Tr.UpdateDOMSubElements(NewWin.$Content[0]);
 
-	//Setup CurrentlySelectedFile
+	//Setup CurrentlySelectedFile and SaveFileContents
 	const CurrentlySelectedFile=$('#CurrentlySelectedFile');
+	const SaveFileContents=$('#SaveFileContents');
 	const Get_NO_FILE_LOADED=() => Share.Tr.TDef("NO_FILE_LOADED", 'LoadSaveFile', "None");
-	CurrentlySelectedFile.text(localStorage.getItem('SaveDataFileName') ?? Get_NO_FILE_LOADED());
+	function UpdateContentState()
+	{
+		const FileName=localStorage.getItem('SaveDataFileName');
+		const HasContents=(FileName!==null);
+		const TextEl=SaveFileContents.children('.Text');
+		CurrentlySelectedFile.text(FileName ?? Get_NO_FILE_LOADED());
+		ClearButton.toggleClass('Disabled', !HasContents);
+		ClearButton.prop('disabled', !HasContents);
+		SaveFileContents.toggleClass('HasContents', HasContents);
+		TextEl.empty();
+		if(!HasContents)
+			return;
+
+		//Add highlighted lines
+		TextEl.html(
+			DevStrings.SafeRich(JSON.stringify(Share.SaveData, null, '    '))
+				.replaceAll('<br>', StatStr.NewLine)
+				.replace(/^(?: {4}"(?:playerData|sceneData)"| {8}"(?:persistentBools|persistentInts|EnemyJournalKillData|MateriumCollected|ToolEquips|Collectables)").*$\n/gm, '<div class=HLLine>$&<span class=Buttons><button class=Prev></button><button class=Next></button></span></div>')
+				.replaceAll(StatStr.NewLine, '<br>')
+			);
+
+		//Scroll to next/previous highlighted line
+		TextEl.find('.Prev,.Next').on('click', e => {
+			const $El=$(e.currentTarget);
+			const IsNext=$El.hasClass('Next');
+			const Parent=$El.parents('.HLLine').eq(0);
+			const List=TextEl.find('.HLLine');
+			const NewEl=List[List.index(Parent)+(IsNext ? 1 : -1)];
+			NewWin.$Content[0].scrollTop=NewEl.offsetTop; //While this offset is not strictly correct, it leaves a good amount of padding above the selected element
+		});
+	}
 
 	//Set up other buttons
 	const UploadButton=<JQuery<HTMLInputElement>>
@@ -268,9 +297,9 @@ function SetupLoadSaveFileWindow()
 
 			try {
 				Share.SaveData=await Share.SaveData.ctor.CreateFrom_File(File);
-				CurrentlySelectedFile.text(File.name);
 				localStorage.setItem('SaveData', JSON.stringify(Share.SaveData));
 				localStorage.setItem('SaveDataFileName', File.name);
+				UpdateContentState();
 				Share.MSV.UpdateAllUsedValuesOnLoad();
 			}
 			catch(e) {
@@ -281,13 +310,20 @@ function SetupLoadSaveFileWindow()
 		})
 		.appendTo(NewWin.$Content);
 
-	$('#UnloadSaveFileButton').on('click', () => {
+	SaveFileContents.children('.CopyButton').on('click', () => void(
+		navigator.clipboard.writeText(JSON.stringify(Share.SaveData, null, '    '))
+			.catch(e => new PopupMessage("Clipboard copy failed: "+Util.GetErrorMessage(e)))
+	));
+
+	const ClearButton=$('#UnloadSaveFileButton').on('click', () => {
 		Share.SaveData=Share.SaveData.ctor.CreateEmptySave();
-		CurrentlySelectedFile.text(Get_NO_FILE_LOADED());
 		localStorage.removeItem('SaveData');
 		localStorage.removeItem('SaveDataFileName');
+		UpdateContentState();
 		Share.MSV.UpdateAllUsedValuesOnLoad();
 	});
+
+	UpdateContentState();
 
 	return NewWin;
 }

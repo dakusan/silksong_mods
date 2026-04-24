@@ -212,6 +212,7 @@ export class MapIcon
 		}, 0);
 		Share.LC.Color_FoundIcon.SettingChanged.Add('MapIcon.UpdateShaderColor', MapIcon.UpdateShaderColor.bind(this));
 	}
+	private static UpdateShaderColor_TimeoutHandle?:number;
 	private static UpdateShaderColor(C:ColorRGBA)
 	{
 		const MyShader=DefaultSSV.Vars.IsFound.Shaders[0] as HSVShader;
@@ -219,10 +220,23 @@ export class MapIcon
 		MyShader.Sat	=C.g*2	;
 		MyShader.Val	=C.b*2	;
 		MyShader.Alpha	=C.a	;
-		DefaultSSV.Rerender('IsFound');
-		for(const I of Share.DS?.Items.values() ?? [])
-			if(I.MapIcon?.IconGO.SSVVar==='IsFound')
-				I.MapIcon?.IconGO.IncVersion();
+
+		function DoRerender()
+		{
+			DefaultSSV.Rerender('IsFound');
+			for(const I of Share.DS?.Items.values() ?? [])
+				if(I.MapIcon?.IconGO.SSVVar==='IsFound')
+					I.MapIcon?.IconGO.IncVersion();
+		}
+		if(!MyShader.IsUsingCPUShader)
+			return DoRerender();
+
+		//If using CPU shader, give a 1.5 second timeout before running the update
+		clearTimeout(this.UpdateShaderColor_TimeoutHandle);
+		this.UpdateShaderColor_TimeoutHandle=setTimeout(() => {
+			this.UpdateShaderColor_TimeoutHandle=undefined;
+			DoRerender();
+		}, 1500);
 	}
 
 	public static UpdateDefaultSpriteSheet(IB:ImageBitmap)
@@ -247,6 +261,7 @@ abstract class Material
 	//noinspection JSUnusedGlobalSymbols
 	public readonly ChangesEachFrame=false;
 
+	private _IsUsingCPUShader=false; public get IsUsingCPUShader() { return this._IsUsingCPUShader; }
 	public Run(In:OffscreenCanvas)
 	{
 		if(this.GPUShader===undefined)
@@ -260,11 +275,14 @@ abstract class Material
 			try {
 				this.PrepGPUShader(this.GPUShader);
 				this.GPUShader.Render(In);
+				this._IsUsingCPUShader=false;
 				return this.GPUShader.Canvas;
 			} catch(e) {
-				Log.Error("GPU Shader failed. Falling back to CPU shader: "+Util.GetErrorMessage(e));
+				if(!this.IsUsingCPUShader)
+					Log.Error("GPU Shader failed. Falling back to CPU shader: "+Util.GetErrorMessage(e));
 			}
 
+		this._IsUsingCPUShader=true;
 		const Canvas=new OffscreenCanvas(In.width, In.height);
 		//eslint-disable-next-line @typescript-eslint/naming-convention
 		const Ctx=Canvas.getContext('2d', {willReadFrequently:true})!;

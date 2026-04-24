@@ -5,7 +5,7 @@ option { background:var(--tooltip-bg, rgba(64, 64, 64, 0.8)); color:var(--text-c
 button, input { color:inherit; font-family:inherit; }
 .AddInputStyles, .ConfigTable { input, select, button { @include win-button; } }
 .WinButton { @include win-button; }
-.SafeHide { position:absolute; width:1px; height:1px; margin:-1px; border:0; padding:0; overflow:hidden; clip:rect(0, 0, 0, 0); } /* Visually hidden (off-screen) but remains focusable and accessible */
+.SafeHide { position:fixed; width:1px; height:1px; margin:-1px; border:0; padding:0; overflow:hidden; clip:rect(0, 0, 0, 0); } /* Visually hidden (off-screen) but remains focusable and accessible */
 
 .PopupMessage {
 	position:absolute; z-index:100000; display:flex; inset:0; justify-content:center; align-items:center; background:var(--popup-surround-background, rgba(51, 51, 51, 0.75));
@@ -153,7 +153,7 @@ body #MainMenu { display:block; }
 #MainMenu {
 	position:absolute; top:15px; left:15px; z-index:15000;
 	.PopupButton {
-		font-size:28px; color:var(--main-menu-button, #808080);
+		font-size:28px; color:var(--main-menu-button, #808080); cursor:context-menu;
 		&:hover { color:var(--main-menu-button-hover, white); }
 		&:before { content:var(--main-menu-icon, '☰'); }
 		&:active { transform:translateY(1px); }
@@ -180,12 +180,16 @@ body #MainMenu { display:block; }
 
 #WinID_Logs .LogLine {
 	white-space:pre-wrap;
-	&:hover { color:var(--hl-text-color, #eee); background:var(--line-item-hover, rgba(255, 255, 255, 0.25)); }
+	&:hover { color:var(--hl-text-color, #eee); background:var(--line-item-hover, #4678C880); }
 	&.IsError { color:red; }
 	.Time {
 		color:var(--line-item-alt, cyan);
 		&:after { content:': '; }
 	}
+}
+.HLLine {
+	color:var(--hl-text-color, #eee); background:var(--line-item-hover, #4678C880);
+	.Alt { color:var(--line-item-alt, cyan); }
 }
 
 #WinID_Search {
@@ -198,7 +202,7 @@ body #MainMenu { display:block; }
 	.Results>* {
 		position:relative; overflow:hidden; cursor:pointer; white-space:pre-wrap;
 		&.Clipped:not(:hover)::before { content:'▼'; position:absolute; right:8px; bottom:6px; pointer-events:none; z-index:1; }
-		&:hover { color:var(--hl-text-color, #eee); background:var(--line-item-hover, rgba(255, 255, 255, 0.25)); max-height:none !important; }
+		&:hover { color:var(--hl-text-color, #eee); background:var(--line-item-hover, #4678C880); max-height:none !important; }
 		&.Separator { height:1px; margin:4px; background:var(--line-separator, white); }
 		&.Separator:last-child { display:none; }
 	}
@@ -211,6 +215,31 @@ body #MainMenu { display:block; }
 	label, button { padding:5px; }
 	button { font-size:inherit; }
 	#CurrentlySelectedFile { font-weight:bold; }
+	#SaveFileContents {
+		position:relative;
+		&.HasContents {
+			margin-top:8px; border-top:2px solid var(--line-separator, white); padding-top:8px;
+			.CopyButton { display:block; }
+		}
+		>.CopyButton {
+			display:none; position:absolute; top:2px; right:0; padding:2px;
+			&::before { content:'📋️'; }
+		}
+		>.Text {
+			margin-top:3px; white-space:pre-wrap;
+			.HLLine {
+				position:relative;
+				.Buttons {
+					position:absolute; top:0; right:5px;
+					button { border:0; padding:0; background-color:transparent; cursor:pointer; }
+					.Prev::before { content:'⇧'; }
+					.Next::before { content:'⇩'; }
+				}
+				&:first-of-type .Prev { display:none; }
+				&:last-of-type  .Next { display:none; }
+			}
+		}
+	}
 }
 
 .FontSize {

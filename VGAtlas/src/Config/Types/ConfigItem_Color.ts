@@ -46,8 +46,11 @@ export default class ConfigItem_Color extends ConfigItem<ColorRGBA>
 	}
 	private UpdateSaveValue(NewVals:Partial<Record<ColorChannel, number>>)
 	{
-		const NewColor:Record<ColorChannel, number>={...(({r, g, b, a}) => ({r, g, b, a}))(this.V), ...NewVals};
-		this.SetVal(new ColorRGBA(NewColor.r, NewColor.g, NewColor.b, NewColor.a), true);
+		const NewColorObj:Record<ColorChannel, number>={...(({r, g, b, a}) => ({r, g, b, a}))(this.V), ...NewVals};
+		const NewColor=new ColorRGBA(NewColorObj.r, NewColorObj.g, NewColorObj.b, NewColorObj.a);
+		if(NewColor.Equals(this.V))
+			return;
+		this.SetVal(NewColor, true);
 		this.ValueSet();
 	}
 

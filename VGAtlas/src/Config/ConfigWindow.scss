@@ -28,6 +28,7 @@
 
 	/* Description popup */
 	.TitleCol { position:relative; }
+	.TitleCol:has(.Description) { cursor:help; }
 	.Description {
 		display:none; position:absolute; top:10px; left:50px; max-width:400px; padding:5px; z-index:10;
 		background:var(--tooltip-bg, rgba(64, 64, 64, 0.8)); color:var(--text-color, #eee);

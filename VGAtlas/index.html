@@ -7,12 +7,13 @@
 		<style>
 			html, body { width:100%; height:100%; margin:0; overflow:hidden; }
 			body { position:fixed; font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+			body.Loading { cursor:progress; }
 			#map { position:fixed; inset:0; overflow:hidden; color:var(--text-color, #eee); background:var(--body-bg, black); }
 			#map>div { display:flex; width:100%; height:100%; font-size:30px; justify-content:center; align-items:center; }
 			#MainMenu { display:none; }
 		</style>
 	</head>
-	<body class=ThemeBase>
+	<body class='ThemeBase Loading'>
 		<div id=map><div>Loading…</div></div>
 		<div id=MainMenu>
 			<div class=PopupButton></div>
