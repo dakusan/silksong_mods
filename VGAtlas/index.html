@@ -12,6 +12,7 @@
 			#map>div { display:flex; width:100%; height:100%; font-size:30px; justify-content:center; align-items:center; }
 			#MainMenu { display:none; }
 		</style>
+		<link rel=icon href='favicon.ico'>
 	</head>
 	<body class='ThemeBase Loading'>
 		<div id=map><div>Loading…</div></div>
@@ -26,6 +27,7 @@
 				<div class=MenuItem><a class=TranslationEl href="https://silksong.dakusan.com" data-translation-key=SilksongModsLink data-translation-default="Silksong Mods">Silksong Mods</a> 🔗</div>
 			</div>
 		</div>
-		<script type=module src="src/Main.ts"></script>
+		<script type=module src='/src/LoadExtraAssets.ts'></script>
+		<script type=module src='/src/Main.ts'></script>
 	</body>
 </html>

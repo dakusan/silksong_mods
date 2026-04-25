@@ -72,7 +72,7 @@ async function Main()
 		MCanvas.ExtraMessage=undefined;
 		MCanvas.Refresh();
 		CreateMainMenu();
-		if((import.meta as unknown as {env:{DEV:boolean}}).env.DEV)
+		if(import.meta.env.DEV)
 			import('./Debug');
 		Log.Info('Load complete');
 	} catch(e) {

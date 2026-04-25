@@ -3,7 +3,8 @@
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/public" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/Assets/Themes" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/Assets" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
   </component>

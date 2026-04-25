@@ -22,8 +22,8 @@ $Projects=[
 	'SilkDev' => '../SilkDev/Assets/Translations/',
 	'PinFinder' => '../PinFinder/Assets/Translations/',
 	'NoClip' => '../NoClip/Assets/Translations/',
-	'VGAtlas' => '../VGAtlas/public/Assets/Translations/Atlas/Merge/',
-	'VGAtlas_Utils' => '../VGAtlas/public/Assets/Translations/Default/',
+	'VGAtlas' => '../VGAtlas/Assets/Translations/Atlas/Merge/',
+	'VGAtlas_Utils' => '../VGAtlas/Assets/Translations/Default/',
 ];
 
 //Only do 1 project if given

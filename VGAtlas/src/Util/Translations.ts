@@ -1,5 +1,5 @@
 import { CallbackList, DevStrings, Log, StatStr, Util } from './SharedClasses';
-import { LoadJson } from './JSON';
+import GetExtraAssets from './GetExtraAssets';
 
 const DefaultModuleName='Default';
 
@@ -65,7 +65,7 @@ export default class Translations
 	{
 		let LList:Record<string, string[]>={[this.ctor.DefaultLang]:[this.ctor.DefaultLangName, this.ctor.DefaultLangName, this.ctor.LanguageAsStr, this.ctor.PickLanguageAsStr]}; //LList={ISO:[Eng, Native, LanguageAsString, PickLanguageAsString], ...}
 		try {
-			 LList=await LoadJson.FromURL(this.TranslationsPath+'/Languages.json') as Record<string, string[]>;
+			 LList=await GetExtraAssets.LoadJson(this.TranslationsPath+'/Languages.json') as Record<string, string[]>;
 		} catch (e) {
 			Log.Error("Error loading languages list: "+Util.GetErrorMessage(e));
 		}
@@ -97,11 +97,11 @@ export default class Translations
 
 		const NewSections:[SectionListType|undefined, SectionListType|undefined]=[undefined, undefined];
 		await Promise.all([
-			LoadJson.FromURL(`${this.TranslationsPath}/${ISO}${Translations.TranslationFileExtension}`)
+			GetExtraAssets.LoadJson(`${this.TranslationsPath}/${ISO}${Translations.TranslationFileExtension}`)
 				.then(RetObj => NewSections[0]=RetObj as SectionListType)
 				.catch(e => Log.Error(StatStr.NeedsTranslate+`Could not load language file “${ISO}” for module “${this.ModuleName}”: `+Util.GetErrorMessage(e))),
 			  !this.HasFallbacks ? null
-			: LoadJson.FromURL(`${this.TranslationsPath}/Merge/${ISO}${Translations.TranslationFileExtension}`)
+			: GetExtraAssets.LoadJson(`${this.TranslationsPath}/Merge/${ISO}${Translations.TranslationFileExtension}`)
 				.then(RetObj => NewSections[1]=RetObj as SectionListType)
 				.catch(() => {}),
 		]);

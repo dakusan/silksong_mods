@@ -1,5 +1,6 @@
 import { DevStrings, FriendClass, Iter, Log, PopupMessage, Rect, StatStr, Util, Vector2, WillBeSet } from './Util/SharedClasses';
 import { OtherObject } from './Config/Types/ConfigItem_Object';
+import GetExtraAssets from './Util/GetExtraAssets';
 import { LoadJson } from './Util/JSON';
 import { Share } from './Share';
 import { MapIcon, Sprite, DefaultSSV } from './MapIcon';
@@ -64,7 +65,9 @@ class IconSprites
 	protected SetIconPics(IconPicsTex:ImageBitmap, ImageURL:string)
 	{
 		MapIcon.UpdateDefaultSpriteSheet(IconPicsTex);
-		this.CSSSpriteURL.textContent=`.ItemIcon:before { background-image:url('${ImageURL}'); }`; //Update URL sprite sheet
+		GetExtraAssets.GetPath(ImageURL).then(NewURL =>
+			this.CSSSpriteURL.textContent=`.ItemIcon:before { background-image:url('${NewURL}'); }` //Update URL sprite sheet
+		);
 	}
 
 	private static GetIconRectByID(IconID:number)
@@ -93,10 +96,10 @@ export default class DataStorage
 	protected async Load(CategoriesPath:string, ItemsPath:string, MiscPath:string, IconSetPath:string)
 	{
 		//Start the async file loads
-		const PCategories=LoadJson.FromURL(CategoriesPath);
-		const PItems=LoadJson.FromURL(ItemsPath);
-		const PMisc=LoadJson.FromURL(MiscPath);
-		const PIconSet=Util.LoadImage(IconSetPath);
+		const PCategories	=GetExtraAssets.LoadJson (CategoriesPath);
+		const PItems		=GetExtraAssets.LoadJson (ItemsPath		);
+		const PMisc			=GetExtraAssets.LoadJson (MiscPath		);
+		const PIconSet		=GetExtraAssets.LoadImage(IconSetPath	);
 
 		//Load the categories
 		let CategoryGroupsDict:LoadCategory;
@@ -175,7 +178,7 @@ export default class DataStorage
 			catch(e) { Log.Error("Could not load icons texture: "+Util.GetErrorMessage(e)); }
 		};
 		async function UpdateIconSet(ImageURL:string) {
-			try { await LoadIconSet(Util.LoadImage(ImageURL), ImageURL); }
+			try { await LoadIconSet(GetExtraAssets.LoadImage(ImageURL), ImageURL); }
 			catch(e) {
 				Log.Error(e);
 				throw e;

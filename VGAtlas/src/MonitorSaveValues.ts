@@ -1,5 +1,5 @@
 import { Log, PopupMessage, StatStr, Util } from './Util/SharedClasses';
-import { LoadJson } from './Util/JSON';
+import GetExtraAssets from './Util/GetExtraAssets';
 import { Share } from './Share';
 import type SaveDataClass from './SaveData';
 
@@ -22,7 +22,7 @@ export default class MonitorSaveValues
 	{
 		let JSONData:object;
 		try {
-			JSONData=await LoadJson.FromURL('Assets/'+this.ctor.JsonFileName);
+			JSONData=await GetExtraAssets.LoadJson('Assets/'+this.ctor.JsonFileName);
 		} catch(e) {
 			const FailedKey="ItemFinderLoadFailed", FailedSection='MonitorSaveValues';
 			const DefaultMessage=`Loading item finder json failed! Everything will be marked as not found and you’ll be getting excessive save value finds.\n{0}`;

@@ -1,13 +1,19 @@
 import { defineConfig } from "vite"
 
 const AddVisualizer=false;
+const EmitSourceMaps=false;
 
 //noinspection JSUnusedGlobalSymbols
 export default defineConfig({
 	base: './',
 	appType: 'mpa',
 	build: {
-//		sourcemap: true,
+		sourcemap: EmitSourceMaps,
+		assetsInlineLimit(filePath) {
+			if(/\/Assets\/.*\.(json|png)$/i.test(filePath.replaceAll("\\", "/"))) //json and png files in /Assets/*
+				return false; //Never inline these
+			return undefined; //Default behavior for everything else
+		},
 		rollupOptions: {
 			output: {
 				entryFileNames: "assets/[name].[hash].js",
@@ -15,9 +21,10 @@ export default defineConfig({
 				assetFileNames: "assets/[name].[hash][extname]",
 				manualChunks(id)
 				{
-					if(id.includes('crypto-js'))	return 'crypto-js';
-					if(id.includes('jquery'))		return 'jquery';
-					 								return undefined;
+					if(id.includes('crypto-js'))		return 'crypto-js';
+					if(id.includes('jquery'))			return 'jquery';
+					if(id.includes('LoadExtraAssets'))	return 'LoadExtraAssets';
+					 									return undefined;
 				}
 			}
 		},

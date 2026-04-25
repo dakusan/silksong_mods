@@ -19,6 +19,8 @@
 		//Interop/Emit
 		"experimentalDecorators": true,
 		"newLine"			: "LF",
+
+		"types"				: ["vite/client"],
 	},
 	"include": ["src"],
 }

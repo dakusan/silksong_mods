@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import { CallbackList, FriendClass, Log, StatStr, Util, Vector2, WillBeSet } from './Util/SharedClasses';
+import GetExtraAssets from './Util/GetExtraAssets';
 import { Share } from './Share';
 const MaxZoomOutRatio=4/3; //How much further the map can zoom past 100% fit
 
@@ -100,7 +101,7 @@ export default class MapCanvas
 		this.BindInput();
 
 		try {
-			const ImgLoader=Util.LoadImage(ImageURL);
+			const ImgLoader=GetExtraAssets.LoadImage(ImageURL);
 			this.Image=await ImgLoader;
 			this.ResizeToWindow();
 			this.Scale=this.MinScale*MaxZoomOutRatio;
