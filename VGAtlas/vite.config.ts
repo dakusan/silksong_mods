@@ -1,4 +1,4 @@
-import { defineConfig } from "vite"
+import { defineConfig, IndexHtmlTransformContext, Plugin } from "vite"
 
 const AddVisualizer=false;
 const EmitSourceMaps=false;
@@ -6,7 +6,7 @@ const EmitSourceMaps=false;
 //noinspection JSUnusedGlobalSymbols
 export default defineConfig({
 	base: './',
-	appType: 'mpa',
+	appType: 'mpa', //Return 404 for invalid routes
 	build: {
 		sourcemap: EmitSourceMaps,
 		assetsInlineLimit(filePath) {
@@ -15,18 +15,21 @@ export default defineConfig({
 			return undefined; //Default behavior for everything else
 		},
 		rollupOptions: {
+			input: {
+				index: "index.html",
+				LoadExtraAssets: "src/LoadExtraAssets.ts", //Keep assets and code separate
+			},
 			output: {
-				entryFileNames: "assets/[name].[hash].js",
+				entryFileNames: "assets/[name].[hash].js", //Have file hashes use hash.ext format for better no-cache regex
 				chunkFileNames: "assets/[name].[hash].js",
 				assetFileNames: "assets/[name].[hash][extname]",
-				manualChunks(id)
+				manualChunks(id) //Output the following modules into their own chunk
 				{
 					if(id.includes('crypto-js'))		return 'crypto-js';
 					if(id.includes('jquery'))			return 'jquery';
-					if(id.includes('LoadExtraAssets'))	return 'LoadExtraAssets';
 					 									return undefined;
-				}
-			}
+				},
+			},
 		},
 		minify: 'terser',
 		terserOptions: {
@@ -41,19 +44,57 @@ export default defineConfig({
 		},
 	},
 	resolve: {
+		preserveSymlinks: true, //Don’t resolve symlinks (which breaks assetsInlineLimit paths)
 		alias: [
-			{ find: /^jquery$/, replacement: "jquery/slim" }
+			{ find: /^jquery$/, replacement: "jquery/slim" }, //Force jquery to use slim
 		],
 	},
 	server: {
 		fs: { strict: true },
 		host:"0.0.0.0",
 	},
-	plugins: !AddVisualizer ? [] : [
-		(await import("rollup-plugin-visualizer")).visualizer({
-			open: true,
-			gzipSize: true,
-			brotliSize: true
-		})
-	]
+	plugins: [
+		InjectLoadExtraAssets() as Plugin, //Inject ExtraAssets into index.html without connecting it into the graph
+		...(!AddVisualizer ? [] : [
+			(await import("rollup-plugin-visualizer")).visualizer({
+				open: true,
+				gzipSize: true,
+				brotliSize: true
+			})
+		]),
+	],
 });
+
+function InjectLoadExtraAssets()
+{
+	function GetPath(Path:string, ctx:IndexHtmlTransformContext)
+	{
+		if(ctx.server)
+			return Path;
+
+		for(const Item of Object.values(ctx.bundle ?? {}))
+			if(
+				   Item.type==="chunk"
+				&& Item.isEntry
+				&& Item.facadeModuleId?.endsWith(Path)
+			)
+				return "/"+Item.fileName;
+
+		throw new Error("Could not find build entry for "+Path);
+	}
+
+	return {
+		name: "inject-load-extra-assets",
+		transformIndexHtml: {
+			order: "post",
+			handler(html:string, ctx:IndexHtmlTransformContext)
+			{
+				return {html, tags:[{
+					tag:"script",
+					attrs:{type:"module", src:GetPath("/src/LoadExtraAssets.ts", ctx)},
+					injectTo: "head-prepend",
+				}]};
+			},
+		},
+	};
+}
