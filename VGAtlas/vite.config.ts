@@ -10,7 +10,7 @@ export default defineConfig({
 	build: {
 		sourcemap: EmitSourceMaps,
 		assetsInlineLimit(filePath) {
-			if(/\/Assets\/.*\.(json|png)$/i.test(filePath.replaceAll("\\", "/"))) //json and png files in /Assets/*
+			if(/\/Assets\/.*\.(json|png)$/i.test(filePath.replaceAll("\\", "/"))) //JSON and PNG files in /Assets/*
 				return false; //Never inline these
 			return undefined; //Default behavior for everything else
 		},

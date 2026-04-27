@@ -160,8 +160,8 @@ export class Window
 		this.SetCanClose (this.CanClose	);
 		this.SetCanResize(this.CanResize);
 		this.SetVisible  (this.Visible	);
-		this.Title=this.Title;
-		this.Parent=this.Parent;
+		this.Title=this._Title;
+		this.Parent=this._Parent;
 		if(this.SaveID)
 			this.$Root.attr('id', 'WinID_'+this.SaveID);
 
@@ -309,7 +309,7 @@ export class Window
 	}
 
 	//Resizes the window to the sizes of your title and contents. This requires exactly 1 element within $Content.
-	//MinHeight will be set to the titlebar height
+	//MinHeight will be set to the Titlebar height
 	public AutoSize<T extends Window>(AutoSizeCallback:(this:T, FinishAutoSize:(this:Window, MaxContentHeight:number, MaxWindowWidth:number) => void) => void)
 	{
 		if(this.$Content.children().length>1)														//Only allow 1 child since we need to determine its size

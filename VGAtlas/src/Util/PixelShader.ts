@@ -1,4 +1,4 @@
-//noinspection SpellCheckingInspection
+//noinspection SpellCheckingInspection,GrazieInspectionRunner
 /* eslint-disable @typescript-eslint/naming-convention */
 import { ColorRGBA } from './SharedClasses';
 

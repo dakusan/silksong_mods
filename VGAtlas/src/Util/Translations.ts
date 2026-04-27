@@ -17,9 +17,9 @@ type Callback<Args extends unknown[]=unknown[]> = (...args: Args) => void;
 class LanguagesChangedCallbackList extends CallbackList<[string]>
 {
 	constructor(private readonly Tr:Translations) { super('LanguageChanged') }
-	public override Add(Name: string, CB:Callback<[string]>)
+	public override Add(Name:string, CB:Callback<[string]>, InsertBefore?:string)
 	{
-		super.Add(Name, CB);
+		super.Add(Name, CB, InsertBefore);
 		if(this.Tr.Language)
 			this.Tr.OnLanguageLoadedOnce(() => CB(this.Tr.Language!));
 	}

@@ -26,7 +26,7 @@ export default class SaveDataClass
 		if(Bytes.length<BeginningBytes+EndBytes)
 			throw new TranslatePassthrough("File is too small", 'LoadSaveFile').AsError();
 
-		return await this.CreateFrom_Base64String(new TextDecoder('latin1').decode(
+		return await this.CreateFrom_Base64String(new TextDecoder('Latin1').decode(
 			Bytes.subarray(BeginningBytes, Bytes.length-EndBytes)
 		));
 	}

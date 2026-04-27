@@ -1,13 +1,22 @@
 <component name="ProjectDictionaryState">
   <dictionary name="project">
     <words>
+      <w>Coord</w>
+      <w>Fract</w>
+      <w>Strs</w>
       <w>autopan</w>
+      <w>dicts</w>
+      <w>funcs</w>
+      <w>hlline</w>
       <w>lerp</w>
       <w>ltgt</w>
-      <w>nfkd</w>
+      <w>materiumcollected</w>
       <w>noopener</w>
+      <w>persistentbools</w>
       <w>preallocated</w>
+      <w>selstack</w>
       <w>silksong</w>
+      <w>stringslicepos</w>
       <w>titlebar</w>
       <w>toolmaster</w>
       <w>tseslint</w>

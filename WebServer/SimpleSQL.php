@@ -2,6 +2,7 @@
 require_once(__DIR__.'/Config.php');
 require_once(__DIR__.'/Shared.php');
 
+global $Conn;
 $Conn=null;
 try {
 	global $Config;

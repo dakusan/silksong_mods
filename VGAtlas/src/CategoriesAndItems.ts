@@ -281,7 +281,7 @@ export class ChainList extends JsonClass
 	//StringCountPair are created such that we can essentially do a `RenderParts.map(RP => RP.StrBeforeCount+RP.SL.NumCollected).join('')`
 	private static readonly ExtractItemCounts=new RegExp(`${LStatStr.ChainItem_AmountChar}\\d+${LStatStr.ChainItem_AmountChar}`, 'g');
 	private static readonly ReplaceLangVars=new RegExp(`${LStatStr.TrVarChar}([\\p{L}_]+)${LStatStr.TrVarChar}`, 'gu');
-	//@ts-expect-error Private function is used in json export
+	//@ts-expect-error Private function is used in JSON export
 	@ExpYes() private get ExpRenderParts() { return this.RenderParts===undefined ? {_:this.RenderedString, RP:this.RenderParts}.RP : this.RenderParts; }
 	@ExpNo() private RenderParts:StringCountPair[]=WillBeSet;
 	@ExpNo() private RenderPartsAgnostic:string[]=WillBeSet; //Original RenderParts strings before replacing language variables
@@ -521,7 +521,7 @@ class ItemSet extends JsonClass
 	@ExpNo() private readonly ItemList=new Set<Item>();
 	@ExpNo() public get GetItems() { return this.ItemList.values(); }
 	@ExpNo() public get HasItems() { return this.ItemList.size>0; }
-	//@ts-expect-error Private function is used in json export
+	//@ts-expect-error Private function is used in JSON export
 	@ExpYes() private get ExpItemIDs() { return this.ItemList.size===0 ? null : [...this.ItemList.values()].map(I => I.ID.toString()).join(', '); }
 
 	@ExpNo() private IsRendered=false;

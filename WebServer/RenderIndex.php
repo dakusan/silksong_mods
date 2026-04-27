@@ -1,6 +1,6 @@
 <? /** @noinspection PhpShortOpenTagInspection */
 $Projects=(array)json_decode(
-	preg_replace(['/,(\s+[}\]])/', '~^//.*$~m'], ['$1', ''], file_get_contents('./IndexAssets/HTMLRenders/Projects.json'))
+	preg_replace(['/,(\s+[}\]])/', '~^//.*$~m'], ['$1', ''], file_get_contents('./IndexAssets/HTMLRenders/Projects.json5'))
 );
 
 function ClearWS(): string { ob_start(); return ''; }

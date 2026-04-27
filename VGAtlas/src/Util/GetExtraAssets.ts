@@ -28,7 +28,8 @@ namespace GetExtraAssets
 		return Mappings[Path];
 	}
 
-	export async function LoadJson	(Path:string): Promise<object		> { return await ExtLoadJson.FromURL(TryPath(Path, GTExtraAssets.ExtraAssets ?? await WaitForEA())); }
+	export async function LoadJson	(Path:string, ForceReload=false, PreProcessing?:(Str:string) => string)
+		 										 : Promise<object		> { return await ExtLoadJson.FromURL(TryPath(Path, GTExtraAssets.ExtraAssets ?? await WaitForEA()), ForceReload, PreProcessing); }
 	export async function LoadImage	(Path:string): Promise<ImageBitmap	> { return await Util.LoadImage		(TryPath(Path, GTExtraAssets.ExtraAssets ?? await WaitForEA())); }
 	export async function GetPath	(Path:string): Promise<string		> { return							(TryPath(Path, GTExtraAssets.ExtraAssets ?? await WaitForEA())); }
 }

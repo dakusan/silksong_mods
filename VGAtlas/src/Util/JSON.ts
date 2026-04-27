@@ -54,7 +54,7 @@ export abstract class JsonClass { public static ClassJSProps?:Map<string, JSProp
 export namespace LoadJson
 {
 	//Loads in JSON object from a URL. Allows for JSONC comments and trailing commas
-	export async function FromURL(url:string, ForceReload=false): Promise<object>
+	export async function FromURL(url:string, ForceReload=false, PreProcessing?:(Str:string) => string): Promise<object>
 	{
 		const Result=await fetch(url, {cache:ForceReload ? 'no-store' : 'default'});
 		if(!Result.ok)
@@ -62,14 +62,14 @@ export namespace LoadJson
 		const Text=await Result.text();
 		if(Text.startsWith('<!doctype'))
 			throw new Error(NT+`Failed to load ${url}: HTML document received`);
-		const Parsed=JSON.parse(Text.replace(/,(\n\t*[}\]])/g, '$1').replace(/^[ \t]+/mg, '').replace(/^\/\/.*/m, '').replaceAll('\t', '\\t'));
+		const Parsed=JSON.parse((PreProcessing ? PreProcessing(Text) : Text).replace(/,(\n\t*[}\]])/g, '$1').replace(/^[ \t]+/mg, '').replace(/^\/\/.*/m, '').replaceAll('\t', '\\t'));
 
 		if(!(Parsed instanceof Object))
 			throw new Error(NT+`Failed to load ${url}: JSON is not an object`);
 		return Parsed as object;
 	}
 
-	//Convert from imported json (ValuesObj) to the final class based object (Obj). Converters will transform members.
+	//Convert from imported JSON (ValuesObj) to the final class based object (Obj). Converters will transform members.
 	export function ClassFromObj<ObjType extends object>(Obj:ObjType, ValuesObj:object, Converters?:Record<keyof ObjType, JsonConverter_Generic<ObjType>>)
 	{
 		const ClassJSProps=(Obj.constructor as typeof JsonClass).ClassJSProps as Map<keyof ObjType, JSProps>|undefined;
@@ -212,7 +212,7 @@ export namespace SaveJson
 	}
 
 	//Handle encoding certain types
-	function PreFormatLikeMod	( Key:string, Value:number		): number|string; //Non-integers are formatted in G17 as a string, turned back into non-strings during post-processing
+	function PreFormatLikeMod	( Key:string, Value:number		): number|string; //Nonintegers are formatted in G17 as a string, turned back into non-strings during post-processing
 	function PreFormatLikeMod	( Key:string, Value:IExpOverride): string;
 	function PreFormatLikeMod<T>( Key:string, Value:T			): T; //Passes through unchanged
 	function PreFormatLikeMod	(_Key:string, Value:unknown		): unknown
@@ -221,7 +221,7 @@ export namespace SaveJson
 		if(Value===null || Value===undefined)
 			return Value;
 
-		//Non-integers are formatted in G17 as a string, turned back into non-strings during post-processing
+		//Nonintegers are formatted in G17 as a string, turned back into non-strings during post-processing
 		if(typeof(Value)==='number' && Number.isFinite(Value) && !Number.isInteger(Value))
 			return ToG17Str(Value);
 

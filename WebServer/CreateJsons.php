@@ -337,7 +337,7 @@ function GenerateMisc(): string
 function GenerateItemFinder(): string
 {
 	$IgnorePlayerNamedValues=$MatchedIcons=[];
-	foreach(Query('SELECT Name FROM IgnorePlayerNamedValues ID ORDER BY Name') as $Row)
+	foreach(Query('SELECT Name FROM IgnorePlayerNamedValues ORDER BY Name') as $Row)
 		$IgnorePlayerNamedValues[]=$Row->Name;
 	foreach(Query('SELECT ItemID, ForStarting, Parent, ValueName FROM MatchedIcons ORDER BY ItemID ASC, ForStarting ASC') as $Row)
 		$MatchedIcons[$Row->ItemID.($Row->ForStarting==1 ? '~' : '')]="$Row->Parent.$Row->ValueName";

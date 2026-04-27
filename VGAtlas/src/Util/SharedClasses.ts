@@ -372,7 +372,21 @@ export class CallbackList<Args extends unknown[], TRet=void>
 	) { }
 
 	private readonly Callbacks=new Map<string, Callback<Args, TRet>>();
-	public Add		(Name:string, CB:Callback<Args, TRet>	) {			this.Callbacks.set		(Name, CB	); }
+	public Add(Name:string, CB:Callback<Args, TRet>, InsertBefore?:string): void
+	{
+		if(this.Has(Name))
+			throw new Error("Callback already exists: "+Name);
+		if(!InsertBefore || !this.Callbacks.has(InsertBefore))
+			return void(this.Callbacks.set(Name, CB));
+
+		const MapClone=[...this.Callbacks.entries()];
+		this.Callbacks.clear();
+		for(const [Key, Value] of MapClone) {
+			if(Key===InsertBefore)
+				this.Callbacks.set(Name, CB);
+			this.Callbacks.set(Key, Value);
+		}
+	}
 	public Remove	(Name:string							) { return	this.Callbacks.delete	(Name		); }
 	public Has		(Name:string							) { return	this.Callbacks.has		(Name		); }
 	public Execute(...Params:Args)
