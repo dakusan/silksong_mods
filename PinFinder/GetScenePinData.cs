@@ -1,6 +1,7 @@
 using UnityEngine;
 using GlobalEnums;
 using SilkDev;
+using System.Linq;
 
 namespace PinFinder;
 
@@ -77,4 +78,26 @@ public class GetScenePinData
 		CallGetMapPosition.Invoke(positionInScene, scene, sceneObj, scenePos, sceneSize);
 	private static MapZone GetMapZoneFromSceneName(string sceneName) =>
 		CallGetMapZoneFromSceneName.Invoke(sceneName);
+
+	/*Get data for use in the function:
+		Vector2 GetMapPosition(Vector2 PositionInScene, SceneToMapVectors V) =>
+			new(
+				V.ScenePos.x+V.BoundsSpriteSize.x*V.SceneLocalScale.x*(PositionInScene.x/V.SceneSize.x-1/2f),
+				V.ScenePos.y+V.BoundsSpriteSize.y*V.SceneLocalScale.y*(PositionInScene.y/V.SceneSize.y-1/2f)
+			);
+	*/
+	private static Vector2 FailedVector=new(-99999f, -99999f);
+	public class SceneToMapVectors(GetScenePinData SPD)
+	{
+		public readonly Vector2 BoundsSpriteSize=SPD.GameMapScene?.BoundsSprite?.bounds.size ?? FailedVector;
+		public readonly Vector2 SceneLocalScale=SPD.GameMapScene?.transform.localScale ?? FailedVector;
+		public readonly Vector2 ScenePos=SPD.ScenePos;
+		public readonly Vector2 SceneSize=SPD.TileMapSize;
+	}
+	//The following can do the same thing as FindPins.SceneVectors, but SceneSize can only be gathered while the scene is loaded (AFAIK)
+	public static System.Collections.Generic.Dictionary<string, SceneToMapVectors> GetAllSceneVectors() =>
+		new Reflectors.RField<GameMap, System.Collections.IDictionary>(GameMapGM, "mapCaches").Get().Keys.Cast<string>().ToDictionary(SceneName => SceneName, SceneName => {
+			try { return new SceneToMapVectors(new GetScenePinData(SceneName)); }
+			catch(System.Exception e) { Log.Error($"Failure extracting scene “{SceneName}”: {e.Message}"); return null!; }
+		});
 }

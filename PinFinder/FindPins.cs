@@ -19,6 +19,7 @@ public static class FindPins
 	public static bool CurrentlyRunning { get; private set; } = false;
 	private static ProgressBarWithLogs PBWL=null!;
 	private const string MustClose="<color=red><size=50>You <size=60><b>MUST</b></size> now close this game with alt+f4 and restart it</size>";
+	public static Dictionary<string, GetScenePinData.SceneToMapVectors> SceneVectors=[];
 
 	//Initialize
 	internal static void Init()
@@ -293,6 +294,22 @@ public static class FindPins
 	}
 	private static IEnumerator LoadAllPersistentObjectsInScene(string SceneFile, List<FoundObj> RetObjects, bool IsFullProcessing=false)
 	{
+		yield return LoadScene(SceneFile, TheScene => {
+			try { FinishLoad(TheScene, RetObjects, IsFullProcessing); }
+			catch(Exception e) { LogError($"PLEASE REPORT THIS ERROR! We somehow errored out of processing during {SceneFile}: {e.Message}"); }
+		});
+	}
+
+	public static void LoadNamedScene(string SceneName)
+	{
+		string? RealName=AllSceneFiles.FirstOrDefault(Str => Str.EndsWith($"{SceneName.ToLower()}.bundle"));
+		if(RealName is null)
+			Log.Error($"Could not find scene to load: {SceneName}");
+		else
+			_=Catcher.ExecCoroutine("Load Scene", LoadScene(RealName, s => Log.Info($"Loaded scene: {SceneName}")));
+	}
+	private static IEnumerator LoadScene(string SceneFile, Action<Scene>? Callback)
+	{
 		//Skip the menu
 		string FileName=Path.GetFileName(SceneFile);
 		if(Array.Exists(
@@ -327,7 +344,7 @@ public static class FindPins
 		yield return SceneManager.LoadSceneAsync(ScenePath);
 		NCActivate.Self.Toggle(true); //Just in case, keep noclip going after scene loads
 		Scene TheScene=SceneManager.GetSceneByPath(ScenePath);
-		if(TheScene==null) {
+		if(!TheScene.IsValid()) {
 			_=Bundle.UnloadAsync(true);
 			yield break;
 		}
@@ -338,28 +355,35 @@ public static class FindPins
 		yield return new WaitForSecondsRealtime(1f);
 		_=Bundle.UnloadAsync(true);
 
-		//Find the persistent objects in the scene, transform them into map coordinates, and convert their data to a more readable form
-		try {
-			string[] SkipKeywordsList=[.. Config.C.SkipKeywords.V.Split(DevStrings.NewLine).Select(static s => s.Trim())];
-			List<FoundObj> SceneItems=FindPersistentObjectsInScene(TheScene);
-			GetScenePinData GSPD=new(TheScene.name);
-			List<string> NewStrings=new(SceneItems.Count);
-			RetObjects.Capacity=Mathf.Max(RetObjects.Count+SceneItems.Count, RetObjects.Capacity);
-			foreach(FoundObj CurItem in SceneItems) {
-				if(!KeepItem(CurItem, SkipKeywordsList))
-					continue;
-				Vector2 MapPos=CurItem.LocalPosition=GSPD.GetMapPositionFromLocalPosition(CurItem.LocalPosition);
-				RetObjects.Add(CurItem);
-				NewStrings.Add($"[{CurItem.Type}]{CurItem.SceneName}.{CurItem.ObjName}={CurItem.Value} [{MapPos.x}, {MapPos.y}]");
-			}
-			Log.Info("Scene items:"+(NewStrings.Count!=0 ? DevStrings.NewLine+string.Join(DevStrings.NewLine, NewStrings) : " NONE FOUND"));
+		Callback?.Invoke(TheScene);
+	}
 
-			//Operations that only need to happen when we are full processing
-			if(IsFullProcessing)
-				PBWL.AddLogLines(NewStrings);
+	private static void FinishLoad(Scene TheScene, List<FoundObj> RetObjects, bool IsFullProcessing=false)
+	{
+		//Find the persistent objects in the scene, transform them into map coordinates, and convert their data to a more readable form
+		string[] SkipKeywordsList=[.. Config.C.SkipKeywords.V.Split(DevStrings.NewLine).Select(static s => s.Trim())];
+		List<FoundObj> SceneItems=FindPersistentObjectsInScene(TheScene);
+		GetScenePinData GSPD=new(TheScene.name);
+		try {
+			SceneVectors.Add(TheScene.name, new(GSPD));
 		} catch(Exception e) {
-			LogError($"PLEASE REPORT THIS ERROR! We somehow errored out of processing during {SceneFile}: {e.Message}");
+			SceneVectors.Add(TheScene.name, null!);
+			Log.Error($"Failure extracting scene vectors “{TheScene.name}”: {e.Message}");
 		}
+		List<string> NewStrings=new(SceneItems.Count);
+		RetObjects.Capacity=Mathf.Max(RetObjects.Count+SceneItems.Count, RetObjects.Capacity);
+		foreach(FoundObj CurItem in SceneItems) {
+			if(!KeepItem(CurItem, SkipKeywordsList))
+				continue;
+			Vector2 MapPos=CurItem.LocalPosition=GSPD.GetMapPositionFromLocalPosition(CurItem.LocalPosition);
+			RetObjects.Add(CurItem);
+			NewStrings.Add($"[{CurItem.Type}]{CurItem.SceneName}.{CurItem.ObjName}={CurItem.Value} [{MapPos.x}, {MapPos.y}]");
+		}
+		Log.Info("Scene items:"+(NewStrings.Count!=0 ? DevStrings.NewLine+string.Join(DevStrings.NewLine, NewStrings) : " NONE FOUND"));
+
+		//Operations that only need to happen when we are full processing
+		if(IsFullProcessing)
+			PBWL.AddLogLines(NewStrings);
 	}
 
 	//Filter out bad objects
