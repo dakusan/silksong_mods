@@ -12,7 +12,7 @@ if(isset($argv) && count($argv)>1)
 if(isset($Vars['CompactJSON']))
 	$CompactJSON=($Vars['CompactJSON']==1);
 if(isset($Vars['Build'])) {
-	if(!in_array($Vars['Build'], ['Categories', 'Items', 'Misc', 'ItemFinder']))
+	if(!in_array($Vars['Build'], ['Categories', 'Items', 'Misc', 'ItemFinder', 'SceneVectors', 'SceneRects']))
 		return ErrAndDie('Invalid Build parameter', null, 400);
 	header('Content-Type: application/json');
 	try {
@@ -28,10 +28,12 @@ if(!isset($argv) || !str_ends_with($_SERVER['SCRIPT_NAME'], pathinfo(__FILE__, P
 	return ErrAndDie('Missing Build parameter', null, 400);
 
 //Output all files to local folder (which are probably symlinked elsewhere)
-file_put_contents('./Assets/Categories.json', GenerateCategories());
-file_put_contents('./Assets/Items.json', GenerateItems());
-file_put_contents('./Assets/Misc.json', GenerateMisc());
-file_put_contents('./Assets/ItemFinder.json', GenerateItemFinder());
+file_put_contents('./Assets/Categories.json',	GenerateCategories());
+file_put_contents('./Assets/Items.json',		GenerateItems());
+file_put_contents('./Assets/Misc.json',			GenerateMisc());
+file_put_contents('./Assets/ItemFinder.json',	GenerateItemFinder());
+file_put_contents('./Assets/SceneVectors.json',	GenerateSceneVectors());
+file_put_contents('./Assets/SceneRects.json',	GenerateSceneRects());
 print "Generated all files\n";
 exit(0);
 
@@ -342,5 +344,116 @@ function GenerateItemFinder(): string
 	foreach(Query('SELECT ItemID, ForStarting, Parent, ValueName FROM MatchedIcons ORDER BY ItemID ASC, ForStarting ASC') as $Row)
 		$MatchedIcons[$Row->ItemID.($Row->ForStarting==1 ? '~' : '')]="$Row->Parent.$Row->ValueName";
 	return GenerateJson(compact('IgnorePlayerNamedValues', 'MatchedIcons'));
+}
+
+function GenerateSceneVectors(): string
+{
+	return FormatNumericArray(
+		(function(): Generator {
+			foreach(Query('SELECT Name, ScenePosX, ScenePosY, BoundsSpriteSizeX, BoundsSpriteSizeY, SceneSizeX, SceneSizeY, SceneLocalScaleX, SceneLocalScaleY FROM SceneVectors') as $Row)
+				yield new FormatNumericArrayData($Row->Name, array_slice(array_values((array)$Row), 1));
+		})(),
+		'//SceneName=[ScenePos(X,Y), BoundsSpriteSize(X,Y), SceneSize(X,Y), SceneLocalScale(X,Y)]',
+	);
+}
+function GenerateSceneRects(): string
+{
+	function CalcPoint(object $SPV, string $Axis, float $Pos): float { return $SPV->ScenePos->$Axis+$SPV->BoundsSpriteSize->$Axis*$Pos; }
+	function FRound(float $Num): float { return round($Num, 9); }
+	return FormatNumericArray(
+		(function(): Generator {
+			foreach(Query('SELECT Name, ScenePosX, ScenePosY, BoundsSpriteSizeX, BoundsSpriteSizeY, ColorIndex FROM SceneVectors') as $Row) {
+				//Handle dimensionless scenes
+				if($Row->BoundsSpriteSizeX===null) {
+					yield new FormatNumericArrayData($Row->Name, [
+						FRound($Row->ScenePosX),
+						FRound($Row->ScenePosY),
+					]);
+					continue;
+				}
+
+				$SPV=(object)[
+					'ScenePos'			=>new Vector2((float)$Row->ScenePosX		, (float)$Row->ScenePosY		),
+					'BoundsSpriteSize'	=>new Vector2((float)$Row->BoundsSpriteSizeX, (float)$Row->BoundsSpriteSizeY),
+				];
+				$StartPos=new Vector2(CalcPoint($SPV, 'X', -0.5), CalcPoint($SPV, 'Y', -0.5));
+				$EndPos  =new Vector2(CalcPoint($SPV, 'X', +0.5), CalcPoint($SPV, 'Y', +0.5));
+				yield new FormatNumericArrayData($Row->Name, [
+					FRound($StartPos->X),
+					FRound($StartPos->Y),
+					FRound($EndPos->X-$StartPos->X),
+					FRound($EndPos->Y-$StartPos->Y),
+					(int)$Row->ColorIndex,
+				]);
+			}
+		})(),
+		'//SceneName=[X, Y, Width, Height, Color] (Last 3 numbers left off if no dimensions)',
+	);
+}
+
+class FormatNumericArrayData
+{
+	/** @param float[]|int[] $Data */
+	public function __construct(
+		public string $Name,
+		public array $Data
+	) { }
+}
+class Vector2
+{
+	public function __construct(
+		public float $X,
+		public float $Y
+	) { }
+}
+
+/** @param Generator<int, FormatNumericArrayData> $Data */
+function FormatNumericArray(Generator $Data, string $Header): string
+{
+	global $CompactJSON;
+	if($CompactJSON) {
+		$Out=[];
+		foreach($Data as $Row)
+			$Out[$Row->Name]=array_map(fn($V) => $V===null ? null : (float)$V, $Row->Data);
+		return $Header."\n".GenerateJson($Out);
+	}
+
+	$Rows=[];
+	foreach($Data as $Row)
+		$Rows[]=[
+			json_encode($Row->Name, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE).':',
+			...array_map(fn($V) => $V===null ? 'null' : json_encode((float)$V), $Row->Data)
+		];
+
+	$LongestCols=[];
+	foreach($Rows as $R)
+		foreach($R as $ColNum => $Col)
+			$LongestCols[$ColNum]=max($LongestCols[$ColNum] ?? 0, strlen($Col));
+
+	$Out=[$Header, "\n{\n"];
+	$Row1NumTabs=ceil($LongestCols[0]/4);
+	$NumCols=count($LongestCols);
+	foreach($Rows as $R) {
+		foreach($R as $CNum => $C)
+			array_push($Out, ...($CNum===0
+				? [
+					"\t",
+					$C,
+					str_repeat("\t", $Row1NumTabs-floor(strlen($C)/4)),
+					'[',
+				] : [
+					$C,
+					str_repeat(' ', $LongestCols[$CNum]-strlen($C)),
+					$CNum+1===count($R) ? null : ', ',
+				]
+			));
+		for($CNum=count($R); $CNum<$NumCols; $CNum++)
+			$Out[]=str_repeat(' ', $LongestCols[$CNum]+2);
+
+		$Out[]="],\n";
+	}
+
+	$Out[]='}';
+	return implode('', $Out);
 }
 ?>

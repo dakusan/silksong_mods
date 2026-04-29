@@ -252,6 +252,24 @@ INSERT INTO Misc VALUES
 ('OtherLinkPrefix',	'!',			'~^(.*)$~https://ex.com/Articles/$1|MySiteName $1',
 												'Changes “!NAME” to “https://ex.com/Articles/NAME|MySiteName: NAME”');
 
+DROP TABLE IF EXISTS SceneVectors;
+CREATE TABLE SceneVectors (
+  ID int UNSIGNED NOT NULL AUTO_INCREMENT,
+  Name varchar(128) NOT NULL,
+  BoundsSpriteSizeX double NULL,
+  BoundsSpriteSizeY double NULL,
+  SceneLocalScaleX double NULL,
+  SceneLocalScaleY double NULL,
+  ScenePosX double NOT NULL,
+  ScenePosY double NOT NULL,
+  SceneSizeX double NOT NULL,
+  SceneSizeY double NOT NULL,
+  ColorIndex tinyint NOT NULL,
+
+  PRIMARY KEY (ID),
+  UNIQUE KEY (Name)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 DROP TABLE IF EXISTS TranslationSections;
 CREATE TABLE TranslationSections (
   ID int UNSIGNED NOT NULL AUTO_INCREMENT,
