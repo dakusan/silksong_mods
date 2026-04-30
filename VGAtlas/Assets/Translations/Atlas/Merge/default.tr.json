@@ -7,6 +7,7 @@
 	},
 	"SettingNames":{ //Individual setting/config names
 		"Theme": "Theme", //The css theme of the interface
+		"Show Debug In Menu": "Show Debug In Menu", //Whether to show the debug option in the menu
 	},
 	"SettingEnums":{
 		"Assets/Icons-FromGame.png": "From Game", //The name of an icon set, with icons that came from within the game
@@ -22,5 +23,8 @@
 		"CURRENT_SELECTED_FILE": "Currently selected file: ",
 		"CLEAR_SELECTED_FILE": "Unload save file", //Button label
 		"NO_FILE_LOADED": "None", //Value shown after CURRENT_SELECTED_FILE if there is no file selected
+	},
+	"DebugWindow":{
+		"Title": "Debug", //Title of the debug window
 	},
 }

@@ -8,7 +8,7 @@ export interface Equatable<T>
 
 export class Vector2 implements Equatable<Vector2>
 {
-	constructor(public X:number, public Y:number) { }
+	constructor(public readonly X:number, public readonly Y:number) { }
 
 	public Equals(Other?:Vector2) { return Other?.X===this.X && Other.Y===this.Y; }
 	public Distance(Vec:Vector2) { return Vector2.Distance(this, Vec); }
@@ -189,6 +189,8 @@ export namespace Util
 		const Glob=globalThis as typeof globalThis & Record<symbol, T|undefined>;
 		return Glob[Symbol.for('__OneTimeInit__'+Name)] ??= InitVal();
 	}
+
+	export type Mutable<T>={ -readonly [K in keyof T]: T[K]; };
 }
 
 class LogLine

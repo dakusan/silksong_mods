@@ -179,6 +179,12 @@ function CreateMainMenu()
 	);
 	$('#MenuOpenSearch').on('click', () => void(MySearchWindow.FocusWin()));
 
+	//Debug window
+	const MyDebugWindow=new SingleInstanceWindow(
+		async () => new (await import('./DebugWindow')).default(),
+	);
+	$('#MenuDebug').on('click', () => void(MyDebugWindow.FocusWin()));
+
 	//Log window
 	const MyLogWindow=new SingleInstanceWindow(
 		() => {

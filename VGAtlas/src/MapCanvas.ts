@@ -82,7 +82,7 @@ export default class MapCanvas
 		Click		:new CallbackList<[Pos:Vector2						]>('MapCanvas.MouseClick'	),
 		Scale		:new CallbackList<[NewScale:number, OldScale:number	]>('MapCanvas.Scale'		), //Scaling will always additionally call Moved
 		Moved		:new CallbackList<[Pos:Vector2, Scale:number		]>('MapCanvas.Moved'		),
-		UserZoom	:new CallbackList<[Pos:Vector2, {Scale:number}		]>('MapCanvas.ZoomAt'		),
+		UserZoom	:new CallbackList<[Pos:Util.Mutable<Vector2>,{Scale:number}]>('MapCanvas.ZoomAt'),
 	};
 
 	public async Init(ImageURL:string)
@@ -258,7 +258,7 @@ export default class MapCanvas
 				this.Events.MouseMove.Execute(MousePos);
 
 				if(P)
-					[P.X, P.Y]=[MousePos.X, MousePos.Y];
+					Pointers.set(Pe.pointerId, new Vector2(MousePos.X, MousePos.Y));
 				if(IsPinching)
 					return void(UpdatePinch());
 				else if(!IsDragging)

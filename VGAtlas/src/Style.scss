@@ -169,6 +169,7 @@ body #MainMenu { display:block; }
 			&:hover { background:var(--main-menu-item-hover, #FFFFFF20); }
 		}
 	}
+	#MenuDebug:not(.Show) { display:none; }
 }
 
 .ConfigTable .DemoIcon {

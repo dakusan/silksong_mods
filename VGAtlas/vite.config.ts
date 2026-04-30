@@ -1,4 +1,5 @@
 import { defineConfig, IndexHtmlTransformContext, Plugin } from "vite"
+import { minify } from "html-minifier-terser"
 
 const AddVisualizer=false;
 const EmitSourceMaps=false;
@@ -62,6 +63,23 @@ export default defineConfig({
 				brotliSize: true
 			})
 		]),
+		{
+			name: "html-minify",
+			enforce: "post",
+			transformIndexHtml: {
+				order: "post",
+				async handler(html) {
+					return await minify(html, {
+						collapseWhitespace: true,
+						removeComments: true,
+						removeRedundantAttributes: true,
+						minifyCSS: true,
+						minifyJS: true,
+						removeAttributeQuotes: true,
+					})
+				},
+			},
+		},
 	],
 });
 

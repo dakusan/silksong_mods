@@ -23,6 +23,7 @@ class LocalConfig extends Config {
 
 	public readonly Language				=new ConfigItem_Languages	("Interface customization");
 	public readonly Theme					=new ConfigItem_Enum		("Interface customization", "Theme",						Object.keys(GetThemes())[0], GetThemes());
+	public readonly ShowDebugMenu			=new ConfigItem_Boolean		("Interface customization", "Show Debug In Menu",			false, {IsAdvanced:true});
 
 	public readonly CategoryToggleStates	=new ConfigItem_Object		(Config.IgnoreSection, "Category States", new OtherObject<number[][]>([[], [], []]));
 }
@@ -88,9 +89,17 @@ function Init_Color_FoundIcon_Demo()
 	LC.Color_FoundIcon.SettingChanged.Add('UpdateDemoIcon', UpdateDemoIcon);
 }
 
+function SetupDebugMenu()
+{
+	function DoShowMenu() { document.getElementById('MenuDebug')!.classList.toggle('Show', LC.ShowDebugMenu.V); }
+	DoShowMenu();
+	LC.ShowDebugMenu.SettingChanged.Add('DoShowMenu', DoShowMenu);
+}
+
 InitFuncs.push(async () => {
 	const ShareObj=(await import('./Share')).Share;
 	SetupThemeSwap();
 	SetupEnumTranslations(ShareObj);
 	Init_Color_FoundIcon_Demo();
+	SetupDebugMenu();
 });

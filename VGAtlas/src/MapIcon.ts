@@ -148,7 +148,7 @@ class GameObject extends Versioned
 			return undefined;
 		const RenderWidth =this.SRI.ImageRect.Width *this.LocalScale.X;
 		const RenderHeight=this.SRI.ImageRect.Height*this.LocalScale.Y;
-		const MapPos=Share.MCanvas.MapToCanvas(this.Pos);
+		const MapPos:Util.Mutable<Vector2>=Share.MCanvas.MapToCanvas(this.Pos);
 		MapPos.X-=RenderWidth *this.SRI.Center.X;
 		MapPos.Y-=RenderHeight*this.SRI.Center.Y;
 		return new Rect(MapPos.X, MapPos.Y, RenderWidth, RenderHeight);

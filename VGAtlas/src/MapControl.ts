@@ -168,7 +168,7 @@ export default class MapControl
 				}
 	}
 
-	private UserZoom(Pos:Vector2, ScaleObj:{Scale:number})
+	private UserZoom(Pos:Util.Mutable<Vector2>, ScaleObj:{Scale:number})
 	{
 		if(this.HoverItem && this.IconSizeScalesWithZoom) {
 			const NewPos=this.GameMap.MapToCanvas(this.HoverItem.Pos);
