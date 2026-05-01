@@ -26,5 +26,10 @@
 	},
 	"DebugWindow":{
 		"Title": "Debug", //Title of the debug window
+		"ShowSectionsBox": "Show map sections", //Checkbox option to show partitioned sections on the map
+		"CurrentMapSection": "Map sections your mouse is over: ", //Label for the list of sections the user’s mouse is over
+		"ZoomLevel": "Zoom", //Label for the current map zoom amount
+		"CanvasCoord": "Canvas coordinate", //Label for the mouse position in canvas coordinates
+		"MapCoord": "Map coordinate", //Label for the mouse position in map coordinates
 	},
 }
