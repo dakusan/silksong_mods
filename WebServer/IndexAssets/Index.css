@@ -129,3 +129,12 @@ body:has(.MenuPopup.FullScreen) { overflow:hidden; } /* Fullscreen popup needs t
 body .glightbox-clean .gslide-description { position:relative; background-color:transparent; }
 body .glightbox-clean .gdesc-inner { padding:0 20px; margin:5px 0 10px; border:1px solid rgba(255, 255, 255, 0.10); border-radius:12px; background:rgba(0, 0, 0, 0.25); backdrop-filter:blur(6px); }
 body .glightbox-clean .gslide-title { margin:5px; color:white; }
+
+/* Custom */
+#tab-PharloomAtlas-Links_Live_Web_Atlas {
+	padding-left:43px;
+	background-image:url(https://static.castledragmire.com/silksong/VGAtlasLogo-Medium.png);
+	background-repeat:no-repeat;
+	background-position:0 2px;
+	background-size:42px 36px;
+}

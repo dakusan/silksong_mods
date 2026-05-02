@@ -94,10 +94,11 @@ foreach($Matches[0] as $Match)
 			</div>
 		</div>
 <? } foreach($PData->Links ?? [] as $LinkName => $LinkLocation) {
+	$ID="tab-$PData->Slug-Links_".CreateSlug($LinkName);
 	if($LinkLocation==='') { ?>
-		<a class="Tab Disabled"><span>Coming<br>soon</span><?=htmlentities($LinkName)?></a>
+		<a class="Tab Disabled" id="<?=$ID?>"><span>Coming<br>soon</span><?=htmlentities($LinkName)?></a>
 	<? } else { ?>
-		<a class=Tab href="<?=htmlentities($LinkLocation)?>"><?=htmlentities($LinkName)?></a>
+		<a class=Tab id="<?=$ID?>" href="<?=htmlentities($LinkLocation)?>"><?=htmlentities($LinkName)?></a>
 	<? } ?>
 <? } ?>
 	</div>

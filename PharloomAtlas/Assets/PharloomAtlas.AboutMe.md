@@ -79,6 +79,11 @@ ul>li { list-style-type:disc !important; }
     * <img src="https://static.castledragmire.com/silksong/Phonograph.png" align="middle" class=SmallIcon alt="Phonograph Icon"> User interfaces translated [via LLM] into 21 languages.
     * <img src="https://static.castledragmire.com/silksong/Fireball.png" align="middle" class=SmallIcon alt="Fireball Icon"> Error log upload support. See [here](https://www.nexusmods.com/hollowknightsilksong/articles/141) for more information.
 
+<br class=Hide><br><center><font size=5><img src="https://static.castledragmire.com/silksong/VGAtlasLogo.png" align="middle" class=SmallIcon>                  <b>Web version</b>                  <img src="https://static.castledragmire.com/silksong/VGAtlasLogo.png" align="middle" class=SmallIcon></font></center>
+ ---
+Fully featured web version [here](https://vgatlas.dakusan.com). No install—just upload your save file.<br>
+100% client-side; your data never leaves your browser. <font size=2>(please still consider endorsing!)</font>
+
 <br class=Hide><br><center><font size=5><img src="https://static.castledragmire.com/silksong/KeysSmall.png" align="middle" class=SmallIcon>                    <b>Installation</b>                    <img src="https://static.castledragmire.com/silksong/KeysSmallRev.png" align="middle" class=SmallIcon></font></center>
  ---
 1. Install [BepInEx](https://www.nexusmods.com/hollowknightsilksong/mods/26)

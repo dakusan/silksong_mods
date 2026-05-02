@@ -27,6 +27,7 @@
 |**[Silk Dev](#silkdev-plugin-developer-tools)**|[SilkDev/](SilkDev/#readme)            |Plugin developer tools and helpers     |[Nexus #510](https://www.nexusmods.com/hollowknightsilksong/mods/510)|
 |**[No Clip](#no-clip)**                        |[NoClip/](NoClip/#readme)              |Noclip gameplay mod                    |[Nexus #478](https://www.nexusmods.com/hollowknightsilksong/mods/478)|
 |**[Pin Finder](#pin-finder)**                  |[PinFinder/](PinFinder/#readme)        |Pin location gathering utility         |[Nexus #772](https://www.nexusmods.com/hollowknightsilksong/mods/772)|
+|**[VGAtlas](#vg-atlas)**                       |[VGAtlas/](VGAtlas/#readme)            |Pharloom Atlas recreation on the web   |                                                                     |
 |**[Web Server](#web-server)**                  |[WebServer/](WebServer/#readme)        |Remote data receiver for Pharloom Atlas|[Nexus #755](https://www.nexusmods.com/hollowknightsilksong/mods/755)|
 
 ---
@@ -55,9 +56,17 @@ Searches through all scenes to locate map pins, assisting developers with world 
   📂️ [Read more →](PinFinder/README.md#readme)<br>
   Requires: [SilkDev](#silkdev-plugin-developer-tools), [NoClip](#no-clip)
 
+<a id="vg-atlas"></a>
+# 🗺️ VGAtlas
+A full-featured web implementation of the *Hollow Knight: Silksong* map, including all [Pharloom Atlas](../PharloomAtlas/#readme) enhancements.<br>
+
+Run the full Atlas experience in any browser—no game or mod install required.<br>
+  📂️ [Read more →](VGAtlas/README.md#readme)<br>
+  Requires: Web browser (100% client side. No server needed! *[technically]*)
+
 <a id="web-server"></a>
 # 🌐️ Web Server
-A lightweight web server for receiving and managing **Pharloom Atlas** user contribution data, enabling community crowdsourcing.<br>
+A lightweight web server for managing and [community] receiving **Pharloom Atlas** data.<br>
   📂️ [Read more →](WebServer/README.md#readme)
 
 ---

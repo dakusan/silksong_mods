@@ -27,7 +27,7 @@ A lightweight web server for receiving and managing Pharloom Atlas user contribu
 
 <a id="usage"></a>
 ## 🧭️ Usage
-- See [Pharloom Atlas ](../PharloomAtlas/#readme): [Web Integration](../PharloomAtlas/#web-integration) and [Additional Contributions](../PharloomAtlas/#additional-contributions)
+- See [Pharloom Atlas](../PharloomAtlas/#readme): [Web Integration](../PharloomAtlas/#web-integration) and [Additional Contributions](../PharloomAtlas/#additional-contributions)
 
 <a id="developer-notes"></a>
 ## 🧩️ Developer Notes
