@@ -332,7 +332,7 @@ function GenerateMisc(): string
 		'/(\n\t\"StaticLinks)/' => "\n\t//Lists correspond to IDs from Items.json. Single numbers are from Categories.json\\1",
 	];
 	$Out=preg_replace(array_keys($Replacements), array_values($Replacements), $Out);
-	return $Out;
+	return $Out.'';
 }
 
 //Generate Matched Icons
@@ -350,7 +350,7 @@ function GenerateSceneVectors(): string
 {
 	return FormatNumericArray(
 		(function(): Generator {
-			foreach(Query('SELECT Name, ScenePosX, ScenePosY, BoundsSpriteSizeX, BoundsSpriteSizeY, SceneSizeX, SceneSizeY, SceneLocalScaleX, SceneLocalScaleY FROM SceneVectors') as $Row)
+			foreach(Query('SELECT Name, ScenePosX, ScenePosY, BoundsSpriteSizeX, BoundsSpriteSizeY, SceneSizeX, SceneSizeY, SceneLocalScaleX, SceneLocalScaleY FROM Scenes') as $Row)
 				yield new FormatNumericArrayData($Row->Name, array_slice(array_values((array)$Row), 1));
 		})(),
 		'//SceneName=[ScenePos(X,Y), BoundsSpriteSize(X,Y), SceneSize(X,Y), SceneLocalScale(X,Y)]',
@@ -362,7 +362,7 @@ function GenerateSceneRects(): string
 	function FRound(float $Num): float { return round($Num, 9); }
 	return FormatNumericArray(
 		(function(): Generator {
-			foreach(Query('SELECT Name, ScenePosX, ScenePosY, BoundsSpriteSizeX, BoundsSpriteSizeY, ColorIndex FROM SceneVectors') as $Row) {
+			foreach(Query('SELECT X, Y, Width, Height, Name, ScenePosX, ScenePosY, BoundsSpriteSizeX, BoundsSpriteSizeY, ColorIndex FROM Scenes') as $Row) {
 				//Handle dimensionless scenes
 				if($Row->BoundsSpriteSizeX===null) {
 					yield new FormatNumericArrayData($Row->Name, [
@@ -378,13 +378,17 @@ function GenerateSceneRects(): string
 				];
 				$StartPos=new Vector2(CalcPoint($SPV, 'X', -0.5), CalcPoint($SPV, 'Y', -0.5));
 				$EndPos  =new Vector2(CalcPoint($SPV, 'X', +0.5), CalcPoint($SPV, 'Y', +0.5));
-				yield new FormatNumericArrayData($Row->Name, [
+				$Result=[
 					FRound($StartPos->X),
 					FRound($StartPos->Y),
 					FRound($EndPos->X-$StartPos->X),
 					FRound($EndPos->Y-$StartPos->Y),
 					(int)$Row->ColorIndex,
-				]);
+				];
+				foreach(['X', 'Y', 'Width', 'Height'] as $Index => $Field)
+					if($Result[$Index].''!==$Row->$Field.'')
+						ErrAndDie("Derived+Stored $Field derivation: ".$Result[$Index]."!==".$Row->$Field);
+				yield new FormatNumericArrayData($Row->Name, $Result);
 			}
 		})(),
 		'//SceneName=[X, Y, Width, Height, Color] (Last 3 numbers left off if no dimensions)',

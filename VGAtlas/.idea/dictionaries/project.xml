@@ -5,6 +5,7 @@
       <w>Fract</w>
       <w>Pharloom</w>
       <w>Strs</w>
+      <w>Winget</w>
       <w>autopan</w>
       <w>dicts</w>
       <w>funcs</w>
@@ -13,6 +14,7 @@
       <w>ltgt</w>
       <w>materiumcollected</w>
       <w>noopener</w>
+      <w>overlayed</w>
       <w>persistentbools</w>
       <w>preallocated</w>
       <w>selstack</w>
@@ -21,6 +23,7 @@
       <w>titlebar</w>
       <w>toolmaster</w>
       <w>tseslint</w>
+      <w>xffff</w>
     </words>
   </dictionary>
 </component>

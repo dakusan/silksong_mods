@@ -1,4 +1,5 @@
 <a id="readme"></a>
+<!--suppress HtmlDeprecatedAttribute -->
 <div align="center">
 
 # 🗺️ VGAtlas

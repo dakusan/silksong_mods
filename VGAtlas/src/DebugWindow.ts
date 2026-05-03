@@ -121,7 +121,11 @@ export default class DebugWindow extends Window
 		this.ValueLabels.CanvasCoord		.text(!Pos		? '' : `${P(Pos.X, 4, 0)} × ${P(Pos.Y, 4, 0)}`);
 		this.ValueLabels.MapCoord			.text(!MapPos	? '' : `${P(MapPos.X)} × ${P(MapPos.Y)}`);
 		this.ValueLabels.ZoomLevel			.text(P(Share.MC.ZoomScale, 2, 5));
-		this.ValueLabels.CurrentMapSection	.text([...this.GetMouseMapSections(MapPos)].join(', '));
+		this.ValueLabels.CurrentMapSection	.empty().append(
+			[...this.GetMouseMapSections(MapPos)].flatMap(
+				El => [El, document.createTextNode(', ')] //Comma separators
+			).slice(0, -1) //Remove the dangling comma
+		);
 	}
 
 	public *GetMouseMapSections(MapPos?:Vector2)
@@ -132,7 +136,7 @@ export default class DebugWindow extends Window
 		const MapRadius=this.ctor.CanvasToMapRadius(NoWidthSectionRadius*Share.MC.ZoomScale);
 		for(const [Name, Section] of Object.entries(this.OriginalSections!))
 			if(this.ctor.IsMouseOverSection(MapPos, Section, MapRadius))
-				yield Name;
+				yield $(document.createElement('span')).text(Name).css('color', SectionColors[Section[4] ?? -1] ?? '#BBBBBB');
 	}
 
 	public static CanvasToMapRadius(CanvasRadius:number)

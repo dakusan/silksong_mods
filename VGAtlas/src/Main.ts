@@ -307,6 +307,7 @@ function SetupLoadSaveFileWindow()
 				localStorage.setItem('SaveDataFileName', File.name);
 				UpdateContentState();
 				Share.MSV.UpdateAllUsedValuesOnLoad();
+				Log.Info("Save file loaded: "+File.name);
 			}
 			catch(e) {
 				HandleLoadSaveFileError(e, File.name);
@@ -327,6 +328,7 @@ function SetupLoadSaveFileWindow()
 		localStorage.removeItem('SaveDataFileName');
 		UpdateContentState();
 		Share.MSV.UpdateAllUsedValuesOnLoad();
+		Log.Info("Save file cleared");
 	});
 
 	UpdateContentState();
