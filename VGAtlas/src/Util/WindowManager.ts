@@ -319,7 +319,7 @@ export class Window
 		this.$Content.children().eq(0).css('display', 'inline-block');								//Set the child as an inline-block so we can measure its width
 		const TempTitle=$('<span/>').text(this.$Title.text());										//Move the title text into a <span> within $Title so we can measure its width
 		this.$Title.empty().append(TempTitle);
-		const UserCallback=() => AutoSizeCallback.call(this as unknown as T, this.FinishAutoSize);	//What we will callback once content has rendered
+		const UserCallback=() => AutoSizeCallback.call(this as unknown as T, this.FinishAutoSize);	//What we will call back once content has rendered
 		setTimeout(() => this.CheckAutoSize(UserCallback), 0);										//Wait for the element to render so we can take measurements
 	}
 	private CheckAutoSize(CB:() => void)

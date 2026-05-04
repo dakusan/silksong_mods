@@ -49,7 +49,7 @@ export default class MapControl
 		this.InitURLHashes();
 	}
 
-	//Handle state change for choosing icons
+	//Handle the state change for choosing icons
 	private CurrentHistoryIndex=0;
 	private MaxHistoryIndex=0;
 	private InitURLHashes()

@@ -365,8 +365,8 @@ class RGBTintShader extends Material
 }
 
 //Note: Items used to each have their own canvas with their current sprite (which is how the C# engine basically handled things). And when GameObject.ReRender() was called, it actually rerendered!
-//It was a ridiculous waste of memory and processing however, so now sprites are pulled from individual sprite sheets, each with their own pre-processed shaders run.
-//I kept the way sprites were created/updated though in case this ever needs to be reverted, and the overhead is minimal. Plus there is a chance I may have sprites that use their own sheet
+//It was a ridiculous waste of memory and processing, however, so now sprites are pulled from individual sprite sheets, each with their own pre-processed shaders run.
+//I kept the way sprites were created/updated in case this ever needs to be reverted, and the overhead is minimal. Plus, there is a chance I may have sprites that use their own sheet
 class SpriteSheetVariation
 {
 	private _Canvas?:OffscreenCanvas; public get Canvas() { return this._Canvas; }

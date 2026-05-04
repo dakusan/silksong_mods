@@ -93,7 +93,7 @@ function CreateSaveData(NewSaveData:SaveDataClass): SaveDataClass
 
 async function DecryptSaveFile(Base64String:string): Promise<string>
 {
-	//Instead of using import('crypto-js'), this does the same thing but only pulls in the needed modules, drastically reducing the module’s output chunk size
+	//Instead of using import('crypto-js'), this does the same thing but only pulls in the required modules, drastically reducing the module’s output chunk size
 	const LoadParams={
 		CryptoJS:	import('crypto-js/core'			),
 		AES:		import('crypto-js/aes'			),

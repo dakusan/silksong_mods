@@ -444,7 +444,7 @@ export namespace KeyState
 export const WillBeSet=undefined!;
 export const Log=Util.OneTimeInit('Log', () => new LogClass());
 
-//These are ran at the end of initialization
+//These run at the end of initialization
 export const InitFuncs:(() => void)[]=[];
 
 /*

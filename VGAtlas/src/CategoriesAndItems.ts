@@ -100,7 +100,7 @@ export class Item extends JsonClass
 
 	public IconID:number=-1;
 
-	//These are all set from Converters. Anything ran through a converter has a confirmed type so JsonPropsDec is not needed.
+	//These are all set from Converters. Anything ran through a converter has a confirmed type, so JsonPropsDec is not needed.
 	public WhereAt	?:RenderedField	=undefined;
 	public Notes	?:RenderedField	=undefined;
 	public Effect	?:RenderedField	=undefined;
@@ -371,7 +371,7 @@ export class ChainItem extends JsonClass
 {
 	@ExpNo() public readonly Parent:ChainList;
 	public readonly StartString:string;
-	@ExpNo() private _RenderedStringReal:string=WillBeSet; //Contains AmountChar where the live collected count will need to be inserted
+	@ExpNo() private _RenderedStringReal:string=WillBeSet; //Contains AmountChar where the live-collected count will need to be inserted
 	@ExpNo() private 	get RenderedStringReal		() { return this._RenderedStringReal ??= this.FinishInternalRender(); }
 	@ExpNo() protected	get RenderedStringInternal	() { return this.GetProcessedRenderString(this.RenderedStringReal, `${LStatStr.ChainItem_AmountChar}${this.LinkID}${LStatStr.ChainItem_AmountChar}`); } //AmountChar becomes LinkID surround by AmountChar
 		//noinspection JSUnusedGlobalSymbols
@@ -444,7 +444,7 @@ export class ChainItem extends JsonClass
 			: undefined;
 
 		//Render as a linked item
-		const MakeAttr=(AttrName:string, AttrVal:unknown) => `<ATTR=${AttrName}>${AttrVal}</ATTR>`; //Sanitization not needed on use cases
+		const MakeAttr=(AttrName:string, AttrVal:unknown) => `<ATTR=${AttrName}>${AttrVal}</ATTR>`; //Sanitization is not needed in use cases
 		return [
 			`<LinkID=${(this.Parent.Parent as Item_Friend).GetLinkID}>`,
 			MakeAttr('ItemID', this.LinkID),

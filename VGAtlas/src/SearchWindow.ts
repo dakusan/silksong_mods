@@ -96,7 +96,7 @@ export default class SearchWindow extends Window
 		if((this._HadOverflow=(NewItems.length>this.MaxSearchResults)))
 			NewItems.pop();
 
-		//Create a string with sized down title and Info with highlighted search terms
+		//Create a string with sized-down title and Info with highlighted search terms
 		const MakeItemInfoLine=(Title:string, Info:string):string|null =>
 			!Info ? null : `<span class='FontSize FN2'>${Share.Tr.T(Title, 'ItemFields', true)}</span>: `+Info;
 

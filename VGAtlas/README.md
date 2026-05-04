@@ -42,7 +42,7 @@ Planned expansion will make this compatible with other games.
 Once compiled, the entire software suite is located in the `dist` subdirectory.<br>
 Serve the contents of the `dist` directory from any static web server (Apache, nginx, S3, etc.). The `index.html` entry point will handle the rest.
 
-[^1]: While you technically can just double-click the **index.html** to run the software, most browsers will block requests due to security [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) security errors. However, you can upload this to file-only storage like Amazon S3 and it will work fine.
+[^1]: While you technically can just double-click the **index.html** to run the software, most browsers will block requests due to security [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) security errors. However, you can upload this to file-only storage like Amazon-S3 and it will work fine.
 
 ## 🔨️ Compiling
 1. Install npm
@@ -63,11 +63,11 @@ This software uses [Vite](https://en.wikipedia.org/wiki/Vite). So for developmen
 
 By using Vite, **all** compiled and static assets (except `index.html`) include content hashes in their filenames. This enables aggressive long-term caching while ensuring updates invalidate correctly.
 
-Assets and source code reloads are separated and will require only an incredibly small amount of overhead data transfer from browsers. The only data the user will generally need to exchange with the web server after first load will be the ~1.2KB gzipped index.html.
+Assets and source code reloads are separated and will require only an incredibly small amount of overhead data transfer from browsers. The only data the user will generally need to exchange with the web server after first-load will be the ~1.2KB gzipped index.html.
 
 The functionally permanent caching mechanisms are taken care of for Apache via the `.htaccess` file in `dist`.
 
-Source code is bundled into chunks so only 1 file load is needed for any interface section, and **all** files are minified.
+Source code is bundled into chunks so that only one file load is needed for any interface section, and **all** files are minified.
 
 ### 🧱 Using / Generating Assets
 
@@ -102,5 +102,5 @@ php CreateTranslations.php
 ## 🤝🏻 Contributing, Credits, and License
 * See [root project README](../#contributing) for details
 * <a id="additional-credits"></a> 📜️ Additional-Credits
-	* Initial icons, structure, and inspiration drawn from community mapping projects like [MapGenie.io](https://mapgenie.io/hollow-knight-silksong/maps/pharloom).
+	* Initial icons, structure, and inspiration are drawn from community mapping projects like [MapGenie.io](https://mapgenie.io/hollow-knight-silksong/maps/pharloom).
 	* All assets © their respective creators (mostly Team Cherry).

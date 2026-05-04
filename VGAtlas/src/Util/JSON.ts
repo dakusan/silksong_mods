@@ -20,7 +20,7 @@ export type JsonConverter_Generic<ObjType>=JsonConverter<ObjType, unknown, unkno
 class JSProps
 {
 	public IsRequired=false; //Required on import
-	public ExpectedType?:unknown=undefined; //Must match this type on import. Not needed if value is set by default in class declaration or a JsonConverter was used to make the member
+	public ExpectedType?:unknown=undefined; //Must match this type on import. Not needed if value is set by default in the class declaration or a JsonConverter was used to make the member
 
 	//Used for exporting fields
 	public ExpNo	=false; //Do not include a field
@@ -47,7 +47,7 @@ function SetJSProps<K extends keyof JSProps>(Target:object, Name:string, Values:
 			Props[FieldName]=Value;
 }
 
-//Any class that will have JSProp decorators. This is automatically filled in by the system upon handling of the first JSProps decorator in the class
+//Any class that will have JSProp decorators. The system automatically fills this in upon handling of the first JSProps decorator in the class
 //eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export abstract class JsonClass { public static ClassJSProps?:Map<string, JSProps>; }
 
@@ -69,7 +69,7 @@ export namespace LoadJson
 		return Parsed as object;
 	}
 
-	//Convert from imported JSON (ValuesObj) to the final class based object (Obj). Converters will transform members.
+	//Convert from imported JSON (ValuesObj) to the final class-based object (Obj). Converters will transform members.
 	export function ClassFromObj<ObjType extends object>(Obj:ObjType, ValuesObj:object, Converters?:Record<keyof ObjType, JsonConverter_Generic<ObjType>>)
 	{
 		const ClassJSProps=(Obj.constructor as typeof JsonClass).ClassJSProps as Map<keyof ObjType, JSProps>|undefined;

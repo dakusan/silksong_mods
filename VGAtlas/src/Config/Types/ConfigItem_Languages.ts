@@ -23,7 +23,7 @@ export default class ConfigItem_Languages extends ConfigItem_Enum
 		for(const [LangKey, LangInfo] of Object.entries(this.Tr.LanguagesList))
 			this.Add(LangKey, LangInfo.Native);
 
-		//If the language is not yet set, or is invalid, get it from the browser, or use the default
+		//If the language is not yet set or is invalid, get it from the browser or use the default
 		const OverrideLang=() => (navigator.languages?.[0] || navigator.language)?.slice(0, 2).toLowerCase() ?? StatStr.Empty; //TODO: May need to update this depending on languages that require 3 letters
 		if(!this.Tr.LanguagesList.hasOwnProperty(this.V))
 			this.V=
@@ -38,5 +38,5 @@ export default class ConfigItem_Languages extends ConfigItem_Enum
 		this.$SelectBox.val(this.Tr.Language=this.V);
 		this.SettingChanged.Add('ConfigItem_Languages', V => this.Tr.Language=V);
 	}
-	protected override LanguageChanged() { } //Text not changed on language change
+	protected override LanguageChanged() { } //Text is not changed on language change
 }

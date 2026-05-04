@@ -36,7 +36,7 @@ export default class Translations
 	public static readonly DefaultLang				="en";
 	public static readonly DefaultLangName			="English";
 
-	//Since a lot of the functions are ran on the static class, give easy access to it
+	//Since a lot of the functions run on the static class, give easy access to it
 	public get ctor() { return Translations; }
 
 	//Store modules so their language can be synced
@@ -216,7 +216,7 @@ export class TranslatePassthrough
 	constructor(
 		public readonly Key:string,
 		public readonly Section?:string,
-		public readonly Default:string|null=null, //If null then the Key will be used
+		public readonly Default:string|null=null, //If null, then the Key will be used
 		public readonly SafeRich=false,
 		...FormatList:Util.Primitive[]
 	) { this.FormatList=FormatList; }

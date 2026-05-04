@@ -2,6 +2,7 @@
   <dictionary name="project">
     <words>
       <w>Coord</w>
+      <w>Dakusan</w>
       <w>Fract</w>
       <w>Pharloom</w>
       <w>Strs</w>
@@ -23,7 +24,6 @@
       <w>titlebar</w>
       <w>toolmaster</w>
       <w>tseslint</w>
-      <w>xffff</w>
     </words>
   </dictionary>
 </component>

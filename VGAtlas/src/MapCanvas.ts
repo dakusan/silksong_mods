@@ -36,7 +36,7 @@ export default class MapCanvas
 
 	protected UpdatePosAndScale(NewScale?:number, NewX:number|undefined=undefined, NewY:number|undefined=undefined, FromMover:boolean=false): boolean
 	{
-		//If there is no image then do nothing
+		//If there is no image, then do nothing
 		if(this.Image===null)
 			return false;
 
@@ -450,7 +450,7 @@ class Mover
 		this.Duration*=1000;
 		Share.MCanvas.Events.Draw.Add('MoveToPointAction'+this.MyUniqueID, this.OnFrame.bind(this));
 
-		//If also zooming then we need to use map coordinates
+		//If also zooming, then we need to use map coordinates
 		if(this.ZoomTo!==undefined) {
 			const Ratio=this.ZoomTo/this.StartZoom;
 			const CX=Share.MCanvas.Width /2;

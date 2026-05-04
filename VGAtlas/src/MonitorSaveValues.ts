@@ -61,7 +61,7 @@ export default class MonitorSaveValues
 				I.SetStatusFlag(ForStarting,
 					   !!GameName											//Match was found
 					&& Parts.length===2										//Match value is in proper format (dot separated)
-					&& this.ctor.GetLiveCompletedValue(Parts[0], Parts[1])	//Is value completed
+					&& this.ctor.GetLiveCompletedValue(Parts[0], Parts[1])	//If value is completed
 				);
 				IsLinked||=!ForStarting && !!GameName;
 			}

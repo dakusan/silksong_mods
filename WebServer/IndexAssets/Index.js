@@ -30,7 +30,7 @@ class TabOverride extends Tab
 			this.Popups.push(NewPopup);
 			El.addEventListener("click", e => {
 				if(e.target===El) //Only open for the tab itself being clicked
-					NewPopup.Toggle(NewPopup)
+					NewPopup.Toggle()
 			});
 
 			//Clicking tab elements within the popup close it

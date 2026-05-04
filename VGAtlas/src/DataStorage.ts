@@ -61,7 +61,7 @@ class IconSprites
 		return this.SpriteList[IconID]=this.CreateSprite(IconSprites.GetIconRectByID(IconID));
 	}
 
-	//Set the sprites image
+	//Set the sprite’s image
 	protected SetIconPics(IconPicsTex:ImageBitmap, ImageURL:string)
 	{
 		MapIcon.UpdateDefaultSpriteSheet(IconPicsTex);
@@ -223,7 +223,7 @@ export default class DataStorage
 					if(Item.IDInRange(CI.LinkID))
 						(CL===ItemData.Rewards ? this.Items.get(CI.LinkID)!.AQFrom! : this.Items.get(CI.LinkID)!.Unlocks!).Add(ItemData);
 
-			//Distribute store reward related items: Fills in Item.{Unlocks, AQFrom, Reqs, Needs} for items linked from this item’s store
+			//Distribute store reward-related items: Fills in Item.{Unlocks, AQFrom, Reqs, Needs} for items linked from this item’s store
 			for(const SI of ItemData.Store?.Items ?? [])
 				if(SI.Rewards.Items!==undefined)
 					for(const RewardCI of GetListItems(SI.Rewards))
@@ -276,7 +276,7 @@ export default class DataStorage
 						throw new Error("PrefixSymbol cannot be blank");
 					else if(RegExStr.length<4)
 						throw new Error("RegEx must have at least 4 characters");
-					else if(RegExStr[0].codePointAt(0)!>0xFFFF)
+					else if(RegExStr[0].codePointAt(0)!>0xFF_FF)
 						throw new Error("RegEx split character must fit within a UTF16 code unit");
 					const RegExParts=RegExStr.slice(1).split(RegExStr[0]);
 					if(RegExParts.length!==2)

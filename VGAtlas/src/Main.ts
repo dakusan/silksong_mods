@@ -151,7 +151,7 @@ function CreateMainMenu()
 {
 	//Popup button
 	$('#MainMenu .PopupButton').on('click', () => {
-		setTimeout(() => $('#MainMenu .Popup').show(), 0); //Timeout so that if the menu is already open it will reopen after being closed
+		setTimeout(() => $('#MainMenu .Popup').show(), 0); //Timeout so that if the menu is already opened, it will reopen after being closed
 		const ClosePopup=() => {
 			$('#MainMenu .Popup').hide();
 			$(window).off('click', ClosePopup);

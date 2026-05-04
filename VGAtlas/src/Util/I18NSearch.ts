@@ -25,7 +25,7 @@ export class FoldedStrings<StartHSType extends StartHSTypes>
 	public		readonly Folded			:string; //JoinedHaystacks after normalization
 	private /*readonly*/ ObjNames		:StartHSType extends string ? undefined : StartHSType extends unknown[] ? number : string[]=WillBeSet;
 
-	private static GetCPoint(Str:string, PointInStr:number) { return Str.codePointAt(PointInStr)!>0xFFFF ? Str.slice(PointInStr, PointInStr+2) : Str[PointInStr]; }
+	private static GetCPoint(Str:string, PointInStr:number) { return Str.codePointAt(PointInStr)!>0xFF_FF ? Str.slice(PointInStr, PointInStr+2) : Str[PointInStr]; }
 	public static readonly SectionSeparator='\u0087'; //If found in search string, this character will be replaced with StatStr.PrivateChar
 
 	constructor(
@@ -223,7 +223,7 @@ export default class I18NSearch<T>
 
 	public SearchItemMatches(Item:T): boolean
 	{
-		//Get the fixed up search term (return early if null)
+		//Get the fixed-up search term (return early if null)
 		const ItemStr=this.ItemTransformer(Item)?.Folded ?? null;
 		if(ItemStr===null)
 			return false;
@@ -272,7 +272,7 @@ export default class I18NSearch<T>
 		if(TermCount===0 || !SearchString)
 			return [];
 
-		//Precompute per-term next match index (cursor). -1 means no further matches
+		//Precompute the per-term next-match index (cursor). -1 means no further matches
 		const NextIndexes	:number[]=new Array(TermCount);
 		const NextLens		:number[]=new Array(TermCount);
 		for(let Index=0; Index<TermCount; Index++)
