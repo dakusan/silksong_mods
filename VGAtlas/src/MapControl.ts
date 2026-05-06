@@ -52,6 +52,7 @@ export default class MapControl
 	//Handle the state change for choosing icons
 	private CurrentHistoryIndex=0;
 	private MaxHistoryIndex=0;
+	private IgnoreNextHashUpdate=false;
 	private InitURLHashes()
 	{
 		history.replaceState({Index:0}, StatStr.Empty, location.pathname+location.search+location.hash);
@@ -74,10 +75,15 @@ export default class MapControl
 	}
 	private HashUpdate(IsInitial:boolean)
 	{
+		if(this.IgnoreNextHashUpdate)
+			return void(this.IgnoreNextHashUpdate=false);
+
 		//TODO: Support categories
 		let NewHash=(window.location.hash ?? StatStr.Empty);
 		if(NewHash[0]==='#')
 			NewHash=NewHash.slice(1);
+		if(NewHash==='REMOVED')
+			return this.RemoveHistoryEvent();
 		if(NewHash.length===0) {
 			this.SelectItemI(undefined, true);
 			if(!IsInitial)
@@ -85,16 +91,64 @@ export default class MapControl
 			return;
 		}
 
-		try {
-			if(!IsInitial) {
-				this.SelectAndCenterItemI(Number(NewHash), true);
-				return void Log.Debug(`Stack Update: #${NewHash}`);
+		//Process options
+		const Options:{ZoomScale?:number, Duration?:number, X?:number, Y?:number}={};
+		const SplitPos=NewHash.indexOf('&');
+		if(SplitPos!==-1) {
+			const Values=new URLSearchParams(NewHash.slice(SplitPos+1));
+			NewHash=NewHash.slice(0, SplitPos); //The ItemID is now what’s before the first comma in the hash
+			for(const Name of ['ZoomScale', 'Duration', 'X', 'Y'] as const) {
+				const Value=Number(Values.get(Name) ?? Number.NaN);
+				if(Number.isFinite(Value))
+					Options[Name]=Value;
+			}
+		}
+
+		//Select the new item
+		if(NewHash)
+			try {
+				return this.SelectNewItemFromHash(IsInitial, NewHash, SplitPos!==-1, Options.ZoomScale, Options.Duration);
+			} catch {
+				Log.Error("Invalid ItemID in URL: "+NewHash);
+				return this.RemoveHistoryEvent();
 			}
 
+		//If there is no new item given, instead, try to move to X, Y and/or scale to ZoomScale
+		if(Options.ZoomScale!==undefined || (Options.X!==undefined && Options.Y!==undefined))
+			this.GameMap.CenterOnPoint(
+				Options.X!==undefined && Options.Y!==undefined
+					? this.GameMap.MapToCanvas(new Vector2(Options.X, Options.Y))
+					: new Vector2(this.GameMap.Width/2, this.GameMap.Height/2),
+				Options.Duration,
+				Options.ZoomScale,
+			);
+		this.RemoveHistoryEvent();
+	}
+	private SelectNewItemFromHash(IsInitial:boolean, NewItemID:string, HasCommands:boolean, ZoomScale?:number, Duration?:number)
+	{
+		const PreviousSelectedItemID=this.SelectedItem?.ID;
+		if(IsInitial) {
 			const ScaleRange=Share.MCanvas.ScaleRange;
-			this.SelectAndCenterItemI(Number(NewHash), true, (ScaleRange.Y-ScaleRange.X)/2+ScaleRange.X, 1.75);
-			Log.Debug(`Stack Initial: #${NewHash}`);
-		} catch { Log.Error("Invalid ItemID in URL: "+NewHash); }
+			ZoomScale ??= (ScaleRange.Y-ScaleRange.X)/2+ScaleRange.X;
+			Duration ??= 1.75;
+		}
+
+		const ItemID=Number(NewItemID);
+		this.SelectAndCenterItemI(ItemID, true, ZoomScale, Duration);
+		Log.Debug(`Stack ${IsInitial ? 'Initial' : 'Update'}: #${NewItemID}`);
+		if(!HasCommands)
+			return;
+		if(ItemID===PreviousSelectedItemID)
+			this.RemoveHistoryEvent();
+		else
+			ReplaceCurrentHistoryHash('#'+ItemID);
+	}
+	private RemoveHistoryEvent()
+	{
+		ReplaceCurrentHistoryHash('#REMOVED');
+		this.MaxHistoryIndex=this.CurrentHistoryIndex;
+		this.IgnoreNextHashUpdate=true;
+		history.back();
 	}
 
 	//Find the closest visible and intersecting item on the map
@@ -293,4 +347,9 @@ export default class MapControl
 			if(!Item.IsLinked)
 				Item.MapIcon!.SetIconColor();
 	}
+}
+
+function ReplaceCurrentHistoryHash(Hash:string): void
+{
+	history.replaceState(history.state, StatStr.Empty, location.pathname+location.search+Hash);
 }
