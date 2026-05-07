@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import { CallbackList, FriendClass, Log, StatStr, Util, Vector2, WillBeSet } from './Util/SharedClasses';
 import GetExtraAssets from './Util/GetExtraAssets';
+import { ExecuteAutoFit } from './Util/AlignText';
 import { Share } from './Share';
 const MaxZoomOutRatio=4/3; //How much further the map can zoom past 100% fit
 
@@ -374,40 +375,15 @@ export default class MapCanvas
 
 	private DrawCenteredAutoFitText(Text:string)
 	{
-		const MaxFont=80, MinFont=10, Pad=24;
-		const Lines=Text.split(/\r?\n/);
-
-		this.Ctx.textAlign='center';
+		const FontFamily='sans-serif';
+		const Padding=24;
+		const AF=ExecuteAutoFit(Text, this.Width-Padding*2, this.Height-Padding*2, {FontFamily});
+		this.Ctx.font=`${AF.Size}px ${FontFamily}`;
+		this.Ctx.textAlign='left';
 		this.Ctx.textBaseline='middle';
 		this.Ctx.fillStyle='#fff';
-
-		const MeasureMultiline=(Size:number) => {
-			this.Ctx.font=`${Size}px sans-serif`;
-			let MaxW=0;
-			let LineH=Size;
-			for(const Line of Lines) {
-				const M=this.Ctx.measureText(Line);
-				MaxW=Math.max(MaxW, M.width);
-				const Ascent =M.actualBoundingBoxAscent  || Size*0.8;
-				const Descent=M.actualBoundingBoxDescent || Size*0.2;
-				LineH=Math.max(LineH, Ascent+Descent);
-			}
-
-			const TotalH=LineH*Lines.length;
-			return { MaxW, LineH, TotalH };
-		};
-
-		const W=this.Width; const H=this.Height;
-		for(let Size=MaxFont; Size>=MinFont; Size--) {
-			const { MaxW, LineH, TotalH }=MeasureMultiline(Size);
-			if(Size>MinFont && (MaxW>W-Pad*2 || TotalH>H-Pad*2))
-				continue;
-
-			const StartY=H/2-TotalH/2+LineH/2;
-			for(let i=0; i<Lines.length; i++)
-				this.Ctx.fillText(Lines[i], W/2, StartY+i*LineH);
-			break;
-		}
+		for(const Line of AF.LineRects)
+			this.Ctx.fillText(Line.Text, Line.Rect.X+Padding, Line.Rect.Y+Padding+Line.Rect.Height/2);
 	}
 
 	private MapToCanvasCoord(MapV:number, InV:number, Mul:number, Add:number) { return MapV+(InV*Mul+Add)*this.Scale; }
