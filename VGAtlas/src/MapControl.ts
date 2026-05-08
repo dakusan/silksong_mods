@@ -39,7 +39,7 @@ export default class MapControl
 		Share.MSV.UpdateAllUsedValuesOnLoad();
 
 		//Handle settings changes
-		Share.LC.IconSize.SettingChanged.Add('MapControl.SetIconSize', this.SetIconSize.bind(this));
+		Share.LC.IconSize.SettingChanged.Add('MapControl.SetIconSize', Size => this.SetIconSize(Size));
 		Share.LC.IconSizeScalesWithZoom.SettingChanged.Add('MapControl.SetIconSize', NewVal => {
 			this.IconSizeScalesWithZoom=NewVal;
 			this.SetIconSize(Share.LC.IconSize.V);
@@ -147,6 +147,8 @@ export default class MapControl
 	{
 		ReplaceCurrentHistoryHash('#REMOVED');
 		this.MaxHistoryIndex=this.CurrentHistoryIndex;
+		if(history.state?.Index===0)
+			return ReplaceCurrentHistoryHash(StatStr.Empty);
 		this.IgnoreNextHashUpdate=true;
 		history.back();
 	}
@@ -249,12 +251,12 @@ export default class MapControl
 		this.GameMap.ZoomAt(ZoomAroundPoint, this.GetUpdatedZoomScale(Amount))
 	}
 
-	//Set the size of icons
-	public SetIconSize(IconSize:number)
+	//Set the size of icon(s) - If IconToScale is not given, all icons are updated
+	public SetIconSize(IconSize:number, IconToSize?:Item)
 	{
 		const MatchUnityScale=2/3;
 		const NewIconScaleSize=(!this.IconSizeScalesWithZoom ? IconSize*this.ZoomScale : IconSize)*MatchUnityScale;
-		for(const Item of Share.DS.Items.values())
+		for(const Item of (IconToSize ? [IconToSize] : Share.DS.Items.values()))
 			Item.MapIcon!.UpdateSize(NewIconScaleSize);
 	}
 

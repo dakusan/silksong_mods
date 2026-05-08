@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { Iter, StatStr, WillBeSet } from './Util/SharedClasses';
+import { Iter, Log, PopupMessage, StatStr, Util, WillBeSet } from './Util/SharedClasses';
 import I18NSearch, { FoldedStrings } from './Util/I18NSearch';
 import { Window } from './Util/WindowManager';
 import { Share } from './Share';
@@ -122,7 +122,15 @@ export default class SearchWindow extends Window
 		for(const SI of this.SearchedItems) {
 			const El=$('<div>')
 				.html(SI.RichText)
-				.on('click', () => Share.MC.SelectAndCenterItem(SI.ID));
+				.on('click', () => {
+					try {
+						Share.MC.SelectAndCenterItem(SI.ID);
+					} catch(Err) {
+						const ErrMsg=StatStr.NeedsTranslate+`Item #${SI.ID} is no longer available: `+Util.GetErrorMessage(Err);
+						Log.Error(ErrMsg);
+						new PopupMessage(ErrMsg);
+					}
+				});
 
 			El.add('<div class=Separator>').appendTo(this.$SearchResults);
 			if(El.height()!>130)

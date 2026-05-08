@@ -21,14 +21,15 @@ type LoadCategory=Record<string, Record<string, {OrderID:number, IconID:number, 
 //Create icon sprites as needed
 class IconSprites
 {
-	private SpriteList:(Sprite|null)[]=Array(IconLenX*IconLenY).fill(null);
+	public get NumSpritesAvailable() { return IconLenX*IconLenY; }
+	private SpriteList:(Sprite|null)[]=Array(this.NumSpritesAvailable).fill(null);
 	private CSSSpriteURL =document.createElement('style');
 	private CSSSpriteList=document.createElement('style');
 	public constructor()
 	{
 		//Create the special error sprite (which is always the last square and is of size ErrorTexSize*ErrorTexSize)
 		const ErrorTexSize=54;
-		const LastSpriteID=IconLenX*IconLenY-1;
+		const LastSpriteID=this.NumSpritesAvailable-1;
 		this.SpriteList[LastSpriteID]=this.CreateSprite(IconSprites.GetIconRectByID(LastSpriteID).SetWidth(ErrorTexSize).SetHeight(ErrorTexSize));
 
 		//Create sprite sheets
@@ -50,8 +51,8 @@ class IconSprites
 	public Get(IconID:number)
 	{
 		//Instead of dealing with errors, just use an error icon when out of range
-		if(IconID<0 || IconID>=(IconLenX*IconLenY))
-			IconID=IconLenX*IconLenY-1;
+		if(IconID<0 || IconID>=this.NumSpritesAvailable)
+			IconID=this.NumSpritesAvailable-1;
 
 		//Return if already created
 		if(this.SpriteList[IconID]!==null)

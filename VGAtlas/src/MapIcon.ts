@@ -5,6 +5,8 @@ import { CategoryToggleState, Item } from './CategoriesAndItems';
 
 class SpriteRenderInfo { constructor(public readonly SSV:SpriteSheetVariations, public readonly ImageRect:Rect, public readonly Center:Vector2) { } }
 
+type ExtraDrawFunc=(Ctx:CanvasRenderingContext2D, CanvasRect:Rect) => void;
+
 //Keep a counter of when things change so users of the object know to refresh its render
 abstract class Versioned
 {
@@ -38,7 +40,7 @@ export class Sprite extends Versioned
 	{
 		return	this.SSV?.HasImage	? new SpriteRenderInfo(this.SSV, this.ImageRect, this.Center)
 			:	Sprite.ErrImage		? new SpriteRenderInfo(Sprite.ErrImage, new Rect(0, 0, Sprite.ErrImage.IB!.width, Sprite.ErrImage.IB!.height), new Vector2(0.5, 0.5))
-			:					  undefined;
+			:						  undefined;
 	}
 }
 
@@ -57,7 +59,7 @@ class GameObject extends Versioned
 	private static DrawAll(Ctx:CanvasRenderingContext2D) { Log.Debug("Drawing complete. Icons rendered: "+
 		GameObject.OrderedGameObjectList.map(GO => GO.Draw(Ctx)).filter(B => B).length
 	); }
-	public static get AllObjects() { return GameObject.OrderedGameObjectList.values(); }
+	public static get AllObjects(): readonly GameObject[] { return GameObject.OrderedGameObjectList; }
 	private static InitClass()
 	{
 		Share.MCanvas.Events.Draw.Add('GameObjects', GameObject.DrawAll);
@@ -86,7 +88,7 @@ class GameObject extends Versioned
 	private SRI?:SpriteRenderInfo=undefined;
 	private RenderedSprite:OffscreenCanvas=WillBeSet;
 
-	constructor(public Title:string, Pos:Vector2, private MySprite:Sprite)
+	constructor(public Title:string, Pos:Vector2, private MySprite:Sprite, private ExtraDraw?:ExtraDrawFunc)
 	{
 		super();
 		this._Pos=Pos;
@@ -138,6 +140,7 @@ class GameObject extends Versioned
 			this.RenderedSprite, IR.X, IR.Y, IR.Width, IR.Height,
 			R.X, R.Y, R.Width, R.Height
 		);
+		this.ExtraDraw?.(Ctx, R);
 
 		return true;
 	}
@@ -155,6 +158,13 @@ class GameObject extends Versioned
 	}
 
 	public SpriteUpdated() { this.MySprite.IncVersion(); }
+
+	public Delete() {
+		const Index=GameObject.OrderedGameObjectList.indexOf(this);
+		if(Index!==-1)
+			GameObject.OrderedGameObjectList.splice(Index, 1);
+		return Index!==-1;
+	}
 }
 
 //The physical map icons to display on the canvas
@@ -163,9 +173,9 @@ export class MapIcon
 	//Basic instance members
 	private readonly IconGO:GameObject;
 
-	constructor(Item:Item, MySprite:Sprite)
+	constructor(Item:Item, MySprite:Sprite, ExtraDraw?:ExtraDrawFunc)
 	{
-		this.IconGO=new GameObject(`Pin - ${Item.Title} [${Item.ID}]`, Item.Pos, MySprite);
+		this.IconGO=new GameObject(`Pin - ${Item.Title} [${Item.ID}]`, Item.Pos, MySprite, ExtraDraw);
 		this.UpdateSize(0.75*2/3); //Use an arbitrary start size which will be reset upon MapControl load
 	}
 
@@ -247,6 +257,7 @@ export class MapIcon
 		});
 	}
 
+	public Delete() { this.IconGO.Delete(); }
 	public BringToFront() { this.IconGO.BringToFront(); }
 	public UpdateSize(IconSize:number) { if(this.IconGO.LocalScale?.X!==IconSize) this.IconGO.LocalScale=new Vector2(IconSize, IconSize); }
 	public get RenderRect() { return this.IconGO.RenderRect; }

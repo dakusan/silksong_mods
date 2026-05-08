@@ -23,7 +23,8 @@ export default class ItemWindow extends Window
 		});
 		this.UpdateContents();
 		this.UpdateAttachedPosition();
-		this.AutoSize(Callback => { Callback.call(this, 300, 350); this.IsInitializing=this.SelfMove=false; });
+		this.AutoSize(Callback => { Callback.call(this, 300, 350); this.IsInitializing=this.SelfMove=false; this.CallItemCB('WindowCB_Sized'); });
+		this.CallItemCB('WindowCB_Created');
 	}
 	private UpdateContents()
 	{
@@ -38,7 +39,7 @@ export default class ItemWindow extends Window
 			//Category
 			$('<div class=Category><span class=Key>'+TSan("Category")+'</span>: </div>').append(
 				$(`<span class='ItemIcon I${Cat.IconID}'></span>`),
-				$('<span class=Value>').text(Cat.Title),
+				$('<span class=Value>').text(Share.Tr.T(Cat.Title, 'Categories')),
 			),
 
 			//Description and other links
@@ -56,6 +57,8 @@ export default class ItemWindow extends Window
 				$('<img alt=Screenshot src=\'\'>').attr('src', Src)
 			) ?? []),
 		));
+
+		this.CallItemCB('WindowCB_ContentsUpdated');
 	}
 	public UpdateAttachedPosition()
 	{
@@ -98,4 +101,17 @@ export default class ItemWindow extends Window
 		this.UpdateContents();
 		super.Refresh();
 	}
+
+	private CallItemCB(CallbackName:keyof ItemWindow_Item_Callbacks): void
+	{
+		(this.LinkedItem as unknown as ItemWindow_Item_Callbacks)[CallbackName]?.(this);
+	}
+}
+
+//Callbacks to an ItemWindow’s Item if specified
+export interface ItemWindow_Item_Callbacks
+{
+	WindowCB_Created		?(IW:ItemWindow): void;
+	WindowCB_Sized			?(IW:ItemWindow): void;
+	WindowCB_ContentsUpdated?(IW:ItemWindow): void;
 }

@@ -142,13 +142,14 @@ export namespace Util
 	//Copies members from Src to Target. Does not copy undefined values.
 	//Compile-time checks require that Src member types match the corresponding T member types.
 	//If the Src object literal is created directly in the function call, it also checks at compile time if there are extra members in Src that do not exist in T.
-	export function AssignProps<T extends object>(Target:T, Src:Partial<T>): T
+	//If SetOnEqual is false, only copies members that are different in Src and Target (using !== as equality check).
+	export function AssignProps<T extends object>(Target:T, Src:Partial<T>, SetOnEqual=true): T
 	{
 		for(const K in Src)
 		{
 			const KK=K as keyof T;
 			const V=Src[KK];
-			if(V!==undefined)
+			if(V!==undefined && (SetOnEqual || Target[KK]!==V))
 				Target[KK]=V;
 		}
 		return Target;
