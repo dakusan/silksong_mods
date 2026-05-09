@@ -312,6 +312,7 @@
 		"Void Mass": "Void Mass",
 		"Weaver Effigy": "Weaver Effigy",
 		"Wish": "Wish",
+		"Custom Icons": "Custom Icons",
 	},
 	"ErrorLog":{ //Uploading error log
 		"Sending Error Log": "Sending Error Log", //The title of the popup window. All other values in this section are the error-log-send operation status line shown below the title

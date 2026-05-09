@@ -249,6 +249,8 @@ body #MainMenu { display:block; }
 	td { padding-left:7px; white-space:pre; font-family:monospace; }
 }
 
+.ItemWindowDeleteButton { display:block; margin:0 0 3px auto; padding:3px; }
+
 .FontSize {
 	&.F1  { font-size:xx-small;	}
 	&.F2  { font-size:small;	}

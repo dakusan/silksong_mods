@@ -18,6 +18,7 @@ export {}; //Make this a module
 			LoadJSON			:await import('./Util/JSON'),
 			Translations		:await import('./Util/Translations'),
 			MapIcon				:await import('./MapIcon'),
+			CustomItem			:(await import('./CustomItem')).default,
 			WindowManager		:await import('./Util/WindowManager'),
 			CategoryGroupsWindow:(await import('./DockableWindows/CategoryGroupsWindow')).default,
 		},

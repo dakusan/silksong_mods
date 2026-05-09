@@ -4,6 +4,7 @@
 		"Logs": "Logs", //Title of the log window
 		"SilksongModsLink": "Silksong Mods",
 		"OneTimeMessage": "NO_VALUE", //This item is in all languages, including English, and will be updated in the future
+		"Button.Delete": "Delete",
 	},
 	"SettingNames":{ //Individual setting/config names
 		"Theme": "Theme", //The css theme of the interface
