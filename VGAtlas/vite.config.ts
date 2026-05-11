@@ -1,5 +1,6 @@
 import { defineConfig, IndexHtmlTransformContext, Plugin } from "vite"
 import { minify } from "html-minifier-terser"
+import fs from "node:fs/promises"
 
 const AddVisualizer=false;
 const EmitSourceMaps=false;
@@ -63,25 +64,52 @@ export default defineConfig({
 				brotliSize: true
 			})
 		]),
-		{
-			name: "html-minify",
-			enforce: "post",
-			transformIndexHtml: {
-				order: "post",
-				async handler(html) {
-					return await minify(html, {
-						collapseWhitespace: true,
-						removeComments: true,
-						removeRedundantAttributes: true,
-						minifyCSS: true,
-						minifyJS: true,
-						removeAttributeQuotes: true,
-					})
-				},
-			},
-		},
+		MinifyHtmlRaw(),
+		HTMLMinifyIndex(),
 	],
 });
+
+function HTMLMinifyIndex(): Plugin
+{
+	return {
+		name: "html-minify",
+		enforce: "post",
+		transformIndexHtml: {
+			order: "post",
+			handler: CallMinify,
+		},
+	};
+}
+
+async function CallMinify(html:string) {
+	return await minify(html, {
+		collapseWhitespace: true,
+		removeComments: true,
+		removeRedundantAttributes: true,
+		minifyCSS: true,
+		minifyJS: true,
+		removeAttributeQuotes: true,
+	})
+}
+
+function MinifyHtmlRaw(): Plugin
+{
+	return {
+		name: "minify-html-raw",
+		enforce: "pre",
+
+		async load(ID)
+		{
+			if(!ID.endsWith(".html?minraw"))
+				return null;
+
+			const File=ID.slice(0, -"?minraw".length);
+			const Html=await fs.readFile(File, "utf8");
+			const Minified=await CallMinify(Html);
+			return `export default ${JSON.stringify(Minified)};`;
+		},
+	};
+}
 
 function InjectLoadExtraAssets()
 {

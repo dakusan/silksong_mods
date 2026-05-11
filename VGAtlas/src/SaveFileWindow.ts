@@ -2,7 +2,7 @@ import $ from 'jquery';
 import { DevStrings, Log, PopupMessage, StatStr, Util } from './Util/SharedClasses';
 import { Window } from './Util/WindowManager';
 import { Share } from './Share';
-import Html from './HTML/SaveFileWindow.html?raw';
+import Html from './HTML/SaveFileWindow.html?minraw';
 
 export default class SaveFileWindow extends Window
 {
