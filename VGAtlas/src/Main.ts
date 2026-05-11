@@ -1,7 +1,7 @@
 import './Style.scss';
 import $							from 'jquery';
-import { DevStrings, FriendClass, InitFuncs, Log, PopupMessage,
-	StatStr, Util, WillBeSet }	from './Util/SharedClasses';
+import { FriendClass, InitFuncs, Log, PopupMessage, Util, WillBeSet
+								}	from './Util/SharedClasses';
 import { WM, Window }				from './Util/WindowManager';
 import Translations, { DefaultTr }	from './Util/Translations';
 import { Share }					from './Share';
@@ -220,7 +220,9 @@ function CreateMainMenu()
 	}
 	Log.OnLog.Add('LogWindow', AddLogLine);
 
-	const LoadSaveWindow=new SingleInstanceWindow(SetupLoadSaveFileWindow);
+	const LoadSaveWindow=new SingleInstanceWindow(
+		async () => new (await import('./SaveFileWindow')).default(HandleLoadSaveFileError),
+	);
 	$('#MenuLoadSave').on('click', () => void(LoadSaveWindow.FocusWin()));
 }
 
@@ -229,111 +231,6 @@ function HandleLoadSaveFileError(e:unknown, FileName:string)
 	const Err=Share.Tr.TDef("ERROR_LOADING", 'LoadSaveFile', "Error loading save data from “{0}”: {1}", false, FileName, Share.Tr.TranslatePassthroughError(e));
 	Log.Error(Err);
 	new PopupMessage(Err);
-}
-
-function SetupLoadSaveFileWindow()
-{
-	const NewWin=new Window({
-		LanguageChanged:() => Share.Tr.OnLanguageLoadedOnce(() => NewWin.Title=Share.Tr.TDef('WINDOW_TITLE', 'LoadSaveFile', "Load Save")),
-		SaveID:'LoadSaveFile', Type:'LoadSaveFile',
-	});
-	NewWin.LanguageChanged!(undefined!);
-
-	//Create the DOM content
-	NewWin.$Content.append(`
-<input type=file class=SafeHide id=LoadSaveFileButton>
-<div>
-	<label for=LoadSaveFileButton class='TranslationEl WinButton' data-translation-key="SELECT_FILE_LABEL" data-translation-section=LoadSaveFile data-translation-default="Select your save file"></label>
-	<button id=UnloadSaveFileButton class='TranslationEl WinButton' data-translation-key="CLEAR_SELECTED_FILE" data-translation-section=LoadSaveFile data-translation-default="Unload save file"></button>
-</div>
-<div>
-	<span class=TranslationEl data-translation-key="CURRENT_SELECTED_FILE" data-translation-section=LoadSaveFile data-translation-default="Currently selected file: "></span>
-	<span id=CurrentlySelectedFile></span>
-</div>
-<div id=SaveFileContents>
-	<button class='CopyButton WinButton'></button>
-	<div class=Text></div>
-</div>
-	`);
-	Share.Tr.UpdateDOMSubElements(NewWin.$Content[0]);
-
-	//Setup CurrentlySelectedFile and SaveFileContents
-	const CurrentlySelectedFile=$('#CurrentlySelectedFile');
-	const SaveFileContents=$('#SaveFileContents');
-	const Get_NO_FILE_LOADED=() => Share.Tr.TDef("NO_FILE_LOADED", 'LoadSaveFile', "None");
-	function UpdateContentState()
-	{
-		const FileName=localStorage.getItem('SaveDataFileName');
-		const HasContents=(FileName!==null);
-		const TextEl=SaveFileContents.children('.Text');
-		CurrentlySelectedFile.text(FileName ?? Get_NO_FILE_LOADED());
-		ClearButton.toggleClass('Disabled', !HasContents);
-		ClearButton.prop('disabled', !HasContents);
-		SaveFileContents.toggleClass('HasContents', HasContents);
-		TextEl.empty();
-		if(!HasContents)
-			return;
-
-		//Add highlighted lines
-		TextEl.html(
-			DevStrings.SafeRich(JSON.stringify(Share.SaveData, null, '    '))
-				.replaceAll('<br>', StatStr.NewLine)
-				.replace(/^(?: {4}"(?:playerData|sceneData)"| {8}"(?:persistentBools|persistentInts|EnemyJournalKillData|MateriumCollected|ToolEquips|Collectables)").*$\n/gm, '<div class=HLLine>$&<span class=Buttons><button class=Prev></button><button class=Next></button></span></div>')
-				.replaceAll(StatStr.NewLine, '<br>')
-			);
-
-		//Scroll to next/previous highlighted line
-		TextEl.find('.Prev,.Next').on('click', e => {
-			const $El=$(e.currentTarget);
-			const IsNext=$El.hasClass('Next');
-			const Parent=$El.parents('.HLLine').eq(0);
-			const List=TextEl.find('.HLLine');
-			const NewEl=List[List.index(Parent)+(IsNext ? 1 : -1)];
-			NewWin.$Content[0].scrollTop=NewEl.offsetTop; //While this offset is not strictly correct, it leaves a good amount of padding above the selected element
-		});
-	}
-
-	//Set up other buttons
-	const UploadButton=<JQuery<HTMLInputElement>>
-		$('#LoadSaveFileButton')
-		.on('change', async () => {
-			const File=UploadButton[0].files?.[0];
-			if (!File)
-				return;
-
-			try {
-				Share.SaveData=await Share.SaveData.ctor.CreateFrom_File(File);
-				localStorage.setItem('SaveData', JSON.stringify(Share.SaveData));
-				localStorage.setItem('SaveDataFileName', File.name);
-				UpdateContentState();
-				Share.MSV.UpdateAllUsedValuesOnLoad();
-				Log.Info("Save file loaded: "+File.name);
-			}
-			catch(e) {
-				HandleLoadSaveFileError(e, File.name);
-			}
-
-			UploadButton.val(null!);
-		})
-		.appendTo(NewWin.$Content);
-
-	SaveFileContents.children('.CopyButton').on('click', () => void(
-		navigator.clipboard.writeText(JSON.stringify(Share.SaveData, null, '    '))
-			.catch(e => new PopupMessage("Clipboard copy failed: "+Util.GetErrorMessage(e)))
-	));
-
-	const ClearButton=$('#UnloadSaveFileButton').on('click', () => {
-		Share.SaveData=Share.SaveData.ctor.CreateEmptySave();
-		localStorage.removeItem('SaveData');
-		localStorage.removeItem('SaveDataFileName');
-		UpdateContentState();
-		Share.MSV.UpdateAllUsedValuesOnLoad();
-		Log.Info("Save file cleared");
-	});
-
-	UpdateContentState();
-
-	return NewWin;
 }
 
 $(Main);
