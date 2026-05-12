@@ -192,6 +192,7 @@ export namespace Util
 	}
 
 	export type Mutable<T>={ -readonly [K in keyof T]: T[K]; };
+	export function GetMutable<T>(Obj:T): Mutable<T> { return Obj as Mutable<T>; }
 }
 
 class LogLine

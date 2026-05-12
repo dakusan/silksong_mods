@@ -4,7 +4,7 @@ import GetExtraAssets from './Util/GetExtraAssets';
 import { LoadJson } from './Util/JSON';
 import { Share } from './Share';
 import { MapIcon, Sprite, DefaultSSV } from './MapIcon';
-import { Category, CategoryGroup, CategoryToggleState, ChainItem, ChainList, CreateItem, Item, LoadMisc_StaticLink, StaticLink } from './CategoriesAndItems';
+import { Category, CategoryGroup, CategoryToggleState, ChainItem, ChainList, CreateItem, Item, type LoadMisc_StaticLink, StaticLink } from './CategoriesAndItems';
 
 const IconLenX		=10;
 const IconLenY		=8;

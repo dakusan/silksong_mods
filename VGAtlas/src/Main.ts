@@ -21,25 +21,14 @@ abstract class DataStorage_Friend extends DataStorage implements FriendClass
 	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
 }
 
-//Update Share readonly members during initialization
-interface SettableShare
-{
-	MCanvas	:MapCanvas;
-	DS		:DataStorage;
-	MC		:MapControl;
-	WM		:typeof WM;
-	MSV		:MonitorSaveValues;
-	Tr		:Translations;
-}
-
 //Set up translations
 Translations.DefaultDOMModule='Atlas';
 DefaultTr.HasFallbacks=false;
-(Share as SettableShare).Tr=Translations.StandardCreate('Atlas');
+Util.GetMutable(Share).Tr=Translations.StandardCreate('Atlas');
 Share.LC.Language.SetTranslations(Share.Tr);
 
 //Independent libraries that can or have loaded early
-(Share as SettableShare).WM=WM;
+Util.GetMutable(Share).WM=WM;
 try { SetupOneTimeMessage(); } catch { }
 
 async function Main()
@@ -47,8 +36,8 @@ async function Main()
 	let MCanvas:MapCanvas=WillBeSet;
 	try {
 		//Primary map and icon functionality
-		MCanvas=(Share as SettableShare).MCanvas=new MapCanvas(87.7487, -87.5855, 2090, 1569);
-		(Share as SettableShare).MSV=new MonitorSaveValues();
+		MCanvas=Util.GetMutable(Share).MCanvas=new MapCanvas(87.7487, -87.5855, 2090, 1569);
+		Util.GetMutable(Share).MSV=new MonitorSaveValues();
 		Share.MSV.Load().then();
 		const DS=new DataStorage();
 		await MCanvas.Init('Assets/PAtlasMap.png');
@@ -58,14 +47,14 @@ async function Main()
 			'Assets/Misc.json',
 			Share.LC.IconSet.V,
 		);
-		(Share as SettableShare).DS=DS; //Setting this now flags some locations that DataStorage has now completed loading so they can start their tasks
+		Util.GetMutable(Share).DS=DS; //Setting this now flags some locations that DataStorage has now completed loading so they can start their tasks
 		(DS as DataStorage_Friend).CompleteInit();
 
 		//Finish initializing
 		if(localStorage.getItem('SaveData'))
 			try { Share.SaveData=Share.SaveData.ctor.CreateFrom_JSONString(localStorage.getItem('SaveData')!); }
 			catch(e) { HandleLoadSaveFileError(e, localStorage.getItem('SaveDataFileName') ?? "Unknown filename"); }
-		(Share as SettableShare).MC=new MapControl();
+		Util.GetMutable(Share).MC=new MapControl();
 		for(const Fn of InitFuncs)
 			Fn();
 		InitFuncs.length=0;

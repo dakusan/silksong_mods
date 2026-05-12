@@ -1,5 +1,5 @@
 import { CallbackList, WillBeSet } from '../../Util/SharedClasses';
-import ConfigItemBase, { Options } from './ConfigItemBase';
+import ConfigItemBase, { type Options } from './ConfigItemBase';
 import type Config from '../Config';
 
 export { Options };

@@ -3,7 +3,7 @@ import { FriendClass, StatStr, WillBeSet } from '../Util/SharedClasses';
 import { Window } from '../Util/WindowManager';
 import { Share } from '../Share';
 import type DataStorage from '../DataStorage';
-import { Category, CategoryGroup, CategoryToggleState } from '../CategoriesAndItems';
+import { type Category, type CategoryGroup, CategoryToggleState } from '../CategoriesAndItems';
 
 export default class CategoryGroupsWindow extends Window
 {

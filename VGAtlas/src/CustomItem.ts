@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import { DevStrings, Rect, StatStr, Util } from './Util/SharedClasses';
-import { AutoFitText, ExecuteAutoFit, CheckFits_Circle } from './Util/AlignText';
+import { type AutoFitText, ExecuteAutoFit, CheckFits_Circle } from './Util/AlignText';
 import { Share } from './Share';
 import { Category, CategoryToggleState, Item } from './CategoriesAndItems';
 import { MapIcon } from './MapIcon';
@@ -27,7 +27,7 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 	static {
 		Share.DS.Categories.set(CustomCategoryID, this.MyCategory);
 		const CatGroup=Share.DS.CategoryGroups[Share.DS.CategoryGroups.length-1];
-		(this.MyCategory as Util.Mutable<Category>).Order=CatGroup.size;
+		Util.GetMutable(this.MyCategory).Order=CatGroup.size;
 		CatGroup.set(CustomCategoryID, this.MyCategory);
 	}
 
@@ -50,7 +50,7 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 	) {
 		super(CustomItem.GetID);
 
-		const Me:Util.Mutable<CustomItem>=this;
+		const Me=Util.GetMutable(this);
 		[Me.CategoryID, Me.x, Me.y, Me.Title]=[CustomCategoryID, X, Y, Title];
 		Me.CurrentToggleState=CustomItem.MyCategory.ToggleState;
 

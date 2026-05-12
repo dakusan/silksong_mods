@@ -1,7 +1,7 @@
 import { ColorRGBA, Equatable, InitFuncs, Log, Rect, Util, Vector2, WillBeSet } from './Util/SharedClasses';
 import { HSVAShader, RGBAShader, TintShader } from './Util/PixelShader';
 import { Share } from './Share';
-import { CategoryToggleState, Item } from './CategoriesAndItems';
+import { CategoryToggleState, type Item } from './CategoriesAndItems';
 
 class SpriteRenderInfo { constructor(public readonly SSV:SpriteSheetVariations, public readonly ImageRect:Rect, public readonly Center:Vector2) { } }
 
@@ -151,10 +151,12 @@ class GameObject extends Versioned
 			return undefined;
 		const RenderWidth =this.SRI.ImageRect.Width *this.LocalScale.X;
 		const RenderHeight=this.SRI.ImageRect.Height*this.LocalScale.Y;
-		const MapPos:Util.Mutable<Vector2>=Share.MCanvas.MapToCanvas(this.Pos);
-		MapPos.X-=RenderWidth *this.SRI.Center.X;
-		MapPos.Y-=RenderHeight*this.SRI.Center.Y;
-		return new Rect(MapPos.X, MapPos.Y, RenderWidth, RenderHeight);
+		const MapPos=Share.MCanvas.MapToCanvas(this.Pos);
+		return new Rect(
+			MapPos.X-RenderWidth *this.SRI.Center.X,
+			MapPos.Y-RenderHeight*this.SRI.Center.Y,
+			RenderWidth, RenderHeight
+		);
 	}
 
 	public SpriteUpdated() { this.MySprite.IncVersion(); }

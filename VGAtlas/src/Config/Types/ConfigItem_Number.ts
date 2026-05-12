@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import { Util } from '../../Util/SharedClasses';
-import ConfigItem, { Options } from '../Abstract/ConfigItem';
+import ConfigItem, { type Options } from '../Abstract/ConfigItem';
 
 export default class ConfigItem_Number extends ConfigItem<number>
 {

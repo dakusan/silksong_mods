@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import { CallbackList, Iter, KeyState, Util } from '../../Util/SharedClasses';
 import { DefaultTr } from '../../Util/Translations';
-import ConfigItem, { Options, ConfigSerializer } from '../Abstract/ConfigItem';
+import ConfigItem, { type Options, type ConfigSerializer } from '../Abstract/ConfigItem';
 
 class ToggleKeys
 {

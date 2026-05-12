@@ -5,6 +5,16 @@ import fs from "node:fs/promises"
 const AddVisualizer=false;
 const EmitSourceMaps=false;
 
+let UtilsAndConfigsRegEx:RegExp;
+{
+	const UtilFiles='SharedClasses|Translations|WindowManager|GetExtraAssets|AlignText|JSON';
+	const RootFiles='AtlasConfig|SaveData|LinkedLabel';
+	UtilsAndConfigsRegEx=new RegExp(`/src/Util/(?:${UtilFiles})\\.ts|/src/(${RootFiles})\\.ts|/src/Config/(?!ConfigWindow)`);
+}
+function IsUtilsAndConfigsChunk(id:string) {
+	return UtilsAndConfigsRegEx.test(id.replaceAll("\\", "/"));
+}
+
 //noinspection JSUnusedGlobalSymbols
 export default defineConfig({
 	base: './',
@@ -29,6 +39,7 @@ export default defineConfig({
 				{
 					if(id.includes('crypto-js'))		return 'crypto-js';
 					if(id.includes('jquery'))			return 'jquery';
+					if(IsUtilsAndConfigsChunk(id))		return 'UtilsAndConfigs';
 					 									return undefined;
 				},
 			},
@@ -61,7 +72,8 @@ export default defineConfig({
 			(await import("rollup-plugin-visualizer")).visualizer({
 				open: true,
 				gzipSize: true,
-				brotliSize: true
+				brotliSize: true,
+				filename: "/tmp/vite-rollup.html",
 			})
 		]),
 		MinifyHtmlRaw(),

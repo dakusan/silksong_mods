@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import { ColorRGBA, Util } from '../../Util/SharedClasses';
-import ConfigItem, { Options } from '../Abstract/ConfigItem';
+import ConfigItem, { type Options } from '../Abstract/ConfigItem';
 
 const RGBList=['r', 'g', 'b'] as const;
 const RGBAList=[...RGBList, 'a'] as const;

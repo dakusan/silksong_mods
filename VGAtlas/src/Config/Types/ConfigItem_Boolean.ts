@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import ConfigItem, { Options } from '../Abstract/ConfigItem';
+import ConfigItem, { type Options } from '../Abstract/ConfigItem';
 
 export default class ConfigItem_Boolean extends ConfigItem<boolean>
 {

@@ -3,14 +3,7 @@ import { Rect, Vector2 } from './Util/SharedClasses';
 import GetExtraAssets from './Util/GetExtraAssets';
 import { Window } from './Util/WindowManager';
 import { Share } from './Share';
-
-const HTMLCode=`
-<div>
-	<input type=checkbox id=ShowSectionsBox>
-	<label for=ShowSectionsBox class=TranslationEl data-translation-section=DebugWindow data-translation-key=ShowSectionsBox data-translation-default="Show map sections"></label>
-</div>
-<table id=DebugValues></table>
-`;
+import HTMLCode from './HTML/DebugWindow.html?minraw';
 
 function MakeRow(ID:string, Default:string, Outer='tr', Inner1='th', Inner2='td')
 {

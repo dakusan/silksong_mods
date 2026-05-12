@@ -1,4 +1,4 @@
-import ConfigItem, { Options, ConfigSerializer } from '../Abstract/ConfigItem';
+import ConfigItem, { type Options, type ConfigSerializer } from '../Abstract/ConfigItem';
 
 //These are readonly POJOs
 export default class ConfigItem_Object<T extends object> extends ConfigItem<OtherObject<T>>

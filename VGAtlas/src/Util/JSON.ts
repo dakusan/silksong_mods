@@ -197,15 +197,15 @@ export namespace SaveJson
 	}
 
 	//Exports DS.Categories and DS.Items through Stringify. If MatchModOutput is enabled, the output from the C# module will be matched exactly.
-	export async function ExportDefaultData(Data:object, TrailingCommas=true, Compact=false, MatchModOutput=false, UseTestHTMLExport=false): Promise<string>
+	export function ExportDefaultData(Data:object, TrailingCommas=true, Compact=false, MatchModOutput=false, CustomFormatter?:(Str:string) => string): string
 	{
 		const Start=new Date();
 		let Output=Stringify(Data, Compact, TrailingCommas, MatchModOutput ? PreFormatLikeMod : undefined);
-		if(MatchModOutput)
-			if(!UseTestHTMLExport)
-				Output=PostFormatLikeMod(Output);
-			else
-				Output=await PostFormatLikeMod_TestHTML(Output);
+		if(MatchModOutput) {
+			Output=PostFormatLikeMod(Output);
+			if(CustomFormatter)
+				Output=PostFormatLikeMod_TestHTML(CustomFormatter(Output));
+		}
 
 		console.log("Time to export: "+(Date.now()-Start.getTime())/1000);
 		return Output;
@@ -251,10 +251,9 @@ export namespace SaveJson
 	}
 
 	//For testing with rendered contents
-	async function PostFormatLikeMod_TestHTML(Str:string)
+	function PostFormatLikeMod_TestHTML(Str:string)
 	{
-		return new (await import('../LinkedLabel'))
-			.default(PostFormatLikeMod(Str)).RenderedContents
+		return Str
 			.replace(/<(a|span)[^>]+>/g, m => m.replace(/"/g, '\\"'))
 			.replace(/ style='--phase:[\d.]+'/g, '');
 	}

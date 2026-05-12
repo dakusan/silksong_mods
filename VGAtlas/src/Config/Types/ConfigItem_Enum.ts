@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import { DefaultTr } from '../../Util/Translations';
-import ConfigItem, { Options } from '../Abstract/ConfigItem';
+import ConfigItem, { type Options } from '../Abstract/ConfigItem';
 
 export default class ConfigItem_Enum extends ConfigItem<string>
 {

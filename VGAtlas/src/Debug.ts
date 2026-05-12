@@ -26,7 +26,8 @@ export {}; //Make this a module
 		{
 			return AtlasInfo.Modules.LoadJSON.SaveJson.ExportDefaultData(
 				{Categories:AtlasInfo.DS.Categories, Items:AtlasInfo.DS.Items},
-				TrailingCommas, Compact, MatchModOutput, UseTestHTMLExport
+				TrailingCommas, Compact, MatchModOutput,
+				!UseTestHTMLExport ? undefined : Str => new AtlasInfo.Modules.LinkedLabel(Str).RenderedContents
 			);
 		},
 	};

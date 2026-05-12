@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import { Iter, KeyState, Log, Rect, StatStr, Util, Vector2 } from './Util/SharedClasses';
 import { Share } from './Share';
-import { Item } from './CategoriesAndItems';
+import { type Item } from './CategoriesAndItems';
 import ItemWindow from './DockableWindows/ItemWindow';
 
 //All functions accept/return canvas pixel coordinates
