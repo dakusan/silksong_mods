@@ -5,6 +5,42 @@ import { ExecuteAutoFit } from './Util/AlignText';
 import { Share } from './Share';
 const MaxZoomOutRatio=4/3; //How much further the map can zoom past 100% fit
 
+//Mouse handling
+type TriggeredEvent=JQuery.TriggeredEvent;
+const MiceButtonsToMonitor=3;
+enum MouseButton { Left, Middle, Right, Pointer }
+export class MouseButtonEvent
+{
+	public get Buttons() { return MouseButton; }
+	public readonly Button:MouseButton;
+	constructor(
+		public readonly Event:TriggeredEvent,
+		public readonly Pos:Vector2,
+		public readonly IsClick:boolean, //False=MouseDown
+		public readonly ClickInterval:number=0, //Millisecond time between down and up event; only for Click events
+	) {
+		//Determine the button type
+		const Type=Event.type;
+		if(
+			   (!IsClick && Type!=='mousedown'	&& Type!=='pointerdown'	)
+			|| ( IsClick && Type!=='mouseup'	&& Type!=='pointerup'	)
+		)
+			throw new Error(StatStr.NeedsTranslate+`Invalid mouse event type for IsClick=${IsClick}: ${Type}`);
+
+		if(Type.startsWith('pointer')) {
+			this.Button=MouseButton.Pointer;
+			return;
+		}
+
+		switch((Event.originalEvent as MouseEvent)?.button) {
+			case 0 : this.Button=MouseButton.Left  ; break;
+			case 1 : this.Button=MouseButton.Middle; break;
+			case 2 : this.Button=MouseButton.Right ; break;
+			default: this.Button=MouseButton.Left  ; break;
+		}
+	}
+}
+
 export default class MapCanvas
 {
 	private Canvas:HTMLCanvasElement=WillBeSet;
@@ -77,10 +113,10 @@ export default class MapCanvas
 	public readonly Events={
 		Frame		:new CallbackList<[FrameNum:number					]>('MapCanvas.Frame'		),
 		Draw		:new CallbackList<[Ctx:CanvasRenderingContext2D		]>('MapCanvas.Draw'			),
-		MouseDown	:new CallbackList<[Pos:Vector2						]>('MapCanvas.MouseDown'	),
+		MouseDown	:new CallbackList<[Ev:MouseButtonEvent				]>('MapCanvas.MouseDown'	),
 		MouseMove	:new CallbackList<[Pos:Vector2						]>('MapCanvas.MouseMove'	),
 		MouseLeave	:new CallbackList<[									]>('MapCanvas.MouseLeave'	),
-		Click		:new CallbackList<[Pos:Vector2						]>('MapCanvas.MouseClick'	),
+		Click		:new CallbackList<[Ev:MouseButtonEvent				]>('MapCanvas.MouseClick'	),
 		Scale		:new CallbackList<[NewScale:number, OldScale:number	]>('MapCanvas.Scale'		), //Scaling will always additionally call Moved
 		Moved		:new CallbackList<[Pos:Vector2, Scale:number		]>('MapCanvas.Moved'		),
 		UserZoom	:new CallbackList<[Pos:Util.Mutable<Vector2>,{Scale:number}]>('MapCanvas.ZoomAt'),
@@ -147,8 +183,7 @@ export default class MapCanvas
 
 		if('PointerEvent' in window)
 			this.BindInputPointer();
-		else
-			this.BindInputMouse();
+		this.BindInputMouse();
 
 		//Bind the wheel
 		this.Canvas.addEventListener('wheel', e => {
@@ -163,24 +198,40 @@ export default class MapCanvas
 	private BindInputMouse()
 	{
 		let IsDragging=false;
-		let LastX=0, LastY=0, StartX=0, StartY=0;
+		let LastX=0, LastY=0;
+		class ButtonState { constructor(
+			public StartX=0,
+			public StartY=0,
+			public StartTime=0,
+		) { } }
+		const ButtonStates:ButtonState[]=[]; //Size MiceButtonsToMonitor
+		for(let i=0; i<MiceButtonsToMonitor; i++)
+			ButtonStates[i]=new ButtonState();
 
 		$(this.Canvas)
 			.on('mousedown', e => {
-				if(e.which!==1)
+				if(e.button>=MiceButtonsToMonitor)
 					return;
-				IsDragging=true;
 				const MousePos=this.EvPos(e);
-				StartX=LastX=MousePos.X;
-				StartY=LastY=MousePos.Y;
-				this.Events.MouseDown.Execute(MousePos);
+				const BS=ButtonStates[e.button];
+				BS.StartX=MousePos.X;
+				BS.StartY=MousePos.Y;
+				if(e.button===0)
+					[LastX, LastY, IsDragging]=[MousePos.X, MousePos.Y, true];
+				BS.StartTime=Date.now();
+				this.Events.MouseDown.Execute(new MouseButtonEvent(e, MousePos, false));
 			})
 			.on('mouseleave', () => { IsDragging=false; this.Events.MouseLeave.Execute(); })
 			.on('mouseup', e => {
+				if(e.button>=MiceButtonsToMonitor)
+					return;
 				const MousePos=this.EvPos(e);
-				IsDragging=false;
-				if(MousePos.Distance(new Vector2(StartX, StartY))<Math.sqrt(3*3+3*3))
-					this.Events.Click.Execute(MousePos);
+				if(e.button===0)
+					IsDragging=false;
+
+				const BS=ButtonStates[e.button];
+				if(MousePos.Distance(new Vector2(BS.StartX, BS.StartY))<Math.sqrt(3*3+3*3))
+					this.Events.Click.Execute(new MouseButtonEvent(e, MousePos, true, Date.now()-BS.StartTime));
 			})
 			.on('mousemove', e => {
 				const MousePos=this.EvPos(e);
@@ -190,15 +241,15 @@ export default class MapCanvas
 					return;
 
 				this.UpdatePosAndScale(undefined, this.X+MousePos.X-LastX, this.Y+MousePos.Y-LastY);
-				LastX  =MousePos.X;
-				LastY  =MousePos.Y;
+				LastX=MousePos.X;
+				LastY=MousePos.Y;
 			});
 	}
 
 	private BindInputPointer()
 	{
-		let IsDragging=false, IsPinching=false;
-		let LastX=0, LastY=0, PinchMapX=0, PinchMapY=0, PinchStartDist=0, PinchStartScale=1, StartX=0, StartY=0;
+		let IsDragging=false, IsPinching=false, TouchClickValid=false;
+		let LastX=0, LastY=0, PinchMapX=0, PinchMapY=0, PinchStartDist=0, PinchStartScale=1, StartX=0, StartY=0, StartTime=0;
 		const Pointers=new Map<number, Vector2>();
 
 		const GetCenter	=(A:Vector2, B:Vector2) => new Vector2((A.X+B.X)/2, (A.Y+B.Y)/2);
@@ -229,31 +280,34 @@ export default class MapCanvas
 		};
 		const EndPinch= () => IsPinching=false;
 
+		function CallPointerEvent(e:TriggeredEvent, CallFunc:(Pe:PointerEvent, e:TriggeredEvent) => void)
+		{
+			const Pe=e.originalEvent as PointerEvent;
+			if(Pe.pointerType!=='touch')
+				return;
+			Pe.preventDefault();
+			CallFunc(Pe, e);
+		}
+
 		$(this.Canvas)
-			.on('pointerdown', e => {
+			.on('pointerdown', e => CallPointerEvent(e, (Pe, e) => {
+				TouchClickValid=(Pointers.size===0);
 				if(Pointers.size>=2)
 					return;
 
-				const Pe=e.originalEvent as PointerEvent;
 				const MousePos=this.EvPos(Pe);
 				Pointers.set(Pe.pointerId, MousePos);
 				try { this.Canvas.setPointerCapture(Pe.pointerId); } catch {}
 				if(Pointers.size===2)
-					return void(BeginPinch());
-
-				if(
-					   (Pe.pointerType==='mouse' || Pe.pointerType==='pen')
-					&& (!Pe.isPrimary || Pe.button!==0)
-				)
-					return;
+					return BeginPinch();
 
 				IsDragging=true;
 				StartX=LastX=MousePos.X;
 				StartY=LastY=MousePos.Y;
-				this.Events.MouseDown.Execute(MousePos);
-			})
-			.on('pointermove', e => {
-				const Pe=e.originalEvent as PointerEvent;
+				StartTime=Date.now();
+				this.Events.MouseDown.Execute(new MouseButtonEvent(e, MousePos, false));
+			}))
+			.on('pointermove', e => CallPointerEvent(e, Pe => {
 				const P=Pointers.get(Pe.pointerId);
 				const MousePos=this.EvPos(Pe);
 				this.Events.MouseMove.Execute(MousePos);
@@ -264,19 +318,18 @@ export default class MapCanvas
 					return void(UpdatePinch());
 				else if(!IsDragging)
 					return;
-				else if((Pe.buttons&1)===0)
-					return void(IsDragging=false);
 
 				this.UpdatePosAndScale(undefined, this.X+MousePos.X-LastX, this.Y+MousePos.Y-LastY);
 				LastX=MousePos.X;
 				LastY=MousePos.Y;
-			})
-			.on('pointerleave', () => { IsDragging=false; this.Events.MouseLeave.Execute(); })
-			.on('pointerup pointercancel', e => {
-				const Pe=e.originalEvent as PointerEvent;
+			}))
+			.on('pointerleave', e => CallPointerEvent(e, () => { IsDragging=false; this.Events.MouseLeave.Execute(); }))
+			.on('pointerup pointercancel', e => CallPointerEvent(e, (Pe, e) => {
 				const MousePos=this.EvPos(Pe);
-				if(MousePos.Distance(new Vector2(StartX, StartY))<Math.sqrt(3*3+3*3))
-					this.Events.Click.Execute(MousePos);
+				if(e.type!=='pointerup')
+					TouchClickValid=false;
+				else if(TouchClickValid && MousePos.Distance(new Vector2(StartX, StartY))<Math.sqrt(3*3+3*3))
+					this.Events.Click.Execute(new MouseButtonEvent(e, MousePos, true, Date.now()-StartTime));
 				Pointers.delete(Pe.pointerId);
 				try { this.Canvas.releasePointerCapture(Pe.pointerId); } catch {}
 
@@ -290,7 +343,7 @@ export default class MapCanvas
 					LastY=It[0].Y;
 					IsDragging=true;
 				}
-			});
+			}));
 
 		this.Canvas.addEventListener('touchmove' , e => e.preventDefault(), {passive:false});
 		this.Canvas.addEventListener('touchstart', e => e.preventDefault(), {passive:false});

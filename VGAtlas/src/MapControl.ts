@@ -2,6 +2,7 @@ import $ from 'jquery';
 import { Iter, KeyState, Log, Rect, StatStr, Util, Vector2 } from './Util/SharedClasses';
 import { Share } from './Share';
 import { type Item } from './CategoriesAndItems';
+import { type MouseButtonEvent } from './MapCanvas';
 import ItemWindow from './DockableWindows/ItemWindow';
 
 //All functions accept/return canvas pixel coordinates
@@ -29,13 +30,13 @@ export default class MapControl
 	constructor()
 	{
 		this.GameMap.Events.Scale		.Add('MapControl.ZoomScale',	NewScale => this.ZoomScale=NewScale);
-		this.GameMap.Events.UserZoom	.Add('MapControl.UserZoom',		this.UserZoom.bind(this));
+		this.GameMap.Events.UserZoom	.Add('MapControl.UserZoom',		this.UserZoom	.bind(this));
 		this.GameMap.Events.MouseMove	.Add('MapControl.OnMouseMove',	this.OnMouseMove.bind(this));
-		this.GameMap.Events.Click		.Add('MapControl.OnClick',		this.OnClick.bind(this));
-		this.GameMap.Events.MouseDown	.Add('MapControl.MouseDown',	() => Share.WM.SetFocus(null));
-		this.GameMap.Events.Frame		.Add('MapControl.OnFrame',		this.OnFrame.bind(this));
+		this.GameMap.Events.Click		.Add('MapControl.OnClick',		this.OnClick	.bind(this));
+		this.GameMap.Events.MouseDown	.Add('MapControl.MouseDown',	this.OnMouseDown.bind(this));
+		this.GameMap.Events.Frame		.Add('MapControl.OnFrame',		this.OnFrame	.bind(this));
 		this.GameMap.Events.MouseLeave	.Add('MapControl.MouseLeave',	() => this.SetHoverItem(undefined));
-		this.GameMap.Events.Moved		.Add('MapControl.Move',			this.OnMove.bind(this));
+		this.GameMap.Events.Moved		.Add('MapControl.Move',			this.OnMove		.bind(this));
 		Share.MSV.UpdateAllUsedValuesOnLoad();
 
 		//Handle settings changes
@@ -330,12 +331,19 @@ export default class MapControl
 			top :(RealPos.Y+4)+'px',
 		});
 	}
-	protected OnClick(Pos:Vector2)
+	protected OnClick(Ev:MouseButtonEvent)
 	{
-		const ClosestItem=this.FindClosestItem(Pos);
+		if(Ev.Button!==Ev.Buttons.Left && Ev.Button!==Ev.Buttons.Pointer)
+			return;
+		const ClosestItem=this.FindClosestItem(Ev.Pos);
 		if(!Util.IsMobile())
 			this.SetHoverItem(ClosestItem);
 		this.SelectItemI(ClosestItem);
+	}
+	protected OnMouseDown(Ev:MouseButtonEvent)
+	{
+		if(Ev.Button===Ev.Buttons.Left || Ev.Button===Ev.Buttons.Pointer)
+			Share.WM.SetFocus(null);
 	}
 
 	//Toggle showing if icons have been found yet
