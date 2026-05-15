@@ -32,4 +32,40 @@ function GetSteamUsername(string $FieldName='Username'): string //SteamName=3-32
 		   $Username!='*SILKDEV NO NAME*' ? $Username
 		: 'IP='.substr($_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_REAL_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? 'No IP address', 0, 47);
 }
+
+//Writes text to a generated file only when cached metadata (file hash+mtime+size) or current file state indicates it is missing or different.
+//Checks cheap metadata first, only hashing the existing file if the only change is its mtime, and saves the metadata cache at shutdown only when updated.
+function UpdateFile($FileName, $Text): void
+{
+	static $FilesData=null;
+	static $HasDataFileUpdated=false;
+	if(!isset($FilesData)) {
+		$DataFileName=__DIR__.'/FilesData.json';
+		$FilesData=file_exists($DataFileName) ? (array)json_decode(file_get_contents($DataFileName), false) : [];
+		register_shutdown_function(function() use (&$FilesData, &$HasDataFileUpdated, $DataFileName) {
+			if($HasDataFileUpdated)
+				file_put_contents($DataFileName, json_encode($FilesData, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT));
+		});
+	}
+
+	$NewSha1=sha1($Text);
+	$FD=$FilesData[$FileName] ?? null;
+	$FailedBeforeFinalStat=true;
+	$Stat=null;
+	if(
+		   !isset($FD, $FD->Hash, $FD->Size, $FD->MTime)
+		|| $FD->Hash!==$NewSha1
+		|| !file_exists($FileName)
+		|| ($Stat=stat($FileName))['size']!==$FD->Size
+		|| ($Stat['mtime']!==$FD->MTime && !($FailedBeforeFinalStat=false))
+	) {
+		if($FailedBeforeFinalStat || sha1_file($FileName)!==$NewSha1) {
+			file_put_contents($FileName, $Text);
+			clearstatcache(true, $FileName);
+			$Stat=stat($FileName);
+		}
+		$FilesData[$FileName]=(object)['Hash'=>$NewSha1, 'Size'=>strlen($Text), 'MTime'=>$Stat['mtime']];
+		$HasDataFileUpdated=true;
+	}
+}
 ?>

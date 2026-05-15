@@ -9,8 +9,8 @@ $SkippableLanguages=['ko'];
 
 //Fixing JSONC
 $PregReplaces=[
-	'~^(\t".*":) \{$~m' => '$1{',
-	'~(\n\t*[}\]])~m' => ',$1'
+	'~^(\t".*":) \{$~m'	=> '$1{',
+	'~(\n\t*[}\]])~m'	=> ',$1'
 ];
 
 //Need to make sure this is run from the command line
@@ -19,11 +19,11 @@ if(!isset($argv))
 
 $Projects=[
 	'PharloomAtlas' => '../PharloomAtlas/Assets/Translations/',
-	'SilkDev' => '../SilkDev/Assets/Translations/',
-	'PinFinder' => '../PinFinder/Assets/Translations/',
-	'NoClip' => '../NoClip/Assets/Translations/',
-	'VGAtlas' => '../VGAtlas/Assets/Translations/Atlas/Merge/',
-	'VGAtlas_Utils' => '../VGAtlas/Assets/Translations/Default/',
+	'SilkDev'		=> '../SilkDev/Assets/Translations/',
+	'PinFinder'		=> '../PinFinder/Assets/Translations/',
+	'NoClip'		=> '../NoClip/Assets/Translations/',
+	'VGAtlas'		=> '../VGAtlas/Assets/Translations/Atlas/Merge/',
+	'VGAtlas_Utils'	=> '../VGAtlas/Assets/Translations/Default/',
 ];
 
 //Only do 1 project if given
@@ -64,7 +64,7 @@ function ProcessModule($Module, $Dir): void
 		$Output[]="\t},";
 	}
 	$Output[]='}';
-	file_put_contents($Dir.'default.tr.json', implode("\n", $Output));
+	UpdateFile($Dir.'default.tr.json', implode("\n", $Output));
 
 	global $Langs;
 	foreach($Langs as $Lang)
@@ -78,7 +78,7 @@ function ProcessLang($Lang, $Dir, $Module, $Sections, $Translations, $Translatio
 	if(!count($LangTrans)) {
 		if(!in_array($Lang, $SkippableLanguages))
 			if($Lang===$DefaultLang)
-				file_put_contents($Dir.$Lang.'.tr.json', "{\n\t\"PLACE_HOLDER\":{\n\t\t\"PLACE_HOLDER\": \"✓\",\n\t},\n}");
+				UpdateFile($Dir.$Lang.'.tr.json', "{\n\t\"PLACE_HOLDER\":{\n\t\t\"PLACE_HOLDER\": \"✓\",\n\t},\n}");
 			else
 				fwrite(STDERR, "Missing language data for Module/Lang $Module/$Lang\n");
 		return;
@@ -101,7 +101,7 @@ function ProcessLang($Lang, $Dir, $Module, $Sections, $Translations, $Translatio
 	$Text=preg_replace_callback('/^( {4})+/m', fn($m) => str_repeat("\t", strlen($m[0])/4), $Text);
 	$Text=preg_replace(array_keys($PregReplaces), array_values($PregReplaces), $Text);
 	$Text='//See default.tr.json for line and section descriptions'."\n$Text";
-	file_put_contents($Dir.$Lang.'.tr.json', $Text);
+	UpdateFile($Dir.$Lang.'.tr.json', $Text);
 }
 
 function JSEnc($Str): string { return json_encode($Str, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE); }

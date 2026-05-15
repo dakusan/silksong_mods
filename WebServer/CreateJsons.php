@@ -28,12 +28,12 @@ if(!isset($argv) || !str_ends_with($_SERVER['SCRIPT_NAME'], pathinfo(__FILE__, P
 	return ErrAndDie('Missing Build parameter', null, 400);
 
 //Output all files to local folder (which are probably symlinked elsewhere)
-file_put_contents('./Assets/Categories.json',	GenerateCategories());
-file_put_contents('./Assets/Items.json',		GenerateItems());
-file_put_contents('./Assets/Misc.json',			GenerateMisc());
-file_put_contents('./Assets/ItemFinder.json',	GenerateItemFinder());
-file_put_contents('./Assets/SceneVectors.json',	GenerateSceneVectors());
-file_put_contents('./Assets/SceneRects.json',	GenerateSceneRects());
+UpdateFile('./Assets/Categories.json',	GenerateCategories());
+UpdateFile('./Assets/Items.json',		GenerateItems());
+UpdateFile('./Assets/Misc.json',		GenerateMisc());
+UpdateFile('./Assets/ItemFinder.json',	GenerateItemFinder());
+UpdateFile('./Assets/SceneVectors.json',GenerateSceneVectors());
+UpdateFile('./Assets/SceneRects.json',	GenerateSceneRects());
 print "Generated all files\n";
 exit(0);
 
