@@ -137,17 +137,27 @@ class SingleInstanceWindow<TWin extends Window>
 	}
 }
 
+function ExecMenuPopup(El:JQuery)
+{
+	const EventNS='.ExecMenuPopup';
+	const ClosePopup=() => {
+		El.hide();
+		$(window).off(EventNS);
+	};
+
+	setTimeout(() => { //Timeout so that if the menu is already opened, it will reopen after being closed
+		El.show();
+		$(window)
+			.off(EventNS)
+			.on(`pointerdown${EventNS}`, e => $(e.target).closest(El).length ? null : ClosePopup())
+			.on(`click${EventNS} auxclick${EventNS} contextmenu${EventNS}`, () => setTimeout(ClosePopup, 0));
+	}, 0);
+}
+
 function CreateMainMenu()
 {
 	//Popup button
-	$('#MainMenu .PopupButton').on('click', () => {
-		setTimeout(() => $('#MainMenu .Popup').show(), 0); //Timeout so that if the menu is already opened, it will reopen after being closed
-		const ClosePopup=() => {
-			$('#MainMenu .Popup').hide();
-			$(window).off('click', ClosePopup);
-		};
-		setTimeout(() => $(window).on('click', ClosePopup), 0); //Timeout so that this current click doesn’t fire this event
-	});
+	$('#MainMenu .PopupButton').on('click', () => ExecMenuPopup($('#MainMenu .Popup')));
 
 	//-----------Menu items-----------
 	//Categories window

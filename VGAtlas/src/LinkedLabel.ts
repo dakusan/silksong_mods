@@ -10,6 +10,7 @@ const RegEx_Attr=/<ATTR=([-.\w]+)>(.*?)<\/ATTR>/ig;
 const RegEx_SafeTags=/<\/?(?:b|i|u|s|strong|em|ins|del)>/ig;
 const RegEx_LTGT=/[<>]/g;
 const RegEx_LTGTChar=new RegExp(`[${LTChar}${RTChar}]`, 'g');
+const ClassWhitelist=/^(?:ItemIcon|I\d{1,4}|FontSize|F[NP]?[1-5]|WinButton|VC_(?:SepOR|SepAND|CollectedCounts)|Strike(?:Found|Started)|Flag(?:Recommended|Started|Not))$/;
 
 export default class LinkedLabel
 {
@@ -108,45 +109,39 @@ export default class LinkedLabel
 		);
 
 		//Gather attributes, styles, and classes
-		const FAttrs :string[]=[];
-		const Classes:string[]=[];
-		const Styles :string[]=[];
+		const NewEl=$(document.createElement('a'));
 		let V:string|undefined;
-		const ClearAttr	=(Name:string, _:number			) => Attrs.delete(Name);
-		const AddAttr	=(Name:string,NoDataPrefix=false) => (V=Attrs.get(Name))===undefined ? false : ClearAttr(Name, FAttrs .push((NoDataPrefix ? StatStr.Empty : 'data-')+`${Name}='${V}'`));
-		const AddStyle	=(Name:string, CSSName:string	) => (V=Attrs.get(Name))===undefined ? false : ClearAttr(Name, Styles .push(`${CSSName}:${V}`	));
-		const AddClass	=(Name:string					) => (V=Attrs.get(Name))===undefined ? false : ClearAttr(Name, Classes.push(Name				));
+		const ClearAttr	=(Name:string, _:JQuery			) => Attrs.delete(Name);
+		const AddAttr	=(Name:string,NoDataPrefix=false) => (V=Attrs.get(Name))===undefined ? false : ClearAttr(Name, NewEl.attr		((NoDataPrefix ? StatStr.Empty : 'data-')+Name, V));
+		const AddStyle	=(Name:string, CSSName:string	) => (V=Attrs.get(Name))===undefined ? false : ClearAttr(Name, NewEl.css		(CSSName, V));
+		const AddClass	=(Name:string					) => (V=Attrs.get(Name))===undefined ? false : ClearAttr(Name, NewEl.addClass	(Name));
 
 		//Static attributes that are handled differently
 		let ItemIcon:string=StatStr.Empty;
-		FAttrs.push('data-LinkID='+LinkID);
+		NewEl.attr('data-LinkID', LinkID);
 		if(AddAttr('ItemID')) {
-			FAttrs.push(`href='#${V}'`);
+			NewEl.attr('href', '#'+V);
 			const Item=Share.DS.Items.get(Number(V));
 			const ItemIconID=Item?.IconID;
 			const FinalIconID=((ItemIconID ?? -1)!==-1 ? ItemIconID : Share.DS.Categories.get(Item?.CategoryID ?? -1)?.IconID);
 			if(FinalIconID!==undefined)
 				ItemIcon=`${LTChar}span class='ItemIcon I${FinalIconID}'${RTChar}${LTChar}/span${RTChar}`;
 			if(Item?.IsFound || Item?.IsStarted)
-				Classes.push(Item.IsFound ? 'StrikeFound' : 'StrikeStarted');
-		} else
-			AddAttr('href', true);
+				NewEl.addClass(Item.IsFound ? 'StrikeFound' : 'StrikeStarted');
+		} else if(AddAttr('href', true))
+			NewEl.attr('href', (_, Href) => (/^(?:#|https?:\/\/)/i.test(Href) ? StatStr.Empty : '#')+Href); //Guard against HREFs that don’t start with # or http/https
 		AddStyle('NormalColor', 'color');
 		if(AddClass('Important'))
-			Styles.push('--phase:'+Math.floor(Math.random()*1000)/1000);
+			NewEl.css('--phase', Math.floor(Math.random()*1000)/1000);
 
 		//Any remaining attributes are turned into named attributes (with a value) or classes (no value)
 		for(const [Name, Value] of Attrs.entries())
 			if(Value)
-				FAttrs.push(`data-${Name}='${Value}'`);
-			else
+				NewEl.attr('data-'+Name, Value);
+			else if(ClassWhitelist.test(Name))
 				AddClass(Name);
 
 		//Finish combining attributes and return
-		if(Classes.length)
-			FAttrs.push(`class='${Classes.join(' ')}'`);
-		if(Styles.length)
-			FAttrs.push(`style='${Styles.join('; ')}'`);
-		return `${ItemIcon}${LTChar}a ${FAttrs.join(' ')}${RTChar}${Inner}${LTChar}/a${RTChar}`;
+		return `${ItemIcon}${LTChar}${NewEl[0].outerHTML.slice(1).replace(/>.*/, StatStr.Empty)}${RTChar}${Inner}${LTChar}/a${RTChar}`;
 	}
 }

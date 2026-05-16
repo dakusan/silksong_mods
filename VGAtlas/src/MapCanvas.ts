@@ -328,7 +328,7 @@ export default class MapCanvas
 				const MousePos=this.EvPos(Pe);
 				if(e.type!=='pointerup')
 					TouchClickValid=false;
-				else if(TouchClickValid && MousePos.Distance(new Vector2(StartX, StartY))<Math.sqrt(3*3+3*3))
+				else if(TouchClickValid && MousePos.Distance(new Vector2(StartX, StartY))<Math.sqrt(6*6+6*6))
 					this.Events.Click.Execute(new MouseButtonEvent(e, MousePos, true, Date.now()-StartTime));
 				Pointers.delete(Pe.pointerId);
 				try { this.Canvas.releasePointerCapture(Pe.pointerId); } catch {}

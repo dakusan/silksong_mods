@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { DevStrings, Rect, StatStr, Util } from './Util/SharedClasses';
+import { Rect, StatStr, Util, WillBeSet } from './Util/SharedClasses';
 import { type AutoFitText, ExecuteAutoFit, CheckFits_Circle } from './Util/AlignText';
 import { Share } from './Share';
 import { Category, CategoryToggleState, Item } from './CategoriesAndItems';
@@ -15,7 +15,8 @@ The last category group is used for the Custom Icons category.
 
 export default class CustomItem extends Item implements ItemWindow_Item_Callbacks
 {
-	private static readonly MyCategory:Category=Object.assign<Category, Partial<Category>>(
+	private static readonly MyCategory:Category=WillBeSet;
+	private static InitCategory=() => Object.assign<Category, Partial<Category>>(
 		new Category(CustomCategoryID),
 		{
 			IconID:Share.DS.MyIconSprites.NumSpritesAvailable-2,
@@ -24,7 +25,9 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 			ToggleState:CategoryToggleState.All,
 		},
 	);
-	static {
+	private static StaticInit()
+	{
+		(this as unknown as {MyCategory:Category}).MyCategory=this.InitCategory();
 		Share.DS.Categories.set(CustomCategoryID, this.MyCategory);
 		const CatGroup=Share.DS.CategoryGroups[Share.DS.CategoryGroups.length-1];
 		Util.GetMutable(this.MyCategory).Order=CatGroup.size;
@@ -41,33 +44,39 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 	}
 
 	public readonly AFT:AutoFitText;
-	private readonly SpriteSize:number=CustomItem.MyCategory.Sprite.ImageRect.Width;
+	private get SpriteSize() { return this.MySprite.ImageRect.Width; }
+	public get MySprite() { return CustomItem.MyCategory.Sprite; }
 	public constructor(
 		X:number, Y:number, Title:string,
 		public readonly MyDescription:string, //May have LinkedLabel suitable HTML
-		public readonly MyText:string, //Displays on the icon
+		public readonly MyLabel:string, //Displays on the icon
+		public readonly Detached=false,
 		public readonly FontFamily='sans-serif',
 	) {
 		super(CustomItem.GetID);
+		if(!CustomItem.MyCategory)
+			CustomItem.StaticInit();
 
 		const Me=Util.GetMutable(this);
 		[Me.CategoryID, Me.x, Me.y, Me.Title]=[CustomCategoryID, X, Y, Title];
 		Me.CurrentToggleState=CustomItem.MyCategory.ToggleState;
 
 		this.AFT=ExecuteAutoFit(
-			MyText, this.SpriteSize, this.SpriteSize, {
+			MyLabel, this.SpriteSize, this.SpriteSize, {
 				FontFamily, MinFont:3, MaxFont:50,
 				CheckIfFits:CheckFits_Circle,
 			},
 		);
 
+		if(Detached)
+			return;
 		Share.DS.Items.set(this.ID, this);
-		Me.MapIcon=new MapIcon(this, CustomItem.MyCategory.Sprite, this.DrawSymbol.bind(this));
+		Me.MapIcon=new MapIcon(this, this.MySprite, this.DrawSymbol.bind(this));
 		Share.MC.SetIconSize(Share.LC.IconSize.V, this);
 	}
-	public override toString() { return `<b>${DevStrings.SafeRich(this.Title)}</b><br>${this.MyDescription}`; }
+	public override toString() { return this.MyDescription; }
 
-	private DrawSymbol(Ctx:CanvasRenderingContext2D, CanvasRect:Rect)
+	public DrawSymbol(Ctx:CanvasRenderingContext2D, CanvasRect:Rect)
 	{
 		//Only update context states if necessary
 		const ScaleSize=(CanvasRect.Width/this.SpriteSize);
@@ -96,6 +105,8 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 	//If the window is not provided, it will attempt to find it
 	public Delete(WindowToDelete?:ItemWindow)
 	{
+		if(this.Detached)
+			return;
 		if(WindowToDelete)
 			WindowToDelete.Close();
 		else

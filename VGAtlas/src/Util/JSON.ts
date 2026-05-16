@@ -255,6 +255,6 @@ export namespace SaveJson
 	{
 		return Str
 			.replace(/<(a|span)[^>]+>/g, m => m.replace(/"/g, '\\"'))
-			.replace(/ style='--phase:[\d.]+'/g, '');
+			.replace(/ style=\\"--phase: [\d.]+;\\"/g, '');
 	}
 }
