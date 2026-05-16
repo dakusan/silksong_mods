@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import { Rect, Vector2 } from './Util/SharedClasses';
 import GetExtraAssets from './Util/GetExtraAssets';
+import { TranslatePassthrough } from './Util/Translations';
 import { Window } from './Util/WindowManager';
 import { Share } from './Share';
 import HTMLCode from './HTML/DebugWindow.html?minraw';
@@ -56,9 +57,11 @@ export default class DebugWindow extends Window
 	constructor()
 	{
 		//Base HTML+translations setup
-		super({SaveID:'Debug', Type:'Debug', Width:400, Height:250});
+		super({
+			SaveID:'Debug', Type:'Debug', Width:400, Height:250,
+			TitleTranslator:new TranslatePassthrough('Title', 'DebugWindow', "Debug", Share.Tr),
+		});
 		this.$Content.append(HTMLCode);
-		this.LanguageChanged();
 
 		//Toggle show sections
 		const ShowSectionsBox=this.$Content.find('#ShowSectionsBox');
@@ -194,13 +197,6 @@ export default class DebugWindow extends Window
 			MyRect.Height*=-1;
 		}
 		return [MyRect.X, MyRect.Y, MyRect.Width, MyRect.Height, ColorIndex!] as SectionNumbersWithWidth as T;
-	}
-
-	public override LanguageChanged()
-	{
-		Share.Tr.OnLanguageLoadedOnce(() => {
-			this.Title=Share.Tr.TDef('Title', 'DebugWindow', "Debug");
-		});
 	}
 
 	public override OnClosing(): boolean

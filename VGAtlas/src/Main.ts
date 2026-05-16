@@ -3,7 +3,8 @@ import $							from 'jquery';
 import { FriendClass, InitFuncs, Log, PopupMessage, Util, WillBeSet
 								}	from './Util/SharedClasses';
 import { WM, Window }				from './Util/WindowManager';
-import Translations, { DefaultTr }	from './Util/Translations';
+import Translations, { DefaultTr, TranslatePassthrough
+								}	from './Util/Translations';
 import { Share }					from './Share';
 import MonitorSaveValues			from './MonitorSaveValues';
 import MapCanvas					from './MapCanvas';
@@ -178,12 +179,11 @@ function CreateMainMenu()
 	const MyLogWindow=new SingleInstanceWindow(
 		() => {
 			const NewWin=new Window({
-				LanguageChanged:() => Share.Tr.OnLanguageLoadedOnce(() => MyLogWindow.MyWin!.Title=Share.Tr.T('Logs')),
+				TitleTranslator:new TranslatePassthrough("Logs", undefined, undefined, Share.Tr),
 				SaveID:'Logs', Type:'Logs',
 			});
 
 			setTimeout(() => {
-				MyLogWindow.MyWin!.LanguageChanged!(undefined!);
 				for(const LL of Log.AllLogLines)
 					AddLogLine(LL);
 			}, 0);

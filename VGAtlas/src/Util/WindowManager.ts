@@ -1,7 +1,7 @@
 import './Window.scss';
 import $ from 'jquery';
 import { FriendClass, InitFuncs, Log, Rect, StatStr, Util, Vector2 } from './SharedClasses';
-import { DefaultTr } from './Translations';
+import { DefaultTr, TranslatePassthrough } from './Translations';
 
 type KeyHandler<T extends Window|null>=(this:T, e:KeyboardEvent)=>boolean|undefined;
 type ResizeDir='n'|'s'|'e'|'w'|'ne'|'nw'|'se'|'sw';
@@ -38,7 +38,11 @@ export class WindowManager
 		window.addEventListener('keydown', e => this.OnKey(e, 'Down'), {capture:true});
 		window.addEventListener('keyup'  , e => this.OnKey(e, 'Up'	), {capture:true});
 		window.addEventListener('resize' , ()=> this.Windows.forEach(W => W.EnsureOnScreen()));
-		InitFuncs.push(() => DefaultTr.OnLanguageChanged.Add('WindowManager', NewLang => this.Windows.forEach(W => W.LanguageChanged?.(NewLang))));
+		InitFuncs.push(() => DefaultTr.OnLanguageChanged.Add('WindowManager', NewLang => this.Windows.forEach(W => {
+			W.LanguageChanged?.(NewLang);
+			if(W.TitleTranslator)
+				W.TitleTranslator.AwaitGetTranslation().then(TransStr => W.Title=TransStr);
+		})));
 	}
 
 	protected Register(W:Window): void
@@ -82,7 +86,7 @@ export const WM=Util.OneTimeInit('WindowManager', () => new WindowManager());
 
 type WindowInit=Partial<Pick<Window,
 	'Title'|'Type'|'Parent'|'X'|'Y'|'Width'|'Height'|'MinWidth'|'MinHeight'|'CanClose'|
-	'CanResize'|'Visible'|'AcceptsKeyboard'|'OnKeyDown'|'OnKeyUp'|'OnClosing'|'OnMoved'|'LanguageChanged'|'SaveID'
+	'CanResize'|'Visible'|'AcceptsKeyboard'|'OnKeyDown'|'OnKeyUp'|'OnClosing'|'OnMoved'|'LanguageChanged'|'TitleTranslator'|'SaveID'
 >>;
 export class Window
 {
@@ -110,6 +114,7 @@ export class Window
 	public OnClosing?(): boolean; //Return true to cancel close
 	public OnMoved	?(Old:Rect, New:Rect): void;
 	public LanguageChanged?(NewLang:string): void;
+	public TitleTranslator?:TranslatePassthrough; //Title is only set automatically during initialization and language change
 
 	//Unsettable/private properties
 	private		static		IDCounter		=0;
@@ -160,7 +165,7 @@ export class Window
 		this.SetCanClose (this.CanClose	);
 		this.SetCanResize(this.CanResize);
 		this.SetVisible  (this.Visible	);
-		this.Title=this._Title;
+		this.Title=this.TitleTranslator ? this.TitleTranslator.GetTranslation() : this._Title;
 		this.Parent=this._Parent;
 		if(this.SaveID)
 			this.$Root.attr('id', 'WinID_'+this.SaveID);

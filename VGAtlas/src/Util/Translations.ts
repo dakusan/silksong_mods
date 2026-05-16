@@ -25,6 +25,10 @@ class LanguagesChangedCallbackList extends CallbackList<[string]>
 	}
 }
 
+const InputTypes:Record<string, 'placeholder'|'value'|'alt'>={image:'alt'};
+['', 'text', 'search', 'url', 'tel', 'email', 'password', 'number']	.forEach(Type => InputTypes[Type]='placeholder');
+['button', 'submit', 'reset']										.forEach(Type => InputTypes[Type]='value');
+
 //Loads translations from $TranslationsPath/$LangIsoName$TranslationFileExtension.
 export default class Translations
 {
@@ -155,7 +159,7 @@ export default class Translations
 
 	public TranslatePassthrough(PT:TranslatePassthrough)
 	{
-		return this.TranslateDef(PT.Key, PT.Section, PT.Default ?? PT.Key, PT.SafeRich, ...PT.FormatList);
+		return (PT.Tr ?? this).TranslateDef(PT.Key, PT.Section, PT.Default ?? PT.Key, PT.SafeRich, ...PT.FormatList);
 	}
 
 	//Translates a TranslatePassthrough.AsError(), or otherwise uses Util.GetErrorMessage
@@ -191,8 +195,15 @@ export default class Translations
 	public UpdateDOMElement(El:HTMLElement)
 	{
 		const FinalText=this.TranslateDef(El.dataset.translationKey!, El.dataset.translationSection, El.dataset.translationDefault ?? El.dataset.translationKey ?? null);
+		const AttributeToReplace=
+			  El.tagName==='TEXTAREA' ? 'placeholder'
+			: El.tagName==='INPUT' ? (InputTypes[(El as HTMLInputElement).type ?? ''] ?? null)
+			: null;
 		if(FinalText!==null)
-			El[El.dataset.translationHtml ? 'innerHTML' : 'innerText']=FinalText;
+			if(AttributeToReplace)
+				(El as HTMLInputElement)[AttributeToReplace]=FinalText;
+			else
+				El[El.dataset.translationHtml ? 'innerHTML' : 'innerText']=FinalText;
 		return FinalText!==null;
 	}
 	public static CreateTranslationElement(Element:HTMLElement, Key:string, Section?:string, DefaultTextOverride?:string, AllowHTML=false, Module?:string)
@@ -217,6 +228,7 @@ export class TranslatePassthrough
 		public readonly Key:string,
 		public readonly Section?:string,
 		public readonly Default:string|null=null, //If null, then the Key will be used
+		public readonly Tr?:Translations, //If given, forces use of this translation object instead of the TranslatePassthrough() owning object
 		public readonly SafeRich=false,
 		...FormatList:Util.Primitive[]
 	) { this.FormatList=FormatList; }
@@ -224,6 +236,24 @@ export class TranslatePassthrough
 	public AsError()
 	{
 		return new Error(this.Default ?? this.Key, {cause:this});
+	}
+	public GetTranslation(...FormatList:Util.Primitive[]) //Only callable if this.Tr is set. FormatList is temporarily appended to the current format list
+	{
+		if(!this.Tr)
+			throw new Error("Cannot run translation on a passthrough that does not have a translation object set.");
+		this.FormatList.push(...FormatList);
+		try {
+			return this.Tr.TranslatePassthrough(this);
+		} finally {
+			if(FormatList.length)
+				this.FormatList.splice(-FormatList.length);
+		}
+	}
+	public async AwaitGetTranslation(...FormatList:Util.Primitive[])
+	{
+		if(this.Tr?.LanguageLoaded!==undefined)
+			await this.Tr.LanguageLoaded;
+		return this.GetTranslation(...FormatList);
 	}
 }
 

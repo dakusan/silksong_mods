@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import { FriendClass, StatStr, WillBeSet } from '../Util/SharedClasses';
+import { TranslatePassthrough } from '../Util/Translations';
 import { Window } from '../Util/WindowManager';
 import { Share } from '../Share';
 import type DataStorage from '../DataStorage';
@@ -15,7 +16,10 @@ export default class CategoryGroupsWindow extends Window
 
 	constructor()
 	{
-		super({Title:'-', Type:'CategoryGroups', MinWidth:234, Width:707, Height:598, SaveID:'CategoryGroups'});
+		super({
+			Type:'CategoryGroups', MinWidth:234, Width:707, Height:598, SaveID:'CategoryGroups',
+			TitleTranslator:new TranslatePassthrough("Category States", 'SettingNames', undefined, Share.Tr),
+		});
 		this.$Content.attr('id', 'CategoryGroupsWindow');
 
 		function CreateSBTransButton(TranslationKey:string, ClickFunc:() => void)
@@ -37,7 +41,6 @@ export default class CategoryGroupsWindow extends Window
 		this.$CatTable.appendTo(this.$Content);
 
 		Share.Tr.UpdateDOMSubElements(this.$Content[0]);
-		this.LanguageChanged();
 	}
 	private InitGroup(CG:CategoryGroup)
 	{
@@ -51,11 +54,6 @@ export default class CategoryGroupsWindow extends Window
 			(this.Rows as Map<number, CategoryRow>).set(Cat.ID,
 				CategoryRow_Friend.Init($CatGroup, Cat)
 			);
-	}
-
-	public override LanguageChanged()
-	{
-		Share.Tr.OnLanguageLoadedOnce(() => this.Title=Share.Tr.T("Category States", 'SettingNames'));
 	}
 
 	public override OnClosing()

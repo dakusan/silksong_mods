@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import { DevStrings, Log, PopupMessage, StatStr, Util } from './Util/SharedClasses';
+import { TranslatePassthrough } from './Util/Translations';
 import { Window } from './Util/WindowManager';
 import { Share } from './Share';
 import Html from './HTML/SaveFileWindow.html?minraw';
@@ -9,8 +10,10 @@ export default class SaveFileWindow extends Window
 	constructor(
 		private HandleLoadSaveFileError:(e:unknown, FileName:string) => void
 	) {
-		super({SaveID:'LoadSaveFile', Type:'LoadSaveFile'});
-		this.LanguageChanged();
+		super({
+			SaveID:'LoadSaveFile', Type:'LoadSaveFile',
+			TitleTranslator:new TranslatePassthrough('WINDOW_TITLE', 'LoadSaveFile', "Load Save", Share.Tr),
+		});
 		this.Init();
 	}
 
@@ -59,11 +62,6 @@ export default class SaveFileWindow extends Window
 		});
 
 		UpdateContentState(this);
-	}
-
-	public override LanguageChanged()
-	{
-		Share.Tr.OnLanguageLoadedOnce(() => this.Title=Share.Tr.TDef('WINDOW_TITLE', 'LoadSaveFile', "Load Save"));
 	}
 }
 

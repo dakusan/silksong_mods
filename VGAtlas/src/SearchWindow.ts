@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import { Iter, Log, PopupMessage, StatStr, Util, WillBeSet } from './Util/SharedClasses';
 import I18NSearch, { FoldedStrings } from './Util/I18NSearch';
+import { TranslatePassthrough } from './Util/Translations';
 import { Window } from './Util/WindowManager';
 import { Share } from './Share';
 import { type Item } from './CategoriesAndItems';
@@ -21,20 +22,23 @@ export default class SearchWindow extends Window
 
 	protected $Container=$('<div class=SearchContainer>').appendTo(this.$Content);
 	protected $NumResults=$('<span class=NumResults>').appendTo(this.$Container);
-	protected $SearchBox=$('<input type=search class=\'SearchBox WinButton\' placeholder="-">').appendTo(this.$Container);
+	protected $SearchBox=$('<input type=search class=\'SearchBox WinButton TranslationEl\' data-translation-key="Type in here to search">').appendTo(this.$Container);
 	protected $SearchResults=$('<div class="Results ItemContents">').appendTo(this.$Container);
 	constructor()
 	{
-		super({SaveID:'Search', Type:'Search', Width:750, Height:550});
+		super({
+			SaveID:'Search', Type:'Search', Width:750, Height:550,
+			TitleTranslator:new TranslatePassthrough("SearchWindow.Title", undefined, "Search", Share.Tr),
+		});
 
-		this.$SearchBox.on('input', () => {
+		Share.Tr.UpdateDOMElement(this.$SearchBox.on('input', () => {
 			const NewText=String(this.$SearchBox.val()).trim();
 			if(NewText===this.SearchText)
 				return;
 			this._SearchText=NewText;
 			this.RunSearch();
 			this.RefreshSearch();
-		});
+		})[0]);
 
 		this.LanguageChanged();
 	}
@@ -144,8 +148,6 @@ export default class SearchWindow extends Window
 	public override LanguageChanged()
 	{
 		Share.Tr.OnLanguageLoadedOnce(() => {
-			this.Title=Share.Tr.TDef("SearchWindow.Title", undefined, "Search");
-			this.$SearchBox.attr('placeholder', Share.Tr.T('Type in here to search'));
 			this.FoldedStrings.clear();
 			this.RunSearch();
 			this.RefreshSearch();

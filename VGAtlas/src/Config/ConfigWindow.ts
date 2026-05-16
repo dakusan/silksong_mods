@@ -2,7 +2,7 @@ import './ConfigWindow.scss';
 import $ from 'jquery';
 import { FriendClass, StatStr } from '../Util/SharedClasses';
 import type Translations from '../Util/Translations';
-import { DefaultTr } from '../Util/Translations';
+import { DefaultTr, TranslatePassthrough } from '../Util/Translations';
 import { Window } from '../Util/WindowManager';
 import Config from './Config';
 import ConfigItemBase from './Abstract/ConfigItemBase';
@@ -19,7 +19,10 @@ export default class ConfigWindow extends Window
 		public readonly Config:Config,
 		public readonly Tr?:Translations,
 	) {
-		super({SaveID:'Config'+Config.Prefix, Type:'Config', Width:750, Height:550});
+		super({
+			SaveID:'Config'+Config.Prefix, Type:'Config', Width:750, Height:550,
+			TitleTranslator:new TranslatePassthrough('Configure', 'ConfigWindow', "Settings", DefaultTr),
+		});
 		this.AddViewableToggles();
 		this.$ConfigTable.appendTo(this.$Content);
 		for(const [SectionName, Entries] of this.Config.Sections)
@@ -90,7 +93,6 @@ export default class ConfigWindow extends Window
 
 	public override LanguageChanged()
 	{
-		this.Title=DefaultTr.TDef('Configure', 'ConfigWindow', 'Settings');
 		const UpdateSections=() => this.Sections.forEach(Section => (Section as ConfigWindowSection_Friend).LanguageChanged());
 		if(this.Tr)
 			this.Tr.OnLanguageLoadedOnce(UpdateSections);
