@@ -10,7 +10,7 @@
 			body.Loading { cursor:progress; }
 			#map { position:fixed; inset:0; overflow:hidden; color:var(--text-color, #eee); background:var(--body-bg, black); }
 			#map>div { display:flex; width:100%; height:100%; font-size:30px; justify-content:center; align-items:center; }
-			#MainMenu { display:none; }
+			#MainMenu, #MapContextMenu { display:none; }
 		</style>
 		<link rel=icon href='favicon.ico'>
 	</head>
@@ -27,6 +27,9 @@
 				<div class="MenuItem TranslationEl" id=MenuDebug data-translation-key=Title data-translation-section=DebugWindow data-translation-default=Debug></div>
 				<div class=MenuItem><a class=TranslationEl href="https://silksong.dakusan.com" data-translation-key=SilksongModsLink data-translation-default="Silksong Mods">Silksong Mods</a> 🔗</div>
 			</div>
+		</div>
+		<div id=MapContextMenu class=StdPopupMenu>
+			<div class="MenuItem TranslationEl" id=AddCustomItem data-translation-key=MenuAddButton data-translation-section=CustomItems data-translation-default="Add Custom Icon">Add Custom Icon</div>
 		</div>
 		<script type=module src='src/Main.ts'></script>
 	</body>

@@ -15,7 +15,7 @@ button, input { color:inherit; font-family:inherit; }
 	.MessageText { flex:1 1 auto; display:flex; justify-content:center; align-items:center; overflow:hidden; text-align:center; font-size:80px; color:var(--text-color, #eee); }
 }
 
-#ItemTooltip {
+#ItemTooltip, .HelpButton>* {
 	position:absolute; box-sizing:border-box; border:1px solid var(--window-border, rgba(255, 255, 255, 0.25));
 	background:var(--tooltip-bg, rgba(64, 64, 64, 0.8)); color:var(--text-color, #eee); box-shadow:var(--box-shadow);
 	display:none; z-index:20000; white-space:nowrap;
@@ -158,7 +158,7 @@ body #MainMenu { display:block; }
 		&:before { content:var(--main-menu-icon, '☰'); }
 		&:active { transform:translateY(1px); }
 	}
-	.Popup {
+	@at-root #MainMenu .Popup, .StdPopupMenu {
 		display:none; position:absolute; top:10px; left:15px; border:1px solid var(--window-border, rgba(255, 255, 255, 0.25)); border-radius:8px; padding:0 5px;
 		background:var(--window-background, rgba(20, 20, 20, 0.94)); color:var(--text-color, #eee); box-shadow:var(--box-shadow);
 		.MenuItem {
@@ -271,4 +271,20 @@ body #MainMenu { display:block; }
 
 @media(max-width:#{$MobileWidth}px) {
 	#MainMenu { z-index:1500; }
+}
+
+.HelpButton {
+	--HBSize:16px;
+	position:relative; display:inline-block; width:var(--HBSize); height:var(--HBSize); border-radius:50%;
+	background-color:white; cursor:help;
+	&::before {
+		content:'?'; position:absolute; display:flex; inset:0; align-items:center; justify-content:center;
+		font-size:calc(var(--HBSize) - 2px); line-height:1; font-weight:900; color:black;
+	}
+	>* { left:calc(var(--HBSize)/2); top:calc(var(--HBSize)/2); cursor:default; }
+	&:hover>* { display:block; }
+	&.SolidPopupBG>* {
+		&, &::before, &::after { background:var(--window-background, rgba(20, 20, 20, 0.94)); }
+		&::before, &::after { content:''; position:absolute; inset:0; pointer-events:none; z-index:-1; }
+	}
 }

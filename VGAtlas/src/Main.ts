@@ -1,6 +1,6 @@
 import './Style.scss';
 import $							from 'jquery';
-import { FriendClass, InitFuncs, Log, PopupMessage, Util, WillBeSet
+import { FriendClass, InitFuncs, Log, PopupMessage, StatStr, Util, Vector2, WillBeSet,
 								}	from './Util/SharedClasses';
 import { WM, Window }				from './Util/WindowManager';
 import Translations, { DefaultTr, TranslatePassthrough
@@ -10,6 +10,7 @@ import MonitorSaveValues			from './MonitorSaveValues';
 import MapCanvas					from './MapCanvas';
 import MapControl					from './MapControl';
 import DataStorage					from './DataStorage';
+import CustomItem					from './CustomItem';
 import type ConfigWindow			from './Config/ConfigWindow';
 
 //Mimic C++ friend / C# internal
@@ -62,6 +63,7 @@ async function Main()
 		MCanvas.ExtraMessage=undefined;
 		MCanvas.Refresh();
 		CreateMainMenu();
+		CreateContextMenu();
 		if(import.meta.env.DEV)
 			import('./Debug');
 		Log.Info('Load complete');
@@ -230,6 +232,26 @@ function HandleLoadSaveFileError(e:unknown, FileName:string)
 	const Err=Share.Tr.TDef("ERROR_LOADING", 'LoadSaveFile', "Error loading save data from “{0}”: {1}", false, FileName, Share.Tr.TranslatePassthroughError(e));
 	Log.Error(Err);
 	new PopupMessage(Err);
+}
+
+function CreateContextMenu()
+{
+	let LastMapPos:Vector2;
+	Share.MCanvas.Events.Click.Add('Main.CreatePopupMenu', Ev => {
+		if(!(Ev.Button===Ev.Buttons.Right || (Ev.Button===Ev.Buttons.Pointer && Ev.ClickInterval>=750))) //Right-click or 3/4-second pointer-click
+			return;
+		ExecMenuPopup($('#MapContextMenu').css('left', Ev.Event.clientX!).css('top', Ev.Event.clientY!));
+		LastMapPos=Share.MCanvas.CanvasToMap(new Vector2(Ev.Pos.X, Ev.Pos.Y));
+	});
+	$('#AddCustomItem').on('click', async () =>
+		new (await import('./Windows/CustomItemWindow/CustomItemWindow')).default(
+			LastMapPos.X, LastMapPos.Y,
+			(MyLabel, Detached, X, Y, Title, MyDescription) => new CustomItem(
+				X ?? 0, Y ?? 0, Title ?? StatStr.Empty, MyDescription ?? StatStr.Empty, //None of these are needed for detached items
+				MyLabel, Detached
+			),
+		)
+	);
 }
 
 $(Main);

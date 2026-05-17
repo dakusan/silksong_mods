@@ -33,4 +33,19 @@
 		"CanvasCoord": "Canvas coordinate", //Label for the mouse position in canvas coordinates
 		"MapCoord": "Map coordinate", //Label for the mouse position in map coordinates
 	},
+	"CustomItems":{
+		"MenuAddButton": "Add Custom Icon", //Popup menu item that opens the Create Custom Icon window
+		"WindowTitle.Add": "Create Custom Icon",
+		"WindowTitle.Edit": "Edit Custom Icon",
+		"SubmitCreate": "Create Icon",
+		"SubmitCancel": "Cancel",
+		"Title": "Title", //The title of the custom icon
+		"Title.Info": "This will be displayed when you mouse over the icon",
+		"Description": "Description", //The description of the custom icon
+		"Description.Info": "Information about your icon that will show in its popup.",
+		"HTMLTags.Info": "HTML Tags",
+		"Label": "Label", //The label of the custom icon
+		"Label.Info": "This will show on the icon itself",
+		"Coordinates": "Coordinates", //The X/Y coordinates of the custom icon
+	},
 }

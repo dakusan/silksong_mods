@@ -1,0 +1,62 @@
+<form class=CustomItemForm>
+	<div class=Buttons>
+		<input type=submit class="Submit TranslationEl WinButton" data-translation-key=SubmitCreate data-translation-section=CustomItems data-translation-default="Create Icon">
+		<input type=button class="Cancel TranslationEl WinButton" data-translation-key=SubmitCancel data-translation-section=CustomItems data-translation-default=Cancel>
+	</div>
+
+	<label>
+		<span class="Title TranslationEl" data-translation-key=Title data-translation-section=CustomItems></span>
+		<input class="TranslationEl WinButton" name=Title data-translation-key=Title data-translation-section=CustomItems>
+	</label>
+	<div class="Info TranslationEl" data-translation-key=Title.Info data-translation-section=CustomItems data-translation-default="This will be displayed when you mouse over the icon"></div>
+
+	<label>
+		<span class="Title TranslationEl" data-translation-key=Description data-translation-section=CustomItems></span>
+		<textarea class="TranslationEl WinButton" name=Description data-translation-key=Description data-translation-section=CustomItems></textarea>
+	</label>
+	<div class="Info TranslationEl" data-translation-key=Description.Info data-translation-section=CustomItems data-translation-default="Information about your icon that will show in its popup."></div>
+	<div class="HTMLHelp HelpButton SolidPopupBG">
+		<div>
+			<div class="HTMLInfo ItemContents">
+				<div><u>&lt;b&gt;</u>, <u>&lt;i&gt;</u>, <u>&lt;u&gt;</u>, <u>&lt;s&gt;</u></div>
+				<div><u>&lt;size=<b>NUMBER</b>&gt;</u> <s><b>NUMBER</b>=<i>(1 &nbsp; +1 &nbsp; -1)[1-5]</i></s></div>
+				<div><u>&lt;color=<b>CSS_COLOR</b>&gt;</u> <s><b>CSS_COLOR</b>=<i>#00FF0080, black</i></s></div>
+				<div><u>&lt;LinkID=<b>UNIQUE_ID</b>&gt;<b>ATTRIBUTES</b>&nbsp;&nbsp;&nbsp;<b>LINK_TEXT</b>&lt;/LinkID&gt;</u></div>
+				<div class=HTMLTab>
+					<div><i>ATTRIBUTES</i>=<u>&lt;ATTR=<b>ATTR_TYPE</b>&gt;<b>VALUE</b>&lt;/ATTR&gt;</u><s><i>...</i></s></div>
+					<div><i>ATTR_TYPE</i>: <a>ItemID</a>, <a>href</a>, <a>NormalColor</a>, <b>ALLOWED_CLASS</b> <i>[NO VALUE]</i></div>
+					<div><i>ALLOWED_CLASS</i>:
+						<u>ItemIcon <u style="font-family:monospace">I</u><b>ICON_NUMBER</b></u>,
+						<a class=Important>Important</a>,
+						<span class=WinButton>WinButton</span>,
+						<a class=VC_SepOR           >VC_SepOR</a>,
+						<a class=VC_SepAND          >VC_SepAND</a>,
+						<a class=VC_CollectedCounts >VC_CollectedCounts</a>,
+						<a class=StrikeFound        >StrikeFound</a>,
+						<a class=StrikeStarted      >StrikeStarted</a>,
+						<a class=FlagRecommended    >FlagRecommended</a>,
+						<a class=FlagStarted        >FlagStarted</a>,
+						<a class=FlagNot            >FlagNot</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<span class="Info TranslationEl" data-translation-key=HTMLTags.Info data-translation-section=CustomItems data-translation-default="HTML Tags"></span>
+	<div class="RenderDescription ItemContents"></div>
+
+
+	<label for=NEEDS_RANDOM_ID class="Title TranslationEl" data-translation-key=Label data-translation-section=CustomItems></label>
+	<div class=IconInfo>
+		<div>
+			<textarea class="TranslationEl WinButton" name=Label data-translation-key=Label data-translation-section=CustomItems id=NEEDS_RANDOM_ID></textarea>
+			<div class="Info TranslationEl" data-translation-key=Label.Info data-translation-section=CustomItems data-translation-default="This will show on the icon itself"></div>
+		</div>
+		<canvas class=IconPreview></canvas>
+	</div>
+
+	<div class="Title TranslationEl" data-translation-key=Coordinates data-translation-section=CustomItems></div>
+	<div>
+		X×Y=<span class=XCoordLabel></span>×<span class=YCoordLabel></span>
+	</div>
+</form>
