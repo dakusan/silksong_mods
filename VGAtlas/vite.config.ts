@@ -9,7 +9,7 @@ let UtilsAndConfigsRegEx:RegExp;
 {
 	const UtilFiles='SharedClasses|Translations|WindowManager|GetExtraAssets|AlignText|JSON';
 	const RootFiles='AtlasConfig|SaveData|LinkedLabel';
-	UtilsAndConfigsRegEx=new RegExp(`/src/Util/(?:${UtilFiles})\\.ts|/src/(${RootFiles})\\.ts|/src/Config/(?!ConfigWindow)`);
+	UtilsAndConfigsRegEx=new RegExp(`/src/Util/(?:${UtilFiles})\\.ts|/src/(${RootFiles})\\.ts|/src/Config/`);
 }
 function IsUtilsAndConfigsChunk(id:string) {
 	return UtilsAndConfigsRegEx.test(id.replaceAll("\\", "/"));

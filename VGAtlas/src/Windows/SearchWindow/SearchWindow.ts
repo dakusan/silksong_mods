@@ -1,11 +1,12 @@
-import $ from 'jquery';
-import { Iter, Log, PopupMessage, StatStr, Util, WillBeSet } from './Util/SharedClasses';
-import I18NSearch, { FoldedStrings } from './Util/I18NSearch';
-import { TranslatePassthrough } from './Util/Translations';
-import { Window } from './Util/WindowManager';
-import { Share } from './Share';
-import { type Item } from './CategoriesAndItems';
-import LinkedLabel from './LinkedLabel';
+import './SearchWindow.scss';
+import $													  from 'jquery';
+import { Iter, Log, PopupMessage, StatStr, Util, WillBeSet	} from '../../Util/SharedClasses';
+import I18NSearch, { FoldedStrings							} from '../../Util/I18NSearch';
+import { TranslatePassthrough								} from '../../Util/Translations';
+import { Window												} from '../../Util/WindowManager';
+import { Share												} from '../../Share';
+import { type Item											} from '../../CategoriesAndItems';
+import LinkedLabel											  from '../../LinkedLabel';
 
 class SearchedItem { constructor(public readonly ID:number, public readonly RichText:string) { } }
 type SearchFields='ID'|'Description'|'Title'|'Category';

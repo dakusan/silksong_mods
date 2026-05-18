@@ -20,7 +20,7 @@ export {}; //Make this a module
 			MapIcon				:await import('./MapIcon'),
 			CustomItem			:(await import('./CustomItem')).default,
 			WindowManager		:await import('./Util/WindowManager'),
-			CategoryGroupsWindow:(await import('./DockableWindows/CategoryGroupsWindow')).default,
+			CategoryGroupsWindow:(await import('./Windows/CategoryGroupsWindow/CategoryGroupsWindow')).default,
 		},
 		async ExportDefaultData(TrailingCommas=true, Compact=false, MatchModOutput=false, UseTestHTMLExport=false): Promise<string>
 		{

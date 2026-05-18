@@ -3,7 +3,7 @@ import { Iter, KeyState, Log, Rect, StatStr, Util, Vector2 } from './Util/Shared
 import { Share } from './Share';
 import { type Item } from './CategoriesAndItems';
 import { type MouseButtonEvent } from './MapCanvas';
-import ItemWindow from './DockableWindows/ItemWindow';
+import ItemWindow from './Windows/ItemWindow/ItemWindow';
 
 //All functions accept/return canvas pixel coordinates
 export default class MapControl

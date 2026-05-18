@@ -1,10 +1,11 @@
-import $ from 'jquery';
-import { Rect, Vector2 } from './Util/SharedClasses';
-import GetExtraAssets from './Util/GetExtraAssets';
-import { TranslatePassthrough } from './Util/Translations';
-import { Window } from './Util/WindowManager';
-import { Share } from './Share';
-import HTMLCode from './HTML/DebugWindow.html?minraw';
+import './DebugWindow.scss';
+import $						  from 'jquery';
+import { Rect, Vector2			} from '../../Util/SharedClasses';
+import GetExtraAssets			  from '../../Util/GetExtraAssets';
+import { TranslatePassthrough	} from '../../Util/Translations';
+import { Window					} from '../../Util/WindowManager';
+import { Share					} from '../../Share';
+import HTMLCode					  from './DebugWindow.html?minraw';
 
 function MakeRow(ID:string, Default:string, Outer='tr', Inner1='th', Inner2='td')
 {

@@ -1,9 +1,10 @@
-import $ from 'jquery';
-import { Rect, StatStr, WillBeSet } from '../Util/SharedClasses';
-import { Window } from '../Util/WindowManager';
-import { Share } from '../Share';
-import LinkedLabel from '../LinkedLabel';
-import { type Item } from '../CategoriesAndItems';
+//NOTE: This is the only Window directly included in the startup graph
+import $							  from 'jquery';
+import { Rect, StatStr, WillBeSet	} from '../../Util/SharedClasses';
+import { Window						} from '../../Util/WindowManager';
+import { Share						} from '../../Share';
+import LinkedLabel					  from '../../LinkedLabel';
+import { type Item					} from '../../CategoriesAndItems';
 
 function TSan(Message:string): string { return Share.Tr.TDef(Message, 'ItemFields', Message, true); }
 

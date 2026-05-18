@@ -1,9 +1,10 @@
-import $ from 'jquery';
-import { DevStrings, Log, PopupMessage, StatStr, Util } from './Util/SharedClasses';
-import { TranslatePassthrough } from './Util/Translations';
-import { Window } from './Util/WindowManager';
-import { Share } from './Share';
-import Html from './HTML/SaveFileWindow.html?minraw';
+import './SaveFileWindow.scss';
+import $												  from 'jquery';
+import { DevStrings, Log, PopupMessage, StatStr, Util	} from '../../Util/SharedClasses';
+import { TranslatePassthrough							} from '../../Util/Translations';
+import { Window											} from '../../Util/WindowManager';
+import { Share											} from '../../Share';
+import Html												  from './SaveFileWindow.html?minraw';
 
 export default class SaveFileWindow extends Window
 {

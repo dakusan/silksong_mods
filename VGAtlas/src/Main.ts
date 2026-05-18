@@ -3,15 +3,13 @@ import $							from 'jquery';
 import { FriendClass, InitFuncs, Log, PopupMessage, StatStr, Util, Vector2, WillBeSet,
 								}	from './Util/SharedClasses';
 import { WM, Window }				from './Util/WindowManager';
-import Translations, { DefaultTr, TranslatePassthrough
-								}	from './Util/Translations';
+import Translations, { DefaultTr }	from './Util/Translations';
 import { Share }					from './Share';
 import MonitorSaveValues			from './MonitorSaveValues';
 import MapCanvas					from './MapCanvas';
 import MapControl					from './MapControl';
 import DataStorage					from './DataStorage';
 import CustomItem					from './CustomItem';
-import type ConfigWindow			from './Config/ConfigWindow';
 
 //Mimic C++ friend / C# internal
 abstract class DataStorage_Friend extends DataStorage implements FriendClass
@@ -60,6 +58,7 @@ async function Main()
 		for(const Fn of InitFuncs)
 			Fn();
 		InitFuncs.length=0;
+		Log.MaxStoredLogLines=1000;
 		MCanvas.ExtraMessage=undefined;
 		MCanvas.Refresh();
 		CreateMainMenu();
@@ -163,68 +162,25 @@ function CreateMainMenu()
 
 	//-----------Menu items-----------
 	//Categories window
+	//TODO: This could probably also be made into a single instance window
 	$('#MenuOpenCategories').on('click', async () => {
-		const CategoryGroupsWindow=(await import('./DockableWindows/CategoryGroupsWindow')).default;
+		const CategoryGroupsWindow=(await import('./Windows/CategoryGroupsWindow/CategoryGroupsWindow')).default;
 		CategoryGroupsWindow.Self.Visible=true;
 		CategoryGroupsWindow.Self.Focus();
 	});
 
-	//Config window
-	const MyConfigWindow=new SingleInstanceWindow<ConfigWindow>(
-		async () => new (await import('./Config/ConfigWindow')).default(Share.LC, Share.Tr),
-	);
-	$('#MenuOpenConfig').on('click', () => void(MyConfigWindow.FocusWin()));
-
-	//Search window
-	const MySearchWindow=new SingleInstanceWindow(
-		async () => new (await import('./SearchWindow')).default(),
-	);
-	$('#MenuOpenSearch').on('click', () => void(MySearchWindow.FocusWin()));
-
-	//Debug window
-	const MyDebugWindow=new SingleInstanceWindow(
-		async () => new (await import('./DebugWindow')).default(),
-	);
-	$('#MenuDebug').on('click', () => void(MyDebugWindow.FocusWin()));
-
-	//Log window
-	const MyLogWindow=new SingleInstanceWindow(
-		() => {
-			const NewWin=new Window({
-				TitleTranslator:new TranslatePassthrough("Logs", undefined, undefined, Share.Tr),
-				SaveID:'Logs', Type:'Logs',
-			});
-
-			setTimeout(() => {
-				for(const LL of Log.AllLogLines)
-					AddLogLine(LL);
-			}, 0);
-
-			return NewWin;
-		},
-	);
-	$('#MenuOpenLogs').on('click', () => void(MyLogWindow.FocusWin()));
-
-	//Add log lines to the log window
-	Log.MaxStoredLogLines=1000;
-	function AddLogLine(LL:(typeof Log.AllLogLines)[number])
+	//Menu item create single instance windows
+	function SingleInstanceWindowFromClick<T extends Window>(Selector:string, CreateWin:() => Promise<T>): SingleInstanceWindow<T>
 	{
-		if(!MyLogWindow.MyWin)
-			return;
-		MyLogWindow.MyWin.$Content.children().slice(Log.MaxStoredLogLines-1).remove();
-		$('<div class=LogLine>').append([
-			$('<span class=Time>').text(new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'})),
-			$('<span class=Contents>').text(String(LL.LogInfo[0])),
-		])
-			.toggleClass('IsError', LL.IsError)
-			.prependTo(MyLogWindow.MyWin.$Content);
+		const NewWin=new SingleInstanceWindow(CreateWin);
+		$(Selector).on('click', () => void(NewWin.FocusWin()));
+		return NewWin;
 	}
-	Log.OnLog.Add('LogWindow', AddLogLine);
-
-	const LoadSaveWindow=new SingleInstanceWindow(
-		async () => new (await import('./SaveFileWindow')).default(HandleLoadSaveFileError),
-	);
-	$('#MenuLoadSave').on('click', () => void(LoadSaveWindow.FocusWin()));
+	SingleInstanceWindowFromClick('#MenuOpenConfig'	, async () => new (await import('./Windows/ConfigWindow/ConfigWindow'		)).default(Share.LC, Share.Tr		));
+	SingleInstanceWindowFromClick('#MenuOpenSearch'	, async () => new (await import('./Windows/SearchWindow/SearchWindow'		)).default(							));
+	SingleInstanceWindowFromClick('#MenuDebug'		, async () => new (await import('./Windows/DebugWindow/DebugWindow'			)).default(							));
+	SingleInstanceWindowFromClick('#MenuOpenLogs'	, async () => new (await import('./Windows/LogsWindow/LogsWindow'			)).default(							));
+	SingleInstanceWindowFromClick('#MenuLoadSave'	, async () => new (await import('./Windows/SaveFileWindow/SaveFileWindow'	)).default(HandleLoadSaveFileError	));
 }
 
 function HandleLoadSaveFileError(e:unknown, FileName:string)

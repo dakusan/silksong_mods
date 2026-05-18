@@ -1,14 +1,14 @@
 import './ConfigWindow.scss';
-import $ from 'jquery';
-import { FriendClass, StatStr } from '../Util/SharedClasses';
-import type Translations from '../Util/Translations';
-import { DefaultTr, TranslatePassthrough } from '../Util/Translations';
-import { Window } from '../Util/WindowManager';
-import Config from './Config';
-import ConfigItemBase from './Abstract/ConfigItemBase';
-import type ConfigItem from './Abstract/ConfigItem';
-import { type ConfigItemValueTypes } from './Abstract/ConfigItem';
-import ConfigItem_Languages from './Types/ConfigItem_Languages';
+import $									  from 'jquery';
+import { FriendClass, StatStr				} from '../../Util/SharedClasses';
+import type Translations					  from '../../Util/Translations';
+import { DefaultTr, TranslatePassthrough	} from '../../Util/Translations';
+import { Window								} from '../../Util/WindowManager';
+import Config								  from '../../Config/Config';
+import ConfigItemBase						  from '../../Config/Abstract/ConfigItemBase';
+import type ConfigItem						  from '../../Config/Abstract/ConfigItem';
+import { type ConfigItemValueTypes			} from '../../Config/Abstract/ConfigItem';
+import ConfigItem_Languages					  from '../../Config/Types/ConfigItem_Languages';
 
 export default class ConfigWindow extends Window
 {

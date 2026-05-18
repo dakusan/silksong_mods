@@ -1,0 +1,9 @@
+#WinID_Logs .LogLine {
+	white-space:pre-wrap;
+	&:hover { color:var(--hl-text-color, #eee); background:var(--line-item-hover, #4678C880); }
+	&.IsError { color:red; }
+	.Time {
+		color:var(--line-item-alt, cyan);
+		&:after { content:': '; }
+	}
+}

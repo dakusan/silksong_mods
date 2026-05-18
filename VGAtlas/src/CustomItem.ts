@@ -4,7 +4,7 @@ import { type AutoFitText, ExecuteAutoFit, CheckFits_Circle } from './Util/Align
 import { Share } from './Share';
 import { Category, CategoryToggleState, Item } from './CategoriesAndItems';
 import { MapIcon } from './MapIcon';
-import ItemWindow, { type ItemWindow_Item_Callbacks } from './DockableWindows/ItemWindow';
+import { type default as ItemWindow, type ItemWindow_Item_Callbacks } from './Windows/ItemWindow/ItemWindow';
 
 const CustomCategoryID=-20934;
 
@@ -111,7 +111,7 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 			WindowToDelete.Close();
 		else
 			for(const W of Share.WM.AllWindows)
-				if(W instanceof ItemWindow && (W as ItemWindow).LinkedItem===this)
+				if(W.Type==='Item' && (W as ItemWindow).LinkedItem===this)
 					W.Close();
 
 		this.MapIcon?.Delete();

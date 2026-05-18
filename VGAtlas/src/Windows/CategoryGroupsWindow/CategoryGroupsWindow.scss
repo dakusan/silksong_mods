@@ -1,0 +1,44 @@
+.CategoryGroups {
+	min-height:0; overflow:auto; column-width:220px; column-fill:auto; column-gap:10px; width:100%; flex:1 1 auto; font-size:14px; white-space:nowrap;
+	button { background-color:transparent; border-width:0; font-size:inherit; }
+	.Title {
+		margin-bottom:2px; font-size:18px; color:var(--category-group-title, #e6e6e6);
+		&:hover { color:var(--category-group-title-hover, cyan); }
+	}
+	.Group { break-inside:avoid; page-break-inside:avoid; margin-bottom:10px; }
+	.Row {
+		text-align:left; display:block; width:100%; position:relative; padding:2px 2px; margin-bottom:1px; color:var(--category-title, #808080);
+		&:hover { color:var(--category-title-hover, white); }
+		&.Completed {
+			color:var(--category-title-completed, lime);
+			&:hover { color:var(--category-title-completed-hover, rgb(160, 255, 0)); }
+		}
+	}
+	.Category {
+		margin-left:4px;
+		&.StateAll { font-weight:bold; }
+		&.StateNone::before {
+			$StrikeHeight:1px;
+			position:absolute; left:0; top:calc(50% - $StrikeHeight / 2); width:100%; height:$StrikeHeight;
+			content:''; background:var(--category-strike, white); pointer-events:none; z-index:2;
+		}
+
+		.ItemIcon { position:relative; top:4px; margin-top:-6px; --NewIconSize:20px; }
+		.Name { margin-right:4px; }
+	}
+	.Counts { float:right; z-index:0; }
+}
+
+#CategoryGroupsWindow {
+	display:flex; flex-direction:column; background:var(--category-window-background, rgba(0, 0, 0, 0.52)); user-select:none;
+	button { cursor:pointer; }
+
+	.CategoryGroupButtons {
+		display:flex; flex-wrap:wrap; gap:6px; justify-content:space-evenly; align-items:center; flex:0 0 auto;
+		>button {
+			flex:0 1 auto; border-width:0; border-radius:6px; padding:3px 4px 4px 4px;
+			white-space:nowrap; background:var(--category-window-button-background, #007070); color:var(--category-window-button-text, white);
+			&:active { transform:translateY(1px); }
+		}
+	}
+}

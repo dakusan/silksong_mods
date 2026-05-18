@@ -1,0 +1,31 @@
+#WinID_LoadSaveFile .Content {
+	div:has(label) { margin-bottom:15px; }
+	label, button { padding:5px; }
+	button { font-size:inherit; }
+	#CurrentlySelectedFile { font-weight:bold; }
+	#SaveFileContents {
+		position:relative;
+		&.HasContents {
+			margin-top:8px; border-top:2px solid var(--line-separator, white); padding-top:8px;
+			.CopyButton { display:block; }
+		}
+		>.CopyButton {
+			display:none; position:absolute; top:2px; right:0; padding:2px;
+			&::before { content:'📋️'; }
+		}
+		>.Text {
+			margin-top:3px; white-space:pre-wrap;
+			.HLLine {
+				position:relative;
+				.Buttons {
+					position:absolute; top:0; right:5px;
+					button { border:0; padding:0; background-color:transparent; cursor:pointer; }
+					.Prev::before { content:'⇧'; }
+					.Next::before { content:'⇩'; }
+				}
+				&:first-of-type .Prev { display:none; }
+				&:last-of-type  .Next { display:none; }
+			}
+		}
+	}
+}

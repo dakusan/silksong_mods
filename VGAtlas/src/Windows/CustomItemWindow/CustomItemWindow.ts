@@ -27,7 +27,7 @@ export default class CustomItemWindow extends Window
 	private LastDrawnItem?:CustomItem;
 	constructor(
 		X:number, Y:number,
-		public readonly CreateCustomItem:(MyLabel:string, Detached:boolean, X?:number, Y?:number, Title?:string, MyDescription?:string) => CustomItem, //Using this so we don’t need the CustomItem import, removing root chunk dependency
+		public readonly CreateCustomItem:(MyLabel:string, Detached:boolean, X?:number, Y?:number, Title?:string, MyDescription?:string) => CustomItem, //Callback avoids a runtime CustomItem import, so this lazy window chunk does not pull in CustomItem from the main graph
 	) {
 		//Base HTML+translations setup
 		const CanvasPos=Share.MCanvas.CanvasPos;

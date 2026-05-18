@@ -1,10 +1,23 @@
-import $ from 'jquery';
-import { FriendClass, StatStr, WillBeSet } from '../Util/SharedClasses';
-import { TranslatePassthrough } from '../Util/Translations';
-import { Window } from '../Util/WindowManager';
-import { Share } from '../Share';
-import type DataStorage from '../DataStorage';
-import { type Category, type CategoryGroup, CategoryToggleState } from '../CategoriesAndItems';
+import './CategoryGroupsWindow.scss';
+import $									  from 'jquery';
+import { FriendClass, StatStr, WillBeSet	} from '../../Util/SharedClasses';
+import { TranslatePassthrough				} from '../../Util/Translations';
+import { Window								} from '../../Util/WindowManager';
+import { Share								} from '../../Share';
+import type DataStorage						  from '../../DataStorage';
+import { type Category, type CategoryGroup	} from '../../CategoriesAndItems';
+
+enum CategoryToggleState
+{
+	//NOTE: To avoid a runtime CategoriesAndItems import in this lazy window chunk, this list was duplicated from CategoriesAndItems.ts
+	//noinspection JSUnusedGlobalSymbols
+	All=0, Incomplete, None, Unknown //Unknown must be last
+}
+if(import.meta.env.DEV)
+	void (async () => {
+		if(JSON.stringify((await import('../../CategoriesAndItems')).CategoryToggleState)!==JSON.stringify(CategoryToggleState))
+			throw new Error("CategoryGroupsWindow CategoryToggleState is out of sync with CategoriesAndItems.CategoryToggleState.");
+	})();
 
 export default class CategoryGroupsWindow extends Window
 {
