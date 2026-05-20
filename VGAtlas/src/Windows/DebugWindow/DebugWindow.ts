@@ -7,25 +7,7 @@ import { Window					} from '../../Util/WindowManager';
 import { Share					} from '../../Share';
 import HTMLCode					  from './DebugWindow.html?minraw';
 
-function MakeRow(ID:string, Default:string, Outer='tr', Inner1='th', Inner2='td')
-{
-	return $(document.createElement(Outer)).append(
-		$(document.createElement(Inner1))
-			.addClass('TranslationEl')
-			.attr('data-translation-section', 'DebugWindow')
-			.attr('data-translation-key', ID)
-			.attr('data-translation-default', Default),
-		$(document.createElement(Inner2))
-			.attr('id', ID),
-	);
-}
-
-const ValuesRows={
-	ZoomLevel:			["Zoom"],
-	CanvasCoord:		["Canvas coordinate"],
-	MapCoord:			["Map coordinate"],
-	CurrentMapSection:	["Map sections your mouse is over: ", 'div', 'span', 'span'],
-};
+const ValuesRows=['ZoomLevel', 'CanvasCoord', 'MapCoord', 'CurrentMapSection'] as const;
 
 const FillTransparency=(112).toString(16);
 const NoWidthSectionColor='#333333'; //Generally always overlayed over other colors
@@ -50,7 +32,7 @@ export default class DebugWindow extends Window
 	private static ShowSections=false; //Persists between windows
 	public get ctor() { return DebugWindow; }
 
-	private readonly ValueLabels:Record<keyof typeof ValuesRows, JQuery>;
+	private readonly ValueLabels:Record<typeof ValuesRows[number], JQuery>;
 	private LastMousePos?:Vector2;
 	private Sections?:SectionsType;
 	public get OriginalSections(): Readonly<SectionsType>|undefined { return this.Sections; }
@@ -62,7 +44,7 @@ export default class DebugWindow extends Window
 			SaveID:'Debug', Type:'Debug', Width:400, Height:250,
 			TitleTranslator:new TranslatePassthrough('Title', 'DebugWindow', "Debug", Share.Tr),
 		});
-		this.$Content.append(HTMLCode);
+		this.$Content.append(HTMLCode)[0].dataset.translationSection='DebugWindow';
 
 		//Toggle show sections
 		const ShowSectionsBox=this.$Content.find('#ShowSectionsBox');
@@ -80,13 +62,7 @@ export default class DebugWindow extends Window
 		Share.MCanvas.Events.Draw		.Add('Debug.DisplayMouseMapSections_Draw'	, () =>	this.DisplayMouseMapSections(this.LastMousePos));
 
 		//Initialize value rows
-		const DV=this.$Content.find('#DebugValues');
-		this.ValueLabels=Object.fromEntries(
-			Object.entries(ValuesRows).map(([ID, Info]) =>
-				[ID, MakeRow(ID, ...(Info as [string, string?, string?, string?])).appendTo(DV).children().eq(1)]
-			)
-		) as typeof this.ValueLabels;
-		this.ValueLabels.CurrentMapSection.parent().appendTo(this.$Content); //Move CurrentMapSection outside the table
+		this.ValueLabels=Object.fromEntries(ValuesRows.map(ID => [ID, $('#'+ID)])) as typeof this.ValueLabels;
 		Share.Tr.UpdateDOMSubElements(this.$Content[0]);
 
 		//Load in the scene data

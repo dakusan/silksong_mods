@@ -194,6 +194,16 @@ export default class Translations
 	}
 	public UpdateDOMElement(El:HTMLElement)
 	{
+		//Get the section
+		if(El.dataset.translationSection===undefined) {
+			El.dataset.translationSection=StatStr.Empty;
+			for(let P=El.parentElement; P; P=P.parentElement)
+				if(P.dataset.translationSection) {
+					El.dataset.translationSection=P.dataset.translationSection;
+					break;
+				}
+		}
+
 		const FinalText=this.TranslateDef(El.dataset.translationKey!, El.dataset.translationSection, El.dataset.translationDefault ?? El.dataset.translationKey ?? null);
 		const AttributeToReplace=
 			  El.tagName==='TEXTAREA' ? 'placeholder'

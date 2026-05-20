@@ -122,17 +122,28 @@ class SingleInstanceWindow<TWin extends Window>
 			return;
 		this.MyWin=null;
 
-		this.MyWin=await this.CreateWin();
+		try {
+			this.MyWin=await this.CreateWin();
+		} catch(e) {
+			this.MyWin=undefined;
+			const Err="Failed to open window: "+Util.GetErrorMessage(e);
+			Log.Error(Err);
+			new PopupMessage(Err);
+			return;
+		}
+
 		this.OriginalOnClosing=this.MyWin.OnClosing;
 		this.MyWin.OnClosing=() => this.RunOnClosing();
 	}
 	private RunOnClosing()
 	{
 		//Stop if callback says to stop
-		if(this.OnClosing?.call(this.MyWin))
+		if(
+			   true===this.OnClosing?.call(this.MyWin)
+			|| true===this.OriginalOnClosing?.call(this.MyWin)
+		)
 			return true;
 
-		this.OriginalOnClosing?.call(this.MyWin);
 		this.MyWin=undefined;
 		return false;
 	}

@@ -24,7 +24,7 @@
 	.IconInfo {
 		display:flex;
 		>div { min-width:0; flex:1 1 auto; }
-		>.IconPreview { --IconSize:#{$IconSize}; width:$IconSize; height:$IconSize; margin-left:6px; flex:0 0 $IconSize; background-color:grey; }
+		>.IconPreview { --IconSize:#{$IconSize}; width:$IconSize; height:$IconSize; margin-left:6px; flex:0 0 $IconSize; }
 	}
 
 	.Buttons {

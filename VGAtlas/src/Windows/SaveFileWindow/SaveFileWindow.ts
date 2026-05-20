@@ -21,7 +21,7 @@ export default class SaveFileWindow extends Window
 	private Init()
 	{
 		//Create the DOM content
-		this.$Content.append(Html);
+		this.$Content.append(Html)[0].dataset.translationSection='LoadSaveFile';
 		Share.Tr.UpdateDOMSubElements(this.$Content[0]);
 
 		//Set up other buttons
