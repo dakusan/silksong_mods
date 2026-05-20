@@ -5,6 +5,7 @@ import { Share } from './Share';
 import { Category, CategoryToggleState, Item } from './CategoriesAndItems';
 import { MapIcon } from './MapIcon';
 import { type default as ItemWindow, type ItemWindow_Item_Callbacks } from './Windows/ItemWindow/ItemWindow';
+import type CustomItemWindow from './Windows/CustomItemWindow/CustomItemWindow';
 
 const CustomCategoryID=-20934;
 
@@ -96,26 +97,48 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 
 	public WindowCB_ContentsUpdated(IW:ItemWindow): void
 	{
-		const $DeleteButton=$('<button class=\'WinButton TranslationEl ItemWindowDeleteButton\' data-translation-key="Button.Delete" data-translation-default="Delete">')
-			.on('click', () => this.Delete(IW))
+		const $Buttons=$('<div class=ItemWindowButtons>').append(
+			$('<button class=\'WinButton TranslationEl\' data-translation-key="Button.Edit"		data-translation-default="Edit">'	).on('click', () => void(this.Edit	())),
+			$('<button class=\'WinButton TranslationEl\' data-translation-key="Button.Delete"	data-translation-default="Delete">'	).on('click', () =>		 this.Delete()),
+		)
 			.prependTo(IW.$Content.children().eq(0));
-		Share.Tr.UpdateDOMElement($DeleteButton[0]);
+		Share.Tr.UpdateDOMSubElements($Buttons[0]);
 	}
 
 	//If the window is not provided, it will attempt to find it
-	public Delete(WindowToDelete?:ItemWindow)
+	public Delete()
 	{
 		if(this.Detached)
 			return;
-		if(WindowToDelete)
-			WindowToDelete.Close();
-		else
-			for(const W of Share.WM.AllWindows)
-				if(W.Type==='Item' && (W as ItemWindow).LinkedItem===this)
-					W.Close();
+		for(const W of Share.WM.AllWindows)
+			if(
+				   (W.Type==='Item'			&& (W as ItemWindow			).LinkedItem===this)
+				|| (W.Type==='CustomItem'	&& (W as CustomItemWindow	).EditItem	===this)
+			)
+				W.Close();
 
 		this.MapIcon?.Delete();
 		Share.DS.Items.delete(this.ID);
 		Share.MCanvas.Refresh();
+		if(Share.MC.SelectedItem===this) //Note: No need to unselect if it’s also the hover icon
+			Share.MC.SelectItem(undefined);
+	}
+
+	private async Edit()
+	{
+		if(this.Detached)
+			return;
+		for(const W of Share.WM.AllWindows)
+			if(W.Type==='CustomItem' && (W as CustomItemWindow).EditItem===this)
+				return W.Focus();
+
+		const CustomItemWindow=(await import('./Windows/CustomItemWindow/CustomItemWindow')).default;
+		new CustomItemWindow(0, 0, CreateCustomItem, this);
 	}
 }
+
+export const CreateCustomItem=
+	(MyLabel:string, Detached:boolean, X?:number, Y?:number, Title?:string, MyDescription?:string) => new CustomItem(
+		X ?? 0, Y ?? 0, Title ?? StatStr.Empty, MyDescription ?? StatStr.Empty, //None of these are needed for detached items
+		MyLabel, Detached
+	);

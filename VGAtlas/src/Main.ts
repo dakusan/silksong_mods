@@ -1,6 +1,6 @@
 import './Style.scss';
 import $							from 'jquery';
-import { FriendClass, InitFuncs, Log, PopupMessage, StatStr, Util, Vector2, WillBeSet,
+import { FriendClass, InitFuncs, Log, PopupMessage, Util, Vector2, WillBeSet,
 								}	from './Util/SharedClasses';
 import { WM, Window }				from './Util/WindowManager';
 import Translations, { DefaultTr }	from './Util/Translations';
@@ -9,7 +9,7 @@ import MonitorSaveValues			from './MonitorSaveValues';
 import MapCanvas					from './MapCanvas';
 import MapControl					from './MapControl';
 import DataStorage					from './DataStorage';
-import CustomItem					from './CustomItem';
+import { CreateCustomItem }			from './CustomItem';
 
 //Mimic C++ friend / C# internal
 abstract class DataStorage_Friend extends DataStorage implements FriendClass
@@ -211,13 +211,7 @@ function CreateContextMenu()
 		LastMapPos=Share.MCanvas.CanvasToMap(new Vector2(Ev.Pos.X, Ev.Pos.Y));
 	});
 	$('#AddCustomItem').on('click', async () =>
-		new (await import('./Windows/CustomItemWindow/CustomItemWindow')).default(
-			LastMapPos.X, LastMapPos.Y,
-			(MyLabel, Detached, X, Y, Title, MyDescription) => new CustomItem(
-				X ?? 0, Y ?? 0, Title ?? StatStr.Empty, MyDescription ?? StatStr.Empty, //None of these are needed for detached items
-				MyLabel, Detached
-			),
-		)
+		new (await import('./Windows/CustomItemWindow/CustomItemWindow')).default(LastMapPos.X, LastMapPos.Y, CreateCustomItem)
 	);
 }
 

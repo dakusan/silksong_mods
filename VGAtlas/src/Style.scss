@@ -132,7 +132,7 @@ body #MainMenu { display:block; }
 	.Alt { color:var(--line-item-alt, cyan); }
 }
 
-.ItemWindowDeleteButton { display:block; margin:0 0 3px auto; padding:3px; }
+.ItemWindowButtons { display:flex; margin-bottom:5px; justify-content:space-evenly; }
 
 .FontSize {
 	&.F1  { font-size:xx-small;	}

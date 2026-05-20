@@ -1,10 +1,11 @@
 import './CustomItemWindow.scss';
-import { Log, Rect, Util		} from '../../Util/SharedClasses';
+import { Iter, Log, Rect, Util	} from '../../Util/SharedClasses';
 import { TranslatePassthrough	} from '../../Util/Translations';
 import { Window					} from '../../Util/WindowManager';
 import { Share					} from '../../Share';
 import LinkedLabel				  from '../../LinkedLabel';
 import type CustomItem			  from '../../CustomItem';
+import type ItemWindow			  from '../ItemWindow/ItemWindow';
 import HTMLCode					  from './CustomItemWindow.html?minraw';
 
 const TranslationSection='CustomItems';
@@ -26,8 +27,9 @@ export default class CustomItemWindow extends Window
 	private readonly IconPreviewCanvas:HTMLCanvasElement;
 	private LastDrawnItem?:CustomItem;
 	constructor(
-		X:number, Y:number,
+		X:number, Y:number, //Ignored if EditItem is given
 		public readonly CreateCustomItem:(MyLabel:string, Detached:boolean, X?:number, Y?:number, Title?:string, MyDescription?:string) => CustomItem, //Callback avoids a runtime CustomItem import, so this lazy window chunk does not pull in CustomItem from the main graph
+		public readonly EditItem?:CustomItem, //If not given, window will be in create mode
 	) {
 		//Base HTML+translations setup
 		const CanvasPos=Share.MCanvas.CanvasPos;
@@ -39,12 +41,26 @@ export default class CustomItemWindow extends Window
 			TitleTranslator:new TranslatePassthrough("WindowTitle.Add", TranslationSection, "Create Custom Icon", Share.Tr),
 		});
 		this.$Content.append(HTMLCode);
-		Share.Tr.UpdateDOMSubElements(this.$Content[0]);
 
 		//Gather the dynamic elements
 		for(const [ElName, Selector] of Object.entries(ElLookups))
 			this.Els[ElName as keyof typeof ElLookups]=this.$Content.find(Selector);
 		this.IconPreviewCanvas=this.Els.IconPreview[0] as HTMLCanvasElement;
+
+		//Handle editing
+		if(EditItem) {
+			this.TitleTranslator=new TranslatePassthrough("WindowTitle.Edit", TranslationSection, "Edit Custom Icon", Share.Tr);
+			this.Title=this.TitleTranslator.GetTranslation();
+			//eslint-disable-next-line @typescript-eslint/naming-convention
+			Object.assign(this.Els.SubmitButton[0].dataset, {translationKey:"SubmitEdit", translationDefault:'Edit Icon'});
+
+			this.Els.Title		.val(EditItem.Title			);
+			this.Els.Description.val(EditItem.MyDescription	);
+			this.Els.Label		.val(EditItem.MyLabel		);
+			X=EditItem.x;
+			Y=EditItem.y;
+		}
+		Share.Tr.UpdateDOMSubElements(this.$Content[0]);
 
 		//Update coordinates (3 decimal places)
 		this.$Content.find('.XCoordLabel').text(Math.floor(X*1000)/1000);
@@ -72,13 +88,23 @@ export default class CustomItemWindow extends Window
 			if(!this.CheckIfFormIsValid())
 				return;
 
-			this.CreateCustomItem(
-				String(this.Els.Label.val()!), false, X, Y,
-				String(this.Els.Title.val()!),
-				String(this.Els.Description.val()!),
+			//Edit item must delete the previous item
+			const HasOpenItemWindow=EditItem && new Iter(Share.WM.AllWindows) //If the Item Window was open, the item will be reselected
+				.filter(W => W.Type==='Item' && (W as ItemWindow).LinkedItem===this.EditItem)
+				.take(1).toArray().length>0;
+			EditItem?.Delete(); //This will close this window
+
+			const NewItem=this.CreateCustomItem(
+				String(this.Els.Label		.val()!), false, X, Y,
+				String(this.Els.Title		.val()!),
+				String(this.Els.Description	.val()!),
 			);
 
-			this.Close()
+			//TODO: The selection state and window position are not guaranteed to be preserved. Need to fix that
+			if(HasOpenItemWindow)
+				Share.MC.SelectItem(NewItem);
+
+			this.Close();
 		});
 	}
 

@@ -5,6 +5,7 @@
 		"SilksongModsLink": "Silksong Mods",
 		"OneTimeMessage": "NO_VALUE", //This item is in all languages, including English, and will be updated in the future
 		"Button.Delete": "Delete",
+		"Button.Edit": "Edit",
 	},
 	"SettingNames":{ //Individual setting/config names
 		"Theme": "Theme", //The css theme of the interface
@@ -47,5 +48,6 @@
 		"Label": "Label", //The label of the custom icon
 		"Label.Info": "This will show on the icon itself",
 		"Coordinates": "Coordinates", //The X/Y coordinates of the custom icon
+		"SubmitEdit": "Edit Icon",
 	},
 }
