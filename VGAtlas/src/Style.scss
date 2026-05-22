@@ -1,5 +1,6 @@
 @use '../Assets/Themes/_Shared' as *;
 canvas { display:block; width:100%; height:100%; touch-action:none; overscroll-behavior:none; } //Stops pinch-zoom/pan from being handled by the page
+canvas.MovingItem { cursor:crosshair; }
 
 option { background:var(--tooltip-bg, rgba(64, 64, 64, 0.8)); color:var(--text-color, #eee); }
 button, input { color:inherit; font-family:inherit; }
@@ -132,7 +133,7 @@ body #MainMenu { display:block; }
 	.Alt { color:var(--line-item-alt, cyan); }
 }
 
-.ItemWindowButtons { display:flex; margin-bottom:5px; justify-content:space-evenly; }
+.ItemWindowButtons { display:flex; margin-bottom:5px; flex-wrap:wrap; justify-content:space-evenly; row-gap:3px; }
 
 .FontSize {
 	&.F1  { font-size:xx-small;	}

@@ -43,7 +43,7 @@ export class MouseButtonEvent
 
 export default class MapCanvas
 {
-	private Canvas:HTMLCanvasElement=WillBeSet;
+	private _Canvas:HTMLCanvasElement=WillBeSet; public get Canvas() { return this._Canvas; }
 	private Ctx:CanvasRenderingContext2D=WillBeSet;
 	private Image:ImageBitmap=null!;
 	private DRP=1;
@@ -126,7 +126,7 @@ export default class MapCanvas
 	{
 		//Initialize the canvas
 		$('#map').empty().append(
-			this.Canvas=document.createElement('canvas')
+			this._Canvas=document.createElement('canvas')
 		);
 		this.Ctx=Util.ThrowOnNull(this.Canvas.getContext('2d'), "2D context unavailable"); //Get the canvas context
 

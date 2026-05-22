@@ -1,8 +1,9 @@
 import $ from 'jquery';
-import { Rect, StatStr, Util, WillBeSet } from './Util/SharedClasses';
+import { Iter, PopupMessage, Rect, StatStr, Util, Vector2, WillBeSet } from './Util/SharedClasses';
 import { type AutoFitText, ExecuteAutoFit, CheckFits_Circle } from './Util/AlignText';
 import { Share } from './Share';
 import { Category, CategoryToggleState, Item } from './CategoriesAndItems';
+import { type MouseButtonEvent } from './MapCanvas';
 import { MapIcon } from './MapIcon';
 import { type default as ItemWindow, type ItemWindow_Item_Callbacks } from './Windows/ItemWindow/ItemWindow';
 import type CustomItemWindow from './Windows/CustomItemWindow/CustomItemWindow';
@@ -98,11 +99,13 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 	public WindowCB_ContentsUpdated(IW:ItemWindow): void
 	{
 		const $Buttons=$('<div class=ItemWindowButtons>').append(
-			$('<button class=\'WinButton TranslationEl\' data-translation-key="Button.Edit"		data-translation-default="Edit">'	).on('click', () => void(this.Edit	())),
-			$('<button class=\'WinButton TranslationEl\' data-translation-key="Button.Delete"	data-translation-default="Delete">'	).on('click', () =>		 this.Delete()),
+			$('<button class=\'WinButton TranslationEl ButtonMove\'>'																			).on('click', () =>	this.Move		(IW)),
+			$('<button class=\'WinButton TranslationEl ButtonEdit\'   data-translation-key="Button.Edit"	data-translation-default="Edit">'	).on('click', () => void(this.Edit	())),
+			$('<button class=\'WinButton TranslationEl ButtonDelete\' data-translation-key="Button.Delete"	data-translation-default="Delete">'	).on('click', () =>	this.Delete		()),
 		)
 			.prependTo(IW.$Content.children().eq(0));
 		Share.Tr.UpdateDOMSubElements($Buttons[0]);
+		UpdateMoveButton(IW, Share.MCanvas.Events.Click.Has('MoveCustomItem'+this.ID));
 	}
 
 	//If the window is not provided, it will attempt to find it
@@ -135,6 +138,60 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 		const CustomItemWindow=(await import('./Windows/CustomItemWindow/CustomItemWindow')).default;
 		new CustomItemWindow(0, 0, CreateCustomItem, this);
 	}
+
+	private Move(IW:ItemWindow)
+	{
+		const MCanvas=Share.MCanvas;
+		if(MCanvas.Canvas.classList.contains('MovingItem'))
+			if(MCanvas.Events.Click.Has('MoveCustomItem'+this.ID))
+				return this.MoveComplete(IW);
+			else
+				return new PopupMessage(Share.Tr.TDef("ErrCannotMoveTwice", 'CustomItems', "Cannot move this while another item is being moved"));
+
+		MCanvas.Canvas.classList.add('MovingItem');
+		UpdateMoveButton(IW, true);
+		MCanvas.Events.Click.Add('MoveCustomItem'+this.ID, Ev => this.MoveEvent(Ev));
+	}
+
+	private MoveEvent(Ev:MouseButtonEvent)
+	{
+		this.MoveComplete(
+			new Iter(Share.WM.AllWindows)
+				.filter(W => W.Type==='Item' && (W as ItemWindow).LinkedItem===this)
+				.take(1).toArray()[0] as ItemWindow|undefined
+		);
+		if(Ev.Button!==Ev.Buttons.Left && Ev.Button!==Ev.Buttons.Pointer) //Non-primary mouse buttons cancel the action
+			return;
+
+		//Update position
+		//TODO: This is an unsafe operation, as it directly accesses/updates readonly/private properties
+		const NewPos=Share.MCanvas.CanvasToMap(Ev.Pos);
+		(this.MapIcon as unknown as {IconGO:{Pos:Vector2}}).IconGO.Pos=NewPos;
+		Util.GetMutable(this).x=NewPos.X; Util.GetMutable(this).y=NewPos.Y;
+
+		//Update Canvas and select this item
+		Share.MCanvas.Refresh();
+		if(Share.MC.SelectedItem===this)
+			Share.MC.SelectItem(undefined);
+		Share.MC.SelectItem(this);
+	}
+
+	private MoveComplete(IW?:ItemWindow)
+	{
+		Share.MCanvas.Canvas.classList.remove('MovingItem');
+		Share.MCanvas.Events.Click.Remove('MoveCustomItem'+this.ID);
+		if(IW)
+			UpdateMoveButton(IW, false);
+	}
+}
+
+function UpdateMoveButton(IW:ItemWindow, IsMoving:boolean)
+{
+	const BMove=IW.$Content.find('.ButtonMove')[0];
+	BMove.dataset.translationSection='CustomItems';
+	BMove.dataset.translationKey	=IsMoving ? "Button.MoveCancel"	: "Button.Move";
+	BMove.dataset.translationDefault=IsMoving ? "Cancel Move"		: "Move";
+	Share.Tr.UpdateDOMElement(BMove);
 }
 
 export const CreateCustomItem=

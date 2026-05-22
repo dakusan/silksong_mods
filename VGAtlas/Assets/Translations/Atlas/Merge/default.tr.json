@@ -48,6 +48,9 @@
 		"Label": "Label", //The label of the custom icon
 		"Label.Info": "This will show on the icon itself",
 		"Coordinates": "Coordinates", //The X/Y coordinates of the custom icon
+		"Button.Move": "Move",
 		"SubmitEdit": "Edit Icon",
+		"Button.MoveCancel": "Cancel Move", //The “Move” icon button changes to this while move is activated
+		"ErrCannotMoveTwice": "Cannot move this while another item is being moved",
 	},
 }
