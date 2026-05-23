@@ -33,6 +33,10 @@
 		"ZoomLevel": "Zoom", //Label for the current map zoom amount
 		"CanvasCoord": "Canvas coordinate", //Label for the mouse position in canvas coordinates
 		"MapCoord": "Map coordinate", //Label for the mouse position in map coordinates
+		"MapBounds": "Bounds", //Label for the current map bounds (e.x. 0x0, 100x100)
+		"MapBox": "Center/Size", //Label for the current map size and center (e.x. 1x1, 100x100)
+		"SectionTitleMap": "Map", //Title of the section that holds map scale/bounds/size/center
+		"SectionTitleMouse": "Mouse", //Title of the section that holds mouse coordinates
 	},
 	"CustomItems":{
 		"MenuAddButton": "Add Custom Icon", //Popup menu item that opens the Create Custom Icon window

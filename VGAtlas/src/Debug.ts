@@ -11,15 +11,16 @@ export {}; //Make this a module
 	const AtlasInfo=(window as unknown as {Atlas:object}).Atlas={
 		...Share, ...AllShared,
 		Share:Share,
+		$:(await import('jquery')).default,
 		Modules:{
-			CategoriesAndItems	:await import('./CategoriesAndItems'),
+			CategoriesAndItems	: await import('./CategoriesAndItems'),
 			LinkedLabel			:(await import('./LinkedLabel')).default,
-			Config				:await import('./Config/Config'),
-			LoadJSON			:await import('./Util/JSON'),
-			Translations		:await import('./Util/Translations'),
-			MapIcon				:await import('./MapIcon'),
+			Config				: await import('./Config/Config'),
+			LoadJSON			: await import('./Util/JSON'),
+			Translations		: await import('./Util/Translations'),
+			MapIcon				: await import('./MapIcon'),
 			CustomItem			:(await import('./CustomItem')).default,
-			WindowManager		:await import('./Util/WindowManager'),
+			WindowManager		: await import('./Util/WindowManager'),
 			CategoryGroupsWindow:(await import('./Windows/CategoryGroupsWindow/CategoryGroupsWindow')).default,
 		},
 		async ExportDefaultData(TrailingCommas=true, Compact=false, MatchModOutput=false, UseTestHTMLExport=false): Promise<string>

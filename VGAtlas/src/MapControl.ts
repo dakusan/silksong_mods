@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { Iter, KeyState, Log, Rect, StatStr, Util, Vector2 } from './Util/SharedClasses';
+import { InitFuncs, Iter, KeyState, Log, Rect, StatStr, Util, Vector2 } from './Util/SharedClasses';
 import { Share } from './Share';
 import { type Item } from './CategoriesAndItems';
 import { type MouseButtonEvent } from './MapCanvas';
@@ -47,7 +47,7 @@ export default class MapControl
 		});
 		this.SetIconSize(Share.LC.IconSize.V);
 
-		this.InitURLHashes();
+		InitFuncs.push(() => this.InitURLHashes()); //Move to the end of the init chain so that hash commands from page load can be run last
 	}
 
 	//Handle the state change for choosing icons

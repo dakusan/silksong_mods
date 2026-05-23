@@ -478,6 +478,7 @@ class Mover
 	) {
 		this.Duration*=1000;
 		Share.MCanvas.Events.Draw.Add('MoveToPointAction'+this.MyUniqueID, this.OnFrame.bind(this));
+		Share.MCanvas.Refresh();
 
 		//If also zooming, then we need to use map coordinates
 		if(this.ZoomTo!==undefined) {

@@ -1,13 +1,13 @@
 import './DebugWindow.scss';
 import $						  from 'jquery';
-import { Rect, Vector2			} from '../../Util/SharedClasses';
+import {Rect, StatStr, Vector2} from '../../Util/SharedClasses';
 import GetExtraAssets			  from '../../Util/GetExtraAssets';
 import { TranslatePassthrough	} from '../../Util/Translations';
 import { Window					} from '../../Util/WindowManager';
 import { Share					} from '../../Share';
 import HTMLCode					  from './DebugWindow.html?minraw';
 
-const ValuesRows=['ZoomLevel', 'CanvasCoord', 'MapCoord', 'CurrentMapSection'] as const;
+const ValuesRows=['ZoomLevel', 'MapBounds', 'MapBox', 'CanvasCoord', 'MapCoord', 'CurrentMapSection'] as const;
 
 const FillTransparency=(112).toString(16);
 const NoWidthSectionColor='#333333'; //Generally always overlayed over other colors
@@ -41,7 +41,7 @@ export default class DebugWindow extends Window
 	{
 		//Base HTML+translations setup
 		super({
-			SaveID:'Debug', Type:'Debug', Width:400, Height:250,
+			SaveID:'Debug', Type:'Debug', Width:460, Height:295,
 			TitleTranslator:new TranslatePassthrough('Title', 'DebugWindow', "Debug", Share.Tr),
 		});
 		this.$Content.append(HTMLCode)[0].dataset.translationSection='DebugWindow';
@@ -60,6 +60,7 @@ export default class DebugWindow extends Window
 		Share.MCanvas.Events.MouseMove	.Add('Debug.DisplayMouseMapSections'		,		this.DisplayMouseMapSections.bind(this));
 		Share.MCanvas.Events.MouseLeave	.Add('Debug.DisplayMouseMapSections_Leave'	,		this.DisplayMouseMapSections.bind(this));
 		Share.MCanvas.Events.Draw		.Add('Debug.DisplayMouseMapSections_Draw'	, () =>	this.DisplayMouseMapSections(this.LastMousePos));
+		setTimeout(() => this.DisplayMouseMapSections(), 0);
 
 		//Initialize value rows
 		this.ValueLabels=Object.fromEntries(ValuesRows.map(ID => [ID, $('#'+ID)])) as typeof this.ValueLabels;
@@ -88,12 +89,27 @@ export default class DebugWindow extends Window
 
 	private DisplayMouseMapSections(Pos?:Vector2)
 	{
-		function P(Num:number, LeadDigits=3, FixedDigits=6) { return Num.toFixed(FixedDigits).padStart(LeadDigits+FixedDigits+1, ' '); }
+		function P(Num:number, LeadDigits=4, FixedDigits=3) { return Num.toFixed(FixedDigits).padStart(LeadDigits+FixedDigits+1, ' '); }
 		this.LastMousePos=Pos;
 		const MapPos=Pos ? Share.MCanvas.CanvasToMap(Pos) : undefined;
-		this.ValueLabels.CanvasCoord		.text(!Pos		? '' : `${P(Pos.X, 4, 0)} × ${P(Pos.Y, 4, 0)}`);
-		this.ValueLabels.MapCoord			.text(!MapPos	? '' : `${P(MapPos.X)} × ${P(MapPos.Y)}`);
+		const ULBound=Share.MCanvas.CanvasToMap(new Vector2(0, 0));
+		const LRBound=Share.MCanvas.CanvasToMap(new Vector2(Share.MCanvas.Width, Share.MCanvas.Height));
+		const MapSize=new Vector2(LRBound.X-ULBound.X, LRBound.Y-ULBound.Y);
+		this.ValueLabels.CanvasCoord		.text(!Pos		? '' : `${P(Pos   .X, 4, 0)} × ${P(Pos   .Y, 4, 0)}`);
+		this.ValueLabels.MapCoord			.text(!MapPos	? '' : `${P(MapPos.X, 4, 6)} × ${P(MapPos.Y, 4, 6)}`);
 		this.ValueLabels.ZoomLevel			.text(P(Share.MC.ZoomScale, 2, 5));
+		this.ValueLabels.MapBounds			.text([
+			P(ULBound.X),				'×' ,
+			P(ULBound.Y),				', ',
+			P(LRBound.X),				'×' ,
+			P(LRBound.Y)
+		].join(StatStr.Empty));
+		this.ValueLabels.MapBox				.text([
+			P(ULBound.X+MapSize.X/2),	'×' ,
+			P(ULBound.Y+MapSize.Y/2),	', ',
+			P(MapSize.X),				'×' ,
+			P(MapSize.Y)
+		].join(StatStr.Empty));
 		this.ValueLabels.CurrentMapSection	.empty().append(
 			[...this.GetMouseMapSections(MapPos)].flatMap(
 				El => [El, document.createTextNode(', ')] //Comma separators

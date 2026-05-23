@@ -15,6 +15,7 @@ export class Vector2 implements Equatable<Vector2>
 	public static Distance(a:Vector2, b:Vector2) { return Math.hypot(a.X-b.X, a.Y-b.Y); }
 	public Add(Vec:Vector2) { return new Vector2(this.X+Vec.X, this.Y+Vec.Y); }
 	public Sub(Vec:Vector2) { return new Vector2(this.X-Vec.X, this.Y-Vec.Y); }
+	public toString() { return `(${this.X}, ${this.Y})`; }
 }
 
 export class Rect implements Equatable<Rect>
@@ -33,6 +34,7 @@ export class Rect implements Equatable<Rect>
 			&& b.Y<a.Y+a.Height
 		);
 	}
+	public toString() { return `(${this.X}, ${this.Y}, ${this.Width}, ${this.Height})`; }
 }
 
 export class ColorRGBA implements ConfigSerializer<ColorRGBA>, Equatable<ColorRGBA>
