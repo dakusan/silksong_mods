@@ -52,5 +52,6 @@
 		"SubmitEdit": "Edit Icon",
 		"Button.MoveCancel": "Cancel Move", //The “Move” icon button changes to this while move is activated
 		"ErrCannotMoveTwice": "Cannot move this while another item is being moved",
+		"CustomItemsLoadFailed": "Some custom items failed to load. See log window for details.", //When loading custom items from storage, this is displayed in a popup if any items failed to load
 	},
 }

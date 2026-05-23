@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { Iter, PopupMessage, Rect, StatStr, Util, Vector2, WillBeSet } from './Util/SharedClasses';
+import { InitFuncs, Iter, Log, PopupMessage, Rect, StatStr, Util, Vector2, WillBeSet } from './Util/SharedClasses';
 import { type AutoFitText, ExecuteAutoFit, CheckFits_Circle } from './Util/AlignText';
 import { Share } from './Share';
 import { Category, CategoryToggleState, Item } from './CategoriesAndItems';
@@ -54,8 +54,15 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 		public readonly MyLabel:string, //Displays on the icon
 		public readonly Detached=false,
 		public readonly FontFamily='sans-serif',
+		ManualID?:number, //This will be set automatically if not provided
 	) {
-		super(CustomItem.GetID);
+		if(ManualID!==undefined)
+			if(!Item.IDInRange(ManualID=Number(ManualID)))
+				throw new Error("CustomItem ID is not in ItemID range: "+ManualID);
+			else if(Share.DS.Items.has(ManualID))
+				throw new Error("CustomItem ID is already in use: "+ManualID);
+
+		super(ManualID ?? CustomItem.GetID);
 		if(!CustomItem.MyCategory)
 			CustomItem.StaticInit();
 
@@ -75,6 +82,7 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 		Share.DS.Items.set(this.ID, this);
 		Me.MapIcon=new MapIcon(this, this.MySprite, this.DrawSymbol.bind(this));
 		Share.MC.SetIconSize(Share.LC.IconSize.V, this);
+		SaveCustomItems();
 	}
 	public override toString() { return this.MyDescription; }
 
@@ -125,6 +133,7 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 		Share.MCanvas.Refresh();
 		if(Share.MC.SelectedItem===this) //Note: No need to unselect if it’s also the hover icon
 			Share.MC.SelectItem(undefined);
+		SaveCustomItems();
 	}
 
 	private async Edit()
@@ -168,6 +177,7 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 		const NewPos=Share.MCanvas.CanvasToMap(Ev.Pos);
 		(this.MapIcon as unknown as {IconGO:{Pos:Vector2}}).IconGO.Pos=NewPos;
 		Util.GetMutable(this).x=NewPos.X; Util.GetMutable(this).y=NewPos.Y;
+		SaveCustomItems();
 
 		//Update Canvas and select this item
 		Share.MCanvas.Refresh();
@@ -193,6 +203,40 @@ function UpdateMoveButton(IW:ItemWindow, IsMoving:boolean)
 	BMove.dataset.translationDefault=IsMoving ? "Cancel Move"		: "Move";
 	Share.Tr.UpdateDOMElement(BMove);
 }
+
+function SaveCustomItems()
+{
+	localStorage.setItem('CustomItems', JSON.stringify([...
+		new Iter(Share.DS.Items.values() as Iterable<CustomItem>)
+			.filter(Item => Item instanceof CustomItem)
+			.map(Item => ({ID:Item.ID, X:Item.x, Y:Item.y, Title:Item.Title, Label:Item.MyLabel, Description:Item.MyDescription}))
+	]));
+}
+
+function LoadCustomItems()
+{
+	let Items:{ID:number, X:number, Y:number, Title:string, Label:string, Description:string}[];
+	try {
+		Items=JSON.parse(localStorage.getItem('CustomItems') ?? '[]');
+	} catch(e) {
+		const Err="Failed to load custom items: "+Util.GetErrorMessage(e);
+		new PopupMessage(Err);
+		Log.Error(Err);
+		return;
+	}
+
+	let HasErrors=false;
+	for(const Item of Items)
+		try {
+			new CustomItem(Item.X, Item.Y, Item.Title, Item.Description, Item.Label, false, undefined, Item.ID);
+		} catch(e) {
+			HasErrors=true;
+			Log.Error(StatStr.NeedsTranslate+`Failed to load custom item ${Item.ID}: `+Util.GetErrorMessage(e));
+		}
+	if(HasErrors)
+		new PopupMessage(Share.Tr.TDef("CustomItemsLoadFailed", 'CustomItems', "Some custom items failed to load. See log window for details."));
+}
+InitFuncs.push(LoadCustomItems);
 
 export const CreateCustomItem=
 	(MyLabel:string, Detached:boolean, X?:number, Y?:number, Title?:string, MyDescription?:string) => new CustomItem(
