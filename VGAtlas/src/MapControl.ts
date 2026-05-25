@@ -1,6 +1,7 @@
 import $ from 'jquery';
-import { InitFuncs, Iter, KeyState, Log, Rect, StatStr, Util, Vector2 } from './Util/SharedClasses';
+import { InitFuncs, Iter, KeyState, Log, PopupMessage, Rect, StatStr, Util, Vector2 } from './Util/SharedClasses';
 import { Share } from './Share';
+import { ProcessActions } from './Actions';
 import { type Item } from './CategoriesAndItems';
 import { type MouseButtonEvent } from './MapCanvas';
 import ItemWindow from './Windows/ItemWindow/ItemWindow';
@@ -103,6 +104,8 @@ export default class MapControl
 				if(Number.isFinite(Value))
 					Options[Name]=Value;
 			}
+			if(!ProcessActions(Values.entries()))
+				new PopupMessage("Errors in hash commands. See log for details.");
 		}
 
 		//Select the new item
