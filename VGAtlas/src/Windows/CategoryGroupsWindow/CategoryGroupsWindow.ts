@@ -22,7 +22,7 @@ if(import.meta.env.DEV)
 export default class CategoryGroupsWindow extends Window
 {
 	private static _Self:CategoryGroupsWindow=WillBeSet;
-	public static get Self() { return this._Self ??= new CategoryGroupsWindow(); }
+	public static get Self(): CategoryGroupsWindow { return this._Self ??= new CategoryGroupsWindow(); }
 
 	public readonly $CatTable=$('<div class=CategoryGroups>');
 	public readonly Rows:ReadonlyMap<number, CategoryRow>=new Map();
@@ -35,7 +35,7 @@ export default class CategoryGroupsWindow extends Window
 		});
 		this.$Content.attr('id', 'CategoryGroupsWindow');
 
-		function CreateSBTransButton(TranslationKey:string, ClickFunc:() => void)
+		function CreateSBTransButton(TranslationKey:string, ClickFunc:() => void): JQuery<HTMLButtonElement>
 		{
 			const El=$(document.createElement('button')).on('click', ClickFunc);
 			Share.Tr.CreateTranslationElement(El[0], TranslationKey, 'SideBarButtons');
@@ -55,7 +55,7 @@ export default class CategoryGroupsWindow extends Window
 
 		Share.Tr.UpdateDOMSubElements(this.$Content[0]);
 	}
-	private InitGroup(CG:CategoryGroup)
+	private InitGroup(CG:CategoryGroup): void
 	{
 		//Category section label
 		const $CatGroup=$('<div class=Group>').appendTo(this.$CatTable);
@@ -69,7 +69,7 @@ export default class CategoryGroupsWindow extends Window
 			);
 	}
 
-	public override OnClosing()
+	public override OnClosing(): false
 	{
 		for(const Row of this.Rows.values())
 			(Row as CategoryRow_Friend).Unload();
@@ -77,7 +77,7 @@ export default class CategoryGroupsWindow extends Window
 		return false;
 	}
 
-	private UpdateShowLinked()
+	private UpdateShowLinked(): void
 	{
 		const Btn=$('#ShowUnlinkedButton');
 		const TurnOn=Btn.attr('state')==='off';
@@ -96,7 +96,7 @@ class CategoryRow
 	public readonly $Icon	:JQuery=$(document.createElement('span')).addClass('ItemIcon'			);
 	public readonly $Name	:JQuery=$(document.createElement('span')).addClass('Name TranslationEl'	).attr('data-translation-section', 'Categories');
 
-	protected static Init($ParentEl:JQuery, CategoryInfo:Category) { return new CategoryRow($ParentEl, CategoryInfo); }
+	protected static Init($ParentEl:JQuery, CategoryInfo:Category): CategoryRow { return new CategoryRow($ParentEl, CategoryInfo); }
 	protected constructor(
 		$ParentEl:JQuery,
 		public readonly CategoryInfo:Category
@@ -113,14 +113,14 @@ class CategoryRow
 		CategoryInfo.CallOnUpdate.Add('CatGroupsWindow', () => this.UpdateInfo());
 		this.UpdateInfo();
 	}
-	private CategoryClicked()
+	private CategoryClicked(): void
 	{
 		Share.DS.SetCategoryState(
 			this.CategoryInfo,
 			(Share.DS.constructor as typeof DataStorage).GetNextToggleState(this.CategoryInfo.ToggleState)
 		);
 	}
-	private UpdateInfo()
+	private UpdateInfo(): void
 	{
 		this.$Cat.parent()
 			.toggleClass('Completed'		, this.CategoryInfo.CurrentCount>=this.CategoryInfo.TotalCount	);
@@ -130,13 +130,13 @@ class CategoryRow
 			.toggleClass('StateNone'		, this.CategoryInfo.ToggleState===CategoryToggleState.None		);
 		this.$Counts.text(StatStr.NeedsTranslate+`${this.CategoryInfo.CurrentCount}/${this.CategoryInfo.TotalCount}`);
 	}
-	protected Unload() { this.CategoryInfo.CallOnUpdate.Remove('CatGroupsWindow'); }
+	protected Unload(): void { this.CategoryInfo.CallOnUpdate.Remove('CatGroupsWindow'); }
 }
 
 abstract class CategoryRow_Friend extends CategoryRow implements FriendClass
 {
-	public static override Init($ParentEl:JQuery, CategoryInfo:Category) { return super.Init($ParentEl, CategoryInfo); }
-	public override Unload() { this.Stub(); }
+	public static override Init($ParentEl:JQuery, CategoryInfo:Category): CategoryRow { return super.Init($ParentEl, CategoryInfo); }
+	public override Unload(): void { this.Stub(); }
 	//Ignore these
 	protected constructor(_$ParentEl:JQuery, _CategoryInfo:Category) { super(null!, null!); this.Stub(); }
 	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }

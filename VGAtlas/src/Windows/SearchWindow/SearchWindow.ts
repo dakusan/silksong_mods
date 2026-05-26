@@ -17,8 +17,8 @@ export default class SearchWindow extends Window
 	public MaxSearchResults=50;
 
 	//Search text and results
-	private _SearchText="";						public get SearchText	()							{ return this._SearchText	; }
-	private _HadOverflow=false;					public get HadOverflow	()							{ return this._HadOverflow	; }
+	private _SearchText="";						public get SearchText	(): string					{ return this._SearchText	; }
+	private _HadOverflow=false;					public get HadOverflow	(): boolean					{ return this._HadOverflow	; }
 	private _SearchedItems:SearchedItem[]=[];	public get SearchedItems(): readonly SearchedItem[] { return this._SearchedItems; }
 
 	protected $Container=$('<div class=SearchContainer>').appendTo(this.$Content);
@@ -46,7 +46,7 @@ export default class SearchWindow extends Window
 
 	//Split the search text into terms and find any item that has all search terms
 	private FoldedStrings=new Map<Item, FoldedStrings<Record<SearchFields, string>>>();
-	public RunSearch()
+	public RunSearch(): void
 	{
 		//Search item string transformer
 		const YieldedMatchedIds=new Set<number>(), MatchingIDs=new Set<number>();
@@ -120,7 +120,7 @@ export default class SearchWindow extends Window
 		});
 	}
 
-	public RefreshSearch()
+	public RefreshSearch(): void
 	{
 		this.$SearchResults.children().remove();
 		this.$SearchResults.removeClass('DoClip');
@@ -146,7 +146,7 @@ export default class SearchWindow extends Window
 		this.$NumResults.text(!this._SearchText ? StatStr.Empty : this.SearchedItems.length+(this.HadOverflow ? '+' : StatStr.Empty));
 	}
 
-	public override LanguageChanged()
+	public override LanguageChanged(): void
 	{
 		Share.Tr.OnLanguageLoadedOnce(() => {
 			this.FoldedStrings.clear();
@@ -155,7 +155,7 @@ export default class SearchWindow extends Window
 		});
 	}
 
-	public override Refresh()
+	public override Refresh(): void
 	{
 		this.FoldedStrings.clear();
 		this.RunSearch();

@@ -10,9 +10,9 @@ import ItemWindow from './Windows/ItemWindow/ItemWindow';
 export default class MapControl
 {
 	//Public members
-	public get GameMap() { return Share.MCanvas; }
-	private _HoverItem		?:Item=undefined; public get HoverItem	 () { return this._HoverItem	; } private set HoverItem	(Val) { this._HoverItem		=Val; }
-	private _SelectedItem	?:Item=null!;	  public get SelectedItem() { return this._SelectedItem	; } private set SelectedItem(Val) { this._SelectedItem	=Val; }
+	public get GameMap(): typeof Share.MCanvas { return Share.MCanvas; }
+	private _HoverItem		?:Item=undefined; public get HoverItem	 (): Item|undefined { return this._HoverItem	; } private set HoverItem	(Val) { this._HoverItem		=Val; }
+	private _SelectedItem	?:Item=null!;	  public get SelectedItem(): Item|undefined { return this._SelectedItem	; } private set SelectedItem(Val) { this._SelectedItem	=Val; }
 	private CurrentItemWindow?:ItemWindow;
 
 	//Private members
@@ -55,7 +55,7 @@ export default class MapControl
 	private CurrentHistoryIndex=0;
 	private MaxHistoryIndex=0;
 	private IgnoreNextHashUpdate=false;
-	private InitURLHashes()
+	private InitURLHashes(): void
 	{
 		history.replaceState({Index:0}, StatStr.Empty, location.pathname+location.search+location.hash);
 		this.HashUpdate(true);
@@ -75,7 +75,7 @@ export default class MapControl
 		Share.LC.Shortcut_SelStack_Prev.OnKeypress.Add('Shortcut_SelStack_Prev', () => ExecStackMove(this.CurrentHistoryIndex>0,					() => history.back()	));
 		Share.LC.Shortcut_SelStack_Next.OnKeypress.Add('Shortcut_SelStack_Next', () => ExecStackMove(this.CurrentHistoryIndex<this.MaxHistoryIndex,	() => history.forward()	));
 	}
-	private HashUpdate(IsInitial:boolean)
+	private HashUpdate(IsInitial:boolean): void
 	{
 		if(this.IgnoreNextHashUpdate)
 			return void(this.IgnoreNextHashUpdate=false);
@@ -128,7 +128,7 @@ export default class MapControl
 			);
 		this.RemoveHistoryEvent();
 	}
-	private SelectNewItemFromHash(IsInitial:boolean, NewItemID:string, HasCommands:boolean, ZoomScale?:number, Duration?:number)
+	private SelectNewItemFromHash(IsInitial:boolean, NewItemID:string, HasCommands:boolean, ZoomScale?:number, Duration?:number): void
 	{
 		const PreviousSelectedItemID=this.SelectedItem?.ID;
 		if(IsInitial) {
@@ -150,7 +150,7 @@ export default class MapControl
 		else
 			ReplaceCurrentHistoryHash('#'+ItemID);
 	}
-	private RemoveHistoryEvent()
+	private RemoveHistoryEvent(): void
 	{
 		ReplaceCurrentHistoryHash('#REMOVED');
 		this.MaxHistoryIndex=this.CurrentHistoryIndex;
@@ -185,7 +185,7 @@ export default class MapControl
 	}
 
 	//Set the hovered item
-	private SetHoverItem(ClosestItem?:Item)
+	private SetHoverItem(ClosestItem?:Item): void
 	{
 		if(ClosestItem===this.HoverItem || Util.IsMobile())
 			return;
@@ -210,7 +210,7 @@ export default class MapControl
 		['ArrowUp',		[ 0, 1]],
 		['ArrowDown',	[ 0,-1]]
 	]);
-	public OnFrame()
+	public OnFrame(): void
 	{
 		if(Share.WM.ControlsKeyboard || Util.IsMobile())
 			return;
@@ -231,7 +231,7 @@ export default class MapControl
 				}
 	}
 
-	private UserZoom(Pos:Util.Mutable<Vector2>, ScaleObj:{Scale:number})
+	private UserZoom(Pos:Util.Mutable<Vector2>, ScaleObj:{Scale:number}): void
 	{
 		if(this.HoverItem && this.IconSizeScalesWithZoom) {
 			const NewPos=this.GameMap.MapToCanvas(this.HoverItem.Pos);
@@ -240,17 +240,17 @@ export default class MapControl
 		ScaleObj.Scale=this.GetUpdatedZoomScale(ScaleObj.Scale<1 ? -2 : 2);
 	}
 
-	private GetUpdatedZoomScale(Amount:number)
+	private GetUpdatedZoomScale(Amount:number): number
 	{
 		const ZoomChange=Math.pow(Share.LC.ZoomSpeed.V, Math.abs(Amount));
 		return Amount<0 ? 1/ZoomChange : ZoomChange;
 	}
 
 	//Zoom in or out
-	public Zoom(Amount:number) { this.ZoomTowardsPoint(Amount, new Vector2(this.GameMap.Width/2, this.GameMap.Height/2)); }
+	public Zoom(Amount:number): void { this.ZoomTowardsPoint(Amount, new Vector2(this.GameMap.Width/2, this.GameMap.Height/2)); }
 
 	//Zoom towards a given point
-	public ZoomTowardsPoint(Amount:number, ZoomAroundPoint:Vector2, UseHoveredItem:boolean=false)
+	public ZoomTowardsPoint(Amount:number, ZoomAroundPoint:Vector2, UseHoveredItem:boolean=false): void
 	{
 		//Set the hover item as the center if toggled
 		if(UseHoveredItem && this.IconSizeScalesWithZoom && this.HoverItem)
@@ -259,7 +259,7 @@ export default class MapControl
 	}
 
 	//Set the size of icon(s) - If IconToScale is not given, all icons are updated
-	public SetIconSize(IconSize:number, IconToSize?:Item)
+	public SetIconSize(IconSize:number, IconToSize?:Item): void
 	{
 		const MatchUnityScale=2/3;
 		const NewIconScaleSize=(!this.IconSizeScalesWithZoom ? IconSize*this.ZoomScale : IconSize)*MatchUnityScale;
@@ -268,8 +268,8 @@ export default class MapControl
 	}
 
 	//Selects a new item
-	public SelectItem(NewSelectItem:Item|undefined) { this.SelectItemI(NewSelectItem); }
-	private SelectItemI(NewSelectItem:Item|undefined, IsStackMove:boolean=false)
+	public  SelectItem (NewSelectItem:Item|undefined): void { this.SelectItemI(NewSelectItem); }
+	private SelectItemI(NewSelectItem:Item|undefined, IsStackMove:boolean=false): void
 	{
 		//If the same item, nothing to do
 		if(this.SelectedItem===NewSelectItem)
@@ -311,8 +311,8 @@ export default class MapControl
 	}
 
 	//Center over and select an item by its ID
-	public   SelectAndCenterItem(ItemID:number) { return this.SelectAndCenterItemI(ItemID); }
-	protected SelectAndCenterItemI(ItemID:number, IsStackMove:boolean=false, NewScale?:number, Duration?:number)
+	public    SelectAndCenterItem (ItemID:number): void { return this.SelectAndCenterItemI(ItemID); }
+	protected SelectAndCenterItemI(ItemID:number, IsStackMove:boolean=false, NewScale?:number, Duration?:number): void
 	{
 		const I=Util.ThrowOnNull(Share.DS.Items.get(ItemID), "Invalid ItemID");
 		this.GameMap.CenterOnPoint(this.GameMap.MapToCanvas(I.Pos), Duration, NewScale);
@@ -320,13 +320,13 @@ export default class MapControl
 		Util.SetNullable(I.MapIcon, 'ForceVisibility', true); //Force the icon to be visible
 	}
 
-	private OnMove()
+	private OnMove(): void
 	{
 		this.CurrentItemWindow?.UpdateAttachedPosition();
 	}
 
 	//Handle mouse events
-	protected OnMouseMove(Pos:Vector2)
+	protected OnMouseMove(Pos:Vector2): void
 	{
 		if(Util.IsMobile())
 			return;
@@ -337,7 +337,7 @@ export default class MapControl
 			top :(RealPos.Y+4)+'px',
 		});
 	}
-	protected OnClick(Ev:MouseButtonEvent)
+	protected OnClick(Ev:MouseButtonEvent): void
 	{
 		if(Ev.Button!==Ev.Buttons.Left && Ev.Button!==Ev.Buttons.Pointer)
 			return;
@@ -346,7 +346,7 @@ export default class MapControl
 			this.SetHoverItem(ClosestItem);
 		this.SelectItemI(ClosestItem);
 	}
-	protected OnMouseDown(Ev:MouseButtonEvent)
+	protected OnMouseDown(Ev:MouseButtonEvent): void
 	{
 		if(Ev.Button===Ev.Buttons.Left || Ev.Button===Ev.Buttons.Pointer)
 			Share.WM.SetFocus(null);

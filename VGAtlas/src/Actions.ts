@@ -12,7 +12,7 @@ const Actions:Record<string, (Value:string) => string|null>={
 	X:NullFunc, Y:NullFunc, Duration:NullFunc, ZoomScale:NullFunc,
 } as const;
 
-export function ProcessActions(Values:ArrayIterator<[string, string]>)
+export function ProcessActions(Values:ArrayIterator<[string, string]>): boolean
 {
 	let HasErrors=false;
 	let Err:string|null|undefined;
@@ -30,7 +30,7 @@ export function ProcessActions(Values:ArrayIterator<[string, string]>)
 }
 
 type CIType={X:number, Y:number, Label:string, Title:string, Description:string, ID?:number};
-export function AddCI(Value:string|CIType)
+export function AddCI(Value:string|CIType): string|null
 {
 	class PartError extends Error { }
 	let AddParts:CIType;
@@ -59,8 +59,8 @@ export function AddCI(Value:string|CIType)
 	return null;
 }
 
-export function DelCI(Value:string)	{ return DelCIReal(I => (I.ID===Util.GetInt(Value)) || I.MyLabel===Value); }
-export function ClearCI()			{ return DelCIReal(() => true); }
+export function DelCI(Value:string)	: number { return DelCIReal(I => (I.ID===Util.GetInt(Value)) || I.MyLabel===Value); }
+export function ClearCI()			: number { return DelCIReal(() => true); }
 function DelCIReal(CheckFunc:(I:CustomItem) => boolean): number
 {
 	let Count=0;

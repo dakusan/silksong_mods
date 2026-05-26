@@ -11,5 +11,5 @@ export default class ConfigItem_Boolean extends ConfigItem<boolean>
 			this.SetVal(this.$Checkbox.prop('checked'), true)
 		);
 	}
-	protected override ValueSet() { this.$Checkbox.prop('checked', this.V); }
+	protected override ValueSet(): void { this.$Checkbox.prop('checked', this.V); }
 }

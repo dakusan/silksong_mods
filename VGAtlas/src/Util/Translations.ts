@@ -17,7 +17,7 @@ type Callback<Args extends unknown[]=unknown[]> = (...args: Args) => void;
 class LanguagesChangedCallbackList extends CallbackList<[string]>
 {
 	constructor(private readonly Tr:Translations) { super('LanguageChanged') }
-	public override Add(Name:string, CB:Callback<[string]>, InsertBefore?:string)
+	public override Add(Name:string, CB:Callback<[string]>, InsertBefore?:string): void
 	{
 		super.Add(Name, CB, InsertBefore);
 		if(this.Tr.Language)
@@ -41,7 +41,7 @@ export default class Translations
 	public static readonly DefaultLangName			="English";
 
 	//Since a lot of the functions run on the static class, give easy access to it
-	public get ctor() { return Translations; }
+	public get ctor(): typeof Translations { return Translations; }
 
 	//Store modules so their language can be synced
 	private static Modules=new Map<string, Translations>;
@@ -61,11 +61,11 @@ export default class Translations
 		Translations.Modules.set(this.ModuleName, this);
 		this.LanguageListLoaded=this.LanguageListLoad();
 	}
-	public static StandardCreate(ModuleName:string) //Path="Assets/Translations/$ModuleName/"
+	public static StandardCreate(ModuleName:string): Translations //Path="Assets/Translations/$ModuleName/"
 	{
 		return new Translations(ModuleName, `Assets/Translations/${ModuleName}`);
 	}
-	private async LanguageListLoad()
+	private async LanguageListLoad(): Promise<void>
 	{
 		let LList:Record<string, string[]>={[this.ctor.DefaultLang]:[this.ctor.DefaultLangName, this.ctor.DefaultLangName, this.ctor.LanguageAsStr, this.ctor.PickLanguageAsStr]}; //LList={ISO:[Eng, Native, LanguageAsString, PickLanguageAsString], ...}
 		try {
@@ -92,7 +92,7 @@ export default class Translations
 		if(Value && this._Language!==Value)
 			this.LanguageLoaded=this.LoadLanguage(this._Language=Value).then();
 	}
-	private async LoadLanguage(ISO:string)
+	private async LoadLanguage(ISO:string): Promise<void>
 	{
 		//Sync the languages of other translations
 		for(const M of this.ctor.Modules.values())
@@ -123,7 +123,7 @@ export default class Translations
 	//Sending events when language has changed
 	public OnLanguageChanged=new LanguagesChangedCallbackList(this); //Called when changed language load completes
 	public LanguageLoaded?:Promise<void>; //Undefined if language load has complete, otherwise returns the promise for the language loading routine
-	public OnLanguageLoadedOnce(CB:(NewLang:string) => void)
+	public OnLanguageLoadedOnce(CB:(NewLang:string) => void): void
 	{
 		if(this.LanguageLoaded===undefined)
 			CB(this.Language!);
@@ -152,18 +152,18 @@ export default class Translations
 			: Text;
 		return Ret!==null && SafeRich ? DevStrings.SafeRich(Ret) : Ret!;
 	}
-	public AddFormatParameters(Key:string, Section?:string, ...List:Util.Primitive[])
+	public AddFormatParameters(Key:string, Section?:string, ...List:Util.Primitive[]): void
 	{
 		this.FormatParameters[Section===undefined || Section===Translations.ROOT ? Key : `${Section}/${Key}`]=List;
 	}
 
-	public TranslatePassthrough(PT:TranslatePassthrough)
+	public TranslatePassthrough(PT:TranslatePassthrough): string
 	{
 		return (PT.Tr ?? this).TranslateDef(PT.Key, PT.Section, PT.Default ?? PT.Key, PT.SafeRich, ...PT.FormatList);
 	}
 
 	//Translates a TranslatePassthrough.AsError(), or otherwise uses Util.GetErrorMessage
-	public TranslatePassthroughError(Err:Error|unknown)
+	public TranslatePassthroughError(Err:Error|unknown): string
 	{
 		const PT=(Err as Error)?.cause;
 		return PT instanceof TranslatePassthrough ? this.TranslatePassthrough(PT) : Util.GetErrorMessage(Err);
@@ -186,13 +186,13 @@ export default class Translations
 
 	//Update translation DOM elements via their dataset attributes
 	public static DefaultDOMModule=DefaultModuleName;
-	public UpdateDOMSubElements(RootSearchDOMElement:HTMLElement=document.body)
+	public UpdateDOMSubElements(RootSearchDOMElement:HTMLElement=document.body): void
 	{
 		for(const El of RootSearchDOMElement.getElementsByClassName('TranslationEl'))
 			if(El instanceof HTMLElement && (El.dataset.translationModule ?? this.ctor.DefaultDOMModule)===this.ModuleName)
 				this.UpdateDOMElement(El);
 	}
-	public UpdateDOMElement(El:HTMLElement)
+	public UpdateDOMElement(El:HTMLElement): boolean
 	{
 		//Get the section
 		if(El.dataset.translationSection===undefined) {
@@ -216,7 +216,7 @@ export default class Translations
 				El[El.dataset.translationHtml ? 'innerHTML' : 'innerText']=FinalText;
 		return FinalText!==null;
 	}
-	public static CreateTranslationElement(Element:HTMLElement, Key:string, Section?:string, DefaultTextOverride?:string, AllowHTML=false, Module?:string)
+	public static CreateTranslationElement(Element:HTMLElement, Key:string, Section?:string, DefaultTextOverride?:string, AllowHTML=false, Module?:string): void
 	{
 		Element.classList.add('TranslationEl');
 		Element.innerText=(DefaultTextOverride ?? Key);
@@ -224,9 +224,9 @@ export default class Translations
 			.filter(([_, Value]) => Value!==null && Value!==undefined)
 			.forEach(([Name, Value]) => Element.setAttribute('data-translation-'+Name.toLowerCase(), Value!));
 	}
-	public CreateTranslationElement(Element:HTMLElement, Key:string, Section?:string, DefaultTextOverride?:string, AllowHTML=false, OverrideModule?:string)
+	public CreateTranslationElement(Element:HTMLElement, Key:string, Section?:string, DefaultTextOverride?:string, AllowHTML=false, OverrideModule?:string): void
 	{
-		return Translations.CreateTranslationElement(Element, Key, Section, DefaultTextOverride, AllowHTML, OverrideModule ?? this.ModuleName);
+		Translations.CreateTranslationElement(Element, Key, Section, DefaultTextOverride, AllowHTML, OverrideModule ?? this.ModuleName);
 	}
 }
 
@@ -243,11 +243,11 @@ export class TranslatePassthrough
 		...FormatList:Util.Primitive[]
 	) { this.FormatList=FormatList; }
 
-	public AsError()
+	public AsError(): Error
 	{
 		return new Error(this.Default ?? this.Key, {cause:this});
 	}
-	public GetTranslation(...FormatList:Util.Primitive[]) //Only callable if this.Tr is set. FormatList is temporarily appended to the current format list
+	public GetTranslation(...FormatList:Util.Primitive[]): string //Only callable if this.Tr is set. FormatList is temporarily appended to the current format list
 	{
 		if(!this.Tr)
 			throw new Error("Cannot run translation on a passthrough that does not have a translation object set.");
@@ -259,7 +259,7 @@ export class TranslatePassthrough
 				this.FormatList.splice(-FormatList.length);
 		}
 	}
-	public async AwaitGetTranslation(...FormatList:Util.Primitive[])
+	public async AwaitGetTranslation(...FormatList:Util.Primitive[]): Promise<string>
 	{
 		if(this.Tr?.LanguageLoaded!==undefined)
 			await this.Tr.LanguageLoaded;

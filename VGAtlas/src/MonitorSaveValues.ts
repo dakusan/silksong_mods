@@ -12,13 +12,13 @@ export default class MonitorSaveValues
 	public static GetItemIDHash(ItemID:number, ForStarting:boolean): IIDHashType { return !ForStarting ? ItemID : ItemID*-1; }
 	private static readonly JsonFileName='ItemFinder.json';
 	private static readonly PlayerDataStr='PlayerData';
-	public get ctor() { return MonitorSaveValues; }
+	public get ctor(): typeof MonitorSaveValues { return MonitorSaveValues; }
 
 	//Members
 	private readonly MatchedIcons=new Map<IIDHashType, string>();
 
 	//Initialize the monitoring
-	public async Load()
+	public async Load(): Promise<void>
 	{
 		let JSONData:object;
 		try {
@@ -48,7 +48,7 @@ export default class MonitorSaveValues
 	}
 
 	//When a game is loaded: Update all icon IsFound states from the player and scene data; Reload window data that shows item information
-	public UpdateAllUsedValuesOnLoad()
+	public UpdateAllUsedValuesOnLoad(): void
 	{
 		for(const I of Share.DS?.Items.values() ?? []) {
 			let IsLinked=false;
@@ -74,7 +74,7 @@ export default class MonitorSaveValues
 				Win.Refresh();
 	}
 
-	private static IsValueCompleted(a:boolean|number|string|null)
+	private static IsValueCompleted(a:boolean|number|string|null): boolean
 	{
 		return (
 			//a==null ? false
@@ -86,7 +86,7 @@ export default class MonitorSaveValues
 	}
 
 	//Get if a named value is completed
-	public static GetLiveCompletedValue(From:string, Name:string)
+	public static GetLiveCompletedValue(From:string, Name:string): boolean
 	{
 		return (
 			  From===this.PlayerDataStr
@@ -95,7 +95,7 @@ export default class MonitorSaveValues
 		);
 	}
 
-	private static GetLiveCompletedValue_PlayerData(Name:string, PD:SaveDataClass['PlayerData'])
+	private static GetLiveCompletedValue_PlayerData(Name:string, PD:SaveDataClass['PlayerData']): boolean
 	{
 		const P=Name.split("__", 2);
 		return (
@@ -105,7 +105,7 @@ export default class MonitorSaveValues
 		);
 	}
 
-	private static GetLiveCompletedValue_SceneData(From:string, Name:string, SD:SaveDataClass['SceneData'])
+	private static GetLiveCompletedValue_SceneData(From:string, Name:string, SD:SaveDataClass['SceneData']): boolean
 	{
 		return	SD.PersistentBools.GetValue(From, Name) ??
 				SD.PersistentInts.GetValue(From, Name)===0;

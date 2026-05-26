@@ -108,7 +108,7 @@ export default class CustomItemWindow extends Window
 		});
 	}
 
-	private RenderPreview()
+	private RenderPreview(): void
 	{
 		const Label=String(this.Els.Label.val()!).trim();
 		const CurrentCustomItem=(this.CustomItemCache[Label] ??= this.CreateCustomItem(Label || ' ', true));
@@ -136,7 +136,7 @@ export default class CustomItemWindow extends Window
 		}
 	}
 
-	private CheckIfFormIsValid()
+	private CheckIfFormIsValid(): boolean
 	{
 		let HasIncomplete=false;
 		for(const El of [this.Els.Title, this.Els.Label, this.Els.Description]) {
@@ -148,7 +148,7 @@ export default class CustomItemWindow extends Window
 		return !HasIncomplete;
 	}
 
-	private RenderDescription()
+	private RenderDescription(): void
 	{
 		this.Els.RenderDescription.empty().append(new LinkedLabel(String(this.Els.Description.val()!)).Init());
 	}

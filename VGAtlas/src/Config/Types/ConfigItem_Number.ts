@@ -29,5 +29,5 @@ export default class ConfigItem_Number extends ConfigItem<number>
 				(e.currentTarget===this.$NumberBox[0] ? this.$Slider : this.$NumberBox).val(NewVal);
 			});
 	}
-	protected override ValueSet() { this.$NumberBox.add(this.$Slider).val(this.V); }
+	protected override ValueSet(): void { this.$NumberBox.add(this.$Slider).val(this.V); }
 }

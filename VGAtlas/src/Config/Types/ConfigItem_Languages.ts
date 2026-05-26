@@ -11,20 +11,20 @@ export default class ConfigItem_Languages extends ConfigItem_Enum
 		this.$SelectBox.addClass('Language');
 		(this.Tr=Tr!)?.LanguageListLoaded.finally(() => this.FinishLoad());
 	}
-	public SetTranslations(Tr:Translations)
+	public SetTranslations(Tr:Translations): void
 	{
 		if(this.Tr)
 			throw new Error(StatStr.NeedsTranslate+`Translations already set for Languages config ${this.Tr.ModuleName}.${this.Section}.${this.Key}`);
 		(this.Tr=Tr).LanguageListLoaded.finally(() => this.FinishLoad());
 	}
-	private FinishLoad()
+	private FinishLoad(): void
 	{
 		//Add the rest of the languages
 		for(const [LangKey, LangInfo] of Object.entries(this.Tr.LanguagesList))
 			this.Add(LangKey, LangInfo.Native);
 
 		//If the language is not yet set or is invalid, get it from the browser or use the default
-		const OverrideLang=() => (navigator.languages?.[0] || navigator.language)?.slice(0, 2).toLowerCase() ?? StatStr.Empty; //TODO: May need to update this depending on languages that require 3 letters
+		const OverrideLang=(): string => (navigator.languages?.[0] || navigator.language)?.slice(0, 2).toLowerCase() ?? StatStr.Empty; //TODO: May need to update this depending on languages that require 3 letters
 		if(!this.Tr.LanguagesList.hasOwnProperty(this.V))
 			this.V=
 				this.Tr.LanguagesList.hasOwnProperty(OverrideLang()) ? OverrideLang()
@@ -38,5 +38,5 @@ export default class ConfigItem_Languages extends ConfigItem_Enum
 		this.$SelectBox.val(this.Tr.Language=this.V);
 		this.SettingChanged.Add('ConfigItem_Languages', V => this.Tr.Language=V);
 	}
-	protected override LanguageChanged() { } //Text is not changed on language change
+	protected override LanguageChanged(): void { } //Text is not changed on language change
 }

@@ -25,7 +25,7 @@ export default class LogsWindow extends Window
 		return false;
 	}
 
-	private AddLogLine(LL:(typeof Log.AllLogLines)[number])
+	private AddLogLine(LL:(typeof Log.AllLogLines)[number]): void
 	{
 		this.$Content.children().slice(Log.MaxStoredLogLines-1).remove();
 		$('<div class=LogLine>').append([

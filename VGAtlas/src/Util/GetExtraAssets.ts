@@ -9,7 +9,7 @@ namespace GetExtraAssets
 	});
 	let MyPromise:Promise<void>|null=null;
 
-	async function WaitForEA()
+	async function WaitForEA(): Promise<Record<string, string>>
 	{
 		if(GTExtraAssets.ExtraAssets) //Race condition guard
 			return GTExtraAssets.ExtraAssets;

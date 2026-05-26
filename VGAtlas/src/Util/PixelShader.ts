@@ -162,7 +162,7 @@ export class RGBAShader
 		return this.Canvas;
 	}
 
-	public Dispose()
+	public Dispose(): void
 	{
 		this.GL.deleteTexture(this.Texture);
 		this.GL.deleteBuffer(this.PositionBuffer);

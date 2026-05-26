@@ -23,7 +23,7 @@ export default abstract class ConfigItem<T extends ConfigItemValueTypes> extends
 		this.SettingChanged=new CallbackList<[Value:T, Item:ConfigItem<T>]>(`Config setting “${this.Section}.${this.Key}”`);
 		this.IsSaveAsString=typeof((this.Default as Partial<ConfigSerializer<T>>).ConfigDeserialize)==='function';
 	}
-	protected override Init(Parent:Config)
+	protected override Init(Parent:Config): void
 	{
 		this.Parent=Parent;
 		const Raw=this.Parent.Storage.getItem(this.Parent.Prefix+this.Key);
@@ -45,7 +45,7 @@ export default abstract class ConfigItem<T extends ConfigItemValueTypes> extends
 
 	public get V(): T { return this.Val; }
 	public set V(NewVal:T) { this.SetVal(NewVal); }
-	protected SetVal(NewVal:T, FromDOM=false)
+	protected SetVal(NewVal:T, FromDOM=false): void
 	{
 		if(NewVal===this.Val)
 			return;
@@ -55,7 +55,7 @@ export default abstract class ConfigItem<T extends ConfigItemValueTypes> extends
 		if(!FromDOM)
 			this.ValueSet();
 	}
-	private SaveToStorage() { this.Parent.Storage.setItem(this.Parent.Prefix+this.Key, this.GetStorageValue()); }
-	private GetStorageValue() { return JSON.stringify(this.IsSaveAsString ? (this.Val as ConfigSerializer<T>).ConfigSerialize() : this.Val); }
-	public ResetToDefault() { this.V=this.Default; }
+	private SaveToStorage(	): void		{ this.Parent.Storage.setItem(this.Parent.Prefix+this.Key, this.GetStorageValue()); }
+	private GetStorageValue(): string	{ return JSON.stringify(this.IsSaveAsString ? (this.Val as ConfigSerializer<T>).ConfigSerialize() : this.Val); }
+	public ResetToDefault(	): void		{ this.V=this.Default; }
 }

@@ -27,7 +27,7 @@ export default class LinkedLabel
 		Ret=LinkedLabel.FixTags(Ret);
 		this.RenderedContents=Ret;
 	}
-	public Init()
+	public Init(): JQuery
 	{
 		if(this.HasInitialized)
 			return this.$Content;
@@ -46,7 +46,7 @@ export default class LinkedLabel
 		return this.$Content;
 	}
 
-	private AnchorSelected(Ev:JQuery.ClickEvent)
+	private AnchorSelected(Ev:JQuery.ClickEvent): void
 	{
 		const Anchor=Ev.currentTarget as HTMLAnchorElement;
 		const ItemID=Util.GetInt($(Anchor).attr('data-ItemID'));
@@ -66,7 +66,7 @@ export default class LinkedLabel
 	}
 
 	//Revert our escapes and change < and > to their HTML escaped equivalents
-	private static FixTags(Str:string)
+	private static FixTags(Str:string): string
 	{
 		return Str
 			.replaceAll('&', '&amp;')
@@ -75,13 +75,13 @@ export default class LinkedLabel
 	}
 
 	//Temporarily escape our allowed html tags
-	private static KeepSafeHTMLTags(Str:string)
+	private static KeepSafeHTMLTags(Str:string): string
 	{
 		return Str.replace(RegEx_SafeTags, F => LTChar+F.slice(1, -1)+RTChar);
 	}
 
 	//Convert LinkIDs to anchors and <color> w/ span+color
-	private static UnityRichTextToHTML(Str:string)
+	private static UnityRichTextToHTML(Str:string): string
 	{
 		//Replace LinkID with anchors
 		Str=Str.replace(RegEx_LinkID, this.ParseLinkID);
@@ -97,7 +97,7 @@ export default class LinkedLabel
 	}
 
 	//Parse a link and change it to an anchor
-	private static ParseLinkID(_Full:string, LinkID:string, Inner:string)
+	private static ParseLinkID(_Full:string, LinkID:string, Inner:string): string
 	{
 		const Attrs=new Map<string, string>();
 		Inner=Inner.replace(

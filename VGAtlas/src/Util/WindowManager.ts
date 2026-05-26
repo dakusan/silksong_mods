@@ -28,7 +28,7 @@ export class WindowManager
 	private Windows:Window[]=[];
 	private SavedPositions=new Map<string, Rect>();
 	public get AllWindows(): ArrayIterator<Window> { return this.Windows.values(); }
-	private _Active:Window|null=null; public get Active() { return this._Active; } private set Active(Val) { this._Active=Val; }
+	private _Active:Window|null=null; public get Active(): Window|null { return this._Active; } private set Active(Val) { this._Active=Val; }
 	public get ControlsKeyboard(): boolean { return !!this._Active?.AcceptsKeyboard; }
 
 	private Z=10000;
@@ -56,8 +56,8 @@ export class WindowManager
 		if(this.Active===W)
 			this.Active=null;
 	}
-	protected GetSavedPos(SaveID?:string) { return this.SavedPositions.get(SaveID!); }
-	protected SetSavedPos(SaveID:string, Bounds:Rect) { this.SavedPositions.set(SaveID, Bounds); }
+	protected GetSavedPos(SaveID?:string): Rect|undefined { return this.SavedPositions.get(SaveID!); }
+	protected SetSavedPos(SaveID:string, Bounds:Rect): void { this.SavedPositions.set(SaveID, Bounds); }
 
 	public SetFocus(W:Window|null): void
 	{
@@ -91,18 +91,18 @@ type WindowInit=Partial<Pick<Window,
 export class Window
 {
 	//Settable properties
-	private _Title			='Window'		; public get Title			() { return this._Title				; }; public set Title			(Value) { this.$Title.text		(this._Title=			Value); }
-	private _Type?:string	=undefined		; public get Type			() { return this._Type				; }; public set Type			(Value) { 						(this._Type=			Value); }
-	private _Parent			=document.body	; public get Parent			() { return this._Parent			; }; public set Parent			(Value) { $(this.$Root).appendTo(this._Parent=			Value); }
-	private _X				=80				; public get X				() { return this._X					; }; public set X				(Value) { this.UpdateBounds		({X:					Value}); }
-	private _Y				=80				; public get Y				() { return this._Y					; }; public set Y				(Value) { this.UpdateBounds		({Y:					Value}); }
-	private _Width			=420			; public get Width			() { return this._Width				; }; public set Width			(Value) { this.UpdateBounds		({Width:				Value}); }
-	private _Height			=280			; public get Height			() { return this._Height			; }; public set Height			(Value) { this.UpdateBounds		({Height:				Value}); }
-	private _MinWidth		=180			; public get MinWidth		() { return this._MinWidth			; }; public set MinWidth		(Value) { this.UpdateBounds		(void(this._MinWidth=	Value)); }
-	private _MinHeight		=120			; public get MinHeight		() { return this._MinHeight			; }; public set MinHeight		(Value) { this.UpdateBounds		(void(this._MinHeight=	Value)); }
-	private _CanClose		=true			; public get CanClose		() { return this._CanClose			; }; public set CanClose		(Value) { this.SetCanClose		(this._CanClose=		Value); }
-	private _CanResize		=true			; public get CanResize		() { return this._CanResize			; }; public set CanResize		(Value) { this.SetCanResize		(this._CanResize=		Value); }
-	private _Visible		=true			; public get Visible		() { return this._Visible			; }; public set Visible			(Value) { this.SetVisible		(this._Visible=			Value); }
+	private _Title			='Window'		; public get Title		(): string			{ return this._Title	; }; public set Title		(Value) { this.$Title.text		(this._Title=			Value); }
+	private _Type?:string	=undefined		; public get Type		(): string|undefined{ return this._Type		; }; public set Type		(Value) { 						(this._Type=			Value); }
+	private _Parent			=document.body	; public get Parent		(): HTMLElement		{ return this._Parent	; }; public set Parent		(Value) { $(this.$Root).appendTo(this._Parent=			Value); }
+	private _X				=80				; public get X			(): number			{ return this._X		; }; public set X			(Value) { this.UpdateBounds		({X:					Value});}
+	private _Y				=80				; public get Y			(): number			{ return this._Y		; }; public set Y			(Value) { this.UpdateBounds		({Y:					Value});}
+	private _Width			=420			; public get Width		(): number			{ return this._Width	; }; public set Width		(Value) { this.UpdateBounds		({Width:				Value});}
+	private _Height			=280			; public get Height		(): number			{ return this._Height	; }; public set Height		(Value) { this.UpdateBounds		({Height:				Value});}
+	private _MinWidth		=180			; public get MinWidth	(): number			{ return this._MinWidth	; }; public set MinWidth	(Value) { this.UpdateBounds		(void(this._MinWidth=	Value));}
+	private _MinHeight		=120			; public get MinHeight	(): number			{ return this._MinHeight; }; public set MinHeight	(Value) { this.UpdateBounds		(void(this._MinHeight=	Value));}
+	private _CanClose		=true			; public get CanClose	(): boolean			{ return this._CanClose	; }; public set CanClose	(Value) { this.SetCanClose		(this._CanClose=		Value); }
+	private _CanResize		=true			; public get CanResize	(): boolean			{ return this._CanResize; }; public set CanResize	(Value) { this.SetCanResize		(this._CanResize=		Value); }
+	private _Visible		=true			; public get Visible	(): boolean			{ return this._Visible	; }; public set Visible		(Value) { this.SetVisible		(this._Visible=			Value); }
 	public readonly SaveID?:string;
 	public get Pos ():Vector2 { return new Vector2	(this._X, this._Y							 ); }			 public set Pos		(Value:Vector2) { this.UpdateBounds({X:Value.X, Y:Value.Y}); }
 	public get Size():Vector2 { return new Vector2	(					this._Width, this._Height); }			 public set Size	(Value:Vector2) { this.UpdateBounds({Width:Value.X, Height:Value.Y}); }
@@ -315,7 +315,7 @@ export class Window
 
 	//Resizes the window to the sizes of your title and contents. This requires exactly 1 element within $Content.
 	//MinHeight will be set to the Titlebar height
-	public AutoSize<T extends Window>(AutoSizeCallback:(this:T, FinishAutoSize:(this:Window, MaxContentHeight:number, MaxWindowWidth:number) => void) => void)
+	public AutoSize<T extends Window>(AutoSizeCallback:(this:T, FinishAutoSize:(this:Window, MaxContentHeight:number, MaxWindowWidth:number) => void) => void): void
 	{
 		if(this.$Content.children().length>1)														//Only allow 1 child since we need to determine its size
 			throw new Error("Can only have 1 child in Contents when auto sizing");
@@ -327,7 +327,7 @@ export class Window
 		const UserCallback=() => AutoSizeCallback.call(this as unknown as T, this.FinishAutoSize);	//What we will call back once content has rendered
 		setTimeout(() => this.CheckAutoSize(UserCallback), 0);										//Wait for the element to render so we can take measurements
 	}
-	private CheckAutoSize(CB:() => void)
+	private CheckAutoSize(CB:() => void): void
 	{
 		if(this.Disposed)
 			return;
@@ -336,7 +336,7 @@ export class Window
 		else
 			CB();
 	}
-	private FinishAutoSize(MaxContentHeight:number=200, MaxWindowWidth:number=350)
+	private FinishAutoSize(MaxContentHeight:number=200, MaxWindowWidth:number=350): void
 	{
 		const ContentBox=this.$Content;
 		const TitleHeight=ContentBox.position().top!+3;
@@ -365,7 +365,7 @@ abstract class WindowManager_Friend extends WindowManager implements FriendClass
 	public override Register  (_W:Window): void { this.Stub(); }
 	public override Unregister(_W:Window): void { this.Stub(); }
 	public override GetSavedPos(_SaveID?:string):Rect|undefined { return this.Stub(); }
-	public override SetSavedPos(_SaveID:string, _Bounds:Rect) { this.Stub(); }
+	public override SetSavedPos(_SaveID:string, _Bounds:Rect): void { this.Stub(); }
 	//Ignore these
 	protected constructor() { super(); this.Stub(); }
 	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }

@@ -30,7 +30,7 @@ type SectionsType=Record<string, SectionNumbers>;
 export default class DebugWindow extends Window
 {
 	private static ShowSections=false; //Persists between windows
-	public get ctor() { return DebugWindow; }
+	public get ctor(): typeof DebugWindow { return DebugWindow; }
 
 	private readonly ValueLabels:Record<typeof ValuesRows[number], JQuery>;
 	private LastMousePos?:Vector2;
@@ -71,14 +71,14 @@ export default class DebugWindow extends Window
 			.then(this.CompleteInit.bind(this));
 	}
 
-	private CompleteInit(MVs:SectionsType)
+	private CompleteInit(MVs:SectionsType): void
 	{
 		this.Sections=MVs;
 		if(this.ctor.ShowSections)
 			Share.MCanvas.Refresh();
 	}
 
-	private ToggleShowSections()
+	private ToggleShowSections(): void
 	{
 		if(this.ctor.ShowSections)
 			Share.MCanvas.Events.Draw.Add	('Debug.ShowSections', this.DrawSections.bind(this), 'GameObjects');
@@ -87,9 +87,9 @@ export default class DebugWindow extends Window
 		Share.MCanvas.Refresh();
 	}
 
-	private DisplayMouseMapSections(Pos?:Vector2)
+	private DisplayMouseMapSections(Pos?:Vector2): void
 	{
-		function P(Num:number, LeadDigits=4, FixedDigits=3) { return Num.toFixed(FixedDigits).padStart(LeadDigits+FixedDigits+1, ' '); }
+		function P(Num:number, LeadDigits=4, FixedDigits=3): string { return Num.toFixed(FixedDigits).padStart(LeadDigits+FixedDigits+1, ' '); }
 		this.LastMousePos=Pos;
 		const MapPos=Pos ? Share.MCanvas.CanvasToMap(Pos) : undefined;
 		const ULBound=Share.MCanvas.CanvasToMap(new Vector2(0, 0));
@@ -117,7 +117,7 @@ export default class DebugWindow extends Window
 		);
 	}
 
-	public *GetMouseMapSections(MapPos?:Vector2)
+	public *GetMouseMapSections(MapPos?:Vector2): Generator<JQuery<HTMLSpanElement>>
 	{
 		if(!MapPos || !this.Sections)
 			return;
@@ -128,7 +128,7 @@ export default class DebugWindow extends Window
 				yield $(document.createElement('span')).text(Name).css('color', SectionColors[Section[4] ?? -1] ?? '#BBBBBB');
 	}
 
-	public static CanvasToMapRadius(CanvasRadius:number)
+	public static CanvasToMapRadius(CanvasRadius:number): number
 	{
 		const S1=CanvasRadius/Math.sqrt(2);
 		const P1=Share.MCanvas.CanvasToMap(new Vector2(0, 0));
@@ -151,7 +151,7 @@ export default class DebugWindow extends Window
 		return XDiff*XDiff+YDiff*YDiff<=MapRadius*MapRadius;
 	}
 
-	private DrawSections(Ctx:CanvasRenderingContext2D)
+	private DrawSections(Ctx:CanvasRenderingContext2D): void
 	{
 		if(!this.Sections)
 			return;

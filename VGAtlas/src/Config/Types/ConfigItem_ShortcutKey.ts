@@ -45,7 +45,7 @@ export class ShortcutKey implements ConfigSerializer<ShortcutKey>
 	public ToggleKeys:Readonly<ToggleKeys>;
 
 	//Convert to/from string for ConfigItem saving
-	public ConfigSerialize()
+	public ConfigSerialize(): string
 	{
 		return [
 			...new Iter(ToggleKeyInfos.values()).filter(TKI => this.ToggleKeys[TKI.ID]).map(TKI => TKI.ID),
@@ -53,7 +53,7 @@ export class ShortcutKey implements ConfigSerializer<ShortcutKey>
 		].join('+')+','+this.KeyName;
 	}
 	private static ParseShortcutKey=/^(?:(?<ToggleKeys>[^,]+)\+)?(?<KeyCode>[^,+]+),(?<KeyName>.*)$/;
-	public ConfigDeserialize(Str:string)
+	public ConfigDeserialize(Str:string): ShortcutKey
 	{
 		const Match=ShortcutKey.ParseShortcutKey.exec(Str);
 		if(!Match?.groups)
@@ -68,7 +68,7 @@ export class ShortcutKey implements ConfigSerializer<ShortcutKey>
 	}
 
 	//Convert to visible string for display
-	public DisplayString()
+	public DisplayString(): string
 	{
 		if(this.KeyCode===NoKeySet)
 			return DefaultTr.TDef('NoKeySet', 'ConfigWindow', "None");
@@ -104,7 +104,7 @@ export default class ConfigItem_ShortcutKey extends ConfigItem<ShortcutKey>
 		});
 	}
 
-	private ListenForKey(e:KeyboardEvent)
+	private ListenForKey(e:KeyboardEvent): void
 	{
 		e.preventDefault();
 		e.stopPropagation();
@@ -125,7 +125,7 @@ export default class ConfigItem_ShortcutKey extends ConfigItem<ShortcutKey>
 		, true);
 		this.EndKeyListen();
 	}
-	private EndKeyListen()
+	private EndKeyListen(): void
 	{
 		window.removeEventListener('keydown', this.BoundListenForKey, true);
 		window.removeEventListener('click', this.BoundEndKeyListen, true);
@@ -133,18 +133,18 @@ export default class ConfigItem_ShortcutKey extends ConfigItem<ShortcutKey>
 		this.ValueSet();
 	}
 
-	protected override ValueSet() { this.$Button.text(this.V.DisplayString()); }
-	protected override LanguageChanged() { if(this.V.KeyCode===NoKeySet) this.ValueSet(); }
+	protected override ValueSet(): void { this.$Button.text(this.V.DisplayString()); }
+	protected override LanguageChanged(): void { if(this.V.KeyCode===NoKeySet) this.ValueSet(); }
 
 	//Handle keypress monitoring
 	private static AllMyConfigs:ConfigItem_ShortcutKey[]=[];
 	static { window.addEventListener('keydown', e => this.GlobalListenForKey(e), true); }
-	private static GlobalListenForKey(e:KeyboardEvent)
+	private static GlobalListenForKey(e:KeyboardEvent): void
 	{
 		if(!this.AnyCapturing)
 			this.AllMyConfigs.forEach(C => C.ConfirmKeyboardEvent(e));
 	}
-	private ConfirmKeyboardEvent(e:KeyboardEvent)
+	private ConfirmKeyboardEvent(e:KeyboardEvent): void
 	{
 		if(
 			   e.code===this.V.KeyCode
@@ -155,7 +155,7 @@ export default class ConfigItem_ShortcutKey extends ConfigItem<ShortcutKey>
 			e.preventDefault();
 		}
 	}
-	public IsActive()
+	public IsActive(): boolean
 	{
 		return KeyState.GetKeyDown(this.V.KeyCode)
 			&& new Iter(ToggleKeyInfos.values()).every(TKI =>

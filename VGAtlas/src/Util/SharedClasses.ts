@@ -10,22 +10,22 @@ export class Vector2 implements Equatable<Vector2>
 {
 	constructor(public readonly X:number, public readonly Y:number) { }
 
-	public Equals(Other?:Vector2) { return Other?.X===this.X && Other.Y===this.Y; }
-	public Distance(Vec:Vector2) { return Vector2.Distance(this, Vec); }
-	public static Distance(a:Vector2, b:Vector2) { return Math.hypot(a.X-b.X, a.Y-b.Y); }
-	public Add(Vec:Vector2) { return new Vector2(this.X+Vec.X, this.Y+Vec.Y); }
-	public Sub(Vec:Vector2) { return new Vector2(this.X-Vec.X, this.Y-Vec.Y); }
-	public toString() { return `(${this.X}, ${this.Y})`; }
+	public Equals			(Other?:Vector2			): boolean	{ return Other?.X===this.X && Other.Y===this.Y; }
+	public Distance			(Vec:Vector2			): number	{ return Vector2.Distance(this, Vec); }
+	public static Distance	(a:Vector2, b:Vector2	): number	{ return Math.hypot(a.X-b.X, a.Y-b.Y); }
+	public Add				(Vec:Vector2			): Vector2	{ return new Vector2(this.X+Vec.X, this.Y+Vec.Y); }
+	public Sub				(Vec:Vector2			): Vector2	{ return new Vector2(this.X-Vec.X, this.Y-Vec.Y); }
+	public toString			(						): string	{ return `(${this.X}, ${this.Y})`; }
 }
 
 export class Rect implements Equatable<Rect>
 {
 	constructor(public X:number, public Y:number, public Width:number, public Height:number) { }
-	public Equals(Other?:Rect) { return Other?.X===this.X && Other.Y===this.Y && Other.Width===this.Width && Other.Height===this.Height; }
-	public SetWidth	(W:number) { this.Width =W; return this; }
-	public SetHeight(H:number) { this.Height=H; return this; }
-	public Intersects(R:Rect) { return Rect.Intersects(this, R); }
-	public static Intersects(a:Rect, b:Rect)
+	public Equals(Other?:Rect): boolean	{ return Other?.X===this.X && Other.Y===this.Y && Other.Width===this.Width && Other.Height===this.Height; }
+	public SetWidth (W:number): this	{ this.Width =W; return this; }
+	public SetHeight(H:number): this	{ this.Height=H; return this; }
+	public Intersects(R:Rect ): boolean	{ return Rect.Intersects(this, R); }
+	public static Intersects(a:Rect, b:Rect): boolean
 	{
 		return (
 			   a.X<b.X+b.Width
@@ -34,7 +34,7 @@ export class Rect implements Equatable<Rect>
 			&& b.Y<a.Y+a.Height
 		);
 	}
-	public toString() { return `(${this.X}, ${this.Y}, ${this.Width}, ${this.Height})`; }
+	public toString(): string { return `(${this.X}, ${this.Y}, ${this.Width}, ${this.Height})`; }
 }
 
 export class ColorRGBA implements ConfigSerializer<ColorRGBA>, Equatable<ColorRGBA>
@@ -53,13 +53,13 @@ export class ColorRGBA implements ConfigSerializer<ColorRGBA>, Equatable<ColorRG
 	public static Green	=new ColorRGBA(0, 1, 0, 1);
 	public static Blue	=new ColorRGBA(0, 0, 1, 1);
 
-	private static C01(v:number) { return Util.Clamp(v, 0, 1); }
-	private static CBy(v:number) { return ColorRGBA.C01(v/255); }
-	public static CreateClamp	 (r:number, g:number, b:number, a:number) { return new ColorRGBA(ColorRGBA.C01(r), ColorRGBA.C01(g), ColorRGBA.C01(b), ColorRGBA.C01(a)); }
-	public static CreateByteClamp(r:number, g:number, b:number, a:number) { return new ColorRGBA(ColorRGBA.CBy(r), ColorRGBA.CBy(g), ColorRGBA.CBy(b), ColorRGBA.CBy(a)); }
-	public Equals(Other?:ColorRGBA) { return Other?.r===this.r && Other.g===this.g && Other.b===this.b && Other.a===this.a; }
+	private static C01(v:number): number { return Util.Clamp(v, 0, 1); }
+	private static CBy(v:number): number { return ColorRGBA.C01(v/255); }
+	public static CreateClamp	 (r:number, g:number, b:number, a:number): ColorRGBA { return new ColorRGBA(ColorRGBA.C01(r), ColorRGBA.C01(g), ColorRGBA.C01(b), ColorRGBA.C01(a)); }
+	public static CreateByteClamp(r:number, g:number, b:number, a:number): ColorRGBA { return new ColorRGBA(ColorRGBA.CBy(r), ColorRGBA.CBy(g), ColorRGBA.CBy(b), ColorRGBA.CBy(a)); }
+	public Equals(Other?:ColorRGBA): boolean { return Other?.r===this.r && Other.g===this.g && Other.b===this.b && Other.a===this.a; }
 
-	public ConfigSerialize()
+	public ConfigSerialize(): string
 	{
 		return StatStr.Empty
 			+CToHex(this.r)
@@ -67,7 +67,7 @@ export class ColorRGBA implements ConfigSerializer<ColorRGBA>, Equatable<ColorRG
 			+CToHex(this.b)
 			+CToHex(this.a);
 	}
-	public ConfigDeserialize(Str:string)
+	public ConfigDeserialize(Str:string): ColorRGBA
 	{
 		Str=(/^([0-9a-fA-F]{6,8})$/.test(Str) ? Str : this.ConfigSerialize()).padEnd(8, 'F').toUpperCase();
 
@@ -79,12 +79,12 @@ export class ColorRGBA implements ConfigSerializer<ColorRGBA>, Equatable<ColorRG
 		);
 	}
 }
-function CToHex(C:number) { return Math.round(C*255).toString(16).toUpperCase().padStart(2, '0'); }
-function HexToC(Str:string, Pos:number) { return Number.parseInt(Str.substring(Pos*2, Pos*2+2), 16)/255; }
+function CToHex(C:number): string { return Math.round(C*255).toString(16).toUpperCase().padStart(2, '0'); }
+function HexToC(Str:string, Pos:number): number { return Number.parseInt(Str.substring(Pos*2, Pos*2+2), 16)/255; }
 
 export namespace Util
 {
-	export async function LoadImage(ImageURL:string)
+	export async function LoadImage(ImageURL:string): Promise<ImageBitmap>
 	{
 		const LoadImage=new Image();
 		await new Promise<void>((Resolve, Reject) => {
@@ -95,7 +95,7 @@ export namespace Util
 		return await createImageBitmap(LoadImage);
 	}
 
-	export function SameType(a:unknown, b:unknown)
+	export function SameType(a:unknown, b:unknown): boolean
 	{
 		return	a===null || b===null || a===undefined || b===undefined	? a===b
 			:	typeof(a)!==typeof(b)									? false
@@ -103,7 +103,7 @@ export namespace Util
 			:							  								a.constructor===(b as object).constructor
 	}
 
-	export function TypeName(Val:unknown)
+	export function TypeName(Val:unknown): string
 	{
 		return	Val===undefined			? 'undefined'
 			:	Val===null				? 'null'
@@ -113,7 +113,8 @@ export namespace Util
 			:							  'object';
 	}
 
-	export function GetErrorMessage(e:unknown) {
+	export function GetErrorMessage(e:unknown): string
+	{
 		return	e instanceof Error		? e.message
 			:	typeof(e)!=='object'	? String(e)
 			:							  JSON.stringify(e);
@@ -122,13 +123,13 @@ export namespace Util
 	export const MaxInt=(1<<30)*2-1;
 	export type Primitive=string|number|bigint|boolean|symbol|null|undefined;
 
-	export function OutputException(Name:string, e:unknown)
+	export function OutputException(Name:string, e:unknown): void
 	{
 		Log.Error(StatStr.NeedsTranslate+`${Name} failed: ${Util.GetErrorMessage(e)}`, e);
 	}
 
 	//Sets a member if Obj is not null (used to facilitate C# foo?.bar=baz)
-	export function SetNullable<TObj extends object, K extends keyof TObj>(Obj:TObj|undefined|null, Key:K, Value:TObj[K])
+	export function SetNullable<TObj extends object, K extends keyof TObj>(Obj:TObj|undefined|null, Key:K, Value:TObj[K]): void
 	{
 		if(Obj!==null && Obj!==undefined)
 			Obj[Key]=Value;
@@ -164,7 +165,7 @@ export namespace Util
 			:			n;
 	}
 
-	export function IsMobileWidth()
+	export function IsMobileWidth(): boolean
 	{
 		let MobileWidth=Number.parseInt(getComputedStyle(document.documentElement).getPropertyValue('--mobile-width'));
 		if(!Number.isFinite(MobileWidth))
@@ -172,7 +173,7 @@ export namespace Util
 		return window.outerWidth<=MobileWidth;
 	}
 
-	export function IsMobile() { return matchMedia('(pointer:coarse)').matches; }
+	export function IsMobile(): boolean { return matchMedia('(pointer:coarse)').matches; }
 
 	//Returns a number only when the trimmed string is a valid floating point number; otherwise, returns null
 	//If a decimal point is present, at least one digit must follow it
@@ -223,7 +224,7 @@ class LogClass
 	public get AllLogLines():readonly LogLine[] { return this.LogLines; }
 	public readonly OnLog=new CallbackList<[LogLine]>('OnLog');
 	public MaxStoredLogLines=0; //LogLines not shortened until next Add()
-	private Add(Info:unknown[], IsError:boolean)
+	private Add(Info:unknown[], IsError:boolean): unknown[] //Returns Info
 	{
 		if(this.LogLines.length>this.MaxStoredLogLines-1)
 			this.LogLines=this.LogLines.slice(-(this.MaxStoredLogLines-1));
@@ -233,15 +234,15 @@ class LogClass
 		return Info;
 	}
 
-	public Debug(...Objs:unknown[]) { console.debug	(...Objs); }
-	public Info (...Objs:unknown[]) { console.info	(...this.Add(Objs, false)); }
-	public Error(...Objs:unknown[]) { console.error	(...this.Add(Objs, true )); }
+	public Debug(...Objs:unknown[]): void { console.debug	(...Objs); }
+	public Info (...Objs:unknown[]): void { console.info	(...this.Add(Objs, false)); }
+	public Error(...Objs:unknown[]): void { console.error	(...this.Add(Objs, true )); }
 }
 
 export namespace DevStrings
 {
 	const ConvertEl=document.createElement('div');
-	export function SafeRich(Str:string)
+	export function SafeRich(Str:string): string
 	{
 		ConvertEl.innerText=Str;
 		return ConvertEl.innerHTML;
@@ -265,16 +266,18 @@ export class Iter<T> implements Iterable<T>
 {
 	constructor(private readonly MyIterable:Iterable<T>) { }
 	public [Symbol.iterator]() { return this.MyIterable[Symbol.iterator](); }
-	public toArray() { return [...this.MyIterable]; }
+	public toArray(): T[] { return [...this.MyIterable]; }
 
-	private static MakeIter<U>(Fn:() => IterableIterator<U>) { return new Iter<U>({ [Symbol.iterator]: Fn }); }
+	private static MakeIter<U>(Fn:() => IterableIterator<U>): Iter<U> { return new Iter<U>({ [Symbol.iterator]: Fn }); }
 
-	public forEach(Fn:(Val:T) => void) {
+	public forEach(Fn:(Val:T) => void): void
+	{
 		for(const Val of this.MyIterable)
 			Fn(Val);
 	}
 
-	public map<U>(Fn:(Val:T) => U) {
+	public map<U>(Fn:(Val:T) => U): Iter<U>
+	{
 		const Self=this;
 		return Iter.MakeIter(function*() {
 			for(const Val of Self.MyIterable)
@@ -282,7 +285,8 @@ export class Iter<T> implements Iterable<T>
 		});
 	}
 
-	public filter(Fn:(Val:T) => boolean) {
+	public filter(Fn:(Val:T) => boolean): Iter<T>
+	{
 		const Self=this;
 		return Iter.MakeIter(function*() {
 			for(const Val of Self.MyIterable)
@@ -291,7 +295,8 @@ export class Iter<T> implements Iterable<T>
 		});
 	}
 
-	public skip(n:number) {
+	public skip(n:number): Iter<T>
+	{
 		if(n<=0)
 			return this;
 
@@ -304,7 +309,8 @@ export class Iter<T> implements Iterable<T>
 		});
 	}
 
-	public take(n:number) {
+	public take(n:number): Iter<T>
+	{
 		if(n<=0)
 			return this;
 
@@ -319,7 +325,8 @@ export class Iter<T> implements Iterable<T>
 		});
 	}
 
-	public concat(...Items:Iterable<T>[]) {
+	public concat(...Items:Iterable<T>[]): Iter<T>
+	{
 		const Self=this;
 		return Iter.MakeIter(function*() {
 			yield* Self.MyIterable;
@@ -328,7 +335,8 @@ export class Iter<T> implements Iterable<T>
 		});
 	}
 
-	public every(Fn:(Val:T) => boolean) {
+	public every(Fn:(Val:T) => boolean): boolean
+	{
 		for(const Val of this.MyIterable)
 			if(!Fn(Val))
 				return false;
@@ -345,7 +353,7 @@ export class PopupMessage
 	private readonly StartTextSize=parseFloat(this.MessageTextEl.css('font-size')) || 80;
 	private HasClosed=false;
 
-	private _HTMLContent:string=WillBeSet; public get HTMLContent() { return this._HTMLContent; }
+	private _HTMLContent:string=WillBeSet; public get HTMLContent(): string { return this._HTMLContent; }
 	public set Text(Contents:string) { this.HTML=DevStrings.SafeRich(Contents); }
 	public set HTML(Contents:string) { this.MessageTextEl.children().eq(0).html(this._HTMLContent=Contents); this.ReadjustSize(); }
 
@@ -357,7 +365,7 @@ export class PopupMessage
 		PopupMessage.Observer.observe(this.Container[0]);
 	}
 
-	public Close()
+	public Close(): void
 	{
 		if(this.HasClosed)
 			return;
@@ -368,7 +376,7 @@ export class PopupMessage
 		this.Container.remove()
 	}
 
-	private ReadjustSize()
+	private ReadjustSize(): void
 	{
 		const Parent=this.MessageTextEl[0];
 		const El=Parent.firstElementChild as HTMLElement;
@@ -408,9 +416,9 @@ export class CallbackList<Args extends unknown[], TRet=void>
 			this.Callbacks.set(Key, Value);
 		}
 	}
-	public Remove	(Name:string							) { return	this.Callbacks.delete	(Name		); }
-	public Has		(Name:string							) { return	this.Callbacks.has		(Name		); }
-	public Execute(...Params:Args)
+	public Remove	(Name:string							): boolean { return	this.Callbacks.delete	(Name		); }
+	public Has		(Name:string							): boolean { return	this.Callbacks.has		(Name		); }
+	public Execute(...Params:Args): void
 	{
 		for(const [CBName, CB] of this.Callbacks.entries())
 			try { CB(...Params); }
@@ -418,7 +426,7 @@ export class CallbackList<Args extends unknown[], TRet=void>
 	}
 
 	//RetCB is called with each callback’s return value. If RetCB returns true, execution stops and this method returns true. Otherwise, it continues and returns false if all callbacks ran.
-	public ExecuteWithRetCB(RetCB:(RetVal:TRet) => boolean, ...Params:Args)
+	public ExecuteWithRetCB(RetCB:(RetVal:TRet) => boolean, ...Params:Args): boolean
 	{
 		for(const [CBName, CB] of this.Callbacks.entries())
 			try {
@@ -436,7 +444,7 @@ export class PreallocatedPusher<T>
 	private readonly Arr: T[];
 	private Len=0;
 	constructor(Capacity:number) { this.Arr=new Array<T>(Capacity); }
-	public push(Item:T)
+	public push(Item:T): void
 	{
 		if(this.Len<this.Arr.length)
 			this.Arr[this.Len]=Item;
@@ -444,12 +452,12 @@ export class PreallocatedPusher<T>
 			this.Arr.push(Item);
 		this.Len++;
 	}
-	public get length(): number { return this.Len; }
-	public get raw(): T[] { return this.Arr; }
-	public get finalize(): T[] { this.Arr.length=this.Len; return this.Arr; }
-	public get FinalizeSlice(): T[] { return this.Arr.slice(0, this.Len); }
-	public Reset(Capacity:number) { this.Arr.length=Capacity; this.Len=0; }
-	public ResetLen() { this.Len=0; }
+	public get length		(				): number	{ return this.Len; }
+	public get raw			(				): T[]		{ return this.Arr; }
+	public get finalize		(				): T[]		{ this.Arr.length=this.Len; return this.Arr; }
+	public get FinalizeSlice(				): T[]		{ return this.Arr.slice(0, this.Len); }
+	public Reset			(Capacity:number): void		{ this.Arr.length=Capacity; this.Len=0; }
+	public ResetLen			(				): void		{ this.Len=0; }
 }
 
 export namespace KeyState
@@ -457,7 +465,7 @@ export namespace KeyState
 	const Keys=new Map<string, boolean>();
 	window.addEventListener('keydown', e => Keys.set(e.code, true ), { passive:false });
 	window.addEventListener('keyup'  , e => Keys.set(e.code, false), { passive:false });
-	export function GetKeyDown(Name:string) { return Keys.get(Name) ?? false; }
+	export function GetKeyDown(Name:string): boolean { return Keys.get(Name) ?? false; }
 }
 
 export const WillBeSet=undefined!;

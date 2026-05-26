@@ -18,20 +18,20 @@ export default class ConfigItem_Enum extends ConfigItem<string>
 		this.LanguageChanged();
 		DefaultTr.UpdateDOMSubElements(this.$SelectBox[0]);
 	}
-	public AddList(List:Map<string, string>|Record<string, string>)
+	public AddList(List:Map<string, string>|Record<string, string>): void
 	{
 		for(const [Key, Value] of (List instanceof Map ? List : Object.entries(List)))
 			this.Add(Key, Value);
 	}
-	public Add(Key:string, Value:string)
+	public Add(Key:string, Value:string): void
 	{
 		if(this.EnumValues.has(Key))
 			throw new Error("Key already used: "+Key);
 		this.$SelectBox.append($('<option>').val(Key).text(Value));
 		this.EnumValues.set(Key, Value);
 	}
-	protected override ValueSet() { this.$SelectBox.val(this.V); }
-	protected override LanguageChanged()
+	protected override ValueSet(): void { this.$SelectBox.val(this.V); }
+	protected override LanguageChanged(): void
 	{
 		this.$SelectBox.children('option:not(.NoVal)').each((_, El) =>
 			void($(El).text(

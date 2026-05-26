@@ -11,7 +11,7 @@ const MiceButtonsToMonitor=3;
 enum MouseButton { Left, Middle, Right, Pointer }
 export class MouseButtonEvent
 {
-	public get Buttons() { return MouseButton; }
+	public get Buttons(): typeof MouseButton { return MouseButton; }
 	public readonly Button:MouseButton;
 	constructor(
 		public readonly Event:TriggeredEvent,
@@ -43,29 +43,29 @@ export class MouseButtonEvent
 
 export default class MapCanvas
 {
-	private _Canvas:HTMLCanvasElement=WillBeSet; public get Canvas() { return this._Canvas; }
+	private _Canvas:HTMLCanvasElement=WillBeSet; public get Canvas(): HTMLCanvasElement { return this._Canvas; }
 	private Ctx:CanvasRenderingContext2D=WillBeSet;
 	private Image:ImageBitmap=null!;
 	private DRP=1;
 	private X=0; private Y=0;
-	private Scale=1; private MinScale=0.1; private MaxScale=8; public get ScaleRange() { return new Vector2(this.MinScale, this.MaxScale); }
+	private Scale=1; private MinScale=0.1; private MaxScale=8; public get ScaleRange(): Vector2 { return new Vector2(this.MinScale, this.MaxScale); }
 	private MinVisiblePx=32; //Pan clamp config: ensure at least some of the image remains visible
 	private NeedsRedraw=true;
-	public Refresh() { this.NeedsRedraw=true; }
+	public Refresh(): void { this.NeedsRedraw=true; }
 
 	//Critical error handling and extra messages
 	private _ErrorMessage?:string=undefined;
 	private _CanRender=false;
 	public get ErrorMessage(): string|undefined { return this._ErrorMessage; }
 	public set ErrorMessage(msg:string) { this._ErrorMessage=msg; this.NeedsRedraw=true; }
-	public get CanRender() { return this._CanRender; }
+	public get CanRender(): boolean { return this._CanRender; }
 	public ExtraMessage?="Loading icons...";
 
-	public get Width() { return this.Canvas.clientWidth; }
-	public get Height() { return this.Canvas.clientHeight; }
-	public get Pos() { return new Vector2(this.X, this.Y); }
-	public get ZoomScale() { return this.Scale; }
-	public get CanvasPos() { const Rect=this.Canvas.getBoundingClientRect(); return new Vector2(Rect.x, Rect.y); }
+	public get Width	(): number	{ return this.Canvas.clientWidth; }
+	public get Height	(): number	{ return this.Canvas.clientHeight; }
+	public get Pos		(): Vector2	{ return new Vector2(this.X, this.Y); }
+	public get ZoomScale(): number	{ return this.Scale; }
+	public get CanvasPos(): Vector2	{ const Rect=this.Canvas.getBoundingClientRect(); return new Vector2(Rect.x, Rect.y); }
 
 	constructor(
 		private readonly MulX:number, private readonly MulY:number, private readonly AddX:number, private readonly AddY:number
@@ -122,7 +122,7 @@ export default class MapCanvas
 		UserZoom	:new CallbackList<[Pos:Util.Mutable<Vector2>,{Scale:number}]>('MapCanvas.ZoomAt'),
 	};
 
-	public async Init(ImageURL:string)
+	public async Init(ImageURL:string): Promise<void>
 	{
 		//Initialize the canvas
 		$('#map').empty().append(
@@ -152,7 +152,7 @@ export default class MapCanvas
 		}
 	}
 
-	private ResizeToWindow()
+	private ResizeToWindow(): void
 	{
 		const CRect=this.Canvas.getBoundingClientRect();
 		this.DRP=window.devicePixelRatio||1;
@@ -175,7 +175,7 @@ export default class MapCanvas
 		this.UpdatePosAndScale(Math.min(Math.max(this.Scale, this.MinScale), this.MaxScale)); //Ensure current scale respects new bounds
 	}
 
-	private BindInput()
+	private BindInput(): void
 	{
 		$(this.Canvas)
 			.on('dragstart'	 , e => e.preventDefault())
@@ -195,7 +195,7 @@ export default class MapCanvas
 		}, {passive:false});
 	}
 
-	private BindInputMouse()
+	private BindInputMouse(): void
 	{
 		let IsDragging=false;
 		let LastX=0, LastY=0;
@@ -246,7 +246,7 @@ export default class MapCanvas
 			});
 	}
 
-	private BindInputPointer()
+	private BindInputPointer(): void
 	{
 		let IsDragging=false, IsPinching=false, TouchClickValid=false;
 		let LastX=0, LastY=0, PinchMapX=0, PinchMapY=0, PinchStartDist=0, PinchStartScale=1, StartX=0, StartY=0, StartTime=0;
@@ -280,7 +280,7 @@ export default class MapCanvas
 		};
 		const EndPinch= () => IsPinching=false;
 
-		function CallPointerEvent(e:TriggeredEvent, CallFunc:(Pe:PointerEvent, e:TriggeredEvent) => void)
+		function CallPointerEvent(e:TriggeredEvent, CallFunc:(Pe:PointerEvent, e:TriggeredEvent) => void): void
 		{
 			const Pe=e.originalEvent as PointerEvent;
 			if(Pe.pointerType!=='touch')
@@ -349,7 +349,7 @@ export default class MapCanvas
 		this.Canvas.addEventListener('touchstart', e => e.preventDefault(), {passive:false});
 	}
 
-	public ZoomAt(Pos:Vector2, ScaleAmount:number)
+	public ZoomAt(Pos:Vector2, ScaleAmount:number): void
 	{
 		const NewScale=Math.min(Math.max(this.Scale*ScaleAmount, this.MinScale), this.MaxScale);
 		if(NewScale===this.Scale)
@@ -363,13 +363,13 @@ export default class MapCanvas
 		);
 	}
 
-	public PanAt(DeltaX:number, DeltaY:number)
+	public PanAt(DeltaX:number, DeltaY:number): void
 	{
 		this.UpdatePosAndScale(undefined, this.X+DeltaX, this.Y+DeltaY);
 	}
 
 	protected Mover?:Mover=undefined;
-	public CenterOnPoint(Pos:Vector2, Duration?:number, NewScale?:number)
+	public CenterOnPoint(Pos:Vector2, Duration?:number, NewScale?:number): void
 	{
 		const NewX=this.Width /2-(Pos.X-this.X);
 		const NewY=this.Height/2-(Pos.Y-this.Y);
@@ -381,10 +381,10 @@ export default class MapCanvas
 
 	private static readonly FPSAverageOver=2000;
 	private FrameTimes:number[]=[];
-	private _FrameNum:number=0; public get FrameNum() { return this._FrameNum; }
-	public get FPS() { return this.FrameTimes.length/MapCanvas.FPSAverageOver*1000; }
+	private _FrameNum:number=0; public get FrameNum(): number { return this._FrameNum; }
+	public get FPS(): number { return this.FrameTimes.length/MapCanvas.FPSAverageOver*1000; }
 	private BindLoop=this.Loop.bind(this);
-	private Loop()
+	private Loop(): void
 	{
 		//Calculate FPS
 		const Now=performance.now();
@@ -426,7 +426,7 @@ export default class MapCanvas
 			this.DrawCenteredAutoFitText(this.ExtraMessage);
 	}
 
-	private DrawCenteredAutoFitText(Text:string)
+	private DrawCenteredAutoFitText(Text:string): void
 	{
 		const FontFamily='sans-serif';
 		const Padding=24;
@@ -439,19 +439,19 @@ export default class MapCanvas
 			this.Ctx.fillText(Line.Text, Line.Rect.X+Padding, Line.Rect.Y+Padding+Line.Rect.Height/2);
 	}
 
-	private MapToCanvasCoord(MapV:number, InV:number, Mul:number, Add:number) { return MapV+(InV*Mul+Add)*this.Scale; }
-	private CanvasToMapCoord(MapV:number, InV:number, Mul:number, Add:number) { return ((InV-MapV)/this.Scale-Add)/Mul; }
-	private MapToCanvasRel	(Pos:Vector2, RelX:number, RelY:number) { return new Vector2(this.MapToCanvasCoord(RelX, Pos.X, this.MulX, this.AddX), this.MapToCanvasCoord(RelY, Pos.Y, this.MulY, this.AddY)); }
-	private CanvasToMapRel	(Pos:Vector2, RelX:number, RelY:number) { return new Vector2(this.CanvasToMapCoord(RelX, Pos.X, this.MulX, this.AddX), this.CanvasToMapCoord(RelY, Pos.Y, this.MulY, this.AddY)); }
-	public MapToCanvas		(Pos:Vector2) { return this.MapToCanvasRel(Pos, this.X, this.Y		); }
-	public CanvasToMap		(Pos:Vector2) { return this.CanvasToMapRel(Pos, this.X, this.Y		); }
-	public MapToCanvasUniv	(Pos:Vector2) { return this.MapToCanvasRel(Pos, 0,			0		); }
-	public CanvasUnivToMap	(Pos:Vector2) { return this.CanvasToMapRel(Pos, 0,			0		); }
-	public CanvasToCanvasUniversal(Pos:Vector2) { return new Vector2(Pos.X-this.X, Pos.Y-this.Y	); }
-	public CanvasUniversalToCanvas(Pos:Vector2) { return new Vector2(Pos.X+this.X, Pos.Y+this.Y	); }
+	private	MapToCanvasCoord(MapV:number, InV:number, Mul:number, Add:number): number  { return MapV+(InV*Mul+Add)*this.Scale; }
+	private	CanvasToMapCoord(MapV:number, InV:number, Mul:number, Add:number): number  { return ((InV-MapV)/this.Scale-Add)/Mul; }
+	private	MapToCanvasRel	(Pos:Vector2, RelX:number, RelY:number			): Vector2 { return new Vector2(this.MapToCanvasCoord(RelX, Pos.X, this.MulX, this.AddX), this.MapToCanvasCoord(RelY, Pos.Y, this.MulY, this.AddY)); }
+	private	CanvasToMapRel	(Pos:Vector2, RelX:number, RelY:number			): Vector2 { return new Vector2(this.CanvasToMapCoord(RelX, Pos.X, this.MulX, this.AddX), this.CanvasToMapCoord(RelY, Pos.Y, this.MulY, this.AddY)); }
+	public	MapToCanvas		(Pos:Vector2									): Vector2 { return this.MapToCanvasRel(Pos, this.X, this.Y		); }
+	public	CanvasToMap		(Pos:Vector2									): Vector2 { return this.CanvasToMapRel(Pos, this.X, this.Y		); }
+	public	MapToCanvasUniv	(Pos:Vector2									): Vector2 { return this.MapToCanvasRel(Pos, 0,			0		); }
+	public	CanvasUnivToMap	(Pos:Vector2									): Vector2 { return this.CanvasToMapRel(Pos, 0,			0		); }
+	public	CanvasToCanvasUniversal(Pos:Vector2								): Vector2 { return new Vector2(Pos.X-this.X, Pos.Y-this.Y	); }
+	public	CanvasUniversalToCanvas(Pos:Vector2								): Vector2 { return new Vector2(Pos.X+this.X, Pos.Y+this.Y	); }
 
 	//eslint-disable-next-line @typescript-eslint/naming-convention
-	private EvPos(e:{clientX:number, clientY:number}) { return new Vector2(e.clientX, e.clientY).Sub(this.CanvasPos); }
+	private EvPos(e:{clientX:number, clientY:number}): Vector2 { return new Vector2(e.clientX, e.clientY).Sub(this.CanvasPos); }
 }
 abstract class MapCanvas_Friend extends MapCanvas implements FriendClass
 {
@@ -492,9 +492,9 @@ class Mover
 		}
 	}
 
-	private static Ease(T:number, Pow=4) { return T<0.5 ? 0.5*Math.pow(2*T, Pow) : 1-0.5*Math.pow(2*(1-T), Pow); }
-	public static Lerp(a:number, b:number, t:number) { return a+(b-a)*t; }
-	private OnFrame()
+	private static Ease(T:number, Pow=4): number { return T<0.5 ? 0.5*Math.pow(2*T, Pow) : 1-0.5*Math.pow(2*(1-T), Pow); }
+	public static Lerp(a:number, b:number, t:number): number { return a+(b-a)*t; }
+	private OnFrame(): void
 	{
 		const LinearProgressPoint=Math.min((Date.now()-this.StartTime)/this.Duration, 1);
 		if(LinearProgressPoint===0)
@@ -513,7 +513,7 @@ class Mover
 		if(LinearProgressPoint>=1)
 			this.Cancel();
 	}
-	public Cancel()
+	public Cancel(): void
 	{
 		if(this.IsComplete)
 			return;

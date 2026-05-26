@@ -21,7 +21,7 @@ type LoadCategory=Record<string, Record<string, {OrderID:number, IconID:number, 
 //Create icon sprites as needed
 class IconSprites
 {
-	public get NumSpritesAvailable() { return IconLenX*IconLenY; }
+	public get NumSpritesAvailable(): number { return IconLenX*IconLenY; }
 	private SpriteList:(Sprite|null)[]=Array(this.NumSpritesAvailable).fill(null);
 	private CSSSpriteURL =document.createElement('style');
 	private CSSSpriteList=document.createElement('style');
@@ -48,7 +48,7 @@ class IconSprites
 }`;
 	}
 
-	public Get(IconID:number)
+	public Get(IconID:number): Sprite
 	{
 		//Instead of dealing with errors, just use an error icon when out of range
 		if(IconID<0 || IconID>=this.NumSpritesAvailable)
@@ -63,7 +63,7 @@ class IconSprites
 	}
 
 	//Set the sprite’s image
-	protected SetIconPics(IconPicsTex:ImageBitmap, ImageURL:string)
+	protected SetIconPics(IconPicsTex:ImageBitmap, ImageURL:string): void
 	{
 		MapIcon.UpdateDefaultSpriteSheet(IconPicsTex);
 		GetExtraAssets.GetPath(ImageURL).then(NewURL =>
@@ -71,7 +71,7 @@ class IconSprites
 		);
 	}
 
-	private static GetIconRectByID(IconID:number)
+	private static GetIconRectByID(IconID:number): Rect
 	{
 		const X=IconID%IconLenX;
 		const Y=Math.floor(IconID/IconLenX);
@@ -82,7 +82,7 @@ class IconSprites
 		);
 	}
 
-	private CreateSprite(IconRect:Rect) { return new Sprite(DefaultSSV, IconRect, new Vector2(0.5, 0.5)); }
+	private CreateSprite(IconRect:Rect): Sprite { return new Sprite(DefaultSSV, IconRect, new Vector2(0.5, 0.5)); }
 }
 
 //noinspection ExceptionCaughtLocallyJS
@@ -94,7 +94,7 @@ export default class DataStorage
 	public readonly StaticLinks=new Map<number, StaticLink>();
 	public readonly MyIconSprites=new IconSprites();
 
-	protected async Load(CategoriesPath:string, ItemsPath:string, MiscPath:string, IconSetPath:string)
+	protected async Load(CategoriesPath:string, ItemsPath:string, MiscPath:string, IconSetPath:string): Promise<void>
 	{
 		//Start the async file loads
 		const PCategories	=GetExtraAssets.LoadJson (CategoriesPath);
@@ -178,7 +178,8 @@ export default class DataStorage
 			try { (this.MyIconSprites as Icon_SpritesFriend).SetIconPics(await NewIconSet, ImageURL); }
 			catch(e) { Log.Error("Could not load icons texture: "+Util.GetErrorMessage(e)); }
 		};
-		async function UpdateIconSet(ImageURL:string) {
+		async function UpdateIconSet(ImageURL:string): Promise<void>
+		{
 			try { await LoadIconSet(GetExtraAssets.LoadImage(ImageURL), ImageURL); }
 			catch(e) {
 				Log.Error(e);
@@ -196,12 +197,12 @@ export default class DataStorage
 	}
 
 	//Distribute chain system items
-	protected CompleteInit()
+	protected CompleteInit(): void
 	{
 		//Static helpers
 		const GetNonEmptyLists=(...CL:(ChainList|undefined)[]) => CL.filter(CLi => (CLi?.Items?.length ?? 0)>0) as ChainList[];
 		const GetListItems=(CL:ChainList) => CL.Items!.flat();
-		function AddReqOrNeedToReward(RewardItem:Item, ReqOrNeedList:ChainList, Items:Map<number, Item>)
+		function AddReqOrNeedToReward(RewardItem:Item, ReqOrNeedList:ChainList, Items:Map<number, Item>): void
 		{
 			//Add the Req/Need ChainList to the Reward
 			const Error=RewardItem.AddStoreChainList(ReqOrNeedList);
@@ -268,7 +269,7 @@ export default class DataStorage
 			PrefixList:Record<string, string>,
 			ModifyList:Iterable<[I:Item, ItemList:string[]]>,
 			FinishProcessing?:((Str:string, ItemID:number, Index:number) => string)
-		) {
+		): void {
 			//Get the regular expression rewrites
 			const Rewrites:[RegExp, string, string][]=[];
 			for(const [PrefixSymbol, RegExStr] of Object.entries(PrefixList))
@@ -304,7 +305,7 @@ export default class DataStorage
 				}
 		}
 
-		public Process(DS:DataStorage, Obj:LoadMisc_Set)
+		public Process(DS:DataStorage, Obj:LoadMisc_Set): void
 		{
 			this.StaticLinks	=(Obj.StaticLinks		as Record<string, LoadMisc_StaticLink>);
 			this.ImagePrefix	=(Obj.ImagePrefix		as Record<string, string>) ?? {};
@@ -328,7 +329,7 @@ export default class DataStorage
 	};
 
 	//Load the category toggle states
-	private LoadCategoryToggleStates(FirstRun:boolean)
+	private LoadCategoryToggleStates(FirstRun:boolean): void
 	{
 		try {
 			for(const Cat of this.Categories.values())
@@ -349,7 +350,7 @@ export default class DataStorage
 	}
 
 	//Create all the icons
-	private LoadIcons()
+	private LoadIcons(): void
 	{
 		for(const Item of this.Items.values())
 			Item.MapIcon=new MapIcon(
@@ -359,7 +360,7 @@ export default class DataStorage
 	}
 
 	//Category state updating functions
-	public CycleGroupCategoryState(CG:CategoryGroup)
+	public CycleGroupCategoryState(CG:CategoryGroup): void
 	{
 		let ConfirmState=CG.values().next().value?.ToggleState ?? CategoryToggleState.None;
 		for(const Cat of CG.values())
@@ -373,7 +374,7 @@ export default class DataStorage
 		this.SaveAndUpdateAllCategoryToggleStates();
 	}
 
-	public SetAllCategoriesStates(NewState:CategoryToggleState)
+	public SetAllCategoriesStates(NewState:CategoryToggleState): void
 	{
 		if(NewState===CategoryToggleState.Unknown)
 			return;
@@ -382,7 +383,7 @@ export default class DataStorage
 		this.SaveAndUpdateAllCategoryToggleStates();
 	}
 
-	public SetCategoryState(TheCat:Category, NewState:CategoryToggleState)
+	public SetCategoryState(TheCat:Category, NewState:CategoryToggleState): void
 	{
 		if(NewState===CategoryToggleState.Unknown)
 			return;
@@ -390,7 +391,7 @@ export default class DataStorage
 		this.SaveAndUpdateAllCategoryToggleStates();
 	}
 
-	public SetCategoriesStatesFor100Percent()
+	public SetCategoriesStatesFor100Percent(): void
 	{
 		const RequiredCategories=['Mask Shard', 'Spool Fragment', 'Silk Heart', 'Kit/Pouch Update'];
 		for(const Cat of this.Categories.values())
@@ -408,7 +409,7 @@ export default class DataStorage
 		}
 	}
 
-	private SaveAndUpdateAllCategoryToggleStates()
+	private SaveAndUpdateAllCategoryToggleStates(): void
 	{
 		const SaveLists:[number[], number[], number[]]=[[], [], []];
 		for(const Cat of this.Categories.values())
@@ -419,7 +420,7 @@ export default class DataStorage
 			Item.CurrentToggleState=this.Categories.get(Item.CategoryID)!.ToggleState;
 	}
 
-	public LinkSelected(ID:number|string)
+	public LinkSelected(ID:number|string): void
 	{
 		//Convert from a string to an int
 		if(typeof(ID)==='string') {
@@ -455,14 +456,14 @@ abstract class Category_Friend extends Category implements FriendClass
 }
 abstract class ChainItem_Friend extends ChainItem implements FriendClass
 {
-	public static override Process_NeedsIDAndName() { return super.Process_NeedsIDAndName(); }
+	public static override Process_NeedsIDAndName(): void { return super.Process_NeedsIDAndName(); }
 	//Ignore these
 	protected constructor() { super(null!, null!); this.Stub(); }
 	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
 }
 abstract class Icon_SpritesFriend extends IconSprites implements FriendClass
 {
-	public override SetIconPics(_IconPicsTex:ImageBitmap, _ImageURL:string) { this.Stub(); }
+	public override SetIconPics(_IconPicsTex:ImageBitmap, _ImageURL:string): void { this.Stub(); }
 	//Ignore these
 	protected constructor() { super(); this.Stub(); }
 	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }

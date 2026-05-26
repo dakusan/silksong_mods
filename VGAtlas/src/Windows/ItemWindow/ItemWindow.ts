@@ -27,7 +27,7 @@ export default class ItemWindow extends Window
 		this.AutoSize(Callback => { Callback.call(this, 300, 350); this.IsInitializing=this.SelfMove=false; this.CallItemCB('WindowCB_Sized'); });
 		this.CallItemCB('WindowCB_Created');
 	}
-	private UpdateContents()
+	private UpdateContents(): void
 	{
 		const Cat=Share.DS.Categories.get(this.LinkedItem.CategoryID)!;
 		this.$Content.addClass('ItemContents').append($('<div>').append(
@@ -61,7 +61,7 @@ export default class ItemWindow extends Window
 
 		this.CallItemCB('WindowCB_ContentsUpdated');
 	}
-	public UpdateAttachedPosition()
+	public UpdateAttachedPosition(): void
 	{
 		if(!this.IsAttached)
 			return;
@@ -75,7 +75,7 @@ export default class ItemWindow extends Window
 		}
 		this.SelfMove=this.IsInitializing;
 	}
-	public override LanguageChanged()
+	public override LanguageChanged(): void
 	{
 		Share.Tr.OnLanguageLoadedOnce(() => {
 			this.$Content.children().remove();
@@ -83,20 +83,20 @@ export default class ItemWindow extends Window
 		});
 	}
 
-	public override OnMoved()
+	public override OnMoved(): void
 	{
 		if(this.SelfMove || !this.IsAttached)
 			return;
 		this.IsAttached=false;
 		this.$Root.addClass('Detached');
 	}
-	public ItemUnselected()
+	public ItemUnselected(): void
 	{
 		if(this.IsAttached)
 			this.Close();
 	}
 
-	public override Refresh()
+	public override Refresh(): void
 	{
 		this.$Content.empty();
 		this.UpdateContents();

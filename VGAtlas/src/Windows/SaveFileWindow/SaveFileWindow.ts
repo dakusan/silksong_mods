@@ -18,7 +18,7 @@ export default class SaveFileWindow extends Window
 		this.Init();
 	}
 
-	private Init()
+	private Init(): void
 	{
 		//Create the DOM content
 		this.$Content.append(Html)[0].dataset.translationSection='LoadSaveFile';
@@ -66,7 +66,7 @@ export default class SaveFileWindow extends Window
 	}
 }
 
-function UpdateContentState(Win:SaveFileWindow)
+function UpdateContentState(Win:SaveFileWindow): void
 {
 	const SaveFileContents=$('#SaveFileContents');
 	const FileName=localStorage.getItem('SaveDataFileName');

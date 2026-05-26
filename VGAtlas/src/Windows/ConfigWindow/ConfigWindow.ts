@@ -31,7 +31,7 @@ export default class ConfigWindow extends Window
 
 		this.LanguageChanged();
 	}
-	private AddViewableToggles()
+	private AddViewableToggles(): void
 	{
 		const ToggleViews={Configure:"Settings", Shortcuts:"Keyboard Shortcuts"};
 		let CurrentToggleView=GetValidToggleView(localStorage.Config_ViewSection);
@@ -76,12 +76,12 @@ export default class ConfigWindow extends Window
 		)[0]);
 	}
 
-	public TranslateFunc(Section:string, Key:string, ConfigItem?:ConfigItemBase)
+	public TranslateFunc(Section:string, Key:string, ConfigItem?:ConfigItemBase): string
 	{
 		return this.Tr ? ConfigWindow.TranslateFuncReal(this.Tr, Section, Key, ConfigItem) : ConfigWindow.NoTranslation(Section, Key, ConfigItem);
 	}
 	private static TranslationSectionConversions:Record<string, string>={SECTION_TITLE:'SettingSections', CONFIG_KEY:'SettingNames', CONFIG_DESCRIPTION:'SettingDescriptions'};
-	public static TranslateFuncReal(Tr:Translations, Section:string, Key:string, ConfigItem?:ConfigItemBase)
+	public static TranslateFuncReal(Tr:Translations, Section:string, Key:string, ConfigItem?:ConfigItemBase): string
 	{
 		if(ConfigItem instanceof ConfigItem_Languages)
 			switch(Section) {
@@ -91,12 +91,12 @@ export default class ConfigWindow extends Window
 
 		return Tr.TranslateNull(Key, this.TranslationSectionConversions[Section]) ?? ConfigWindow.NoTranslation(Section, Key, ConfigItem);
 	}
-	private static NoTranslation(Section:string, Key:string, ConfigItem?:ConfigItemBase)
+	private static NoTranslation(Section:string, Key:string, ConfigItem?:ConfigItemBase): string
 	{
 		return Section==='CONFIG_DESCRIPTION' ? (ConfigItem!.Options?.Description ?? StatStr.Empty) : Key;
 	}
 
-	public override LanguageChanged()
+	public override LanguageChanged(): void
 	{
 		const UpdateSections=() => this.Sections.forEach(Section => (Section as ConfigWindowSection_Friend).LanguageChanged());
 		if(this.Tr)
@@ -105,7 +105,7 @@ export default class ConfigWindow extends Window
 			UpdateSections();
 	}
 
-	public override OnClosing()
+	public override OnClosing(): false
 	{
 		for(const Section of this.Sections)
 			for(const Row of Section.Rows)
@@ -129,7 +129,7 @@ class ConfigWindowSection
 			this.Rows.push(new ConfigWindowRow(this, ConfigItem, $Table));
 	}
 
-	protected LanguageChanged()
+	protected LanguageChanged(): void
 	{
 		this.$Title.text(this.Parent.TranslateFunc('SECTION_TITLE', this.SectionName));
 		for(const Row of this.Rows)
@@ -162,7 +162,7 @@ class ConfigWindowRow
 		this.$ConfigResetButton.on('click', () => (this.ConfigItem as ConfigItem<ConfigItemValueTypes>).ResetToDefault());
 	}
 
-	protected LanguageChanged()
+	protected LanguageChanged(): void
 	{
 		this.$TitleText.text(this.Parent.Parent.TranslateFunc('CONFIG_KEY', this.ConfigItem.Key, this.ConfigItem));
 		this.$DescriptionEl?.text(this.Parent.Parent.TranslateFunc('CONFIG_DESCRIPTION', this.ConfigItem.Key, this.ConfigItem));
@@ -180,14 +180,14 @@ abstract class ConfigItemBase_Friend extends ConfigItemBase implements FriendCla
 }
 abstract class ConfigWindowSection_Friend extends ConfigWindowSection implements FriendClass
 {
-	public override LanguageChanged() { this.Stub(); }
+	public override LanguageChanged(): void { this.Stub(); }
 	//Ignore these
 	protected constructor() { super(null!, null!, null!, null!); this.Stub(); }
 	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
 }
 abstract class ConfigWindowRow_Friend extends ConfigWindowRow implements FriendClass
 {
-	public override LanguageChanged() { this.Stub(); }
+	public override LanguageChanged(): void { this.Stub(); }
 	//Ignore these
 	protected constructor() { super(null!, null!, null!); this.Stub(); }
 	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }

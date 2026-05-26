@@ -32,7 +32,7 @@ export const ExpNo	=()																=> (Target:object, Name:string) => SetJSPr
 export const ExpYes	=()																=> (Target:object, Name:string) => SetJSProps(Target, Name, {ExpYes	:true				});
 //noinspection JSUnusedGlobalSymbols
 export const NullYes=()																=> (Target:object, Name:string) => SetJSProps(Target, Name, {NullYes:true				});
-function SetJSProps<K extends keyof JSProps>(Target:object, Name:string, Values:Pick<JSProps, K>)
+function SetJSProps<K extends keyof JSProps>(Target:object, Name:string, Values:Pick<JSProps, K>): void
 {
 		const Ctor=(Target as JsonClass).constructor as typeof JsonClass;
 		if(!Object.prototype.hasOwnProperty.call(Ctor, 'ClassJSProps'))
@@ -70,7 +70,7 @@ export namespace LoadJson
 	}
 
 	//Convert from imported JSON (ValuesObj) to the final class-based object (Obj). Converters will transform members.
-	export function ClassFromObj<ObjType extends object>(Obj:ObjType, ValuesObj:object, Converters?:Record<keyof ObjType, JsonConverter_Generic<ObjType>>)
+	export function ClassFromObj<ObjType extends object>(Obj:ObjType, ValuesObj:object, Converters?:Record<keyof ObjType, JsonConverter_Generic<ObjType>>): ObjType
 	{
 		const ClassJSProps=(Obj.constructor as typeof JsonClass).ClassJSProps as Map<keyof ObjType, JSProps>|undefined;
 		const Values=ValuesObj as Record<keyof ObjType, unknown>;
@@ -124,13 +124,13 @@ export namespace SaveJson
 
 	//Internal encoding functions
 	const EmptyJP=new JSProps();
-	function EncodeObj(InObj:object, OutObj:object)
+	function EncodeObj(InObj:object, OutObj:object): object
 	{
 		const AnyIn =InObj  as Record<string, unknown>;
 		const AnyOut=OutObj as Record<string, unknown>;
 
 		const JPs=(InObj.constructor as typeof JsonClass).ClassJSProps;
-		function Emit(Name:string)
+		function Emit(Name:string): void
 		{
 			//if(IsPrivate && !JP.ExpYes) return; //Unfortunately, private fields cannot be recognized
 			const JP=JPs?.get(Name) ?? EmptyJP;
@@ -184,7 +184,7 @@ export namespace SaveJson
 	//Exporting functions
 	//Encodes to JSON. Classes can be handled by IExpOverride; Object fields and getters are handled according to JSProps exporting decorators.
 	//Objects maintain their member order. Getters always come after fields. Numeric keys in maps are kept in their original order.
-	export function Stringify(Data:unknown, Compact=false, TrailingCommas=true, Replacer?:(this:unknown, key:string, value:unknown) => unknown)
+	export function Stringify(Data:unknown, Compact=false, TrailingCommas=true, Replacer?:(this:unknown, key:string, value:unknown) => unknown): string
 	{
 		//The primary encoding process
 		let Output=JSON.stringify(EncodeVal(Data), Replacer, Compact ? undefined : '\t').replaceAll(PlaceholderChar, '');
@@ -237,21 +237,21 @@ export namespace SaveJson
 	}
 
 	//Convert a double to G17 format
-	function ToG17Str(Num:number)
+	function ToG17Str(Num:number): string
 	{
 		const Str=Num.toPrecision(17);
 		return Str.includes('.') ? Str.replace(/\.?0+$/, '') : Str;
 	}
 
 	//Post-encoding fixes
-	function PostFormatLikeMod(Str:string)
+	function PostFormatLikeMod(Str:string): string
 	{
 		Str=Str.replace(/^(\t*"[xy]": )"(.*?)"/gm, '$1$2'); //Doubles were formatted to G17 as string, so revert them
 		return Str;
 	}
 
 	//For testing with rendered contents
-	function PostFormatLikeMod_TestHTML(Str:string)
+	function PostFormatLikeMod_TestHTML(Str:string): string
 	{
 		return Str
 			.replace(/<(a|span)[^>]+>/g, m => m.replace(/"/g, '\\"'))

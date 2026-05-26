@@ -43,7 +43,7 @@ export function ExecuteAutoFit(
 	Lines:string|string[],
 	Width:number, Height:number,
 	Opts?:Partial<FitOptions>,
-) {
+): AutoFitText {
 	return CalculateMaxFontSize(
 		new OffscreenCanvas(Width, Height).getContext('2d')!,
 		Array.isArray(Lines) ? Lines : Lines.split(/\r?\n/),
@@ -53,7 +53,7 @@ export function ExecuteAutoFit(
 }
 
 //CheckIfFitsFunc
-export function CheckFits_Rectangle(Width:number, Height:number, LineRects:LineRect[])
+export function CheckFits_Rectangle(Width:number, Height:number, LineRects:LineRect[]): boolean
 {
 	for(const {Rect:LR} of LineRects)
 		if(LR.X<0 || LR.Y<0 || LR.X+LR.Width>Width || LR.Y+LR.Height>Height)
@@ -62,7 +62,7 @@ export function CheckFits_Rectangle(Width:number, Height:number, LineRects:LineR
 }
 
 //Called by RunFit
-export function CalculateMaxFontSize(Ctx:OffscreenCanvasRenderingContext2D, StrLines:string[], Width:number, Height:number, Opts:FitOptions)
+export function CalculateMaxFontSize(Ctx:OffscreenCanvasRenderingContext2D, StrLines:string[], Width:number, Height:number, Opts:FitOptions): AutoFitText
 {
 	let Min=Opts.MinFont;
 	let Max=Opts.MaxFont;
@@ -87,7 +87,7 @@ export function CalculateMaxFontSize(Ctx:OffscreenCanvasRenderingContext2D, StrL
 }
 
 //Called by CalculateSize
-export function GetLineRects(Lines:LineSize[], Width:number, Height:number, Opts:FitOptions)
+export function GetLineRects(Lines:LineSize[], Width:number, Height:number, Opts:FitOptions): LineRect[]
 {
 	//Calculate equal line height if needed
 	let MaxLineHeight=0; //0 if not equal line height
@@ -120,7 +120,7 @@ export function GetLineRects(Lines:LineSize[], Width:number, Height:number, Opts
 }
 
 //Called by CalculateSize
-export function GetLineSizes(Ctx:OffscreenCanvasRenderingContext2D, Lines:string[])
+export function GetLineSizes(Ctx:OffscreenCanvasRenderingContext2D, Lines:string[]): LineSize[]
 {
 	const Size=parseInt(Ctx.font, 10);
 	let Index=0;
@@ -135,7 +135,7 @@ export function GetLineSizes(Ctx:OffscreenCanvasRenderingContext2D, Lines:string
 	return Sizes;
 }
 
-function CalcAlign(AlignType:AlignTextType, Outer:number, Inner:number)
+function CalcAlign(AlignType:AlignTextType, Outer:number, Inner:number): number
 {
 		return (
 			  AlignType===AlignTextType.Beginning	? 0
@@ -146,7 +146,7 @@ function CalcAlign(AlignType:AlignTextType, Outer:number, Inner:number)
 }
 
 //Assumes the circle's bounding box starts at 0,0 and has a diameter matching the shortest side
-export function CheckFits_Circle(Width:number, Height:number, LineRects:LineRect[])
+export function CheckFits_Circle(Width:number, Height:number, LineRects:LineRect[]): boolean
 {
 	const Radius=Math.min(Width, Height)/2;
 	const RadiusSq=Radius*Radius;

@@ -11,18 +11,18 @@ type ExtraDrawFunc=(Ctx:CanvasRenderingContext2D, CanvasRect:Rect) => void;
 abstract class Versioned
 {
 	private Version=0;
-	public get CurrentVersion() { return this.Version; }
-	public IncVersion() { this.Version++; Share.MCanvas.Refresh(); }
+	public get CurrentVersion()	: number{ return this.Version; }
+	public IncVersion()			: void	{ this.Version++; Share.MCanvas.Refresh(); }
 
-	protected RefreshCanvas() { Share.MCanvas.Refresh(); }
-	protected OnChange() { this.IncVersion(); }
+	protected RefreshCanvas()	: void	{ Share.MCanvas.Refresh(); }
+	protected OnChange()		: void	{ this.IncVersion(); }
 }
 
 export class Sprite extends Versioned
 {
 	private static ErrImage?:SpriteSheetVariations;
 	static { void Sprite.CreateErrorImage().catch(() => {}); }
-	private static async CreateErrorImage()
+	private static async CreateErrorImage(): Promise<void>
 	{
 		//noinspection SpellCheckingInspection
 		const Res=await fetch('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADcAAAA2AQMAAABZSZOgAAAABlBMVEX/ANwAAAAtIRQiAAAAIElEQVR4AWNgsH/A/4P5H8X0/wPyH9j/MFBKj7oHPw0AR228KREmCC0AAAAASUVORK5CYII=');
@@ -31,9 +31,9 @@ export class Sprite extends Versioned
 		this.ErrImage=NewErrImage;
 	}
 
-	public get SSV		() { return this._SSV		; }; public set SSV		 (Val) { this._SSV		=Val; this.OnChange(); }
-	public get ImageRect() { return this._ImageRect	; }; public set ImageRect(Val) { this._ImageRect=Val; this.OnChange(); }
-	public get Center	() { return this._Center	; }; public set Center	 (Val) { this._Center	=Val; this.OnChange(); }
+	public get SSV		(): SpriteSheetVariations|undefined	{ return this._SSV		; }; public set SSV		 (Val) { this._SSV		=Val; this.OnChange(); }
+	public get ImageRect(): Rect							{ return this._ImageRect; }; public set ImageRect(Val) { this._ImageRect=Val; this.OnChange(); }
+	public get Center	(): Vector2							{ return this._Center	; }; public set Center	 (Val) { this._Center	=Val; this.OnChange(); }
 	constructor(private _SSV:SpriteSheetVariations|undefined, private _ImageRect:Rect, private _Center:Vector2) { super(); }
 
 	public GetRenderInfo(): SpriteRenderInfo|undefined
@@ -56,17 +56,21 @@ type UpdatableSettableFields={
 class GameObject extends Versioned
 {
 	private static OrderedGameObjectList:GameObject[]=[];
-	private static DrawAll(Ctx:CanvasRenderingContext2D) { Log.Debug("Drawing complete. Icons rendered: "+
-		GameObject.OrderedGameObjectList.map(GO => GO.Draw(Ctx)).filter(B => B).length
-	); }
+	private static DrawAll(Ctx:CanvasRenderingContext2D): void
+	{
+		Log.Debug(
+			"Drawing complete. Icons rendered: "+
+			GameObject.OrderedGameObjectList.map(GO => GO.Draw(Ctx)).filter(B => B).length
+		);
+	}
 	public static get AllObjects(): readonly GameObject[] { return GameObject.OrderedGameObjectList; }
-	private static InitClass()
+	private static InitClass(): void
 	{
 		Share.MCanvas.Events.Draw.Add('GameObjects', GameObject.DrawAll);
 	}
 	static { InitFuncs.push(GameObject.InitClass); }
 
-	private UpdateSettableVal<K extends keyof UpdatableSettableFields>(ValName:K, NewVal:UpdatableSettableFields[K], Callback:() => void)
+	private UpdateSettableVal<K extends keyof UpdatableSettableFields>(ValName:K, NewVal:UpdatableSettableFields[K], Callback:() => void): void
 	{
 		const Self=this as GameObject & UpdatableSettableFields;
 		if(
@@ -78,11 +82,11 @@ class GameObject extends Versioned
 		(Self as {[P in K]: UpdatableSettableFields[P]})[ValName]=NewVal;
 		Callback.call(this);
 	}
-	private _SSVVar:SSVVar		=SSVDefault;public get SSVVar		() { return this._SSVVar	; }; public set SSVVar		(Val) { this.UpdateSettableVal('_SSVVar',		Val, this.OnChange		); }
-	private _Active				=true	  ; public get Active		() { return this._Active	; }; public set Active		(Val) { this.UpdateSettableVal('_Active',		Val, this.RefreshCanvas	); }
-	private _LocalScale:Vector2	=WillBeSet; public get LocalScale	() { return this._LocalScale; }; public set LocalScale	(Val) { this.UpdateSettableVal('_LocalScale',	Val, this.RefreshCanvas	); }
+	private _SSVVar:SSVVar		=SSVDefault;public get SSVVar		():SSVVar  { return this._SSVVar	; }; public set SSVVar		(Val) { this.UpdateSettableVal('_SSVVar',		Val, this.OnChange		); }
+	private _Active				=true	  ; public get Active		():boolean { return this._Active	; }; public set Active		(Val) { this.UpdateSettableVal('_Active',		Val, this.RefreshCanvas	); }
+	private _LocalScale:Vector2	=WillBeSet; public get LocalScale	():Vector2 { return this._LocalScale; }; public set LocalScale	(Val) { this.UpdateSettableVal('_LocalScale',	Val, this.RefreshCanvas	); }
 	//noinspection TypeScriptFieldCanBeMadeReadonly :: Field is set in Pos.setter→UpdateVal
-	private _Pos:Vector2				  ; public get Pos			() { return this._Pos		; }; public set Pos			(Val) { this.UpdateSettableVal('_Pos',			Val, this.RefreshCanvas	); }
+	private _Pos:Vector2				  ; public get Pos			():Vector2 { return this._Pos		; }; public set Pos			(Val) { this.UpdateSettableVal('_Pos',			Val, this.RefreshCanvas	); }
 
 	private SpriteVersion=-1; private RenderedVersion=-1;
 	private SRI?:SpriteRenderInfo=undefined;
@@ -95,14 +99,14 @@ class GameObject extends Versioned
 		GameObject.OrderedGameObjectList.push(this);
 	}
 
-	public BringToFront()
+	public BringToFront(): void
 	{
 		const Arr=GameObject.OrderedGameObjectList;
 		Arr.push(Arr.splice(Arr.indexOf(this), 1)[0]);
 		Share.MCanvas.Refresh();
 	}
 
-	private ReRender()
+	private ReRender(): void
 	{
 		//Type guard
 		if(this.SRI===undefined)
@@ -159,9 +163,10 @@ class GameObject extends Versioned
 		);
 	}
 
-	public SpriteUpdated() { this.MySprite.IncVersion(); }
+	public SpriteUpdated(): void { this.MySprite.IncVersion(); }
 
-	public Delete() {
+	public Delete(): boolean
+	{
 		const Index=GameObject.OrderedGameObjectList.indexOf(this);
 		if(Index!==-1)
 			GameObject.OrderedGameObjectList.splice(Index, 1);
@@ -182,7 +187,7 @@ export class MapIcon
 	}
 
 	private _CTS=CategoryToggleState.Unknown;
-	public get CTS() { return this._CTS; }
+	public get CTS(): CategoryToggleState { return this._CTS; }
 	public set CTS(NewState)
 	{
 		if(this._CTS===NewState || NewState===CategoryToggleState.Unknown)
@@ -192,7 +197,7 @@ export class MapIcon
 		this.UpdateActive();
 	}
 
-	private UpdateActive(_:boolean=true)
+	private UpdateActive(_:boolean=true): void
 	{
 		this.IconGO.Active=(
 			    this.CTS===CategoryToggleState.All
@@ -201,13 +206,13 @@ export class MapIcon
 		this.SetIconColor();
 	}
 
-	private _IsFound			=false; public get IsFound	 () { return this._IsFound		; } public set IsFound		(Val) { if(this._IsFound	!==Val) this.UpdateActive (this._IsFound	=Val); }
-	private _IsHovered			=false; public get IsHovered () { return this._IsHovered	; } public set IsHovered	(Val) { if(this._IsHovered	!==Val) this._SetIconColor(this._IsHovered	=Val); }
-	private _IsSelected			=false; public get IsSelected() { return this._IsSelected	; } public set IsSelected	(Val) { if(this._IsSelected	!==Val) this._SetIconColor(this._IsSelected	=Val); }
-	private _IsLinked			=false; public get IsLinked	 () { return this._IsLinked		; } public set IsLinked		(Val) { if(this._IsLinked	!==Val) this._SetIconColor(this._IsLinked	=Val); }
-	private _SetIconColor(_:boolean) { this.SetIconColor(); }
+	private _IsFound			=false; public get IsFound	 (): boolean { return this._IsFound		; } public set IsFound		(Val) { if(this._IsFound	!==Val) this.UpdateActive (this._IsFound	=Val); }
+	private _IsHovered			=false; public get IsHovered (): boolean { return this._IsHovered	; } public set IsHovered	(Val) { if(this._IsHovered	!==Val) this._SetIconColor(this._IsHovered	=Val); }
+	private _IsSelected			=false; public get IsSelected(): boolean { return this._IsSelected	; } public set IsSelected	(Val) { if(this._IsSelected	!==Val) this._SetIconColor(this._IsSelected	=Val); }
+	private _IsLinked			=false; public get IsLinked	 (): boolean { return this._IsLinked	; } public set IsLinked		(Val) { if(this._IsLinked	!==Val) this._SetIconColor(this._IsLinked	=Val); }
+	private _SetIconColor(_:boolean): void { this.SetIconColor(); }
 
-	public SetIconColor()
+	public SetIconColor(): void
 	{
 		this.IconGO.SSVVar=
 			  this.IsSelected								? 'Green'
@@ -225,7 +230,7 @@ export class MapIcon
 		Share.LC.Color_FoundIcon.SettingChanged.Add('MapIcon.UpdateShaderColor', MapIcon.UpdateShaderColor.bind(this));
 	}
 	private static UpdateShaderColor_TimeoutHandle?:number;
-	private static UpdateShaderColor(C:ColorRGBA)
+	private static UpdateShaderColor(C:ColorRGBA): void
 	{
 		const MyShader=DefaultSSV.Vars.IsFound.Shaders[0] as HSVShader;
 		MyShader.Hue	=C.r-0.5;
@@ -233,7 +238,7 @@ export class MapIcon
 		MyShader.Val	=C.b*2	;
 		MyShader.Alpha	=C.a	;
 
-		function DoRerender()
+		function DoRerender(): void
 		{
 			DefaultSSV.Rerender('IsFound');
 			for(const I of Share.DS?.Items.values() ?? [])
@@ -251,7 +256,7 @@ export class MapIcon
 		}, 1500);
 	}
 
-	public static UpdateDefaultSpriteSheet(IB:ImageBitmap)
+	public static UpdateDefaultSpriteSheet(IB:ImageBitmap): void
 	{
 		DefaultSSV.Update(IB).then(() => {
 			for(const I of (Share.DS?.Items.values() ?? []))
@@ -259,12 +264,12 @@ export class MapIcon
 		});
 	}
 
-	public Delete() { this.IconGO.Delete(); }
-	public BringToFront() { this.IconGO.BringToFront(); }
-	public UpdateSize(IconSize:number) { if(this.IconGO.LocalScale?.X!==IconSize) this.IconGO.LocalScale=new Vector2(IconSize, IconSize); }
-	public get RenderRect() { return this.IconGO.RenderRect; }
-	public set ForceVisibility(Val:boolean) { this.IconGO.Active=Val; }
-	public get IsIconVisible() { return this.IconGO.Active; }
+	public Delete()						: void { this.IconGO.Delete(); }
+	public BringToFront()				: void { this.IconGO.BringToFront(); }
+	public UpdateSize(IconSize:number)	: void { if(this.IconGO.LocalScale?.X!==IconSize) this.IconGO.LocalScale=new Vector2(IconSize, IconSize); }
+	public get RenderRect(): Rect|undefined	{ return this.IconGO.RenderRect; }
+	public set ForceVisibility(Val:boolean)	{ this.IconGO.Active=Val; }
+	public get IsIconVisible(): boolean		{ return this.IconGO.Active; }
 }
 
 abstract class Material
@@ -274,8 +279,8 @@ abstract class Material
 	//noinspection JSUnusedGlobalSymbols
 	public readonly ChangesEachFrame=false;
 
-	private _IsUsingCPUShader=false; public get IsUsingCPUShader() { return this._IsUsingCPUShader; }
-	public Run(In:OffscreenCanvas)
+	private _IsUsingCPUShader=false; public get IsUsingCPUShader(): boolean { return this._IsUsingCPUShader; }
+	public Run(In:OffscreenCanvas): OffscreenCanvas
 	{
 		if(this.GPUShader===undefined)
 			try { this.GPUShader=this.GetGPUShader(In.width, In.height); }
@@ -322,7 +327,7 @@ class HSVShader extends Material
 	public Alpha:number=1.0;
 	private static ColorClass?:typeof import('./Util/Color');
 	private static LoadColorClass?:Promise<void>;
-	protected override Process(Pixels:Uint8ClampedArray)
+	protected override Process(Pixels:Uint8ClampedArray): void
 	{
 		if(!HSVShader.ColorClass)
 			if(HSVShader.LoadColorClass)
@@ -347,8 +352,8 @@ class HSVShader extends Material
 			Pixels[i+3]*=this.Alpha;
 		}
 	}
-	protected override GetGPUShader(Width:number, Height:number) { return new RGBAShader(HSVAShader, Width, Height); }
-	protected override PrepGPUShader(Shader:RGBAShader)
+	protected override GetGPUShader(Width:number, Height:number): RGBAShader { return new RGBAShader(HSVAShader, Width, Height); }
+	protected override PrepGPUShader(Shader:RGBAShader): void
 	{
 		Shader.C={
 			r:this.Hue,
@@ -362,8 +367,8 @@ class HSVShader extends Material
 class RGBTintShader extends Material
 {
 	private C:ColorRGBA=WillBeSet;
-	public SetColor(C:ColorRGBA) { this.C=C; return this; }
-	protected override Process(Pixels:Uint8ClampedArray)
+	public SetColor(C:ColorRGBA): this { this.C=C; return this; }
+	protected override Process(Pixels:Uint8ClampedArray): void
 	{
 		const C=this.C;
 		for(let i=0; i<Pixels.length; i+=4) {
@@ -373,8 +378,8 @@ class RGBTintShader extends Material
 			Pixels[i+3]*=C.a;
 		}
 	}
-	protected override GetGPUShader(Width:number, Height:number) { return new RGBAShader(TintShader, Width, Height); }
-	protected override PrepGPUShader(Shader:RGBAShader) { Shader.C=this.C; }
+	protected override GetGPUShader(Width:number, Height:number): RGBAShader { return new RGBAShader(TintShader, Width, Height); }
+	protected override PrepGPUShader(Shader:RGBAShader): void { Shader.C=this.C; }
 }
 
 //Note: Items used to each have their own canvas with their current sprite (which is how the C# engine basically handled things). And when GameObject.ReRender() was called, it actually rerendered!
@@ -382,7 +387,7 @@ class RGBTintShader extends Material
 //I kept the way sprites were created/updated in case this ever needs to be reverted, and the overhead is minimal. Plus, there is a chance I may have sprites that use their own sheet
 class SpriteSheetVariation
 {
-	private _Canvas?:OffscreenCanvas; public get Canvas() { return this._Canvas; }
+	private _Canvas?:OffscreenCanvas; public get Canvas(): OffscreenCanvas|undefined { return this._Canvas; }
 	public readonly Shaders:readonly Material[];
 	constructor(
 		Color?:ColorRGBA,
@@ -428,7 +433,7 @@ class RenderExecution
 		public readonly Rendered?:OffscreenCanvas,
 		public readonly Ctx?:OffscreenCanvasRenderingContext2D,
 	) { }
-	public Complete()
+	public Complete(): void
 	{
 		if(!this.Rendered)
 			return;
@@ -440,8 +445,8 @@ const SSVDefault='Default';
 type SSVVar=keyof SpriteSheetVariations['Vars'];
 class SpriteSheetVariations
 {
-	public get HasImage() { return !!this._IB; }
-	private _IB?:ImageBitmap; public get IB() { return this._IB; }
+	public get HasImage(): boolean { return !!this._IB; }
+	private _IB?:ImageBitmap; public get IB(): ImageBitmap|undefined { return this._IB; }
 
 	constructor(
 		public Vars:Record<string, SpriteSheetVariation>={
@@ -454,7 +459,7 @@ class SpriteSheetVariations
 		Vars[SSVDefault]=new SpriteSheetVariation(); //Default is required
 	}
 
-	public async Update(IB:ImageBitmap)
+	public async Update(IB:ImageBitmap): Promise<void>
 	{
 		this._IB=IB;
 		let Renders:RenderExecution[];
@@ -472,6 +477,6 @@ class SpriteSheetVariations
 		}
 		Renders.forEach(R => R.Complete());
 	}
-	public Rerender(Var:SSVVar) { if(this._IB) this.Vars[Var]?.Rerender(this._IB).Complete(); }
+	public Rerender(Var:SSVVar): void { if(this._IB) this.Vars[Var]?.Rerender(this._IB).Complete(); }
 }
 export const DefaultSSV=Util.OneTimeInit('SpriteSheetVariations', () => new SpriteSheetVariations());

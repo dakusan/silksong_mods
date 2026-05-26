@@ -28,7 +28,7 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 			ToggleState:CategoryToggleState.All,
 		},
 	);
-	private static StaticInit()
+	private static StaticInit(): void
 	{
 		(this as unknown as {MyCategory:Category}).MyCategory=this.InitCategory();
 		Share.DS.Categories.set(CustomCategoryID, this.MyCategory);
@@ -38,7 +38,7 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 	}
 
 	private static LastID=Item.MinID-1;
-	private static get GetID()
+	private static get GetID(): number
 	{
 		while(Share.DS.Items.has(++this.LastID)) { }
 		if(this.LastID>Item.MaxID)
@@ -47,8 +47,8 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 	}
 
 	public readonly AFT:AutoFitText;
-	private get SpriteSize() { return this.MySprite.ImageRect.Width; }
-	public get MySprite() { return CustomItem.MyCategory.Sprite; }
+	private get SpriteSize(): number { return this.MySprite.ImageRect.Width; }
+	public get MySprite(): typeof CustomItem.MyCategory.Sprite { return CustomItem.MyCategory.Sprite; }
 	public constructor(
 		X:number, Y:number, Title:string,
 		public readonly MyDescription:string, //May have LinkedLabel suitable HTML
@@ -85,9 +85,9 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 		Share.MC.SetIconSize(Share.LC.IconSize.V, this);
 		SaveCustomItems();
 	}
-	public override toString() { return this.MyDescription; }
+	public override toString(): string { return this.MyDescription; }
 
-	public DrawSymbol(Ctx:CanvasRenderingContext2D, CanvasRect:Rect)
+	public DrawSymbol(Ctx:CanvasRenderingContext2D, CanvasRect:Rect): void
 	{
 		//Only update context states if necessary
 		const ScaleSize=(CanvasRect.Width/this.SpriteSize);
@@ -118,7 +118,7 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 	}
 
 	//If the window is not provided, it will attempt to find it
-	public Delete()
+	public Delete(): void
 	{
 		if(this.Detached)
 			return;
@@ -137,7 +137,7 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 		SaveCustomItems();
 	}
 
-	private async Edit()
+	private async Edit(): Promise<void>
 	{
 		if(this.Detached)
 			return;
@@ -149,21 +149,21 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 		new CustomItemWindow(0, 0, CreateCustomItem, this);
 	}
 
-	private Move(IW:ItemWindow)
+	private Move(IW:ItemWindow): void
 	{
 		const MCanvas=Share.MCanvas;
 		if(MCanvas.Canvas.classList.contains('MovingItem'))
 			if(MCanvas.Events.Click.Has('MoveCustomItem'+this.ID))
 				return this.MoveComplete(IW);
 			else
-				return new PopupMessage(Share.Tr.TDef("ErrCannotMoveTwice", 'CustomItems', "Cannot move this while another item is being moved"));
+				return void new PopupMessage(Share.Tr.TDef("ErrCannotMoveTwice", 'CustomItems', "Cannot move this while another item is being moved"));
 
 		MCanvas.Canvas.classList.add('MovingItem');
 		UpdateMoveButton(IW, true);
 		MCanvas.Events.Click.Add('MoveCustomItem'+this.ID, Ev => this.MoveEvent(Ev));
 	}
 
-	private MoveEvent(Ev:MouseButtonEvent)
+	private MoveEvent(Ev:MouseButtonEvent): void
 	{
 		this.MoveComplete(
 			new Iter(Share.WM.AllWindows)
@@ -187,7 +187,7 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 		Share.MC.SelectItem(this);
 	}
 
-	private MoveComplete(IW?:ItemWindow)
+	private MoveComplete(IW?:ItemWindow): void
 	{
 		Share.MCanvas.Canvas.classList.remove('MovingItem');
 		Share.MCanvas.Events.Click.Remove('MoveCustomItem'+this.ID);
@@ -196,7 +196,7 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 	}
 }
 
-function UpdateMoveButton(IW:ItemWindow, IsMoving:boolean)
+function UpdateMoveButton(IW:ItemWindow, IsMoving:boolean): void
 {
 	const BMove=IW.$Content.find('.ButtonMove')[0];
 	BMove.dataset.translationSection='CustomItems';
@@ -205,7 +205,7 @@ function UpdateMoveButton(IW:ItemWindow, IsMoving:boolean)
 	Share.Tr.UpdateDOMElement(BMove);
 }
 
-function SaveCustomItems()
+function SaveCustomItems(): void
 {
 	localStorage.setItem('CustomItems', JSON.stringify([...
 		new Iter(Share.DS.Items.values() as Iterable<CustomItem>)
@@ -214,7 +214,7 @@ function SaveCustomItems()
 	]));
 }
 
-function LoadCustomItems()
+function LoadCustomItems(): void
 {
 	let Items:{ID:number, X:number, Y:number, Title:string, Label:string, Description:string}[];
 	try {

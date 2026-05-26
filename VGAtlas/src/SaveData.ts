@@ -13,11 +13,11 @@ export default class SaveDataClass
 {
 	private playerData=new PlayerData();
 	private sceneData =new SceneData();
-	public get PlayerData() { return this.playerData; }
-	public get SceneData () { return this.sceneData ; }
+	public get PlayerData(): PlayerData { return this.playerData; }
+	public get SceneData (): SceneData  { return this.sceneData ; }
 
 	private constructor() { }
-	public get ctor() { return SaveDataClass; }
+	public get ctor(): typeof SaveDataClass { return SaveDataClass; }
 	public static		CreateEmptySave			(					): SaveDataClass			{ return new SaveDataClass(); }
 	public static async	CreateFrom_File			(File:File			): Promise<SaveDataClass>	{ return await this.CreateFrom_FileBytes(new Uint8Array(await File.arrayBuffer())); }
 	public static async	CreateFrom_Base64String	(Base64String:string): Promise<SaveDataClass>	{ return CreateSaveData(JSON.parse(await DecryptSaveFile(Base64String)) as SaveDataClass); }
@@ -63,7 +63,7 @@ class SceneData
 class SerializedList<T extends boolean|number>
 {
 	private serializedList:SceneDataItem<T>[]=[];
-	public get SerializedList() { return this.serializedList; }
+	public get SerializedList(): SceneDataItem<T>[] { return this.serializedList; }
 	public GetValue(SceneName:string, ID:string): T|null
 	{
 		for(const SL of this.serializedList)

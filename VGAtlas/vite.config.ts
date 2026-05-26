@@ -11,7 +11,8 @@ let UtilsAndConfigsRegEx:RegExp;
 	const RootFiles='AtlasConfig|SaveData|LinkedLabel';
 	UtilsAndConfigsRegEx=new RegExp(`/src/Util/(?:${UtilFiles})\\.ts|/src/(${RootFiles})\\.ts|/src/Config/`);
 }
-function IsUtilsAndConfigsChunk(id:string) {
+function IsUtilsAndConfigsChunk(id:string): boolean
+{
 	return UtilsAndConfigsRegEx.test(id.replaceAll("\\", "/"));
 }
 
@@ -93,7 +94,8 @@ function HTMLMinifyIndex(): Plugin
 	};
 }
 
-async function CallMinify(html:string) {
+async function CallMinify(html:string): Promise<string>
+{
 	return await minify(html, {
 		collapseWhitespace: true,
 		removeComments: true,
@@ -123,9 +125,9 @@ function MinifyHtmlRaw(): Plugin
 	};
 }
 
-function InjectLoadExtraAssets()
+function InjectLoadExtraAssets(): Plugin
 {
-	function GetPath(Path:string, ctx:IndexHtmlTransformContext)
+	function GetPath(Path:string, ctx:IndexHtmlTransformContext): string
 	{
 		if(ctx.server)
 			return Path;

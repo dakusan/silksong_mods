@@ -15,7 +15,7 @@ export class CategoryGroup extends Map<number, Category>
 	constructor(public readonly Title:string, public readonly Order:number) { super(); }
 
 	private _AsOrdered?:Category[]=undefined;
-	public get AsOrdered()
+	public get AsOrdered(): Category[]
 	{
 		if(this._AsOrdered===undefined) {
 			this._AsOrdered=new Array<Category>(this.size);
@@ -37,18 +37,18 @@ export class Category extends JsonClass
 	@JsonPropsDec(true) public readonly IconID:number=-1;
 	@JsonPropsDec(true, StatStr.Empty) public Title:string=WillBeSet;
 
-	@ExpNo() protected _TotalCount  :number=0	;			public get TotalCount  	() { return this._TotalCount	; } protected set TotalCount	(Value) { this.Update(this._TotalCount	=Value); } //Set by friends
-	@ExpNo() protected _CurrentCount:number=0	; @ExpNo()	public get CurrentCount	() { return this._CurrentCount	; } protected set CurrentCount	(Value) { this.Update(this._CurrentCount=Value); } //Set by friends
-	@ExpNo() protected _Sprite:Sprite=WillBeSet	; @ExpNo()	public get Sprite		() { return this._Sprite		; } protected set Sprite		(Value) { this._Sprite		=Value; } //Set by friends
+	@ExpNo() protected _TotalCount  :number=0	;			public get TotalCount  	(): number				{ return this._TotalCount	; } protected set TotalCount	(Value) { this.Update(this._TotalCount	=Value); } //Set by friends
+	@ExpNo() protected _CurrentCount:number=0	; @ExpNo()	public get CurrentCount	(): number				{ return this._CurrentCount	; } protected set CurrentCount	(Value) { this.Update(this._CurrentCount=Value); } //Set by friends
+	@ExpNo() protected _Sprite:Sprite=WillBeSet	; @ExpNo()	public get Sprite		(): Sprite				{ return this._Sprite		; } protected set Sprite		(Value) { this._Sprite					=Value ; } //Set by friends
 	@ExpNo() public _ToggleState=CategoryToggleState.Unknown;
-		 										  @ExpNo()	public get ToggleState	() { return this._ToggleState	; } public	  set ToggleState	(Value) { this.Update(this._ToggleState	=Value); }
+		 										  @ExpNo()	public get ToggleState	(): CategoryToggleState	{ return this._ToggleState	; } public	  set ToggleState	(Value) { this.Update(this._ToggleState	=Value); }
 
 	public static readonly MinID=101;
 	public static readonly MaxID=499;
-	public static IDInRange(ID:number|null|undefined) { return typeof(ID)==='number' && ID>=Category.MinID && ID<=Category.MaxID; }
+	public static IDInRange(ID:number|null|undefined): boolean { return typeof(ID)==='number' && ID>=Category.MinID && ID<=Category.MaxID; }
 
 	@ExpNo() public CallOnUpdate=new CallbackList<[]>('Category.OnUpdate');
-	private Update(_Dummy:unknown) { this.CallOnUpdate.Execute(); }
+	private Update(_Dummy:unknown): void { this.CallOnUpdate.Execute(); }
 }
 abstract class Category_Friend extends Category implements FriendClass
 {
@@ -116,18 +116,18 @@ export class Item extends JsonClass
 	public Unlocks?=new ItemSet(this);
 	public AQFrom ?=new ItemSet(this); //AQFrom=Acquired From
 
-	@ExpNo() public get Pos() { return new Vector2(this.x, this.y); }
+	@ExpNo() public get Pos(): Vector2 { return new Vector2(this.x, this.y); }
 
 	@ExpNo() private UniqueLinkIndex=0;
-	@ExpNo() protected get GetLinkID() { return `${this.ID}.${this.UniqueLinkIndex++}`; }
+	@ExpNo() protected get GetLinkID(): string { return `${this.ID}.${this.UniqueLinkIndex++}`; }
 
 	public static readonly MinID=100_001;
 	public static readonly MaxID=Util.MaxInt;
-	public static IDInRange(ID:number|null|undefined) { return typeof(ID)==='number' && ID>=Item.MinID && ID<=Item.MaxID; }
+	public static IDInRange(ID:number|null|undefined): boolean { return typeof(ID)==='number' && ID>=Item.MinID && ID<=Item.MaxID; }
 
 	//Render the description
-	public get Description() { return this.toString(); }
-	public override toString()
+	public get Description(): string { return this.toString(); }
+	public override toString(): string
 	{
 		return [
 			this.WhereAt	?.Render("Where"		),
@@ -175,7 +175,7 @@ export class Item extends JsonClass
 	}
 
 	@ExpNo() private _CurrentToggleState=CategoryToggleState.Unknown;
-	@ExpNo() public get CurrentToggleState() { return this._CurrentToggleState; }
+	@ExpNo() public get CurrentToggleState(): CategoryToggleState { return this._CurrentToggleState; }
 	public set CurrentToggleState(Value:CategoryToggleState)
 	{
 		if(Value===CategoryToggleState.Unknown)
@@ -183,7 +183,7 @@ export class Item extends JsonClass
 		this._CurrentToggleState=Value;
 		Util.SetNullable(this.MapIcon, 'CTS', Value);
 	}
-	public SetStatusFlag(ForStarted:boolean, Value:boolean)
+	public SetStatusFlag(ForStarted:boolean, Value:boolean): void
 	{
 		if(!ForStarted)
 			this.IsFound=Value;
@@ -193,7 +193,7 @@ export class Item extends JsonClass
 
 	@ExpNo() public IsStarted=false;
 	@ExpNo() private _IsFound=false;
-	@ExpNo() public get IsFound() { return this._IsFound; }
+	@ExpNo() public get IsFound(): boolean { return this._IsFound; }
 	public set IsFound(Value:boolean)
 	{
 		if(this._IsFound===Value)
@@ -204,7 +204,7 @@ export class Item extends JsonClass
 	}
 
 	@ExpNo() private _IsLinked=false;
-	@ExpNo() public get IsLinked() { return this._IsLinked; }
+	@ExpNo() public get IsLinked(): boolean { return this._IsLinked; }
 	public set IsLinked(Value:boolean)
 	{
 		if(this._IsLinked===Value)
@@ -223,13 +223,14 @@ export class Item extends JsonClass
 		this._MapIcon.CTS=this.CurrentToggleState;
 	}
 
-	@ExpNo() public get Visible() {
+	@ExpNo() public get Visible(): boolean
+	{
 		return	this.CurrentToggleState===CategoryToggleState.All
 			|| (this.CurrentToggleState===CategoryToggleState.Incomplete && !this.IsFound);
 	}
 
 	//Selected via a link
-	public Selected() { Share.MC.SelectAndCenterItem(this.ID); }
+	public Selected(): void { Share.MC.SelectAndCenterItem(this.ID); }
 }
 
 abstract class Item_Friend extends Item implements FriendClass
@@ -283,12 +284,12 @@ export class ChainList extends JsonClass
 	private static readonly ExtractItemCounts=new RegExp(`${LStatStr.ChainItem_AmountChar}\\d+${LStatStr.ChainItem_AmountChar}`, 'g');
 	private static readonly ReplaceLangVars=new RegExp(`${LStatStr.TrVarChar}([\\p{L}_]+)${LStatStr.TrVarChar}`, 'gu');
 	//@ts-expect-error Private function is used in JSON export
-	@ExpYes() private get ExpRenderParts() { return this.RenderParts===undefined ? {_:this.RenderedString, RP:this.RenderParts}.RP : this.RenderParts; }
+	@ExpYes() private get ExpRenderParts(): StringCountPair[] { return this.RenderParts===undefined ? {_:this.RenderedString, RP:this.RenderParts}.RP : this.RenderParts; }
 	@ExpNo() private RenderParts:StringCountPair[]=WillBeSet;
 	@ExpNo() private RenderPartsAgnostic:string[]=WillBeSet; //Original RenderParts strings before replacing language variables
 	@ExpNo() private CurrentLang:string=WillBeSet;
-	public get RenderedString() { return this.CompileRenderString(); }
-	private CompileRenderString()
+	public get RenderedString(): string { return this.CompileRenderString(); }
+	private CompileRenderString(): string
 	{
 		//Fill in RenderParts on language change
 		if(this.CurrentLang!==Share.LC.Language.V) {
@@ -324,7 +325,7 @@ export class ChainList extends JsonClass
 		return Parts.join(StatStr.Empty);
 	}
 
-	private GetRenderParts()
+	private GetRenderParts(): StringCountPair[]
 	{
 		//If no list, just use the extra string
 		if(this.Items===undefined)
@@ -364,7 +365,7 @@ export class ChainList extends JsonClass
 		return Parts;
 	}
 
-	public Render(FieldTitle:string) { return `<b>${TSan(FieldTitle)}</b>: `+this.RenderedString; }
+	public Render(FieldTitle:string): string { return `<b>${TSan(FieldTitle)}</b>: `+this.RenderedString; }
 }
 
 //A single item in a ChainList
@@ -373,19 +374,19 @@ export class ChainItem extends JsonClass
 	@ExpNo() public readonly Parent:ChainList;
 	public readonly StartString:string;
 	@ExpNo() private _RenderedStringReal:string=WillBeSet; //Contains AmountChar where the live-collected count will need to be inserted
-	@ExpNo() private 	get RenderedStringReal		() { return this._RenderedStringReal ??= this.FinishInternalRender(); }
-	@ExpNo() protected	get RenderedStringInternal	() { return this.GetProcessedRenderString(this.RenderedStringReal, `${LStatStr.ChainItem_AmountChar}${this.LinkID}${LStatStr.ChainItem_AmountChar}`); } //AmountChar becomes LinkID surround by AmountChar
+	@ExpNo() private 	get RenderedStringReal		(): string { return this._RenderedStringReal ??= this.FinishInternalRender(); }
+	@ExpNo() protected	get RenderedStringInternal	(): string { return this.GetProcessedRenderString(this.RenderedStringReal, `${LStatStr.ChainItem_AmountChar}${this.LinkID}${LStatStr.ChainItem_AmountChar}`); } //AmountChar becomes LinkID surround by AmountChar
 		//noinspection JSUnusedGlobalSymbols
-			 public		get RenderedString			() { return this.GetProcessedRenderString(this.RenderedStringReal, '?'); } //Changes AmountChar to a question mark
-	private GetProcessedRenderString(Str:string, Replacement:string) { return this.LinkID===-1 ? Str : Str.replaceAll(LStatStr.ChainItem_AmountChar, Replacement); }
+			 public		get RenderedString			(): string { return this.GetProcessedRenderString(this.RenderedStringReal, '?'); } //Changes AmountChar to a question mark
+	private GetProcessedRenderString(Str:string, Replacement:string): string { return this.LinkID===-1 ? Str : Str.replaceAll(LStatStr.ChainItem_AmountChar, Replacement); }
 
 	public readonly FlagNot			:boolean=false	;
 	public readonly FlagStarted		:boolean=false	;
 	public readonly FlagRecommend	:boolean=false	;
 	public readonly FlagUnlinked	:boolean=false	;
 	public readonly FlagAmount		:number	=1		;
-	@ExpNo() protected _Name		:string	=StatStr.Empty	; public get Name	() { return this._Name	; } //Set after DataStorage load complete (usually during DataStorage.CompleteInit)
-	@ExpNo() protected _LinkID		:number	=-1				; public get LinkID	() { return this._LinkID; } //Set after DataStorage load complete (usually during DataStorage.CompleteInit)
+	@ExpNo() protected _Name		:string	=StatStr.Empty	; public get Name	(): string { return this._Name	; } //Set after DataStorage load complete (usually during DataStorage.CompleteInit)
+	@ExpNo() protected _LinkID		:number	=-1				; public get LinkID	(): number { return this._LinkID; } //Set after DataStorage load complete (usually during DataStorage.CompleteInit)
 	public constructor(Parent:ChainList, Item:string)
 	{
 		super();
@@ -421,7 +422,7 @@ export class ChainItem extends JsonClass
 		else
 			this.SetIDAndName();
 	}
-	private FinishInternalRender()
+	private FinishInternalRender(): string
 	{
 		//Add flags back
 		const Parts:string[]=[];
@@ -460,13 +461,13 @@ export class ChainItem extends JsonClass
 
 	//Set LinkID and Name (Set after DataStorage loading is complete [immediate if that is already done])
 	private static readonly NeedsIDAndName:ChainItem[]=[];
-	protected static Process_NeedsIDAndName()
+	protected static Process_NeedsIDAndName(): void
 	{
 		for(const CI of ChainItem.NeedsIDAndName)
 			CI.SetIDAndName();
 		ChainItem.NeedsIDAndName.length=0;
 	}
-	private SetIDAndName() //This is run on every ChainItem after all the Items and StaticLinks are loaded
+	private SetIDAndName(): void //This is run on every ChainItem after all the Items and StaticLinks are loaded
 	{
 		const TestID=Util.GetInt(this.Name);
 		if(this.FlagUnlinked || TestID===null)
@@ -484,7 +485,7 @@ export class ChainItem extends JsonClass
 }
 abstract class ChainItem_Friend extends ChainItem implements FriendClass
 {
-	public override get RenderedStringInternal() { return this.Stub(StatStr.Empty); }
+	public override get RenderedStringInternal(): string { return this.Stub(StatStr.Empty); }
 	//Ignore these
 	protected constructor(_Parent:ChainList, _Item:string) { super(null!, null!); this.Stub(); }
 	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
@@ -503,16 +504,16 @@ class RenderedField extends JsonClass
 	) { super(); this.Parent=Parent; }
 
 	@ExpNo() private _RenderedString:string=WillBeSet;
-	public get RenderedString() { return this._RenderedString ??= this.FinishInternalRender(); }
-	private FinishInternalRender()
+	public get RenderedString(): string { return this._RenderedString ??= this.FinishInternalRender(); }
+	private FinishInternalRender(): string
 	{
 		return this.StartString.replace(RenderedField.GetLinks, (_:string, ID:string, Text:string|undefined) => {
 			Text=(Text ? Text.slice(1) : (GetItemTitleFromID(ID) ?? ID));
 			return `<LinkID=${(this.Parent as Item_Friend).GetLinkID}><ATTR=ItemID>${ID}</ATTR><u>${Text}</u></LinkID>`;
 		});
 	}
-	public override toString() { return this.RenderedString; }
-	public Render(FieldTitle:string) { return `<b>${TSan(FieldTitle)}</b>: `+this.RenderedString; }
+	public override toString(): string { return this.RenderedString; }
+	public Render(FieldTitle:string): string { return `<b>${TSan(FieldTitle)}</b>: `+this.RenderedString; }
 }
 
 class ItemSet extends JsonClass
@@ -520,10 +521,10 @@ class ItemSet extends JsonClass
 	@ExpNo() public readonly Parent:Item;
 	public constructor(Parent:Item) { super(); this.Parent=Parent; }
 	@ExpNo() private readonly ItemList=new Set<Item>();
-	@ExpNo() public get GetItems() { return this.ItemList.values(); }
-	@ExpNo() public get HasItems() { return this.ItemList.size>0; }
+	@ExpNo() public get GetItems(): SetIterator<Item>	{ return this.ItemList.values(); }
+	@ExpNo() public get HasItems(): boolean				{ return this.ItemList.size>0; }
 	//@ts-expect-error Private function is used in JSON export
-	@ExpYes() private get ExpItemIDs() { return this.ItemList.size===0 ? null : [...this.ItemList.values()].map(I => I.ID.toString()).join(', '); }
+	@ExpYes() private get ExpItemIDs(): string|null { return this.ItemList.size===0 ? null : [...this.ItemList.values()].map(I => I.ID.toString()).join(', '); }
 
 	@ExpNo() private IsRendered=false;
 	@ExpNo() private _RenderedString?:string;
@@ -533,8 +534,8 @@ class ItemSet extends JsonClass
 			[this.IsRendered, this._RenderedString]=[true, this.FinishInternalRender()];
 		return this._RenderedString;
 	}
-	public Add	 (Item:Item) { this.IsRendered=false; this.ItemList.add(Item); }
-	public Remove(Item:Item) { this.IsRendered=false; return this.ItemList.delete(Item); }
+	public Add	 (Item:Item): void		{ this.IsRendered=false; this.ItemList.add(Item); }
+	public Remove(Item:Item): boolean	{ this.IsRendered=false; return this.ItemList.delete(Item); }
 	public FinishInternalRender(): string|undefined
 	{
 		return	this.ItemList.size===0 ? undefined
@@ -553,7 +554,8 @@ class CreateItemJSC_NameOnly	extends JsonConverter<undefined, undefined, undefin
 type CreateItemJSC_Types=CreateItemJSC_Str|CreateItemJSC_Store|CreateItemJSC_StrArr|CreateItemJSC_NameOnly;
 export namespace CreateItem
 {
-	export function Process(ID:number, Obj:object) {
+	export function Process(ID:number, Obj:object): Item
+	{
 		return LoadJson.ClassFromObj<Item>(new Item(ID), Obj, OverrideFuncs as Record<string, JsonConverter_Generic<Item>>)
 	}
 
@@ -610,18 +612,18 @@ export class StoreItem
 
 class StoreItems
 {
-	public get RenderedString() { return this.FinishInternalRender(); }  //Cannot be cached due to changing item collection counts
+	public get RenderedString(): string { return this.FinishInternalRender(); }  //Cannot be cached due to changing item collection counts
 	public constructor(
 		public Items:StoreItem[],
 	) { }
-	private FinishInternalRender()
+	private FinishInternalRender(): string
 	{
 		return this.Items.map(I =>
 			StatStr.NewLine+'- '+I.Rewards.RenderedString+TDef("STORE_FOR", " for ")+I.Needs.RenderedString+
 			(I.Reqs!==undefined ? Share.Tr.TDef("STORE_REQ", 'ItemFields', " (Required: {0})", false, I.Reqs.RenderedString) : StatStr.Empty)
 		).join(StatStr.Empty);
 	}
-	public Render(FieldTitle:string) { return `<b>${TSan(FieldTitle)}</b>: `+this.RenderedString; }
+	public Render(FieldTitle:string): string { return `<b>${TSan(FieldTitle)}</b>: `+this.RenderedString; }
 }
 
 export type LoadMisc_StaticLink=[Name:string, ...Links:(string|number)[]];
@@ -638,7 +640,7 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 
 	public static readonly MinID=501;
 	public static readonly MaxID=999;
-	public static IDInRange(ID:number|null|undefined) { return typeof(ID)==='number' && ID>=StaticLink.MinID && ID<=StaticLink.MaxID; }
+	public static IDInRange(ID:number|null|undefined): boolean { return typeof(ID)==='number' && ID>=StaticLink.MinID && ID<=StaticLink.MaxID; }
 
 	public get NumCollected(): number
 	{
@@ -655,9 +657,9 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 			:													  0;
 	}
 
-	public override toString() { return this.NumCollected+'/'+this.ExpOverride; }
+	public override toString(): string { return this.NumCollected+'/'+this.ExpOverride; }
 
-	public get ExpOverride()
+	public get ExpOverride(): string
 	{
 		return	this.CategoryID!==-1						? Share.DS.Categories.get(this.CategoryID)!.Title
 			:	this.ItemIDs!==undefined					? this.ItemIDs.map(ItemID => `${Share.DS.Items.get(ItemID)!.Title} [${Share.DS.Items.get(ItemID)!.ID}]`).join(', ')
@@ -680,7 +682,7 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 			return [ID, new StaticLink(P.OverwriteName ?? CurName, P.CategoryID ?? -1, P.ItemIDs, P.SpecialCount ?? 0, P.FName, P.CountFunc)];
 		}
 		function LineErr(Err:string, CompleteFail:boolean=false): undefined { Log.Error(NT+`Error on Static Link #${RemID}${(CompleteFail ? " [Skipped]" : StatStr.Empty)}: ${Err}`); return undefined; }
-		function IsValidSpecialFieldType(MemberName:string) { const T:unknown=SaveData.PlayerData.Get(MemberName); return typeof(T)==='number' || typeof(T)==='boolean'; }
+		function IsValidSpecialFieldType(MemberName:string): boolean { const T:unknown=SaveData.PlayerData.Get(MemberName); return typeof(T)==='number' || typeof(T)==='boolean'; }
 
 		//Process the static links
 		let MyID:number, Special:string, SpecialInt:number;
@@ -713,7 +715,7 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 	private static readonly SpecialFuncs=new Map<string, () => number>([
 		[ 'ToolSlots', StaticLink.GetToolSlots ],
 	]);
-	private static GetToolSlots()
+	private static GetToolSlots(): number
 	{
 		let UnlockedSlotCount=0;
 		for(const [, { Name: CrestName, Data: CrestData }] of Object.entries(Share.SaveData.PlayerData.ToolEquips.savedData)) {
@@ -739,7 +741,7 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 	}
 
 	//Selected via a link
-	public Selected()
+	public Selected(): void
 	{
 		if(this.ItemIDs?.length===1 && Item.IDInRange(this.ItemIDs[0]))
 			Share.DS.Items.get(this.ItemIDs[0])!.Selected();

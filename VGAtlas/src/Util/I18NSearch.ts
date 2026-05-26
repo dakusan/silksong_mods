@@ -25,7 +25,7 @@ export class FoldedStrings<StartHSType extends StartHSTypes>
 	public		readonly Folded			:string; //JoinedHaystacks after normalization
 	private /*readonly*/ ObjNames		:StartHSType extends string ? undefined : StartHSType extends unknown[] ? number : string[]=WillBeSet;
 
-	private static GetCPoint(Str:string, PointInStr:number) { return Str.codePointAt(PointInStr)!>0xFF_FF ? Str.slice(PointInStr, PointInStr+2) : Str[PointInStr]; }
+	private static GetCPoint(Str:string, PointInStr:number): string { return Str.codePointAt(PointInStr)!>0xFF_FF ? Str.slice(PointInStr, PointInStr+2) : Str[PointInStr]; }
 	public static readonly SectionSeparator='\u0087'; //If found in search string, this character will be replaced with StatStr.PrivateChar
 
 	constructor(
@@ -93,7 +93,7 @@ export class FoldedStrings<StartHSType extends StartHSTypes>
 	private AppendOrigSlice(
 		HaystackResults:string[], CurrentHaystackParts:PreallocatedPusher<string>, JoinedHaystacks:string,
 		OrigStart:number, OrigEnd:number, LastHaystackIndex:number, CurHaystackIndex:number
-	) {
+	): void {
 		for(let i=LastHaystackIndex; i<=CurHaystackIndex; i++) {
 			const PartStart=Math.max(OrigStart, this.HaystacksPos[i].Start);
 			const PartEnd=Math.min(OrigEnd, this.HaystacksPos[i].End);
@@ -165,7 +165,7 @@ export class FoldedStrings<StartHSType extends StartHSTypes>
 
 	//HTML encodes 3 characters: & < >
 	private static readonly RegEx_LTGT=/[<>]/g;
-	public static EncodeHTMLSimple(Str:string)
+	public static EncodeHTMLSimple(Str:string): string
 	{
 		return Str
 			.replaceAll('&', '&amp;')
@@ -184,7 +184,7 @@ export default class I18NSearch<T>
 	public get SearchTerms(): readonly string[] { return this.Terms; }
 
 	private _Culture:string=WillBeSet;
-	public get Culture() { return this._Culture; }
+	public get Culture(): string { return this._Culture; }
 	public set Culture(NewCulture:string)
 	{
 		if(this._Culture===NewCulture)
@@ -244,7 +244,7 @@ export default class I18NSearch<T>
 	 - CombiningMarks removed
 	 - Uppercased (locale dependent)
 	*/
-	public NormalizeForSearch(Str:string) { return I18NSearch.NormalizeForSearch(Str, this.Culture); }
+	public NormalizeForSearch(Str:string): string { return I18NSearch.NormalizeForSearch(Str, this.Culture); }
 	public static NormalizeForSearch(Str:string, Culture:string): string
 	{
 		const Norm=Str.normalize('NFKD');

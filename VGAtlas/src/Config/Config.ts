@@ -8,7 +8,7 @@ export default abstract class Config
 	public static readonly IgnoreSection='**IGNORE**';
 
 	private ConfigEntries=new Map<string, ConfigItemBase[]>;
-	public get Sections() { return this.ConfigEntries as ReadonlyMap<string, ConfigItemBase[]>; }
+	public get Sections(): ReadonlyMap<string, ConfigItemBase[]> { return this.ConfigEntries; }
 	private HasFinishedInit=false;
 
 	protected constructor(
@@ -20,7 +20,7 @@ export default abstract class Config
 				Log.Error(StatStr.NeedsTranslate+`Config “${Prefix}” not initialized!`);
 		}, 0);
 	}
-	protected Init()
+	protected Init(): void
 	{
 		if(this.HasFinishedInit)
 			return;
@@ -29,7 +29,7 @@ export default abstract class Config
 			if(Entry instanceof ConfigItemBase)
 				this.AddConfig(Entry)
 	}
-	protected AddConfig(Item:ConfigItemBase)
+	protected AddConfig(Item:ConfigItemBase): void
 	{
 		const SectionArr=this.ConfigEntries.get(Item.Section) ?? [];
 		if(!SectionArr.length)
@@ -41,7 +41,7 @@ export default abstract class Config
 
 abstract class ConfigItemBase_Friend extends ConfigItemBase implements FriendClass
 {
-	public override Init(_Parent:Config) { this.Stub(); }
+	public override Init(_Parent:Config): void { this.Stub(); }
 	//Ignore these
 	protected constructor() { super(null!, null!, null!); this.Stub(); }
 	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }

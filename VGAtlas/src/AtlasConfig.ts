@@ -30,7 +30,7 @@ class LocalConfig extends Config {
 const LC=Util.OneTimeInit('LocalConfig', () => new LocalConfig());
 export default LC;
 
-function GetIconFiles()
+function GetIconFiles(): Record<string, string>
 {
 	return {
 		'Assets/Icons-FromGame.png':'From Game',
@@ -38,7 +38,7 @@ function GetIconFiles()
 	};
 }
 
-function GetThemes()
+function GetThemes(): Record<string, string>
 {
 	return {
 		'Base':'Default',
@@ -47,9 +47,9 @@ function GetThemes()
 }
 
 let CurrentTheme='Base';
-function SetupThemeSwap()
+function SetupThemeSwap(): void
 {
-	function SwapTheme(NewTheme:string)
+	function SwapTheme(NewTheme:string): void
 	{
 		document.body.classList.remove('Theme'+CurrentTheme);
 		document.body.classList.add('Theme'+NewTheme);
@@ -60,13 +60,13 @@ function SetupThemeSwap()
 	SwapTheme(LC.Theme.V);
 }
 
-function SetupEnumTranslations(ShareObj:typeof Share)
+function SetupEnumTranslations(ShareObj:typeof Share): void
 {
 	for(const ConfItem of [LC.IconSet, LC.Theme])
 		ConfItem.GetTranslation=(TKey => ShareObj.Tr.TranslateNull(TKey, 'SettingEnums')!);
 }
 
-function Init_Color_FoundIcon_Demo()
+function Init_Color_FoundIcon_Demo(): void
 {
 	const DemoIconContainer=document.createElement('div');
 	const DemoIcon=document.createElement('div');
@@ -75,7 +75,7 @@ function Init_Color_FoundIcon_Demo()
 	DemoIconContainer.append(DemoIcon);
 	LC.Color_FoundIcon.$DOMHolder.append(DemoIconContainer);
 
-	function UpdateDemoIcon()
+	function UpdateDemoIcon(): void
 	{
 		const RGBA=LC.Color_FoundIcon.V;
 		DemoIcon.style=[
@@ -89,9 +89,9 @@ function Init_Color_FoundIcon_Demo()
 	LC.Color_FoundIcon.SettingChanged.Add('UpdateDemoIcon', UpdateDemoIcon);
 }
 
-function SetupDebugMenu()
+function SetupDebugMenu(): void
 {
-	function DoShowMenu() { document.getElementById('MenuDebug')!.classList.toggle('Show', LC.ShowDebugMenu.V); }
+	function DoShowMenu(): void { document.getElementById('MenuDebug')!.classList.toggle('Show', LC.ShowDebugMenu.V); }
 	DoShowMenu();
 	LC.ShowDebugMenu.SettingChanged.Add('DoShowMenu', DoShowMenu);
 }

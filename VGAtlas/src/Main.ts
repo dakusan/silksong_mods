@@ -31,7 +31,7 @@ Share.LC.Language.SetTranslations(Share.Tr);
 Util.GetMutable(Share).WM=WM;
 try { SetupOneTimeMessage(); } catch { }
 
-async function Main()
+async function Main(): Promise<void>
 {
 	let MCanvas:MapCanvas=WillBeSet;
 	try {
@@ -77,17 +77,17 @@ async function Main()
 	}
 }
 
-function SetupOneTimeMessage()
+function SetupOneTimeMessage(): void
 {
 	//If the popup message has changed, then show it
-	function HashString(Str:string)
+	function HashString(Str:string): string
 	{
 		let Hash=0;
 		for(let i=0; i<Str.length; i++)
 			Hash=(Hash*31+Str.charCodeAt(i))|0;
 		return Hash.toString(16);
 	}
-	function ShowNewMessage()
+	function ShowNewMessage(): void
 	{
 		const NewMessage=Share.Tr.TDef('OneTimeMessage', undefined, 'Failed to load one time message');
 		const Hash=HashString(NewMessage);
@@ -113,7 +113,7 @@ class SingleInstanceWindow<TWin extends Window>
 		protected readonly CreateWin:() => TWin|Promise<TWin>,
 		protected readonly OnClosing?:() => boolean,
 	) { }
-	public async FocusWin()
+	public async FocusWin(): Promise<void>
 	{
 		//Only open once
 		if(this.MyWin)
@@ -135,7 +135,7 @@ class SingleInstanceWindow<TWin extends Window>
 		this.OriginalOnClosing=this.MyWin.OnClosing;
 		this.MyWin.OnClosing=() => this.RunOnClosing();
 	}
-	private RunOnClosing()
+	private RunOnClosing(): boolean
 	{
 		//Stop if callback says to stop
 		if(
@@ -149,7 +149,7 @@ class SingleInstanceWindow<TWin extends Window>
 	}
 }
 
-function ExecMenuPopup(El:JQuery)
+function ExecMenuPopup(El:JQuery): void
 {
 	const EventNS='.ExecMenuPopup';
 	const ClosePopup=() => {
@@ -166,7 +166,7 @@ function ExecMenuPopup(El:JQuery)
 	}, 0);
 }
 
-function CreateMainMenu()
+function CreateMainMenu(): void
 {
 	//Popup button
 	$('#MainMenu .PopupButton').on('click', () => ExecMenuPopup($('#MainMenu .Popup')));
@@ -194,14 +194,14 @@ function CreateMainMenu()
 	SingleInstanceWindowFromClick('#MenuLoadSave'	, async () => new (await import('./Windows/SaveFileWindow/SaveFileWindow'	)).default(HandleLoadSaveFileError	));
 }
 
-function HandleLoadSaveFileError(e:unknown, FileName:string)
+function HandleLoadSaveFileError(e:unknown, FileName:string): void
 {
 	const Err=Share.Tr.TDef("ERROR_LOADING", 'LoadSaveFile', "Error loading save data from “{0}”: {1}", false, FileName, Share.Tr.TranslatePassthroughError(e));
 	Log.Error(Err);
 	new PopupMessage(Err);
 }
 
-function CreateContextMenu()
+function CreateContextMenu(): void
 {
 	let LastMapPos:Vector2;
 	Share.MCanvas.Events.Click.Add('Main.CreatePopupMenu', Ev => {
