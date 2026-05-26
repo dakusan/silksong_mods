@@ -83,8 +83,8 @@ export default class SearchWindow extends Window
 
 		//Get a list of items with exact ID matches
 		for(const Str of DoSearch.OriginalTerms) {
-			const ID=Number.parseInt(Str, 10);
-			if(!Number.isNaN(ID) && Share.DS.Items.has(ID))
+			const ID=Util.GetInt(Str);
+			if(ID!==null && Share.DS.Items.has(ID))
 				MatchingIDs.add(ID);
 		}
 

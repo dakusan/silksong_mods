@@ -20,8 +20,8 @@ export default class ConfigItem_Number extends ConfigItem<number>
 			.attr('max', this.Max)
 			.attr('step', 1/(10 ** this.Digits))
 			.on('input', e => {
-				let NewVal=Number.parseFloat($(e.currentTarget).val() as string);
-				if(Number.isNaN(NewVal))
+				let NewVal=Util.GetNumber($(e.currentTarget).val() as string);
+				if(NewVal===null)
 					return;
 				const F=10**this.Digits;
 				NewVal=Util.Clamp(Math.round(NewVal*F)/F, this.Min, this.Max);

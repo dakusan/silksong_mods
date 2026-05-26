@@ -37,7 +37,7 @@ export default class MonitorSaveValues
 
 		for(const [ItemIDStr, SaveInfo] of Object.entries((JSONData as {MatchedIcons:Record<string, string>}).MatchedIcons)) {
 			const IsForStarting=(ItemIDStr[0]==='~');
-			const ItemID=Util.GetNumber(ItemIDStr.slice(IsForStarting ? 1 : 0));
+			const ItemID=Util.GetInt(ItemIDStr.slice(IsForStarting ? 1 : 0));
 			if(ItemID===null)
 				Log.Error(StatStr.NeedsTranslate+`Invalid key found in ${this.ctor.JsonFileName}: ${ItemIDStr}`);
 			else

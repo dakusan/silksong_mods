@@ -174,9 +174,12 @@ export namespace Util
 
 	export function IsMobile() { return matchMedia('(pointer:coarse)').matches; }
 
-	export function GetNumber(Str:string, AsInt=false): number|null
+	//Returns a number only when the trimmed string is a valid floating point number; otherwise, returns null
+	//If a decimal point is present, at least one digit must follow it
+	//If AsInt is truthy, truncates the finite number; it does not require the input to be an integer
+	export function GetNumber(Str:string|null|undefined, AsInt=false): number|null
 	{
-		if(!Str.trim())
+		if(typeof(Str)!=='string' || !TestNumberRegEx.test(Str))
 			return null;
 		const Num=Number(Str);
 		return (
@@ -185,6 +188,18 @@ export namespace Util
 			:						  Num
 		);
 	}
+	const TestNumberRegEx=/^\s*[+-]?(?:\d+|\d*\.\d+)(?:[eE][+-]?\d+)?\s*$/;
+
+	//Returns a number only when the trimmed string is a base-10 integer with optional +/- sign.
+	//Value must be within ±(2^53-1) (Number.MAX_SAFE_INTEGER to Number.MIN_SAFE_INTEGER)
+	export function GetInt(Str:string|null|undefined): number|null
+	{
+		if(typeof(Str)!=='string' || !TestIntRegEx.test(Str))
+			return null;
+		const Num=+Str;
+		return Number.isSafeInteger(Num) ? Num : null;
+	}
+	const TestIntRegEx=/^\s*[+-]?\d+\s*$/;
 
 	//This function helps guard against HMR graph version updates
 	export function OneTimeInit<T>(Name:string, InitVal:() => T): T

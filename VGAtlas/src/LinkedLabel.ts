@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { StatStr } from './Util/SharedClasses';
+import { Util, StatStr } from './Util/SharedClasses';
 import { Share } from './Share';
 
 const LTChar='\u0084', RTChar='\u0086';
@@ -49,8 +49,8 @@ export default class LinkedLabel
 	private AnchorSelected(Ev:JQuery.ClickEvent)
 	{
 		const Anchor=Ev.currentTarget as HTMLAnchorElement;
-		const ItemID=$(Anchor).attr('data-ItemID');
-		if(!Number.isInteger(Number(ItemID))) {
+		const ItemID=Util.GetInt($(Anchor).attr('data-ItemID'));
+		if(ItemID===null) {
 			Ev.preventDefault();
 			Ev.stopImmediatePropagation();
 			return;
@@ -62,7 +62,7 @@ export default class LinkedLabel
 		Ev.preventDefault();
 		Ev.stopImmediatePropagation();
 
-		Share.DS.LinkSelected(Number(ItemID));
+		Share.DS.LinkSelected(ItemID);
 	}
 
 	//Revert our escapes and change < and > to their HTML escaped equivalents
@@ -121,7 +121,7 @@ export default class LinkedLabel
 		NewEl.attr('data-LinkID', LinkID);
 		if(AddAttr('ItemID')) {
 			NewEl.attr('href', '#'+V);
-			const Item=Share.DS.Items.get(Number(V));
+			const Item=Share.DS.Items.get(Util.GetNumber(V, true)!);
 			const ItemIconID=Item?.IconID;
 			const FinalIconID=((ItemIconID ?? -1)!==-1 ? ItemIconID : Share.DS.Categories.get(Item?.CategoryID ?? -1)?.IconID);
 			if(FinalIconID!==undefined)

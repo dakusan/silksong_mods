@@ -42,7 +42,7 @@ export default class ConfigItem_Color extends ConfigItem<ColorRGBA>
 		const Me=this.Sliders[CC]=
 			$(`<input type=range min=0 max=${CCMax} step=1 value=${CCMax} class='Color ${CC}'>`)
 				.appendTo(this.$SlidersContainer!)
-				.on('input', () => this.UpdateSaveValue({[CC]:Util.Clamp(Number(Me.val()), 0, CCMax)/CCMax}));
+				.on('input', () => this.UpdateSaveValue({[CC]:Util.Clamp(Util.GetNumber(Me.val() as string, true) ?? 0, 0, CCMax)/CCMax}));
 	}
 	private UpdateSaveValue(NewVals:Partial<Record<ColorChannel, number>>)
 	{

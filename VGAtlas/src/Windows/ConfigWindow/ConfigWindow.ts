@@ -34,7 +34,12 @@ export default class ConfigWindow extends Window
 	private AddViewableToggles()
 	{
 		const ToggleViews={Configure:"Settings", Shortcuts:"Keyboard Shortcuts"};
-		let CurrentToggleView=localStorage.Config_ViewSection ?? Object.keys(ToggleViews)[0];
+		let CurrentToggleView=GetValidToggleView(localStorage.Config_ViewSection);
+		function GetValidToggleView(ToggleView:string): keyof typeof ToggleViews
+		{
+			const TV=ToggleView as keyof typeof ToggleViews;
+			return ToggleViews[TV] ? TV : Object.keys(ToggleViews)[0] as typeof TV;
+		}
 		const CreateLabeledOption=(Key:string, Default:string|null, El:JQuery) =>
 			$('<label>').append(
 				El,
@@ -54,7 +59,7 @@ export default class ConfigWindow extends Window
 							if($(e.currentTarget).is(':checked'))
 								this.$ConfigTable
 									.toggleClass('View_'+CurrentToggleView, false)
-									.toggleClass('View_'+(localStorage.Config_ViewSection=CurrentToggleView=$(e.currentTarget).val() as string), true);
+									.toggleClass('View_'+(localStorage.Config_ViewSection=CurrentToggleView=GetValidToggleView($(e.currentTarget).val() as string)), true);
 						}).trigger('change'),
 				),
 			),

@@ -45,7 +45,7 @@ export class Category extends JsonClass
 
 	public static readonly MinID=101;
 	public static readonly MaxID=499;
-	public static IDInRange(ID:number) { return ID>=Category.MinID && ID<=Category.MaxID; }
+	public static IDInRange(ID:number|null|undefined) { return typeof(ID)==='number' && ID>=Category.MinID && ID<=Category.MaxID; }
 
 	@ExpNo() public CallOnUpdate=new CallbackList<[]>('Category.OnUpdate');
 	private Update(_Dummy:unknown) { this.CallOnUpdate.Execute(); }
@@ -79,10 +79,11 @@ const VarDefaults:Record<string, string>={
 //Get the title from the item ID (cannot be run until after all Items are loaded, which is why below objects have delayed string rendering)
 function GetItemTitleFromID(ID:string): string|undefined
 {
-	const i=Number.parseInt(ID, 10);
-	return	!Number.isFinite(i)		? undefined
-		:	StaticLink.IDInRange(i)	? Share.DS.StaticLinks.get(i)?.Name
-		:							  Share.DS.Items.get(i)?.Title;
+	const i=Util.GetInt(ID);
+	return	i===null				? undefined
+		:	StaticLink.IDInRange(i)	? Share.DS.StaticLinks	.get(i)?.Name
+		:	Item	  .IDInRange(i)	? Share.DS.Items		.get(i)?.Title
+		:							 undefined;
 }
 
 //Items (icons)
@@ -122,7 +123,7 @@ export class Item extends JsonClass
 
 	public static readonly MinID=100_001;
 	public static readonly MaxID=Util.MaxInt;
-	public static IDInRange(ID:number) { return ID>=Item.MinID && ID<=Item.MaxID; }
+	public static IDInRange(ID:number|null|undefined) { return typeof(ID)==='number' && ID>=Item.MinID && ID<=Item.MaxID; }
 
 	//Render the description
 	public get Description() { return this.toString(); }
@@ -347,7 +348,7 @@ export class ChainList extends JsonClass
 			CurPos=m.index+m[0].length;
 
 			//Add to pending string as Count=1 if not a static link
-			const ID=Number.parseInt(m[0].slice(1, -1), 10);
+			const ID=+m[0].slice(1, -1);
 			if(!StaticLink.IDInRange(ID)) {
 				PendingStr+='1';
 				continue;
@@ -467,8 +468,8 @@ export class ChainItem extends JsonClass
 	}
 	private SetIDAndName() //This is run on every ChainItem after all the Items and StaticLinks are loaded
 	{
-		const TestID=Number.parseInt(this.Name, 10);
-		if(this.FlagUnlinked || !Number.isFinite(TestID))
+		const TestID=Util.GetInt(this.Name);
+		if(this.FlagUnlinked || TestID===null)
 			return;
 
 		const RetErr=(Type:string) => Log.Error(NT+`Invalid ${Type} ID Found in ${this.Parent.Parent.ID}.${this.Parent.Type}: ${TestID}`);
@@ -637,7 +638,7 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 
 	public static readonly MinID=501;
 	public static readonly MaxID=999;
-	public static IDInRange(ID:number) { return ID>=StaticLink.MinID && ID<=StaticLink.MaxID; }
+	public static IDInRange(ID:number|null|undefined) { return typeof(ID)==='number' && ID>=StaticLink.MinID && ID<=StaticLink.MaxID; }
 
 	public get NumCollected(): number
 	{
@@ -684,19 +685,19 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 		//Process the static links
 		let MyID:number, Special:string, SpecialInt:number;
 		for(const [ID, L] of Object.entries(StaticLinks))
-			if     ((MyID=Util.GetNumber(RemID=ID)!)===null	)	LineErr("ID is not an int",					true);						//ID is not an int
+			if     ((MyID=Util.GetInt(RemID=ID)!)===null	)	LineErr("ID is not an int",					true);						//ID is not an int
 			else if(!StaticLink.IDInRange(MyID)				)	LineErr("ID is not valid for a Static Link",true);						//ID not in StaticLink range
 			else if(!Array.isArray(L) || L.length===0		)	LineErr("Array is empty",					true);						//No entries in the array
 			else if(typeof(CurName=L[0])!=="string"			)	yield AddSL(MyID, {OverwriteName:"???", ErrStr:"Name is not a string"});//Invalid name
 			else if(L.length===1							)	yield AddSL(MyID, {SpecialCount:1});									//Unlinked
 			else if(L.length===2 && typeof(L[1])==='string' && (Special=L[1]))															//Special check
-				if((SpecialInt=Util.GetNumber(Special)!)!==null)yield AddSL(MyID, {SpecialCount:SpecialInt});							//Special Count Success
+				if((SpecialInt=Util.GetInt(Special)!)!==null)	yield AddSL(MyID, {SpecialCount:SpecialInt});							//Special Count Success
 				else if(StaticLink.SpecialFuncs.has(Special))	yield AddSL(MyID, {CountFunc:StaticLink.SpecialFuncs.get(Special)!});	//Special GetCount func
 				else if(SaveData.PlayerData.Has(Special))																				//Special FieldInfo Check
 					if(!IsValidSpecialFieldType(Special))		yield AddSL(MyID, {ErrStr:NT+`PlayerData.${Special} ≠ bool/int/enum`});	//Special FieldInfo failed (not int)
 					else										yield AddSL(MyID, {FName:Special});										//Special FieldInfo success
 				else											yield AddSL(MyID, {ErrStr:NT+`Invalid value for special: ${Special}`});	//Special FieldInfo failed (doesn’t exist)
-			else if(L.length===2 && Category.IDInRange(CatID=(typeof(L[1])==='number' ? L[1] : -1)))									//Category check
+			else if(L.length===2 && Category.IDInRange(CatID=L[1] as number))															//Category check
 				if(Categories.has(CatID))						yield AddSL(MyID, {CategoryID:CatID});									//Category success
 				else											yield AddSL(MyID, {ErrStr:NT+`Invalid Category ID ${CatID}`});			//Category failed
 			else												yield AddSL(MyID, {ItemIDs:												//Item list

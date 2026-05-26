@@ -100,8 +100,8 @@ export default class MapControl
 			const Values=new URLSearchParams(NewHash.slice(SplitPos+1));
 			NewHash=NewHash.slice(0, SplitPos); //The ItemID is now what’s before the first comma in the hash
 			for(const Name of ['ZoomScale', 'Duration', 'X', 'Y'] as const) {
-				const Value=Number(Values.get(Name) ?? Number.NaN);
-				if(Number.isFinite(Value))
+				const Value=Util.GetNumber(Values.get(Name));
+				if(Value!==null)
 					Options[Name]=Value;
 			}
 			if(!ProcessActions(Values.entries()))
@@ -137,7 +137,10 @@ export default class MapControl
 			Duration ??= 1.75;
 		}
 
-		const ItemID=Number(NewItemID);
+		const ItemID=Util.GetInt(NewItemID);
+		if(ItemID===null)
+			return this.RemoveHistoryEvent();
+
 		this.SelectAndCenterItemI(ItemID, true, ZoomScale, Duration);
 		Log.Debug(`Stack ${IsInitial ? 'Initial' : 'Update'}: #${NewItemID}`);
 		if(!HasCommands)

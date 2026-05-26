@@ -122,8 +122,8 @@ export default class DataStorage
 				try {
 					if(!/^[1-9]\d*$/.test(CatID))
 						throw new Error("Invalid CategoryID: "+CatID);
-					const CatIDAsInt=Number.parseInt(CatID, 10);
-					if(!Number.isFinite(CatIDAsInt))
+					const CatIDAsInt=Util.GetInt(CatID);
+					if(CatIDAsInt===null)
 						throw new Error("Invalid CategoryID: "+CatID);
 					const CatData=LoadJson.ClassFromObj(new Category(CatIDAsInt), CatDataObj);
 					Groups.set(CatIDAsInt, CatData);
@@ -145,7 +145,7 @@ export default class DataStorage
 			try {
 				if(!/^[1-9]\d*$/.test(K))
 					throw new Error("Invalid ItemID");
-				const NewID=Number.parseInt(K, 10);
+				const NewID=+K;
 				if(!Number.isFinite(NewID))
 					throw new Error("Invalid ItemID");
 				this.Items.set(NewID, CreateItem.Process(NewID, V));
@@ -423,8 +423,8 @@ export default class DataStorage
 	{
 		//Convert from a string to an int
 		if(typeof(ID)==='string') {
-			ID=Number.parseInt(ID, 10);
-			if(!Number.isFinite(ID))
+			ID=Util.GetInt(ID)!;
+			if(ID===null)
 				return;
 		}
 

@@ -2,6 +2,7 @@ import $ from 'jquery';
 import { InitFuncs, Iter, Log, PopupMessage, Rect, StatStr, Util, Vector2, WillBeSet } from './Util/SharedClasses';
 import { type AutoFitText, ExecuteAutoFit, CheckFits_Circle } from './Util/AlignText';
 import { Share } from './Share';
+import { AddCI } from './Actions';
 import { Category, CategoryToggleState, Item } from './CategoriesAndItems';
 import { type MouseButtonEvent } from './MapCanvas';
 import { MapIcon } from './MapIcon';
@@ -57,7 +58,7 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 		ManualID?:number, //This will be set automatically if not provided
 	) {
 		if(ManualID!==undefined)
-			if(!Item.IDInRange(ManualID=Number(ManualID)))
+			if(!Item.IDInRange(ManualID= +ManualID))
 				throw new Error("CustomItem ID is not in ItemID range: "+ManualID);
 			else if(Share.DS.Items.has(ManualID))
 				throw new Error("CustomItem ID is already in use: "+ManualID);
@@ -218,6 +219,8 @@ function LoadCustomItems()
 	let Items:{ID:number, X:number, Y:number, Title:string, Label:string, Description:string}[];
 	try {
 		Items=JSON.parse(localStorage.getItem('CustomItems') ?? '[]');
+		if(!Array.isArray(Items))
+			throw new Error("Not an array");
 	} catch(e) {
 		const Err="Failed to load custom items: "+Util.GetErrorMessage(e);
 		new PopupMessage(Err);
@@ -226,13 +229,13 @@ function LoadCustomItems()
 	}
 
 	let HasErrors=false;
-	for(const Item of Items)
-		try {
-			new CustomItem(Item.X, Item.Y, Item.Title, Item.Description, Item.Label, false, undefined, Item.ID);
-		} catch(e) {
-			HasErrors=true;
-			Log.Error(StatStr.NeedsTranslate+`Failed to load custom item ${Item.ID}: `+Util.GetErrorMessage(e));
-		}
+	for(const Item of Items) {
+		const Err=AddCI(Item);
+		if(Err===null)
+			continue;
+		HasErrors=true;
+		Log.Error(StatStr.NeedsTranslate+`Failed to load custom item “${JSON.stringify(Item)}”: `+Err);
+	}
 	if(HasErrors)
 		new PopupMessage(Share.Tr.TDef("CustomItemsLoadFailed", 'CustomItems', "Some custom items failed to load. See log window for details."));
 }

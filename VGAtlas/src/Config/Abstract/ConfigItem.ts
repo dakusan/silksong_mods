@@ -1,4 +1,4 @@
-import { CallbackList, WillBeSet } from '../../Util/SharedClasses';
+import { CallbackList, Util, WillBeSet } from '../../Util/SharedClasses';
 import ConfigItemBase, { type Options } from './ConfigItemBase';
 import type Config from '../Config';
 
@@ -31,9 +31,12 @@ export default abstract class ConfigItem<T extends ConfigItemValueTypes> extends
 		if(Raw!==null)
 			try {
 				const Parsed=JSON.parse(Raw);
-				this.Val=
-					  this.IsSaveAsString ? (this.Default as ConfigSerializer<T>).ConfigDeserialize(Parsed as string)
-					: Parsed as T;
+				if(this.IsSaveAsString) {
+					if(typeof(Parsed)!=='string')
+						throw new Error("Saved value is not a string");
+					this.Val=(this.Default as ConfigSerializer<T>).ConfigDeserialize(Parsed);
+				} else if(Util.SameType(this.Default, Parsed))
+					this.Val=Parsed as T;
 			} catch { }
 		this.ValueSet();
 		if(Raw!==this.GetStorageValue())

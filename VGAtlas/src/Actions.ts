@@ -6,9 +6,9 @@ import CustomItem from './CustomItem';
 //noinspection JSUnusedGlobalSymbols
 const NullFunc=() => null;
 const Actions:Record<string, (Value:string) => string|null>={
-	AddCI			: AddCIFunc,
-	DelCI			: Value	=> DelCIFunc  (Value)===0 ? "No items found for: "+Value : null,
-	ClearCI			: ()	=> ClearCIFunc(		)===0 ? "No items found" : null,
+	AddCI			: AddCI,
+	DelCI			: Value	=> DelCI  (Value)===0 ? "No items found for: "+Value : null,
+	ClearCI			: ()	=> ClearCI(		)===0 ? "No items found" : null,
 	X:NullFunc, Y:NullFunc, Duration:NullFunc, ZoomScale:NullFunc,
 } as const;
 
@@ -29,16 +29,17 @@ export function ProcessActions(Values:ArrayIterator<[string, string]>)
 	return !HasErrors;
 }
 
-function AddCIFunc(Value:string)
+type CIType={X:number, Y:number, Label:string, Title:string, Description:string, ID?:number};
+export function AddCI(Value:string|CIType)
 {
 	class PartError extends Error { }
-	let AddParts:{X:number, Y:number, Label:string, Title:string, Description:string, ID?:number};
-	try { (() => { //Put in function to ignore inspection - This code is temporary anyway until I implement a proper validation library
-		AddParts=JSON.parse(Value);
+	let AddParts:CIType;
+	try {
+		AddParts=(typeof(Value)==='string' ? JSON.parse(Value) : Value);
 		if(AddParts===null || typeof(AddParts)!=='object' || Array.isArray(AddParts))
 			throw new SyntaxError("Not an object");
-		for(const Name of ['X', 'Y'].concat(AddParts.ID!==undefined ? ['ID'] : []) as (keyof typeof AddParts)[])
-			if(typeof(AddParts[Name])!=='number' || !Number.isFinite(AddParts[Name]))
+		for(const Name of ['X', 'Y'].concat(AddParts.ID!==undefined ? ['ID'] : []) as ('X'|'Y'|'ID')[])
+			if(!Number.isFinite(AddParts[Name]))
 				throw new PartError(Name);
 		for(const Name of ['Label', 'Title', 'Description'] as const)
 			if(typeof(AddParts[Name])!=='string' || AddParts[Name].trim().length<1)
@@ -46,7 +47,7 @@ function AddCIFunc(Value:string)
 		if(AddParts.ID!==undefined && (!Number.isInteger(AddParts.ID) || !Item.IDInRange(AddParts.ID)))
 			throw new PartError('ID');
 		new CustomItem(AddParts.X, AddParts.Y, AddParts.Title, AddParts.Description, AddParts.Label, false, undefined, AddParts.ID);
-	})() } catch(e) {
+	} catch(e) {
 		if(e instanceof PartError)
 			return StatStr.NeedsTranslate+`Invalid value for “${e.message}”: `+JSON.stringify(AddParts![e.message as keyof typeof AddParts]);
 		else if(e instanceof SyntaxError)
@@ -58,9 +59,9 @@ function AddCIFunc(Value:string)
 	return null;
 }
 
-function DelCIFunc(Value:string){ return DelCI(I => (/^\d+$/.test(Value) && I.ID===Number(Value)) || I.MyLabel===Value); }
-function ClearCIFunc()			{ return DelCI(() => true); }
-function DelCI(CheckFunc:(I:CustomItem) => boolean): number
+export function DelCI(Value:string)	{ return DelCIReal(I => (I.ID===Util.GetInt(Value)) || I.MyLabel===Value); }
+export function ClearCI()			{ return DelCIReal(() => true); }
+function DelCIReal(CheckFunc:(I:CustomItem) => boolean): number
 {
 	let Count=0;
 	for(const I of Share.DS.Items.values())
