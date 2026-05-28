@@ -267,7 +267,7 @@ export default class DataStorage
 		*/
 		private static RewriteList(
 			PrefixList:Record<string, string>,
-			ModifyList:Iterable<[I:Item, ItemList:string[]]>,
+			ModifyList:Iterable<readonly [I:Item, ItemList:string[]]>,
 			FinishProcessing?:((Str:string, ItemID:number, Index:number) => string)
 		): void {
 			//Get the regular expression rewrites
@@ -315,9 +315,9 @@ export default class DataStorage
 			for(const [K, V] of StaticLink.Process(this.StaticLinks, DS.Items, DS.Categories))
 				DS.StaticLinks.set(K, V);
 
-			//Rewrite from Image and OtherLink prefixes
-			LoadMisc.RewriteList(this.ImagePrefix,	 	new Iter(DS.Items.values()).filter(I => !!I.ImageURLs ?.length).map(I => [I, I.ImageURLs !]));
-			LoadMisc.RewriteList(this.OtherLinkPrefix,	new Iter(DS.Items.values()).filter(I => !!I.OtherLinks?.length).map(I => [I, I.OtherLinks!]),
+			//Rewrite from Image and OtherLink prefixes - NOTE: Mutating readonly arrays here, which is only allowed during initialization
+			LoadMisc.RewriteList(this.ImagePrefix,	 	new Iter(DS.Items.values()).filter(I => !!I.ImageURLs ?.length).map(I => [I, Util.GetMutable(I.ImageURLs !)] as const));
+			LoadMisc.RewriteList(this.OtherLinkPrefix,	new Iter(DS.Items.values()).filter(I => !!I.OtherLinks?.length).map(I => [I, Util.GetMutable(I.OtherLinks!)] as const),
 				//URL can be followed by an optional link name (URL escape not necessary) prefixed with a pipe “|”. If not given, the URL will be the link name. The Link name will have UrlDecode() ran on it for display.
 				(Str, ItemID, Index) => {
 					const Parts=Str.split('|', 2);

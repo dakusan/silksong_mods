@@ -16,7 +16,7 @@ export function rgb2hsv(r:number, g:number, b:number): {h:number, s:number, v:nu
 export function hsv2rgb(h:number, s:number, v:number): {r:number, g:number, b:number}
 {
 	const x=0, y=1, z=2;
-	const K=[1.0, 2.0/3.0, 1.0/3.0];
+	const K=[1.0, 2.0/3.0, 1.0/3.0] as const;
 	const Fract=(n:number)	=>n-Math.floor(n);
 	const Clamp=(n:number)	=>Math.min(1, Math.max(0, n));
 	const GetP =(n:number)	=>Math.abs(Fract(h+K[n])*6-3);

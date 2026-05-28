@@ -256,7 +256,7 @@ export default class MapCanvas
 		const BeginPinch=() => {
 			if(Pointers.size!==2)
 				return;
-			const It=[...Pointers.values()];
+			const It=[...Pointers.values()] as const;
 			IsPinching=(PinchStartDist=It[0].Distance(It[1]))>0;
 			IsDragging=false;
 			PinchStartScale=this.Scale;
@@ -268,7 +268,7 @@ export default class MapCanvas
 		const UpdatePinch=() => {
 			if(!IsPinching || Pointers.size!==2)
 				return;
-			const It=[...Pointers.values()];
+			const It=[...Pointers.values()] as const;
 			const Dist=It[0].Distance(It[1]);
 			const NewScale=Math.min(Math.max(PinchStartScale*(Dist/PinchStartDist), this.MinScale), this.MaxScale);
 			const C=GetCenter(It[0], It[1]);
@@ -338,7 +338,7 @@ export default class MapCanvas
 					EndPinch();
 
 				if(Pointers.size===1) {
-					const It=[...Pointers.values()];
+					const It=[...Pointers.values()] as const;
 					LastX=It[0].X;
 					LastY=It[0].Y;
 					IsDragging=true;
@@ -451,7 +451,7 @@ export default class MapCanvas
 	public	CanvasUniversalToCanvas(Pos:Vector2								): Vector2 { return new Vector2(Pos.X+this.X, Pos.Y+this.Y	); }
 
 	//eslint-disable-next-line @typescript-eslint/naming-convention
-	private EvPos(e:{clientX:number, clientY:number}): Vector2 { return new Vector2(e.clientX, e.clientY).Sub(this.CanvasPos); }
+	private EvPos(e:Readonly<{clientX:number, clientY:number}>): Vector2 { return new Vector2(e.clientX, e.clientY).Sub(this.CanvasPos); }
 }
 abstract class MapCanvas_Friend extends MapCanvas implements FriendClass
 {

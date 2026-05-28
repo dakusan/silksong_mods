@@ -29,7 +29,7 @@ export function ProcessActions(Values:ArrayIterator<[string, string]>): boolean
 	return !HasErrors;
 }
 
-type CIType={X:number, Y:number, Label:string, Title:string, Description:string, ID?:number};
+type CIType=Readonly<{X:number, Y:number, Label:string, Title:string, Description:string, ID?:number}>;
 export function AddCI(Value:string|CIType): string|null
 {
 	class PartError extends Error { }

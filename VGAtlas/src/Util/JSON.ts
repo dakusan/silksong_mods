@@ -162,7 +162,7 @@ export namespace SaveJson
 			:	Value instanceof Map ? EncodeMap(Value)
 			:	EncodeObj(Value as object, Object.create(null));
 	}
-	function EncodeArr(InArr:unknown[]): unknown[]
+	function EncodeArr(InArr:readonly unknown[]): unknown[]
 	{
 		const OutArr:unknown[]=[];
 		for(const V of InArr)

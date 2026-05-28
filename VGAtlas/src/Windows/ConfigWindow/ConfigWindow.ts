@@ -121,7 +121,7 @@ class ConfigWindowSection
 	constructor(
 		public readonly Parent:ConfigWindow,
 		public readonly SectionName:string,
-		ConfigItems:ConfigItemBase[],
+		ConfigItems:readonly ConfigItemBase[],
 		$Table:JQuery,
 	) {
 		$Table.append($('<tr class=TitleRow>').append(this.$Title));

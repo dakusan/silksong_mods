@@ -1,17 +1,17 @@
-import { StatStr, WillBeSet } from '../../Util/SharedClasses';
+import { StatStr, type StoreRef, Util, WillBeSet } from '../../Util/SharedClasses';
 import Translations, { DefaultTr } from '../../Util/Translations';
 import ConfigItem_Enum from './ConfigItem_Enum';
 
 export default class ConfigItem_Languages extends ConfigItem_Enum
 {
 	protected Tr:Translations=WillBeSet;
-	constructor(Section:string, Tr?:Translations) //If this.Tr is not set here, call SetTranslations when it is available
+	constructor(Section:string, Tr?:StoreRef<Translations>) //If this.Tr is not set here, call SetTranslations when it is available
 	{
 		super(Section, Translations.LanguageAsStr, '*UNSET*', {}, {Description:'-'});
 		this.$SelectBox.addClass('Language');
 		(this.Tr=Tr!)?.LanguageListLoaded.finally(() => this.FinishLoad());
 	}
-	public SetTranslations(Tr:Translations): void
+	public SetTranslations(Tr:StoreRef<Translations>): void
 	{
 		if(this.Tr)
 			throw new Error(StatStr.NeedsTranslate+`Translations already set for Languages config ${this.Tr.ModuleName}.${this.Section}.${this.Key}`);
@@ -37,6 +37,8 @@ export default class ConfigItem_Languages extends ConfigItem_Enum
 
 		this.$SelectBox.val(this.Tr.Language=this.V);
 		this.SettingChanged.Add('ConfigItem_Languages', V => this.Tr.Language=V);
+
+		Util.GetMutable(this).Default=DefaultTr.ctor.DefaultLang; //Set after the fact for the “Reset” button
 	}
 	protected override LanguageChanged(): void { } //Text is not changed on language change
 }

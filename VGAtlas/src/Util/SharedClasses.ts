@@ -216,7 +216,7 @@ export namespace Util
 class LogLine
 {
 	public readonly Time=new Date();
-	constructor(public readonly LogInfo:unknown[], public readonly IsError:boolean) {}
+	constructor(public readonly LogInfo:readonly unknown[], public readonly IsError:boolean) {}
 }
 class LogClass
 {
@@ -224,14 +224,14 @@ class LogClass
 	public get AllLogLines():readonly LogLine[] { return this.LogLines; }
 	public readonly OnLog=new CallbackList<[LogLine]>('OnLog');
 	public MaxStoredLogLines=0; //LogLines not shortened until next Add()
-	private Add(Info:unknown[], IsError:boolean): unknown[] //Returns Info
+	private Add(Info:StoreRef<readonly unknown[]>, IsError:boolean): unknown[] //Returns Info
 	{
 		if(this.LogLines.length>this.MaxStoredLogLines-1)
 			this.LogLines=this.LogLines.slice(-(this.MaxStoredLogLines-1));
 		const NewLine=new LogLine(Info, IsError);
 		this.LogLines.push(NewLine);
 		this.OnLog.Execute(NewLine);
-		return Info;
+		return Info as unknown[];
 	}
 
 	public Debug(...Objs:unknown[]): void { console.debug	(...Objs); }
@@ -393,8 +393,8 @@ export class PopupMessage
 	}
 }
 
-type Callback<Args extends unknown[]=unknown[], TRet=void> = (...args: Args) => TRet;
-export class CallbackList<Args extends unknown[], TRet=void>
+type Callback<Args extends readonly unknown[]=readonly unknown[], TRet=void> = (...args: Args) => TRet;
+export class CallbackList<Args extends readonly unknown[], TRet=void>
 {
 	constructor(
 		public readonly Name:string,
@@ -470,6 +470,7 @@ export namespace KeyState
 
 export const WillBeSet=undefined!;
 export const Log=Util.OneTimeInit('Log', () => new LogClass());
+export type StoreRef<T>=T; //This marks when an array/object parameter is stored in the called object. Not needed for constructor parameters marked with access modifiers
 
 //These run at the end of initialization
 export const InitFuncs:(() => void)[]=[];

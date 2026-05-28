@@ -102,16 +102,16 @@ export class Item extends JsonClass
 	public IconID:number=-1;
 
 	//These are all set from Converters. Anything ran through a converter has a confirmed type, so JsonPropsDec is not needed.
-	public WhereAt	?:RenderedField	=undefined;
-	public Notes	?:RenderedField	=undefined;
-	public Effect	?:RenderedField	=undefined;
-	public Tip		?:RenderedField	=undefined;
-	public Reqs		?:ChainList		=undefined;
-	public Needs	?:ChainList		=undefined;
-	public Rewards	?:ChainList		=undefined;
-	public Store	?:StoreItems	=undefined;
-	public ImageURLs?:string[]		=undefined;
-	public OtherLinks?:string[]		=undefined;
+	public WhereAt	?:RenderedField		=undefined;
+	public Notes	?:RenderedField		=undefined;
+	public Effect	?:RenderedField		=undefined;
+	public Tip		?:RenderedField		=undefined;
+	public Reqs		?:ChainList			=undefined;
+	public Needs	?:ChainList			=undefined;
+	public Rewards	?:ChainList			=undefined;
+	public Store	?:StoreItems		=undefined;
+	public ImageURLs ?:readonly string[]=undefined; //Mutated during LoadMisc.Process()
+	public OtherLinks?:readonly string[]=undefined; //Mutated during LoadMisc.Process()
 
 	public Unlocks?=new ItemSet(this);
 	public AQFrom ?=new ItemSet(this); //AQFrom=Acquired From
@@ -157,7 +157,7 @@ export class Item extends JsonClass
 		//Create the new ChainItem list
 		const ChainListToStartWith=(CType===ChainType.Reqs ? this.Reqs : this.Needs);
 		const ListToStartWith=ChainListToStartWith?.Items ?? [];
-		const NewList:ChainItem[][]=[...ListToStartWith, ...ClonedChainList.Items!];
+		const NewList:readonly (readonly ChainItem[])[]=[...ListToStartWith, ...ClonedChainList.Items!];
 
 		//Create the combined chain list
 		const CombinedExtraString=[
@@ -255,7 +255,7 @@ export class ChainList extends JsonClass
 		Parent:Item,
 		ItemList:string,
 		public readonly Type:ChainType,
-		public readonly Items?:ChainItem[][],
+		public readonly Items?:readonly (readonly ChainItem[])[],
 		public readonly ExtraStr?:RenderedField
 	) {
 		super();
@@ -284,7 +284,12 @@ export class ChainList extends JsonClass
 	private static readonly ExtractItemCounts=new RegExp(`${LStatStr.ChainItem_AmountChar}\\d+${LStatStr.ChainItem_AmountChar}`, 'g');
 	private static readonly ReplaceLangVars=new RegExp(`${LStatStr.TrVarChar}([\\p{L}_]+)${LStatStr.TrVarChar}`, 'gu');
 	//@ts-expect-error Private function is used in JSON export
-	@ExpYes() private get ExpRenderParts(): StringCountPair[] { return this.RenderParts===undefined ? {_:this.RenderedString, RP:this.RenderParts}.RP : this.RenderParts; }
+	@ExpYes() private get ExpRenderParts(): StringCountPair[]
+	{
+		if(this.RenderParts===undefined)
+			this.CompileRenderString();
+		return this.RenderParts;
+	}
 	@ExpNo() private RenderParts:StringCountPair[]=WillBeSet;
 	@ExpNo() private RenderPartsAgnostic:string[]=WillBeSet; //Original RenderParts strings before replacing language variables
 	@ExpNo() private CurrentLang:string=WillBeSet;
@@ -614,7 +619,7 @@ class StoreItems
 {
 	public get RenderedString(): string { return this.FinishInternalRender(); }  //Cannot be cached due to changing item collection counts
 	public constructor(
-		public Items:StoreItem[],
+		public Items:readonly StoreItem[],
 	) { }
 	private FinishInternalRender(): string
 	{

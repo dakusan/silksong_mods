@@ -190,7 +190,7 @@ export class Window
 			 WM.SetFocus(null);
 	}
 
-	protected UpdateBounds(Updates?:{X?:number, Y?:number, Width?:number, Height?:number}, NoBoundsCheck=false, IsInitial=false): void
+	protected UpdateBounds(Updates?:Partial<{X:number, Y:number, Width:number, Height:number}>, NoBoundsCheck=false, IsInitial=false): void
 	{
 		//Get the new bounds
 		const NewRect=Object.assign(this.Bounds, typeof(Updates)==='object' ? Updates : {}) as Rect;

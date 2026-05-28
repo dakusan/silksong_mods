@@ -31,16 +31,16 @@ export class AutoFitText
 {
 	constructor(
 		public readonly Size:number,
-		public readonly LineRects:LineRect[] //X and Y coordinates are for upper-left corner of the text
+		public readonly LineRects:readonly LineRect[] //X and Y coordinates are for upper-left corner of the text
 	) { }
 }
 
 export enum AlignTextType { Beginning, Middle, End } //Left/Top, Center, Right/Bottom
 
-type CheckIfFitsFunc=(Width:number, Height:number, LineRects:LineRect[]) => boolean;
+type CheckIfFitsFunc=(Width:number, Height:number, LineRects:readonly LineRect[]) => boolean;
 
 export function ExecuteAutoFit(
-	Lines:string|string[],
+	Lines:string|readonly string[],
 	Width:number, Height:number,
 	Opts?:Partial<FitOptions>,
 ): AutoFitText {
@@ -53,7 +53,7 @@ export function ExecuteAutoFit(
 }
 
 //CheckIfFitsFunc
-export function CheckFits_Rectangle(Width:number, Height:number, LineRects:LineRect[]): boolean
+export function CheckFits_Rectangle(Width:number, Height:number, LineRects:readonly LineRect[]): boolean
 {
 	for(const {Rect:LR} of LineRects)
 		if(LR.X<0 || LR.Y<0 || LR.X+LR.Width>Width || LR.Y+LR.Height>Height)
@@ -62,14 +62,14 @@ export function CheckFits_Rectangle(Width:number, Height:number, LineRects:LineR
 }
 
 //Called by RunFit
-export function CalculateMaxFontSize(Ctx:OffscreenCanvasRenderingContext2D, StrLines:string[], Width:number, Height:number, Opts:FitOptions): AutoFitText
+export function CalculateMaxFontSize(Ctx:OffscreenCanvasRenderingContext2D, StrLines:readonly string[], Width:number, Height:number, Opts:FitOptions): AutoFitText
 {
 	let Min=Opts.MinFont;
-	let Max=Opts.MaxFont;
+	let Max=Math.max(Opts.MaxFont, Opts.MinFont);
 	let Best:AutoFitText|undefined;
 
 	while(Min<=Max) {
-		const Size=Math.floor((Min+Max)/2);
+		const Size=Math.ceil((Min+Max)/2);
 		Ctx.font=`${Size}px ${Opts.FontFamily}`;
 		const LineRects=GetLineRects(GetLineSizes(Ctx, StrLines), Width, Height, Opts);
 		const AF=new AutoFitText(Size, LineRects);
@@ -87,7 +87,7 @@ export function CalculateMaxFontSize(Ctx:OffscreenCanvasRenderingContext2D, StrL
 }
 
 //Called by CalculateSize
-export function GetLineRects(Lines:LineSize[], Width:number, Height:number, Opts:FitOptions): LineRect[]
+export function GetLineRects(Lines:readonly LineSize[], Width:number, Height:number, Opts:FitOptions): LineRect[]
 {
 	//Calculate equal line height if needed
 	let MaxLineHeight=0; //0 if not equal line height
@@ -120,7 +120,7 @@ export function GetLineRects(Lines:LineSize[], Width:number, Height:number, Opts
 }
 
 //Called by CalculateSize
-export function GetLineSizes(Ctx:OffscreenCanvasRenderingContext2D, Lines:string[]): LineSize[]
+export function GetLineSizes(Ctx:OffscreenCanvasRenderingContext2D, Lines:readonly string[]): LineSize[]
 {
 	const Size=parseInt(Ctx.font, 10);
 	let Index=0;
@@ -146,7 +146,7 @@ function CalcAlign(AlignType:AlignTextType, Outer:number, Inner:number): number
 }
 
 //Assumes the circle's bounding box starts at 0,0 and has a diameter matching the shortest side
-export function CheckFits_Circle(Width:number, Height:number, LineRects:LineRect[]): boolean
+export function CheckFits_Circle(Width:number, Height:number, LineRects:readonly LineRect[]): boolean
 {
 	const Radius=Math.min(Width, Height)/2;
 	const RadiusSq=Radius*Radius;

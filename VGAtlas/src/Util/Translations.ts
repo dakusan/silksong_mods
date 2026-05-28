@@ -13,7 +13,7 @@ class LangNames { constructor(
 type SectionListType=Record<string, Record<string, string>>;
 
 //Immediately call the callback on adding in case the language has already loaded
-type Callback<Args extends unknown[]=unknown[]> = (...args: Args) => void;
+type Callback<Args extends readonly unknown[]=readonly unknown[]> = (...args: Args) => void;
 class LanguagesChangedCallbackList extends CallbackList<[string]>
 {
 	constructor(private readonly Tr:Translations) { super('LanguageChanged') }
@@ -139,12 +139,12 @@ export default class Translations
 		 											  SafeRich=false, ...FormatList:Util.Primitive[]): string		{ return this.TranslateDef(Key, Section, Default,	SafeRich, ...FormatList); } //If not found, return Default
 
 	//Replacement arguments for parameterized translation strings (e.g., {0} placeholders).
-	public FormatParameters:Record<string, Util.Primitive[]>={}; //If SectionName is not ROOT or undefined, Expects “SectionName/” before the Key
+	public FormatParameters:Record<string, readonly Util.Primitive[]>={}; //If SectionName is not ROOT or undefined, Expects “SectionName/” before the Key
 	public TranslateDef(Key:string, Section?:string, Default:string|null=StatStr.Empty, SafeRich=false, ...FormatList:Util.Primitive[]): string //Return Default if not found. Section is ROOT if null.
 	{
 		Section ??= Translations.ROOT;
 		const Text=this.Sections?.[Section]?.[Key] ?? Default;
-		let FPs:Util.Primitive[]|undefined;
+		let FPs:readonly Util.Primitive[]|undefined;
 		const Ret=
 			  Text===null ? null //Only TranslateNull should return null as all other functions are set to use a default non-null string
 			: FormatList.length>0 ? Translations.FormatString(Text, ...FormatList)
