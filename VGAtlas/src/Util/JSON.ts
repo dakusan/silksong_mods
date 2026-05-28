@@ -70,7 +70,7 @@ export namespace LoadJson
 	}
 
 	//Convert from imported JSON (ValuesObj) to the final class-based object (Obj). Converters will transform members.
-	export function ClassFromObj<ObjType extends object>(Obj:ObjType, ValuesObj:object, Converters?:Record<keyof ObjType, JsonConverter_Generic<ObjType>>): ObjType
+	export function ClassFromObj<ObjType extends object>(Obj:ObjType, ValuesObj:object, Converters?:Readonly<Record<keyof ObjType, JsonConverter_Generic<ObjType>>>): ObjType
 	{
 		const ClassJSProps=(Obj.constructor as typeof JsonClass).ClassJSProps as Map<keyof ObjType, JSProps>|undefined;
 		const Values=ValuesObj as Record<keyof ObjType, unknown>;
@@ -197,7 +197,7 @@ export namespace SaveJson
 	}
 
 	//Exports DS.Categories and DS.Items through Stringify. If MatchModOutput is enabled, the output from the C# module will be matched exactly.
-	export function ExportDefaultData(Data:object, TrailingCommas=true, Compact=false, MatchModOutput=false, CustomFormatter?:(Str:string) => string): string
+	export function ExportDefaultData(Data:Readonly<object>, TrailingCommas=true, Compact=false, MatchModOutput=false, CustomFormatter?:(Str:string) => string): string
 	{
 		const Start=new Date();
 		let Output=Stringify(Data, Compact, TrailingCommas, MatchModOutput ? PreFormatLikeMod : undefined);

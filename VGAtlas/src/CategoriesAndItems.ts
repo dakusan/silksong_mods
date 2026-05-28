@@ -1,4 +1,4 @@
-import { CallbackList, FriendClass, Log, PopupMessage, StatStr, Util, Vector2, WillBeSet } from './Util/SharedClasses';
+import { CallbackList, FriendClass, Log, PopupMessage, StatStr, type StoreRef, Util, Vector2, WillBeSet } from './Util/SharedClasses';
 import { ExpNo, ExpYes, JsonClass, JsonConverter, JsonConverter_Generic, JsonPropsDec, LoadJson, SaveJson } from './Util/JSON';
 import { Share } from './Share';
 import { type MapIcon, type Sprite } from './MapIcon';
@@ -143,7 +143,7 @@ export class Item extends JsonClass
 		].filter(V => V!==undefined).join(StatStr.NewLine);
 	}
 
-	public AddStoreChainList(ChainListToCopy:ChainList): string|null //Returns error or null on success
+	public AddStoreChainList(ChainListToCopy:Readonly<ChainList>): string|null //Returns error or null on success
 	{
 		const CType=ChainListToCopy.Type;
 		if(CType!==ChainType.Reqs && CType!==ChainType.Needs)
@@ -215,7 +215,7 @@ export class Item extends JsonClass
 
 	@ExpNo() private _MapIcon?:MapIcon=undefined;
 	@ExpNo() public get MapIcon(): MapIcon|undefined { return this._MapIcon; }
-	public set MapIcon(Value:MapIcon)
+	public set MapIcon(Value:StoreRef<MapIcon>)
 	{
 		this._MapIcon=Value;
 		this._MapIcon.IsFound=this.IsFound;
@@ -252,11 +252,11 @@ export class ChainList extends JsonClass
 	public readonly StartString:string;
 
 	constructor(
-		Parent:Item,
+		Parent:StoreRef<Item>,
 		ItemList:string,
 		public readonly Type:ChainType,
 		public readonly Items?:readonly (readonly ChainItem[])[],
-		public readonly ExtraStr?:RenderedField
+		public readonly ExtraStr?:Readonly<RenderedField>
 	) {
 		super();
 		[this.Parent, this.StartString]=[Parent, ItemList];
@@ -392,7 +392,7 @@ export class ChainItem extends JsonClass
 	public readonly FlagAmount		:number	=1		;
 	@ExpNo() protected _Name		:string	=StatStr.Empty	; public get Name	(): string { return this._Name	; } //Set after DataStorage load complete (usually during DataStorage.CompleteInit)
 	@ExpNo() protected _LinkID		:number	=-1				; public get LinkID	(): number { return this._LinkID; } //Set after DataStorage load complete (usually during DataStorage.CompleteInit)
-	public constructor(Parent:ChainList, Item:string)
+	public constructor(Parent:StoreRef<ChainList>, Item:string)
 	{
 		super();
 		this.Parent=Parent;
@@ -504,7 +504,7 @@ class RenderedField extends JsonClass
 
 	@ExpNo() public readonly Parent:Item;
 	public constructor(
-		Parent:Item,
+		Parent:StoreRef<Item>,
 		public readonly StartString:string
 	) { super(); this.Parent=Parent; }
 
@@ -524,7 +524,7 @@ class RenderedField extends JsonClass
 class ItemSet extends JsonClass
 {
 	@ExpNo() public readonly Parent:Item;
-	public constructor(Parent:Item) { super(); this.Parent=Parent; }
+	public constructor(Parent:StoreRef<Item>) { super(); this.Parent=Parent; }
 	@ExpNo() private readonly ItemList=new Set<Item>();
 	@ExpNo() public get GetItems(): SetIterator<Item>	{ return this.ItemList.values(); }
 	@ExpNo() public get HasItems(): boolean				{ return this.ItemList.size>0; }
@@ -539,8 +539,8 @@ class ItemSet extends JsonClass
 			[this.IsRendered, this._RenderedString]=[true, this.FinishInternalRender()];
 		return this._RenderedString;
 	}
-	public Add	 (Item:Item): void		{ this.IsRendered=false; this.ItemList.add(Item); }
-	public Remove(Item:Item): boolean	{ this.IsRendered=false; return this.ItemList.delete(Item); }
+	public Add	 (Item:StoreRef<Item>)	: void		{ this.IsRendered=false; this.ItemList.add(Item); }
+	public Remove(Item:Item)			: boolean	{ this.IsRendered=false; return this.ItemList.delete(Item); }
 	public FinishInternalRender(): string|undefined
 	{
 		return	this.ItemList.size===0 ? undefined
@@ -561,7 +561,7 @@ export namespace CreateItem
 {
 	export function Process(ID:number, Obj:object): Item
 	{
-		return LoadJson.ClassFromObj<Item>(new Item(ID), Obj, OverrideFuncs as Record<string, JsonConverter_Generic<Item>>)
+		return LoadJson.ClassFromObj<Item>(new Item(ID), Obj, OverrideFuncs as Readonly<Record<string, JsonConverter_Generic<Item>>>)
 	}
 
 	const OverrideFuncs:Record<string, CreateItemJSC_Types>={
@@ -619,7 +619,7 @@ class StoreItems
 {
 	public get RenderedString(): string { return this.FinishInternalRender(); }  //Cannot be cached due to changing item collection counts
 	public constructor(
-		public Items:readonly StoreItem[],
+		public readonly Items:readonly StoreItem[],
 	) { }
 	private FinishInternalRender(): string
 	{
@@ -637,7 +637,7 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 	constructor(
 		public readonly Name:string,
 		public readonly CategoryID:number,
-		public readonly ItemIDs?:number[],
+		public readonly ItemIDs?:readonly number[],
 		public readonly SpecialCount:number=-1,
 		public readonly FName?:string,
 		public readonly CountFunc?:(()=>number)
@@ -674,13 +674,13 @@ export class StaticLink extends Object implements SaveJson.IExpOverride
 	}
 
 	//JSON type conversion
-	public static *Process(StaticLinks:Record<string, LoadMisc_StaticLink>, Items:Map<number, Item>, Categories:Map<number, Category>): Generator<[number, StaticLink]>
+	public static *Process(StaticLinks:Readonly<Record<string, LoadMisc_StaticLink>>, Items:ReadonlyMap<number, Item>, Categories:ReadonlyMap<number, Category>): Generator<[number, StaticLink]>
 	{
 		//Shortcut functions
 		const SaveData=Share.SaveData;
 		let CurName:string=WillBeSet, RemID:string=WillBeSet;
 		let CatID:number;
-		function AddSL(ID:number, P:{CategoryID?:number, ItemIDs?:number[], SpecialCount?:number, FName?:string, CountFunc?(): number, OverwriteName?:string, ErrStr?:string}): [number, StaticLink]
+		function AddSL(ID:number, P:Partial<{CategoryID:number, ItemIDs:readonly number[], SpecialCount:number, FName:string, CountFunc(): number, OverwriteName:string, ErrStr:string}>): [number, StaticLink]
 		{
 			if(P.ErrStr!==undefined)
 				LineErr(P.ErrStr);

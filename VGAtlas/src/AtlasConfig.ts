@@ -1,6 +1,6 @@
 import { ColorRGBA, InitFuncs, Util } from './Util/SharedClasses';
 import Config, { ConfigItem_Boolean, ConfigItem_Color, ConfigItem_Enum, ConfigItem_Languages, ConfigItem_Number, ConfigItem_Object, ConfigItem_ShortcutKey, OtherObject, ShortcutKey } from './Config/Config';
-import { type Share } from './Share';
+import type Translations from './Util/Translations';
 
 const PanSpeedMultiplier=25;
 
@@ -30,7 +30,7 @@ class LocalConfig extends Config {
 const LC=Util.OneTimeInit('LocalConfig', () => new LocalConfig());
 export default LC;
 
-function GetIconFiles(): Record<string, string>
+function GetIconFiles(): Readonly<Record<string, string>>
 {
 	return {
 		'Assets/Icons-FromGame.png':'From Game',
@@ -38,7 +38,7 @@ function GetIconFiles(): Record<string, string>
 	};
 }
 
-function GetThemes(): Record<string, string>
+function GetThemes(): Readonly<Record<string, string>>
 {
 	return {
 		'Base':'Default',
@@ -60,10 +60,10 @@ function SetupThemeSwap(): void
 	SwapTheme(LC.Theme.V);
 }
 
-function SetupEnumTranslations(ShareObj:typeof Share): void
+function SetupEnumTranslations(ShareTr:Translations): void
 {
 	for(const ConfItem of [LC.IconSet, LC.Theme])
-		ConfItem.GetTranslation=(TKey => ShareObj.Tr.TranslateNull(TKey, 'SettingEnums')!);
+		ConfItem.GetTranslation=(TKey => ShareTr.TranslateNull(TKey, 'SettingEnums')!);
 }
 
 function Init_Color_FoundIcon_Demo(): void
@@ -99,7 +99,7 @@ function SetupDebugMenu(): void
 InitFuncs.push(async () => {
 	const ShareObj=(await import('./Share')).Share;
 	SetupThemeSwap();
-	SetupEnumTranslations(ShareObj);
+	SetupEnumTranslations(ShareObj.Tr);
 	Init_Color_FoundIcon_Demo();
 	SetupDebugMenu();
 });

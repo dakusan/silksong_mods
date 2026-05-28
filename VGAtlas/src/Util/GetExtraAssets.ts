@@ -21,7 +21,7 @@ namespace GetExtraAssets
 		return GTExtraAssets.ExtraAssets!;
 	}
 
-	function TryPath(Path:string, Mappings:Record<string, string>): string
+	function TryPath(Path:string, Mappings:Readonly<Record<string, string>>): string
 	{
 		if(!Mappings[Path])
 			throw new Error("Could not find asset mapping for path: "+Path);

@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { ColorRGBA, Util } from '../../Util/SharedClasses';
+import { ColorRGBA, type StoreRef, Util } from '../../Util/SharedClasses';
 import ConfigItem, { type Options } from '../Abstract/ConfigItem';
 
 const RGBList=['r', 'g', 'b'] as const;
@@ -14,7 +14,7 @@ export default class ConfigItem_Color extends ConfigItem<ColorRGBA>
 	protected readonly Sliders:Partial<Record<ColorChannel, JQuery>> ={};
 
 	constructor(
-		Section:string, Key:string, Default:ColorRGBA,
+		Section:string, Key:string, Default:StoreRef<Readonly<ColorRGBA>>,
 		public readonly ShowPicker:boolean=false,
 		public readonly ShowColorSliders:boolean=false,
 		public readonly ShowAlpha:boolean=false,

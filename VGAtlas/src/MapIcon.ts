@@ -1,4 +1,4 @@
-import { ColorRGBA, Equatable, InitFuncs, Log, Rect, Util, Vector2, WillBeSet } from './Util/SharedClasses';
+import { ColorRGBA, Equatable, InitFuncs, Log, Rect, type StoreRef, Util, Vector2, WillBeSet } from './Util/SharedClasses';
 import { HSVAShader, RGBAShader, TintShader } from './Util/PixelShader';
 import { Share } from './Share';
 import { CategoryToggleState, type Item } from './CategoriesAndItems';
@@ -180,7 +180,7 @@ export class MapIcon
 	//Basic instance members
 	private readonly IconGO:GameObject;
 
-	constructor(Item:Item, MySprite:Sprite, ExtraDraw?:ExtraDrawFunc)
+	constructor(Item:Item, MySprite:StoreRef<Sprite>, ExtraDraw?:ExtraDrawFunc)
 	{
 		this.IconGO=new GameObject(`Pin - ${Item.Title} [${Item.ID}]`, Item.Pos, MySprite, ExtraDraw);
 		this.UpdateSize(0.75*2/3); //Use an arbitrary start size which will be reset upon MapControl load
@@ -256,7 +256,7 @@ export class MapIcon
 		}, 1500);
 	}
 
-	public static UpdateDefaultSpriteSheet(IB:ImageBitmap): void
+	public static UpdateDefaultSpriteSheet(IB:StoreRef<ImageBitmap>): void
 	{
 		DefaultSSV.Update(IB).then(() => {
 			for(const I of (Share.DS?.Items.values() ?? []))
@@ -459,7 +459,7 @@ class SpriteSheetVariations
 		Vars[SSVDefault]=new SpriteSheetVariation(); //Default is required
 	}
 
-	public async Update(IB:ImageBitmap): Promise<void>
+	public async Update(IB:StoreRef<ImageBitmap>): Promise<void>
 	{
 		this._IB=IB;
 		let Renders:RenderExecution[];

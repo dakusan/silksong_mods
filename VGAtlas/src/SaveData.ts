@@ -3,6 +3,7 @@
 
 import { WillBeSet } from './Util/SharedClasses';
 import { TranslatePassthrough } from './Util/Translations';
+type RO<T>=Readonly<T>;
 
 //Encrypted file variables
 const BeginningBytes=25;
@@ -22,7 +23,7 @@ export default class SaveDataClass
 	public static async	CreateFrom_File			(File:File			): Promise<SaveDataClass>	{ return await this.CreateFrom_FileBytes(new Uint8Array(await File.arrayBuffer())); }
 	public static async	CreateFrom_Base64String	(Base64String:string): Promise<SaveDataClass>	{ return CreateSaveData(JSON.parse(await DecryptSaveFile(Base64String)) as SaveDataClass); }
 	public static		CreateFrom_JSONString	(JSONString:string	): SaveDataClass			{ return CreateSaveData(JSON.parse(JSONString) as SaveDataClass); }
-	public static async	CreateFrom_FileBytes	(Bytes:Uint8Array	): Promise<SaveDataClass>	{
+	public static async	CreateFrom_FileBytes	(Bytes:RO<Uint8Array>):Promise<SaveDataClass>	{
 		if(Bytes.length<BeginningBytes+EndBytes)
 			throw new TranslatePassthrough("File is too small", 'LoadSaveFile').AsError();
 

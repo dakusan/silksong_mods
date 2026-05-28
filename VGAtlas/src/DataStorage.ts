@@ -1,4 +1,4 @@
-import { DevStrings, FriendClass, Iter, Log, PopupMessage, Rect, StatStr, Util, Vector2, WillBeSet } from './Util/SharedClasses';
+import { DevStrings, FriendClass, Iter, Log, PopupMessage, Rect, StatStr, type StoreRef, Util, Vector2, WillBeSet } from './Util/SharedClasses';
 import { OtherObject } from './Config/Types/ConfigItem_Object';
 import GetExtraAssets from './Util/GetExtraAssets';
 import { LoadJson } from './Util/JSON';
@@ -63,7 +63,7 @@ class IconSprites
 	}
 
 	//Set the sprite’s image
-	protected SetIconPics(IconPicsTex:ImageBitmap, ImageURL:string): void
+	protected SetIconPics(IconPicsTex:StoreRef<ImageBitmap>, ImageURL:string): void
 	{
 		MapIcon.UpdateDefaultSpriteSheet(IconPicsTex);
 		GetExtraAssets.GetPath(ImageURL).then(NewURL =>
@@ -82,7 +82,7 @@ class IconSprites
 		);
 	}
 
-	private CreateSprite(IconRect:Rect): Sprite { return new Sprite(DefaultSSV, IconRect, new Vector2(0.5, 0.5)); }
+	private CreateSprite(IconRect:StoreRef<Rect>): Sprite { return new Sprite(DefaultSSV, IconRect, new Vector2(0.5, 0.5)); }
 }
 
 //noinspection ExceptionCaughtLocallyJS
@@ -174,7 +174,7 @@ export default class DataStorage
 		}
 
 		//Create and update the sprite texture
-		const LoadIconSet=async (NewIconSet:Promise<ImageBitmap>, ImageURL:string) => {
+		const LoadIconSet=async (NewIconSet:Promise<StoreRef<ImageBitmap>>, ImageURL:string) => {
 			try { (this.MyIconSprites as Icon_SpritesFriend).SetIconPics(await NewIconSet, ImageURL); }
 			catch(e) { Log.Error("Could not load icons texture: "+Util.GetErrorMessage(e)); }
 		};
@@ -266,7 +266,7 @@ export default class DataStorage
 		If FinishProcessing is provided, it is run on every final value after all rewrites have been applied.
 		*/
 		private static RewriteList(
-			PrefixList:Record<string, string>,
+			PrefixList:Readonly<Record<string, string>>,
 			ModifyList:Iterable<readonly [I:Item, ItemList:string[]]>,
 			FinishProcessing?:((Str:string, ItemID:number, Index:number) => string)
 		): void {
@@ -360,7 +360,7 @@ export default class DataStorage
 	}
 
 	//Category state updating functions
-	public CycleGroupCategoryState(CG:CategoryGroup): void
+	public CycleGroupCategoryState(CG:Readonly<CategoryGroup>): void
 	{
 		let ConfirmState=CG.values().next().value?.ToggleState ?? CategoryToggleState.None;
 		for(const Cat of CG.values())
@@ -448,8 +448,8 @@ export default class DataStorage
 //Mimic C++ friend / C# internal
 abstract class Category_Friend extends Category implements FriendClass
 {
-	public override set TotalCount	(_Value:number) { this.Stub(); }
-	public override set Sprite		(_Value:Sprite)	{ this.Stub(); }
+	public override set TotalCount	(_Value:number)				{ this.Stub(); }
+	public override set Sprite		(_Value:StoreRef<Sprite>)	{ this.Stub(); }
 	//Ignore these
 	protected constructor() { super(-1); this.Stub(); }
 	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
@@ -463,7 +463,7 @@ abstract class ChainItem_Friend extends ChainItem implements FriendClass
 }
 abstract class Icon_SpritesFriend extends IconSprites implements FriendClass
 {
-	public override SetIconPics(_IconPicsTex:ImageBitmap, _ImageURL:string): void { this.Stub(); }
+	public override SetIconPics(_IconPicsTex:StoreRef<ImageBitmap>, _ImageURL:string): void { this.Stub(); }
 	//Ignore these
 	protected constructor() { super(); this.Stub(); }
 	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }

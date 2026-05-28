@@ -25,11 +25,11 @@ export default class LogsWindow extends Window
 		return false;
 	}
 
-	private AddLogLine(LL:(typeof Log.AllLogLines)[number]): void
+	private AddLogLine(LL:Readonly<(typeof Log.AllLogLines)[number]>): void
 	{
 		this.$Content.children().slice(Log.MaxStoredLogLines-1).remove();
 		$('<div class=LogLine>').append([
-			$('<span class=Time>').text(new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'})),
+			$('<span class=Time>').text(LL.Time.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'})),
 			$('<span class=Contents>').text(String(LL.LogInfo[0])),
 		])
 			.toggleClass('IsError', LL.IsError)

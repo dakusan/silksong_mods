@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { CallbackList, Iter, KeyState, Util } from '../../Util/SharedClasses';
+import { CallbackList, Iter, KeyState, type StoreRef, Util } from '../../Util/SharedClasses';
 import { DefaultTr } from '../../Util/Translations';
 import ConfigItem, { type Options, type ConfigSerializer } from '../Abstract/ConfigItem';
 
@@ -88,7 +88,7 @@ export default class ConfigItem_ShortcutKey extends ConfigItem<ShortcutKey>
 	private readonly BoundListenForKey=(e:KeyboardEvent) => this.ListenForKey(e);
 	private readonly BoundEndKeyListen=() => this.EndKeyListen();
 
-	constructor(Section:string, Key:string, Default:ShortcutKey, Opts?:Partial<Options>)
+	constructor(Section:string, Key:string, Default:StoreRef<ShortcutKey>, Opts?:Partial<Options>)
 	{
 		super(Section, Key, Default, Opts);
 		ConfigItem_ShortcutKey.AllMyConfigs.push(this);

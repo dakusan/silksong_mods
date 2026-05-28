@@ -87,7 +87,7 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 	}
 	public override toString(): string { return this.MyDescription; }
 
-	public DrawSymbol(Ctx:CanvasRenderingContext2D, CanvasRect:Rect): void
+	public DrawSymbol(Ctx:CanvasRenderingContext2D, CanvasRect:Readonly<Rect>): void
 	{
 		//Only update context states if necessary
 		const ScaleSize=(CanvasRect.Width/this.SpriteSize);
@@ -105,7 +105,7 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 			);
 	}
 
-	public WindowCB_ContentsUpdated(IW:ItemWindow): void
+	public WindowCB_ContentsUpdated(IW:Readonly<ItemWindow>): void
 	{
 		const $Buttons=$('<div class=ItemWindowButtons>').append(
 			$('<button class=\'WinButton TranslationEl ButtonMove\'>'																			).on('click', () =>	this.Move		(IW)),
@@ -149,7 +149,7 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 		new CustomItemWindow(0, 0, CreateCustomItem, this);
 	}
 
-	private Move(IW:ItemWindow): void
+	private Move(IW:Readonly<ItemWindow>): void
 	{
 		const MCanvas=Share.MCanvas;
 		if(MCanvas.Canvas.classList.contains('MovingItem'))
@@ -187,7 +187,7 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 		Share.MC.SelectItem(this);
 	}
 
-	private MoveComplete(IW?:ItemWindow): void
+	private MoveComplete(IW?:Readonly<ItemWindow>): void
 	{
 		Share.MCanvas.Canvas.classList.remove('MovingItem');
 		Share.MCanvas.Events.Click.Remove('MoveCustomItem'+this.ID);
@@ -196,7 +196,7 @@ export default class CustomItem extends Item implements ItemWindow_Item_Callback
 	}
 }
 
-function UpdateMoveButton(IW:ItemWindow, IsMoving:boolean): void
+function UpdateMoveButton(IW:Readonly<ItemWindow>, IsMoving:boolean): void
 {
 	const BMove=IW.$Content.find('.ButtonMove')[0];
 	BMove.dataset.translationSection='CustomItems';

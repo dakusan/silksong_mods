@@ -6,7 +6,7 @@ export default class ConfigItem_Enum extends ConfigItem<string>
 {
 	protected $SelectBox=$(document.createElement('select')).addClass('Enum').appendTo(this.$DOMHolder);
 	protected EnumValues=new Map<string, string>();
-	constructor(Section:string, Key:string, Default:string, List:Map<string, string>|Record<string, string>, Opts?:Partial<Options>)
+	constructor(Section:string, Key:string, Default:string, List:ReadonlyMap<string, string>|Readonly<Record<string, string>>, Opts?:Partial<Options>)
 	{
 		super(Section, Key, Default, Opts);
 		this.$SelectBox
@@ -18,7 +18,7 @@ export default class ConfigItem_Enum extends ConfigItem<string>
 		this.LanguageChanged();
 		DefaultTr.UpdateDOMSubElements(this.$SelectBox[0]);
 	}
-	public AddList(List:Map<string, string>|Record<string, string>): void
+	public AddList(List:ReadonlyMap<string, string>|Readonly<Record<string, string>>): void
 	{
 		for(const [Key, Value] of (List instanceof Map ? List : Object.entries(List)))
 			this.Add(Key, Value);

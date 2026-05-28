@@ -1,4 +1,4 @@
-import { CallbackList, Util, WillBeSet } from '../../Util/SharedClasses';
+import { CallbackList, type StoreRef, Util, WillBeSet } from '../../Util/SharedClasses';
 import ConfigItemBase, { type Options } from './ConfigItemBase';
 import type Config from '../Config';
 
@@ -23,7 +23,7 @@ export default abstract class ConfigItem<T extends ConfigItemValueTypes> extends
 		this.SettingChanged=new CallbackList<[Value:T, Item:ConfigItem<T>]>(`Config setting “${this.Section}.${this.Key}”`);
 		this.IsSaveAsString=typeof((this.Default as Partial<ConfigSerializer<T>>).ConfigDeserialize)==='function';
 	}
-	protected override Init(Parent:Config): void
+	protected override Init(Parent:StoreRef<Config>): void
 	{
 		this.Parent=Parent;
 		const Raw=this.Parent.Storage.getItem(this.Parent.Prefix+this.Key);
@@ -44,8 +44,8 @@ export default abstract class ConfigItem<T extends ConfigItemValueTypes> extends
 	}
 
 	public get V(): T { return this.Val; }
-	public set V(NewVal:T) { this.SetVal(NewVal); }
-	protected SetVal(NewVal:T, FromDOM=false): void
+	public set V(NewVal:StoreRef<T>) { this.SetVal(NewVal); }
+	protected SetVal(NewVal:StoreRef<T>, FromDOM=false): void
 	{
 		if(NewVal===this.Val)
 			return;

@@ -1,6 +1,7 @@
 import './CategoryGroupsWindow.scss';
 import $									  from 'jquery';
-import { FriendClass, StatStr, WillBeSet	} from '../../Util/SharedClasses';
+import { FriendClass, StatStr, type StoreRef, WillBeSet
+											} from '../../Util/SharedClasses';
 import { TranslatePassthrough				} from '../../Util/Translations';
 import { Window								} from '../../Util/WindowManager';
 import { Share								} from '../../Share';
@@ -55,7 +56,7 @@ export default class CategoryGroupsWindow extends Window
 
 		Share.Tr.UpdateDOMSubElements(this.$Content[0]);
 	}
-	private InitGroup(CG:CategoryGroup): void
+	private InitGroup(CG:StoreRef<CategoryGroup>): void
 	{
 		//Category section label
 		const $CatGroup=$('<div class=Group>').appendTo(this.$CatTable);
@@ -96,7 +97,7 @@ class CategoryRow
 	public readonly $Icon	:JQuery=$(document.createElement('span')).addClass('ItemIcon'			);
 	public readonly $Name	:JQuery=$(document.createElement('span')).addClass('Name TranslationEl'	).attr('data-translation-section', 'Categories');
 
-	protected static Init($ParentEl:JQuery, CategoryInfo:Category): CategoryRow { return new CategoryRow($ParentEl, CategoryInfo); }
+	protected static Init($ParentEl:JQuery, CategoryInfo:StoreRef<Category>): CategoryRow { return new CategoryRow($ParentEl, CategoryInfo); }
 	protected constructor(
 		$ParentEl:JQuery,
 		public readonly CategoryInfo:Category
@@ -135,7 +136,7 @@ class CategoryRow
 
 abstract class CategoryRow_Friend extends CategoryRow implements FriendClass
 {
-	public static override Init($ParentEl:JQuery, CategoryInfo:Category): CategoryRow { return super.Init($ParentEl, CategoryInfo); }
+	public static override Init($ParentEl:JQuery, CategoryInfo:StoreRef<Category>): CategoryRow { return super.Init($ParentEl, CategoryInfo); }
 	public override Unload(): void { this.Stub(); }
 	//Ignore these
 	protected constructor(_$ParentEl:JQuery, _CategoryInfo:Category) { super(null!, null!); this.Stub(); }

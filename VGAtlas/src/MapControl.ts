@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { InitFuncs, Iter, KeyState, Log, PopupMessage, Rect, StatStr, Util, Vector2 } from './Util/SharedClasses';
+import { InitFuncs, Iter, KeyState, Log, PopupMessage, Rect, StatStr, type StoreRef, Util, Vector2 } from './Util/SharedClasses';
 import { Share } from './Share';
 import { ProcessActions } from './Actions';
 import { type Item } from './CategoriesAndItems';
@@ -94,7 +94,7 @@ export default class MapControl
 		}
 
 		//Process options
-		const Options:{ZoomScale?:number, Duration?:number, X?:number, Y?:number}={};
+		const Options:Partial<{ZoomScale:number, Duration:number, X:number, Y:number}>={};
 		const SplitPos=NewHash.indexOf('&');
 		if(SplitPos!==-1) {
 			const Values=new URLSearchParams(NewHash.slice(SplitPos+1));
@@ -185,7 +185,7 @@ export default class MapControl
 	}
 
 	//Set the hovered item
-	private SetHoverItem(ClosestItem?:Item): void
+	private SetHoverItem(ClosestItem?:StoreRef<Item>): void
 	{
 		if(ClosestItem===this.HoverItem || Util.IsMobile())
 			return;
@@ -268,8 +268,8 @@ export default class MapControl
 	}
 
 	//Selects a new item
-	public  SelectItem (NewSelectItem:Item|undefined): void { this.SelectItemI(NewSelectItem); }
-	private SelectItemI(NewSelectItem:Item|undefined, IsStackMove:boolean=false): void
+	public  SelectItem (NewSelectItem:StoreRef<Item>|undefined): void { this.SelectItemI(NewSelectItem); }
+	private SelectItemI(NewSelectItem:StoreRef<Item>|undefined, IsStackMove:boolean=false): void
 	{
 		//If the same item, nothing to do
 		if(this.SelectedItem===NewSelectItem)

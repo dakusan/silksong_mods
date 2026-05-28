@@ -1,4 +1,4 @@
-import { FriendClass, Log, StatStr } from '../Util/SharedClasses';
+import { FriendClass, Log, StatStr, type StoreRef } from '../Util/SharedClasses';
 import ConfigItemBase from './Abstract/ConfigItemBase';
 
 export * from './Abstract/ConfigItemTypes';
@@ -29,7 +29,7 @@ export default abstract class Config
 			if(Entry instanceof ConfigItemBase)
 				this.AddConfig(Entry)
 	}
-	protected AddConfig(Item:ConfigItemBase): void
+	protected AddConfig(Item:StoreRef<ConfigItemBase>): void
 	{
 		const SectionArr=this.ConfigEntries.get(Item.Section) ?? [];
 		if(!SectionArr.length)
@@ -41,7 +41,7 @@ export default abstract class Config
 
 abstract class ConfigItemBase_Friend extends ConfigItemBase implements FriendClass
 {
-	public override Init(_Parent:Config): void { this.Stub(); }
+	public override Init(_Parent:StoreRef<Config>): void { this.Stub(); }
 	//Ignore these
 	protected constructor() { super(null!, null!, null!); this.Stub(); }
 	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }

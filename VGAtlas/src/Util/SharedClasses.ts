@@ -5,6 +5,7 @@ export interface Equatable<T>
 {
 	Equals(Other?:T): boolean;
 }
+type RORect=Readonly<Rect>;
 
 export class Vector2 implements Equatable<Vector2>
 {
@@ -21,11 +22,11 @@ export class Vector2 implements Equatable<Vector2>
 export class Rect implements Equatable<Rect>
 {
 	constructor(public X:number, public Y:number, public Width:number, public Height:number) { }
-	public Equals(Other?:Rect): boolean	{ return Other?.X===this.X && Other.Y===this.Y && Other.Width===this.Width && Other.Height===this.Height; }
-	public SetWidth (W:number): this	{ this.Width =W; return this; }
-	public SetHeight(H:number): this	{ this.Height=H; return this; }
-	public Intersects(R:Rect ): boolean	{ return Rect.Intersects(this, R); }
-	public static Intersects(a:Rect, b:Rect): boolean
+	public Equals(Other?:RORect): boolean	{ return Other?.X===this.X && Other.Y===this.Y && Other.Width===this.Width && Other.Height===this.Height; }
+	public SetWidth (W:number)	: this		{ this.Width =W; return this; }
+	public SetHeight(H:number)	: this		{ this.Height=H; return this; }
+	public Intersects(R:RORect)	: boolean	{ return Rect.Intersects(this, R); }
+	public static Intersects(a:RORect, b:RORect): boolean
 	{
 		return (
 			   a.X<b.X+b.Width
@@ -444,7 +445,7 @@ export class PreallocatedPusher<T>
 	private readonly Arr: T[];
 	private Len=0;
 	constructor(Capacity:number) { this.Arr=new Array<T>(Capacity); }
-	public push(Item:T): void
+	public push(Item:StoreRef<T>): void
 	{
 		if(this.Len<this.Arr.length)
 			this.Arr[this.Len]=Item;
@@ -470,7 +471,14 @@ export namespace KeyState
 
 export const WillBeSet=undefined!;
 export const Log=Util.OneTimeInit('Log', () => new LogClass());
-export type StoreRef<T>=T; //This marks when an array/object parameter is stored in the called object. Not needed for constructor parameters marked with access modifiers
+
+/*This marks when a copy-by-reference parameter is stored in the called object after the function call ends. Not needed for:
+	* copy-by-value parameters (e.x. scalars)
+	* functions that are nested [that do not leave the current function] or private members [*DO* use on protected member functions]
+	* constructor parameters with access modifiers
+	* rest/iterable parameters
+*/
+export type StoreRef<T>=T;
 
 //These run at the end of initialization
 export const InitFuncs:(() => void)[]=[];

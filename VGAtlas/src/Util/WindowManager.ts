@@ -1,6 +1,6 @@
 import './Window.scss';
 import $ from 'jquery';
-import { FriendClass, InitFuncs, Log, Rect, StatStr, Util, Vector2 } from './SharedClasses';
+import { FriendClass, InitFuncs, Log, Rect, StatStr, type StoreRef, Util, Vector2 } from './SharedClasses';
 import { DefaultTr, TranslatePassthrough } from './Translations';
 
 type KeyHandler<T extends Window|null>=(this:T, e:KeyboardEvent)=>boolean|undefined;
@@ -45,7 +45,7 @@ export class WindowManager
 		})));
 	}
 
-	protected Register(W:Window): void
+	protected Register(W:StoreRef<Window>): void
 	{
 		this.Windows.push(W);
 		this.SetFocus(W);
@@ -57,7 +57,7 @@ export class WindowManager
 			this.Active=null;
 	}
 	protected GetSavedPos(SaveID?:string): Rect|undefined { return this.SavedPositions.get(SaveID!); }
-	protected SetSavedPos(SaveID:string, Bounds:Rect): void { this.SavedPositions.set(SaveID, Bounds); }
+	protected SetSavedPos(SaveID:string, Bounds:StoreRef<Rect>): void { this.SavedPositions.set(SaveID, Bounds); }
 
 	public SetFocus(W:Window|null): void
 	{
@@ -362,10 +362,10 @@ export class Window
 
 abstract class WindowManager_Friend extends WindowManager implements FriendClass
 {
-	public override Register  (_W:Window): void { this.Stub(); }
-	public override Unregister(_W:Window): void { this.Stub(); }
-	public override GetSavedPos(_SaveID?:string):Rect|undefined { return this.Stub(); }
-	public override SetSavedPos(_SaveID:string, _Bounds:Rect): void { this.Stub(); }
+	public override Register  (_W:StoreRef<Window>)						: void			{ this.Stub(); }
+	public override Unregister(_W:Window)								: void			{ this.Stub(); }
+	public override GetSavedPos(_SaveID?:string)						: Rect|undefined{ return this.Stub(); }
+	public override SetSavedPos(_SaveID:string, _Bounds:StoreRef<Rect>)	: void			{ this.Stub(); }
 	//Ignore these
 	protected constructor() { super(); this.Stub(); }
 	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
