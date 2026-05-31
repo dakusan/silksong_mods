@@ -5,6 +5,7 @@ import CustomItem from './CustomItem';
 
 //noinspection JSUnusedGlobalSymbols
 const NullFunc=() => null;
+//noinspection JSUnusedGlobalSymbols: Members are called dynamically
 const Actions:Record<string, (Value:string) => string|null>={
 	AddCI			: AddCI,
 	DelCI			: Value	=> DelCI  (Value)===0 ? "No items found for: "+Value : null,

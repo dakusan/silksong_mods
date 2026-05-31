@@ -11,6 +11,7 @@ declare module "*.html?minraw"
 }
 
 //Fix for https://github.com/microsoft/TypeScript/issues/17002
+//noinspection JSUnusedGlobalSymbols
 interface ArrayConstructor {
 	//eslint-disable-next-line @typescript-eslint/naming-convention
 	isArray(arg: unknown): arg is readonly unknown[];

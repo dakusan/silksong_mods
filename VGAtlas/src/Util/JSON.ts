@@ -173,13 +173,12 @@ export namespace SaveJson
 	{
 		const OutObj=Object.create(null) as Record<string, unknown>;
 		for(const [K, V] of InMap.entries())
-			OutObj[typeof(K)==='number' ? PlaceholderChar+K : String(K)]=EncodeVal(V);
+			OutObj[typeof(K)==='number' ? PlaceholderChar.Value+K : String(K)]=EncodeVal(V);
 		return OutObj;
 	}
 
 	//Note: This character will be wiped from JSON strings. If you are encoding binary data, change this to something in the private range that will not be used, like \uE000
-	//eslint-disable-next-line prefer-const
-	export let PlaceholderChar='\u0081';
+	export const PlaceholderChar={Value:'\u0081'};
 
 	//Exporting functions
 	//Encodes to JSON. Classes can be handled by IExpOverride; Object fields and getters are handled according to JSProps exporting decorators.
@@ -187,7 +186,7 @@ export namespace SaveJson
 	export function Stringify(Data:unknown, Compact=false, TrailingCommas=true, Replacer?:(this:unknown, key:string, value:unknown) => unknown): string
 	{
 		//The primary encoding process
-		let Output=JSON.stringify(EncodeVal(Data), Replacer, Compact ? undefined : '\t').replaceAll(PlaceholderChar, '');
+		let Output=JSON.stringify(EncodeVal(Data), Replacer, Compact ? undefined : '\t').replaceAll(PlaceholderChar.Value, '');
 
 		//Post formatting
 		if(TrailingCommas)

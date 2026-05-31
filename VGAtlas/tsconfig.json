@@ -7,6 +7,7 @@
 		"inlineSources"		: true,
 		"noEmit"			: true,
 		"skipLibCheck"		: true,
+		"rootDir"			: "./src",
 
 		//Type checking
 		"strict"			: true, //noImplicitAny, noImplicitThis, strictNullChecks, strictFunctionTypes, strictBindCallApply, strictPropertyInitialization, useUnknownInCatchVariables, alwaysStrict
