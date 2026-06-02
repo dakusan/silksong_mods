@@ -7,7 +7,4 @@ options -indexes
 RewriteEngine On
 RewriteRule ^items\.json$ /Items.json [R=301,L,QSA]
 RewriteRule ^categories\.json$ /Categories.json [R=301,L,QSA]
-RewriteRule ^Items\.json$ CreateJsons.php?Build=Items [QSA,L]
-RewriteRule ^Categories\.json$ CreateJsons.php?Build=Categories [QSA,L]
-RewriteRule ^Misc\.json$ CreateJsons.php?Build=Misc [QSA,L]
-RewriteRule ^ItemFinder\.json$ CreateJsons.php?Build=ItemFinder [QSA,L]
+RewriteRule ^(Items|Categories|Misc|ItemFinder|SceneVectors|SceneRects)\.json$ CreateJsons.php?Build=$1 [QSA,L]

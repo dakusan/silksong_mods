@@ -1,5 +1,9 @@
-Files in this directory are symlinked to the project https://github.com/dakusan/silksong_mods_assets at “../../Media”.
+Files in this directory are symlinked from ../../Media, which is populated from: https://github.com/dakusan/silksong_mods_assets
 
-I’m trying to keep data files out of this repository (some creeped in very early) so am using this structure.
+To fetch the symlinked assets from GitHub, run FetchAssets.sh from this directory. Use -h for help.
 
-Anywhere in this repo that needs access to these files are symlinked to this directory.
+The fetched files are stored at ../../Media relative to this directory.
+
+This keeps large/generated data files out of this repository. A few asset files exist in older commits from before this structure was added.
+
+Other locations in this repo that need these assets symlink to this directory.
