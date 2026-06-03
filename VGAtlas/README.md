@@ -72,7 +72,7 @@ Source code is bundled into chunks so that only one file load is needed for any 
 ### 🧱 Using / Generating Assets
 
 All assets are maintained in the [silksong_mods_assets repository](https://github.com/dakusan/silksong_mods_assets).
-The `/DataFiles/` directory in this project is symlinked locally to that repository via `../../Media/`.
+See `../DataFiles/Notes.txt` for instructions on downloading them.
 
 If you prefer to generate the JSON files locally (without linking to the external repository), you can do so as follows:
 

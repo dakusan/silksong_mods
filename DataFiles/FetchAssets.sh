@@ -6,6 +6,7 @@ set -euo pipefail
 REPO_URL="https://github.com/dakusan/silksong_mods_assets.git"
 BRANCH="master"
 WEB_URL="https://silksong.dakusan.com"
+ASSETS_DIR="../Assets"
 DRY_RUN=0
 UPDATE_JSON=0
 MIN_JSON=0
@@ -92,6 +93,13 @@ run() {
 #---------------------------------Initialization---------------------------------
 BASE_DIR="$(pwd)"
 TMP_DIR="$(mktemp -d)"
+ASSETS_PATH="$BASE_DIR/$ASSETS_DIR"
+ASSETS_CREATED=0
+
+if [[ ! -e "$ASSETS_PATH" && ! -L "$ASSETS_PATH" ]]; then
+	run mkdir -p "$ASSETS_PATH"
+	ASSETS_CREATED=1
+fi
 
 cleanup() {
 	run rm -rf "$TMP_DIR"
@@ -107,8 +115,8 @@ while IFS= read -r link; do
 	target="$(readlink "$link")"
 
 	case "$target" in
-		../../Media/*)
-			source_path="${target#../../Media/}"
+		"$ASSETS_DIR"/*)
+			source_path="${target#"$ASSETS_DIR"/}"
 			source_path="${source_path%/}"
 
 			SOURCE_PATHS+=("$source_path")
@@ -154,7 +162,7 @@ done
 
 #-----------------------Attempt to grab the latest versions----------------------
 if [[ "$UPDATE_JSON" == "1" ]]; then
-	mapfile -t JSON_FILES < <(find . -maxdepth 1 -type l -printf '%P\n' | while IFS= read -r link; do target="$(readlink "$link")"; [[ "$target" == "../../Media/My creations/json/"*.json ]] && printf '%s\n' "$link"; done | sort)
+	mapfile -t JSON_FILES < <(find . -maxdepth 1 -type l -printf '%P\n' | while IFS= read -r link; do target="$(readlink "$link")"; [[ "$target" == "$ASSETS_DIR/My creations/json/"*.json ]] && printf '%s\n' "$link"; done | sort)
 
 	for filename in "${JSON_FILES[@]}"; do
 		url="$WEB_URL/$filename"
@@ -176,7 +184,17 @@ if [[ "$UPDATE_JSON" == "1" ]]; then
 		fi
 	done
 else
-	warn "Warning: JSON data files downloaded from the assets repository may be out of date. See help with -h (See flags -u and -m)."
+	warn "Warning: JSON data files downloaded from the assets repository may be out of date. See help with -h for flags -u and -m."
+fi
+
+#------------------------------Final warnings------------------------------------
+if [[ "$ASSETS_CREATED" == "1" ]]; then
+	if [[ "$DRY_RUN" == "1" ]]; then
+		WARN_EXTRA="does not exist and would be created"
+	else
+		WARN_EXTRA="was created"
+	fi
+	warn "Warning: \"$ASSETS_DIR\" $WARN_EXTRA to hold fetched assets. You can also symlink \"REPO_ROOT/Assets\" to a local checkout of $REPO_URL."
 fi
 
 exit "$FAILED"

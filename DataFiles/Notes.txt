@@ -1,9 +1,11 @@
-Files in this directory are symlinked from ../../Media, which is populated from: https://github.com/dakusan/silksong_mods_assets
+Files in this directory are symlinked from ../Assets (relative to this directory), which is populated from: https://github.com/dakusan/silksong_mods_assets
 
 To fetch the symlinked assets from GitHub, run FetchAssets.sh from this directory. Use -h for help.
 
-The fetched files are stored at ../../Media relative to this directory.
+The fetched files are stored at ../Assets.
 
 This keeps large/generated data files out of this repository. A few asset files exist in older commits from before this structure was added.
 
 Other locations in this repo that need these assets symlink to this directory.
+
+You can also checkout https://github.com/dakusan/silksong_mods_assets separately and symlink ../Assets to that checkout.
