@@ -25,9 +25,11 @@ It redefines exploration, tracking, and completion by merging precision mapping,
 
 Every feature is fully configurable. Whether you want minimalist discovery or full map visibility, Pharloom Atlas adapts to your playstyle.
 
-[See Nexus Mods page for further details.](https://www.nexusmods.com/hollowknightsilksong/mods/755)
+For further details, see [Nexus Mods page](https://www.nexusmods.com/hollowknightsilksong/mods/755) or [Silksong Mods by Dakusan](https://silksong.dakusan.com/#PharloomAtlas-Description).
 
 Built on top of the **[BepInEx](https://github.com/BepInEx/BepInEx/)** framework.
+
+Fully featured web version: [Live site](https://vgatlas.dakusan.com/), [Git repository](../VGAtlas/#readme). No install—just upload your save file.
 
 <a id="core-highlights"></a>
 ## ✨️ Core Highlights
@@ -59,7 +61,7 @@ You should end up with paths like: `Hollow Knight Silksong/BepInEx/plugins/dakus
 
 <a id="web-integration"></a>
 ## 🌐️ Web Integration
-Pharloom Atlas can connect to an optional hosted **[Web Server](../WebServer#readme)** to receive player-submitted data — helping crowdsource map accuracy, item markers, and hidden area information.
+Pharloom Atlas can connect to an optional hosted **[Web Server](../WebServer/#readme)** to receive player-submitted data — helping crowdsource map accuracy, item markers, and hidden area information.
 
 <a id="developer-notes"></a>
 ## 🧩️ Developer Notes

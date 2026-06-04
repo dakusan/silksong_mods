@@ -96,6 +96,10 @@ See [root project README](../#contributing) for details
 <a id="source-code-class-documentation"></a>
 # 📘️ Source Code Class Documentation
 > These classes are designed to be useful across any Unity project. I plan to move them into a universal Unity plugin/mod in the near future.
+
+> [!IMPORTANT]
+> This list is out of date and will be updated soon.
+
 * 📂️ `Configs`:
 	* 📦️ `ConfigEntryT`: A ConfigEntry wrapper class that allows getting/setting the value without using `.Value`.
 		* 📦️ Derived type `ConfigEntryTKeyboardShortcut : ConfigEntryT<KeyboardShortcut>` adds overrides for `KeyboardShortcut`’s `IsDown()`, `IsUp()`, and `IsPressed()`.

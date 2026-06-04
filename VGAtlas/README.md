@@ -25,7 +25,7 @@ https://vgatlas.dakusan.com/
 ## 📖️ Overview
 A full-featured web implementation of the *Hollow Knight: Silksong* map, including all [Pharloom Atlas](../PharloomAtlas/#readme) enhancements.<br>
 
-Run the full Atlas experience in any browser—no game or mod installation required.
+Run the full Atlas experience in any browser—no game or mod installation required. Supports save-file uploads for icon tracking.
 
 Planned expansion will make this compatible with other games.
 
@@ -42,7 +42,7 @@ Planned expansion will make this compatible with other games.
 Once compiled, the entire software suite is located in the `dist` subdirectory.<br>
 Serve the contents of the `dist` directory from any static web server (Apache, nginx, S3, etc.). The `index.html` entry point will handle the rest.
 
-[^1]: While you technically can just double-click the **index.html** to run the software, most browsers will block requests due to security [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) security errors. However, you can upload this to file-only storage like Amazon-S3 and it will work fine.
+[^1]: While you technically can just double-click the **index.html** to run the software, most browsers will block requests due to [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) security errors. However, you can upload this to file-only storage like Amazon-S3 and it will work fine.
 
 ## 🔨️ Compiling
 1. Install npm
@@ -61,27 +61,28 @@ Serve the contents of the `dist` directory from any static web server (Apache, n
 
 This software uses [Vite](https://en.wikipedia.org/wiki/Vite). So for development you can run `npm run dev`.
 
-By using Vite, **all** compiled and static assets (except `index.html`) include content hashes in their filenames. This enables aggressive long-term caching while ensuring updates invalidate correctly.
+By using Vite, **all** compiled and static assets (except `index.html`) include content hashes in their filenames. This enables aggressive long-term caching while ensuring updates invalidate correctly with minimal chunk-update overhead.
 
 Assets and source code reloads are separated and will require only an incredibly small amount of overhead data transfer from browsers. The only data the user will generally need to exchange with the web server after first-load will be the ~1.2KB gzipped index.html.
 
-The functionally permanent caching mechanisms are taken care of for Apache via the `.htaccess` file in `dist`.
+The functionally permanent caching mechanisms are taken care of for Apache via the `.htaccess` file in `./dist` and `./public`.
 
 Source code is bundled into chunks so that only one file load is needed for any interface section, and **all** files are minified.
 
 ### 🧱 Using / Generating Assets
 
 All assets are maintained in the [silksong_mods_assets repository](https://github.com/dakusan/silksong_mods_assets).
-See `../DataFiles/Notes.txt` for instructions on downloading them.
+See [Data Files Notes](../DataFiles/Notes.txt) for instructions on downloading them.
 
 If you prefer to generate the JSON files locally (without linking to the external repository), you can do so as follows:
 
 1. Install PHP 8.0+
-1. Import the SQL schema/data from the [asset repository](https://github.com/dakusan/silksong_mods_assets/raw/refs/heads/master/My%20creations/Silksong.sql)
+1. Import the SQL schema/data from the [asset repository](https://github.com/dakusan/silksong_mods_assets/raw/refs/heads/master/GeneratedData/SQL/Silksong.sql)
 1. From the project root, run the following: (It will open the SQL config file in an editor.)
 ```bash
-echo 'Removing symlinks to the asset repository'
-find VGAtlas/Assets/ -type l -lname '../../DataFiles/*' -print0 | xargs -0 readlink -z | xargs -0 -i rm "VGAtlas/Assets/{}"
+echo 'Removing symlink targets for the asset repository and making sure their target directories exist'
+find VGAtlas/Assets/ -type l -lname '../../DataFiles/*.json' -print0 | xargs -0 readlink -fz | xargs -0 rm
+find VGAtlas/Assets/ -type l -lname '../../DataFiles/*.json' -print0 | xargs -0 readlink -fz | xargs -0 dirname -z | sort -zu | xargs -0 mkdir -p
 
 echo 'Creating and opening SQL config file'
 cd WebServer/
