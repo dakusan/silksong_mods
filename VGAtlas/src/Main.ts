@@ -36,7 +36,7 @@ async function Main(): Promise<void>
 	let MCanvas:MapCanvas=WillBeSet;
 	try {
 		//Primary map and icon functionality
-		MCanvas=Util.GetMutable(Share).MCanvas=new MapCanvas(87.7487, -87.5855, 2090, 1569);
+		MCanvas=Util.GetMutable(Share).MCanvas=new MapCanvas(87.5987, -89.1705, 2087, 1562);
 		Util.GetMutable(Share).MSV=new MonitorSaveValues();
 		Share.MSV.Load().then();
 		const DS=new DataStorage();

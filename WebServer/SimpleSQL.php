@@ -64,7 +64,7 @@ function Query(string $Query, mixed ...$Vars): MysqliResultIterator|int|null
 	return null;
 }
 
-function FormatQueryItem(mixed $Item): string|int
+function FormatQueryItem(mixed $Item): string|int|float
 {
 	if($Item===null)
 		return 'null';

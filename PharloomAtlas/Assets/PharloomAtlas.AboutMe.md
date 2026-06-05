@@ -42,7 +42,7 @@ ul>li { list-style-type:disc !important; }
 * **Icons, Markers &amp; Pins**
     * **<img src="https://static.castledragmire.com/silksong/BenchSmall.png" align="middle" class=SmallIcon alt="Bench Icon"> Icons**
         * All notable location data imported from [MapGenie.io](https://mapgenie.io/hollow-knight-silksong/maps/pharloom) and displayed on the in-game map.
-        * Progress tracking — found icons automatically become invisible.
+        * ~~Progress tracking — found icons automatically become invisible.~~ <font size=2>[Available, but data needs updating]</font>
         * Icon categories and category groups can be toggled through 3 states:
             * **Show all**: Displays everything; found icons translucent/greyed (config: *Found icon color [HSL]*).
             * **Show Normal**: Hides found icons; hide unaccessible <font size=1>(config: *Hide unaccessible icons*)</font> and undiscovered area <font size=1>(config: *Show undiscovered icons*)</font> icons. *[Both coming soon]*
@@ -207,4 +207,3 @@ Nexus re-encoded my GIFs into WebP and butchered the quality 😅️
     * Hide icons until an area is mapped
     * Hide icons until accessible
     * ~~Cross off requirements/needs in sidebar descriptions~~
-* ~~Fix link clicking in the search window~~

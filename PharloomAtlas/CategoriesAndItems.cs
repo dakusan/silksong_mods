@@ -480,6 +480,7 @@ public class Item: Exporter.IExpFieldOrder
 	//JSON type conversion
 	internal class CreateItem : Item
 	{
+		private static readonly float MulX=.9993f, MulY=1.0165f, AddX=-.035f, AddY=.08f;
 		private readonly Item RetItem=new();
 		public new string? WhereAt	{ set => Misc.IFF(value!=null, () => base.WhereAt	=new RenderedField	(RetItem, value!					)); }
 		public new string? Notes	{ set => Misc.IFF(value!=null, () => base.Notes		=new RenderedField	(RetItem, value!					)); }
@@ -493,8 +494,8 @@ public class Item: Exporter.IExpFieldOrder
 		private static readonly Reflectors.RField<Item, float > Rx =new(null, nameof( x)), Ry =new(null, nameof( y));
 		private static readonly Reflectors.RField<Item, double> R_x=new(null, nameof(_x)), R_y=new(null, nameof(_y));
 		#pragma warning disable IDE1006 //Naming Styles
-		public new double x { set { Rx.UpdateObj(this).Set((float)value); R_x.UpdateObj(this).Set(value); } }
-		public new double y { set { Ry.UpdateObj(this).Set((float)value); R_y.UpdateObj(this).Set(value); } }
+		public new double x { set { Rx.UpdateObj(this).Set((float)value*MulX+AddX); R_x.UpdateObj(this).Set(value); } }
+		public new double y { set { Ry.UpdateObj(this).Set((float)value*MulY+AddY); R_y.UpdateObj(this).Set(value); } }
 		#pragma warning restore IDE1006 //Naming Styles
 
 		//Store needs to be created separately since it is nested

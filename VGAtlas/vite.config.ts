@@ -1,9 +1,12 @@
 import { defineConfig, IndexHtmlTransformContext, Plugin } from "vite"
 import { minify } from "html-minifier-terser"
 import fs from "node:fs/promises"
+import { readFileSync, existsSync } from 'node:fs';
 
 const AddVisualizer=false;
 const EmitSourceMaps=false;
+const httpsKeyPath = '../../Config/key.pem'; //If both files are not found, then https is ignored. I put these outside the repo root for security purposes
+const httpsCertPath = '../../Config/cert.pem'; //See above comment
 
 let UtilsAndConfigsRegEx:RegExp;
 {
@@ -66,6 +69,14 @@ export default defineConfig({
 	server: {
 		fs: { strict: true },
 		host:"0.0.0.0",
+		...(existsSync(httpsKeyPath) && existsSync(httpsCertPath)
+			? {
+				https: {
+					key: readFileSync(httpsKeyPath),
+					cert: readFileSync(httpsCertPath),
+				},
+			}
+			: {}),
 	},
 	plugins: [
 		InjectLoadExtraAssets() as Plugin, //Inject ExtraAssets into index.html without connecting it into the graph
