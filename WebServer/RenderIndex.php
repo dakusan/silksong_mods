@@ -93,7 +93,9 @@ foreach($Matches[0] as $Match)
 				<? } ?>
 			</div>
 		</div>
-<? } foreach($PData->Links ?? [] as $LinkName => $LinkLocation) {
+<? } ?>
+		<button role=tab class=Tab id=tab-<?=$PData->Slug?>-Downloads aria-controls=panel-<?=$PData->Slug?>-Downloads>Downloads</button>
+<? foreach($PData->Links ?? [] as $LinkName => $LinkLocation) {
 	$ID="tab-$PData->Slug-Links_".CreateSlug($LinkName);
 	if($LinkLocation==='') { ?>
 		<a class="Tab Disabled" id="<?=$ID?>"><span>Coming<br>soon</span><?=htmlentities($LinkName)?></a>
@@ -150,6 +152,18 @@ foreach($Matches[0] as $Match)
 			<div class=ArticleContents><?=ProcessHTMLFile(file_get_contents("IndexAssets/HTMLRenders/$ProjectName.Article.$Article->FileName.html"), 'panel-'.$ArticleSlug)?></div>
 		</div>
 	<? } ?>
+	<div role=tabpanel class="TabContents Downloads HasMaxWidth" id=panel-<?=$PData->Slug?>-Downloads aria-labelledby=tab-<?=$PData->Slug?>-Downloads>
+		<? $i=0; foreach(array_reverse($PData->Versions) as [$Version, $ReleaseDate]) { ?>
+		<div class="VersionSection<?=($i++==0 ? ' First' : '')?>">
+			<div class=Title>
+				<a href="Downloads/<?=$PData->Slug?>_<?=$Version?>.zip">Version <?=htmlentities($Version)?></a> <span class=Date><?=htmlentities($ReleaseDate)?></span>
+			</div>
+			<?=ProcessHTMLFile(str_replace('<body>', '<body><div class=Delete><details><summary></summary></style></details></div>',
+				shell_exec('cat '.escapeshellarg("../DataFiles/ChangeLogs/{$PData->Slug}_$Version.md").' | ../Compile/MdToHtml.sh')
+			))?>
+		</div>
+		<? } ?>
+	</div>
 <? } ?>
 </div>
 </body>

@@ -4,7 +4,7 @@
 html body { max-width:1300px; padding:20px 0; margin:0 auto; overflow-x:hidden; }
 .TopBoxes { --my-max-width:1060px; }
 .TabContents { --my-max-width:1280px; }
-.TabContents.Description { --my-max-width:1060px; }
+.TabContents.Description, .TabContents.Downloads { --my-max-width:1060px; }
 
 .HasMaxWidth {
 	box-sizing:border-box;
@@ -101,6 +101,16 @@ a.Tab, div.Tab { min-height:inherit; }
 .Tab.Article .Date { padding-top:3px; font-size:65%; }
 .TabContents.Article .Title { font-size:29px; font-weight:700; }
 .TabContents.Article .Date { display:block; margin-bottom:12px; font-size:13px; font-weight:500; color:#666; }
+
+/* Downloads */
+.TabContents.Downloads .VersionSection:not(.First) { margin:24px 0 8px; border-top:2px solid white; padding-top:8px; }
+.TabContents.Downloads .Title { width:fit-content; margin:0 auto 16px; border-bottom:2px solid white; padding:0 60px; }
+.TabContents.Downloads .Title a { font-size:29px; font-weight:bold; }
+.TabContents.Downloads .Title .Date { font-size:12px; color:#666666; }
+.TabContents.Downloads .Major { color:red; }
+.TabContents.Downloads .Sub1 { color:cyan; }
+.TabContents.Downloads .Sub2 { color:plum; }
+.TabContents.Downloads .Sub3 { color:springgreen; }
 
 /* Popup menu */
 body:has(.MenuPopup.FullScreen) { overflow:hidden; } /* Fullscreen popup needs to turn off background scrolling */
