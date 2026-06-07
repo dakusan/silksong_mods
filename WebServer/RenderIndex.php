@@ -4,7 +4,7 @@ $Projects=(array)json_decode(
 );
 
 function ClearWS(): string { ob_start(); return ''; }
-function EndClearWS(): string { return preg_replace('/\s+/', ' ', ob_get_clean()); }
+function EndClearWS(): string { return trim(preg_replace(['/>\s+</', '/\s+/'], ['><', ' '], ob_get_clean())); }
 
 //Pull the rendered HTML for the projects and create the project name slugs
 function CreateSlug($Name): string
@@ -33,7 +33,7 @@ function ProcessHTMLFile($HTML, $SectionID=null): string
 			trim($CustomStylesParts[1])
 		)."</style>\n$Ret";
 
-	return $Ret;
+	return preg_replace('~</body>\s*</html>\s*$~', '', $Ret);
 }
 
 foreach($Projects as $ProjectName => $PData) {
@@ -53,7 +53,7 @@ preg_match_all('/<style\b[^>]*>.*?<\/style>/is', $Projects['PharloomAtlas']->HTM
 foreach($Matches[0] as $Match)
 	print $Match;
 ?>
-<link rel=stylesheet href="IndexAssets/Index.css" />
+<link rel=stylesheet href="IndexAssets/Index.css?<?=md5('IndexAssets/Index.css')?>" />
 <script type=importmap>
 {
 	"imports": {
@@ -62,7 +62,7 @@ foreach($Matches[0] as $Match)
 	}
 }
 </script>
-<script type="module" src="./IndexAssets/Index.js"></script>
+<script type="module" src="./IndexAssets/Index.js?<?=md5('IndexAssets/Index.js')?>"></script>
 </head><body>
 <div role="tablist" class="Tabs TopBoxes HasMaxWidth" aria-label="Projects" id=RootTabs>
 <? foreach($Projects as $ProjectName => $PData) { ?>
@@ -77,10 +77,16 @@ foreach($Matches[0] as $Match)
 	<div class="Boxes TopBoxes HasMaxWidth" id=panel-<?=$PData->Slug?> aria-labelledby=tab-<?=$PData->Slug?>>
 		<a class=Tab href="https://www.nexusmods.com/hollowknightsilksong/mods/<?=$PData->NexusID?>">Nexus Mods: <?=$PData->ShortName?></a>
 		<button role=tab class=Tab id=tab-<?=$PData->Slug?>-Description aria-controls=panel-<?=$PData->Slug?>-Description>Description</button>
-<? if(isset($PData->Pictures)) { ?>
-		<button role=tab class=Tab id=tab-<?=$PData->Slug?>-Pictures aria-controls=panel-<?=$PData->Slug?>-Pictures>Pictures</button>
-<? } if(isset($PData->Videos)) { ?>
-		<button role=tab class=Tab id=tab-<?=$PData->Slug?>-Videos aria-controls=panel-<?=$PData->Slug?>-Videos>Videos</button>
+<? if(isset($PData->Pictures) || isset($PData->Videos)) { ?>
+		<button role=tab class=Tab id=tab-<?=$PData->Slug?>-Pictures aria-controls=panel-<?=$PData->Slug?>-Pictures><?=ClearWS()?>
+			<?=
+				/*$ProjectName==='PharloomAtlas' ? 'Pics/Vids' :*/
+				implode('/', [
+					...(isset($PData->Pictures) ? ['Pictures'] : []),
+					...(isset($PData->Videos) ? ['Videos'] : []),
+				])
+			?>
+		<?=EndClearWS()?></button>
 <? } if(isset($PData->Articles)) { ?>
 		<div class="Tab MenuContainer" role=menu>
 			Articles ☰
@@ -111,36 +117,27 @@ foreach($Matches[0] as $Match)
 	<div role=tabpanel class="TabContents Description HasMaxWidth" id=panel-<?=$PData->Slug?>-Description aria-labelledby=tab-<?=$PData->Slug?>-Description>
 		<?=ProcessHTMLFile($PData->HTML)?>
 	</div>
-	<? if(isset($PData->Pictures)) { ?>
+	<? if(isset($PData->Pictures) || isset($PData->Videos)) { $AllPics=(array)$PData->Pictures+(array)($PData->Videos ?? (object)[]); ?>
 	<div role=tabpanel class="TabContents Pictures HasMaxWidth" id=panel-<?=$PData->Slug?>-Pictures aria-labelledby=tab-<?=$PData->Slug?>-Pictures>
-		<img src="https://static.castledragmire.com/silksong/<?=$ProjectName?>/Thumbs/Background.jpg" loading="lazy" decoding="async" alt="<?=$PData->ShortName?> Background" class="BackgroundImage DisplayImage" data-image-index=<?=count((array)$PData->Pictures)?>>
+		<img src="https://static.castledragmire.com/silksong/<?=$ProjectName?>/Thumbs/Background.jpg" loading="lazy" decoding="async" alt="<?=$PData->ShortName?> Background" class="BackgroundImage DisplayImage" data-image-index=<?=count($AllPics)?>>
 		<div class=LogoGrid>
-			<? $i=0; foreach($PData->Pictures as $FileName => $Description) { ?>
+			<? $i=0; foreach($AllPics as $FileName => $Description) {
+				if($IsVideo=isset($PData->Videos->$FileName)) {
+					$Source=$Description->Source ?? null;
+					$Description=$Description->Description;
+				}
+			?>
 			<div class=LogoCard>
-				<?=ClearWS()?><img
-					src="https://static.castledragmire.com/silksong/<?=$ProjectName?>/Thumbs/<?=$FileName?>"
+				<?=ClearWS()?>
+				<?=$IsVideo ? '<div class=VideoPlayIcon></div>' : ''?>
+				<img
+					src="https://static.castledragmire.com/silksong/<?=$ProjectName?>/Thumbs/<?=$FileName.($IsVideo ? '.jpg' : '')?>"
 					loading="lazy" decoding="async" class="DisplayImage"
 					alt="<?=htmlentities($Description)?>"
 					data-image-index=<?=$i++?>
+					<?=!$IsVideo || !isset($Source) ? '' : 'data-video-src="'.htmlentities($Source).'"'?>
 				><?=EndClearWS()?>
 				<span><?=htmlentities($Description)?></span>
-			</div>
-			<? } ?>
-		</div>
-	</div>
-	<? } if(isset($PData->Videos)) { ?>
-	<div role=tabpanel class="TabContents Videos HasMaxWidth" id=panel-<?=$PData->Slug?>-Videos aria-labelledby=tab-<?=$PData->Slug?>-Videos>
-		<div class=LogoGrid>
-			<? $i=0; foreach($PData->Videos as $FileName => $VData) { ?>
-			<div class=LogoCard>
-				<?=ClearWS()?><img
-					src="https://static.castledragmire.com/silksong/<?=$ProjectName?>/Thumbs/<?=$FileName?>.jpg"
-					loading="lazy" decoding="async" class="DisplayImage"
-					alt="<?=htmlentities($VData->Description)?>"
-					data-image-index=<?=$i++?>
-					<?=!isset($VData->Source) ? '' : 'data-video-src="'.htmlentities($VData->Source).'">'?>
-				><?=EndClearWS()?>
-				<span><?=htmlentities($VData->Description)?></span>
 			</div>
 			<? } ?>
 		</div>
