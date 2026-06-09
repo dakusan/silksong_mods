@@ -36,11 +36,12 @@ async function Main(): Promise<void>
 	let MCanvas:MapCanvas=WillBeSet;
 	try {
 		//Primary map and icon functionality
-		MCanvas=Util.GetMutable(Share).MCanvas=new MapCanvas(87.5987, -89.1705, 2087, 1562);
+		MCanvas=Util.GetMutable(Share).MCanvas=new MapCanvas(100.0825, -100.0825, 2370, 1634);
 		Util.GetMutable(Share).MSV=new MonitorSaveValues();
 		Share.MSV.Load().then();
 		const DS=new DataStorage();
-		await MCanvas.Init('Assets/PAtlasMap.png');
+		const MapImages={Default:'Assets/PAtlasMap.png', HighQuality:'Assets/PAtlasMap.FullRGBA.png'};
+		await MCanvas.Init(Share.LC.UseHighQualityMap.V ? MapImages.HighQuality : MapImages.Default);
 		await (DS as DataStorage_Friend).Load(
 			'Assets/Categories.json',
 			'Assets/Items.json',
@@ -54,7 +55,7 @@ async function Main(): Promise<void>
 		if(localStorage.getItem('SaveData'))
 			try { Share.SaveData=Share.SaveData.ctor.CreateFrom_JSONString(localStorage.getItem('SaveData')!); }
 			catch(e) { HandleLoadSaveFileError(e, localStorage.getItem('SaveDataFileName') ?? "Unknown filename"); }
-		Util.GetMutable(Share).MC=new MapControl();
+		Util.GetMutable(Share).MC=new MapControl(MapImages.Default, MapImages.HighQuality);
 		for(const Fn of InitFuncs)
 			Fn();
 		InitFuncs.length=0;

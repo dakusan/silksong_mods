@@ -45,7 +45,7 @@ export default class MapCanvas
 {
 	private _Canvas:HTMLCanvasElement=WillBeSet; public get Canvas(): HTMLCanvasElement { return this._Canvas; }
 	private Ctx:CanvasRenderingContext2D=WillBeSet;
-	private Image:ImageBitmap=null!;
+	protected Image:ImageBitmap=null!;
 	private DRP=1;
 	private X=0; private Y=0;
 	private Scale=1; private MinScale=0.1; private MaxScale=8; public get ScaleRange(): Vector2 { return new Vector2(this.MinScale, this.MaxScale); }

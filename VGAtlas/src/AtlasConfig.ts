@@ -20,6 +20,7 @@ class LocalConfig extends Config {
 	public readonly PanSpeed				=new ConfigItem_Number		("Map Controls", "Pan Speed",								12*PanSpeedMultiplier, Math.max(1)*PanSpeedMultiplier, 40*PanSpeedMultiplier, 0);
 	public readonly Shortcut_ZoomIn			=new ConfigItem_ShortcutKey	("Map Controls", "Shortcut Key: Zoom In",					new ShortcutKey('Equal', '='));
 	public readonly Shortcut_ZoomOut		=new ConfigItem_ShortcutKey	("Map Controls", "Shortcut Key: Zoom out",					new ShortcutKey('Minus', '-'));
+	public readonly UseHighQualityMap		=new ConfigItem_Boolean		("Map Controls", "Use High-Quality (32bit RGBA) Map",		false,  {Description:"The default map is 256 color indexed at 451K.\nIf enabled, the new map is full 32 bit RGBA at 2.9MB"});
 
 	public readonly Language				=new ConfigItem_Languages	("Interface customization");
 	public readonly Theme					=new ConfigItem_Enum		("Interface customization", "Theme",						Object.keys(GetThemes())[0], GetThemes());

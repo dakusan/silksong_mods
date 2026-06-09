@@ -10,6 +10,7 @@
 	"SettingNames":{ //Individual setting/config names
 		"Theme": "Theme", //The css theme of the interface
 		"Show Debug In Menu": "Show Debug In Menu", //Whether to show the debug option in the menu
+		"Use High-Quality (32bit RGBA) Map": "Use High-Quality (32bit RGBA) Map",
 	},
 	"SettingEnums":{
 		"Assets/Icons-FromGame.png": "From Game", //The name of an icon set, with icons that came from within the game
@@ -57,5 +58,8 @@
 		"Button.MoveCancel": "Cancel Move", //The “Move” icon button changes to this while move is activated
 		"ErrCannotMoveTwice": "Cannot move this while another item is being moved",
 		"CustomItemsLoadFailed": "Some custom items failed to load. See log window for details.", //When loading custom items from storage, this is displayed in a popup if any items failed to load
+	},
+	"SettingDescriptions":{
+		"Use High-Quality (32bit RGBA) Map": "The default map is 256 color indexed at 451K.\nIf enabled, the new map is full 32 bit RGBA at 2.9MB",
 	},
 }

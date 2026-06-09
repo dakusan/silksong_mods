@@ -1,9 +1,10 @@
 import $ from 'jquery';
-import { InitFuncs, Iter, KeyState, Log, PopupMessage, Rect, StatStr, type StoreRef, Util, Vector2 } from './Util/SharedClasses';
+import { FriendClass, InitFuncs, Iter, KeyState, Log, PopupMessage, Rect, StatStr, type StoreRef, Util, Vector2, WillBeSet } from './Util/SharedClasses';
+import GetExtraAssets from './Util/GetExtraAssets';
 import { Share } from './Share';
 import { ProcessActions } from './Actions';
 import { type Item } from './CategoriesAndItems';
-import { type MouseButtonEvent } from './MapCanvas';
+import MapCanvas, { type MouseButtonEvent } from './MapCanvas';
 import ItemWindow from './Windows/ItemWindow/ItemWindow';
 
 //All functions accept/return canvas pixel coordinates
@@ -28,7 +29,7 @@ export default class MapControl
 			this.SetIconSize(Share.LC.IconSize.V);
 	}
 
-	constructor()
+	constructor(DefaultMapImage:string, HighQualityMapImage:string)
 	{
 		this.GameMap.Events.Scale		.Add('MapControl.ZoomScale',	NewScale => this.ZoomScale=NewScale);
 		this.GameMap.Events.UserZoom	.Add('MapControl.UserZoom',		this.UserZoom	.bind(this));
@@ -47,6 +48,7 @@ export default class MapControl
 			this.SetIconSize(Share.LC.IconSize.V);
 		});
 		this.SetIconSize(Share.LC.IconSize.V);
+		this.SetupHighQualityMapConfig(DefaultMapImage, HighQualityMapImage); //Do not allow changing map image until after initial map load
 
 		InitFuncs.push(() => this.InitURLHashes()); //Move to the end of the init chain so that hash commands from page load can be run last
 	}
@@ -363,9 +365,52 @@ export default class MapControl
 			if(!Item.IsLinked)
 				Item.MapIcon!.SetIconColor();
 	}
+
+	private SetupHighQualityMapConfig(DefaultMapImage:string, HighQualityMapImage:string): void
+	{
+		let ImageUpdateCounter=0;
+		Share.LC.UseHighQualityMap.SettingChanged.Add('SetMapImage', () => {
+			const MyImageUpdateCounter=++ImageUpdateCounter;
+			GetExtraAssets.LoadImage(Share.LC.UseHighQualityMap.V ? HighQualityMapImage : DefaultMapImage)
+				.then(NewImage => {
+					if(MyImageUpdateCounter!==ImageUpdateCounter) { //If the user rapidly changes the setting
+						NewImage.close();
+						return Log.Debug("User changed map image setting rapidly, ignoring");
+					}
+
+					const MCFriend=(Share.MCanvas as MapCanvas_Friend);
+					if(NewImage.width!==MCFriend.Image.width || NewImage.height!==MCFriend.Image.height) {
+						const BadSize=[NewImage.width, NewImage.height];
+						NewImage.close();
+						throw new Error(StatStr.NeedsTranslate+`Map image dimensions must match: ${BadSize[0]}×${BadSize[1]}!=${MCFriend.Image.width}×${MCFriend.Image.height}`);
+					}
+
+					const OldImage=MCFriend.Image;
+					MCFriend.Image=NewImage;
+					OldImage.close();
+					MCFriend.Refresh();
+				})
+				.catch(Err => {
+					if(MyImageUpdateCounter!==ImageUpdateCounter) //If the user rapidly changes the setting
+						return Log.Debug("User changed map image setting rapidly, ignoring");
+
+					const ErrStr=Util.GetErrorMessage(Err);
+					Log.Error("Failed to load map image: "+ErrStr);
+					new PopupMessage("Failed to load map image: "+ErrStr);
+				});
+		});
+	}
 }
 
 function ReplaceCurrentHistoryHash(Hash:string): void
 {
 	history.replaceState(history.state, StatStr.Empty, location.pathname+location.search+Hash);
+}
+
+abstract class MapCanvas_Friend extends MapCanvas implements FriendClass
+{
+	public override Image:ImageBitmap=WillBeSet;
+	//Ignore these
+	protected constructor() { super(-1, -1, -1, -1); this.Stub(); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
 }
