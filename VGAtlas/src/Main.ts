@@ -16,9 +16,7 @@ abstract class DataStorage_Friend extends DataStorage implements FriendClass
 {
 	public override async Load(_CategoriesPath:string, _ItemsPath:string, _MiscPath:string, _IconSetPath:string): Promise<void> { this.Stub(); }
 	public override CompleteInit(): void { this.Stub(); }
-	//Ignore these
-	protected constructor() { super(); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); } //Ignore this
 }
 
 //Set up translations

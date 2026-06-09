@@ -53,9 +53,7 @@ export class Category extends JsonClass
 abstract class Category_Friend extends Category implements FriendClass
 {
 	public override set CurrentCount(_Value:number) { this.Stub(); }
-	//Ignore these
-	protected constructor() { super(-1); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); } //Ignore this
 }
 
 //Characters used for string manipulation stand-ins
@@ -236,9 +234,7 @@ export class Item extends JsonClass
 abstract class Item_Friend extends Item implements FriendClass
 {
 	public override get GetLinkID(): string { return this.Stub(StatStr.Empty); }
-	//Ignore these
-	protected constructor() { super(-1); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); } //Ignore this
 }
 
 class StringCountPair { //Only last item in RenderParts will have SL=null
@@ -491,9 +487,7 @@ export class ChainItem extends JsonClass
 abstract class ChainItem_Friend extends ChainItem implements FriendClass
 {
 	public override get RenderedStringInternal(): string { return this.Stub(StatStr.Empty); }
-	//Ignore these
-	protected constructor(_Parent:ChainList, _Item:string) { super(null!, null!); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); } //Ignore this
 }
 
 //A string with item links inside square brackets rendered as actual links

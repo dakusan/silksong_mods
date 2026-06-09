@@ -12,6 +12,8 @@ public partial class SideBar
 	private readonly Dictionary<string, SideBarSection> Sections=[];
 	private SideBarSection CurrentSection;
 
+	private void RefreshSectionIndexes() => SectionsList.ForEach(S => S.RefreshIndex());
+
 	public abstract class SideBarSection
 	{
 		//Determine where to move in a group
@@ -86,5 +88,6 @@ public partial class SideBar
 
 		protected static void HighlightLastItem() => //Draw a highlight texture over the currently highlighted item (which is the last item drawn)
 			CTexSelectColor.DrawRect(GUILayoutUtility.GetLastRect());
+		internal void RefreshIndex() => Index=SB.SectionsList.IndexOf(this);
 	}
 }

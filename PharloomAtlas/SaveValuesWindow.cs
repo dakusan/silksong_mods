@@ -54,13 +54,20 @@ public class SaveValuesWindow : Window
 	{
 		Misc.InitSingleton(this, ref _Self);
 		(LineHeight, AlwaysCallUpdate)=(TextStyle.lineHeight, true);
-		MonitorSaveValues.Self.OnValueChanged += AddItem;
+		ToggleMyUpdates();
+		Config.C.SaveValues_Monitor.SettingChanged += (_, _) => ToggleMyUpdates();
 		TextStyle.normal.background=BGTex=new Color(0, 0, 0, .75f).MakeTexture();
 		if(WindowRect.width==0)
 			WindowRect=new Rect(Screen.width-491-45, 42, 491, 179);
 		Config.C.Tr.LanguageChanged += () => Title=GetWindowTitle;
 	}
 	private static string GetWindowTitle => Config.C.Tr.TDef("SaveValuesWindow.Title", Default:"Saved values");
+	private void ToggleMyUpdates(bool ForceOff=false)
+	{
+		MonitorSaveValues.Self.OnValueChanged -= AddItem;
+		if(!ForceOff && Config.C.SaveValues_Monitor)
+			MonitorSaveValues.Self.OnValueChanged += AddItem;
+	}
 
 	//Add an item to the contents
 	private void AddItem(SaveItem Item)
@@ -150,14 +157,6 @@ public class SaveValuesWindow : Window
 		if(Event.current.type==EventType.ScrollWheel && Event.current.delta.y!=0 && VerticalScrollRect.Contains(Event.current.mousePosition))
 			ScrollPosition=Mathf.Clamp(ScrollPosition+(int)(Event.current.delta.y/ScrollWheelInterval), 0, Mathf.Max(SavedItems.Count-NumLines, 0));
 
-		//Save buttons
-/*			const int ButtonHeight=30;
-		GUILayout.BeginHorizontal();
-		if(GUILayout.Button("Save And Send", GUILayout.Height(ButtonHeight))) { }
-		if(GUILayout.Button("Save", GUILayout.Height(ButtonHeight))) { }
-		if(GUILayout.Button("Copy", GUILayout.Height(ButtonHeight))) { }
-		GUILayout.EndHorizontal();*/
-
 		//Add the window dragging/resizing
 		GUILayout.EndVertical();
 	}
@@ -180,7 +179,7 @@ public class SaveValuesWindow : Window
 	{
 		//Window visibility (global key)
 		if(Config.C.Shortcut_SaveValueWindow.IsDown())
-			Visible=!Visible;
+			Visible=!Visible && Config.C.SaveValues_Monitor;
 
 		//Check to see if value window scroll actions are in play
 		if(!(

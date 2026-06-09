@@ -174,21 +174,15 @@ class ConfigWindowRow
 abstract class ConfigItemBase_Friend extends ConfigItemBase implements FriendClass
 {
 	public override LanguageChanged?(): void;
-	//Ignore these
-	protected constructor() { super(null!, null!, null!); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); } //Ignore this
 }
 abstract class ConfigWindowSection_Friend extends ConfigWindowSection implements FriendClass
 {
 	public override LanguageChanged(): void { this.Stub(); }
-	//Ignore these
-	protected constructor() { super(null!, null!, null!, null!); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); } //Ignore this
 }
 abstract class ConfigWindowRow_Friend extends ConfigWindowRow implements FriendClass
 {
 	public override LanguageChanged(): void { this.Stub(); }
-	//Ignore these
-	protected constructor() { super(null!, null!, null!); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); } //Ignore this
 }

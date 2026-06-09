@@ -74,6 +74,7 @@
 		"Window Position: Search": "Window Position: Search",
 		"Category States": "Category States",
 		"Marker Labels": "Marker Labels",
+		"Enable window and monitor all updates": "Enable window and monitor all updates", //This controls the “Save Values” window availability and logging
 	},
 	"SettingDescriptions":{ //Individual setting/config descriptions, keyed by the setting name
 		"Auto map": "Areas that you have the map for will automatically fill in without needing to rest at a bench or have the quill",
@@ -114,6 +115,7 @@
 		"Player Data Query Time": "How often in seconds to query player data value changes (separate thread). There are over 1200 reflection lookups for this so query time is less often. Honestly, these could probably run every frame just fine.",
 		"Category States": "DO NOT EDIT THIS. List of categories and their toggle states.",
 		"Marker Labels": "DO NOT EDIT THIS. List of marker labels",
+		"Enable window and monitor all updates": "Enable entering the Save Value Window through the shortcut key or side bar. When turned off, non-linked PlayerData save-values will not be recorded.",
 	},
 	"":{
 		"“": "“",

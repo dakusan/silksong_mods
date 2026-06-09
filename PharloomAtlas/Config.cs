@@ -12,7 +12,7 @@ public class Config
 	private static Config _C=null!; public static Config C => _C; //Singleton
 	public readonly PerSaveConfig PSC;
 	public readonly ConfigEntryT<string> CategoryToggleStates, MarkerLabels;
-	public readonly ConfigEntryT<bool> UnlockMap, UnlockMapBounds, ShowSidebarOnGameLoad, ShowSideBarPictures, ShowMouseWhenSBVisible, MarkerZoomDoesntMove, IconSizeScalesWithZoom, AutoMap, MoreMarkers, AlwaysShowMarkerLabels, ForceDisplayCompass, HornetSpinningClockwise, HornetRevolvingClockwise, MapInAbyss, MapInAbyssUnspoiled, AnonymousSubmissions, UseErrorLog, UseErrorLogSend;
+	public readonly ConfigEntryT<bool> UnlockMap, UnlockMapBounds, ShowSidebarOnGameLoad, ShowSideBarPictures, ShowMouseWhenSBVisible, MarkerZoomDoesntMove, IconSizeScalesWithZoom, AutoMap, MoreMarkers, AlwaysShowMarkerLabels, ForceDisplayCompass, HornetSpinningClockwise, HornetRevolvingClockwise, MapInAbyss, MapInAbyssUnspoiled, AnonymousSubmissions, UseErrorLog, UseErrorLogSend, SaveValues_Monitor;
 	public readonly ConfigEntryT<float> ZoomSpeed, PanSpeed, MarkerPanSpeed, IconSize, AutoPanEase, AutoPanTime, QueryTime_PersistentObj, QueryTime_PlayerData, HornetHighlightSpeed, HornetRainbow2WaitTime, HornetRainbow2RunTime, HornetGrowingMax, HornetRevolvingDist, HornetRainbow1Scale, HornetRainbow1Angle;
 	public readonly ConfigEntryT<int> SideBarWidth;
 	public readonly ConfigEntryTKeyboardShortcut Shortcut_ZoomIn, Shortcut_ZoomOut, Shortcut_CenterOverChar, Shortcut_ToggleSideBar, Shortcut_EditMarkerLabel, Shortcut_SaveValueWindow, Shortcut_Val_ScrollUp, Shortcut_Val_ScrollDown;
@@ -99,6 +99,7 @@ public class Config
 		Shortcut_SB_SelectIcon	=Con.Bind(Title, "Shortcut Key: Select icon",				new KeyboardShortcut(KeyCode.KeypadEnter), "When the sidebar and marker modes are active, pressing this will ‘select’ the icon you are over");
 
 		Title="Saved Value Window";
+		SaveValues_Monitor		=Con.Bind(Title, "Enable window and monitor all updates",	false, "Enable entering the Save Value Window through the shortcut key or side bar. When turned off, non-linked PlayerData save-values will not be recorded.");
 		AnonymousSubmissions	=Con.Bind(Title, "Make submissions anonymously",			false, "Normally your Steam username is included with submissions for both credit and to help defeat spam, but it can be done anonymously.");
 		Shortcut_SaveValueWindow=Con.Bind(Title, "Shortcut Key: Show/hide the window",		new KeyboardShortcut(KeyCode.KeypadMultiply), "Toggle the value window. See help or mod page for more information.");
 		Shortcut_Val_ScrollUp	=Con.Bind(Title, "Scroll Up",								new KeyboardShortcut(KeyCode.Keypad9));

@@ -410,7 +410,5 @@ function ReplaceCurrentHistoryHash(Hash:string): void
 abstract class MapCanvas_Friend extends MapCanvas implements FriendClass
 {
 	public override Image:ImageBitmap=WillBeSet;
-	//Ignore these
-	protected constructor() { super(-1, -1, -1, -1); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); } //Ignore this
 }

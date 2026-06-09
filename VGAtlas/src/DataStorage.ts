@@ -450,21 +450,15 @@ abstract class Category_Friend extends Category implements FriendClass
 {
 	public override set TotalCount	(_Value:number)				{ this.Stub(); }
 	public override set Sprite		(_Value:StoreRef<Sprite>)	{ this.Stub(); }
-	//Ignore these
-	protected constructor() { super(-1); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); } //Ignore this
 }
 abstract class ChainItem_Friend extends ChainItem implements FriendClass
 {
 	public static override Process_NeedsIDAndName(): void { return super.Process_NeedsIDAndName(); }
-	//Ignore these
-	protected constructor() { super(null!, null!); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); } //Ignore this
 }
 abstract class Icon_SpritesFriend extends IconSprites implements FriendClass
 {
 	public override SetIconPics(_IconPicsTex:StoreRef<ImageBitmap>, _ImageURL:string): void { this.Stub(); }
-	//Ignore these
-	protected constructor() { super(); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); } //Ignore this
 }

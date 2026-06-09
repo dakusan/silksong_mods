@@ -457,9 +457,7 @@ abstract class MapCanvas_Friend extends MapCanvas implements FriendClass
 {
 	public override UpdatePosAndScale(_NewScale:number|undefined, _NewX:number|undefined, _NewY:number|undefined, _FromMover:boolean): boolean { return this.Stub(true); }
 	public override Mover?:Mover=undefined;
-	//Ignore these
-	protected constructor() { super(-1, -1, -1, -1); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); } //Ignore this
 }
 
 class Mover

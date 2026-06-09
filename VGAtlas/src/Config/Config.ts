@@ -42,7 +42,5 @@ export default abstract class Config
 abstract class ConfigItemBase_Friend extends ConfigItemBase implements FriendClass
 {
 	public override Init(_Parent:StoreRef<Config>): void { this.Stub(); }
-	//Ignore these
-	protected constructor() { super(null!, null!, null!); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); } //Ignore this
 }

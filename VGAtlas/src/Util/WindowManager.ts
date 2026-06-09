@@ -366,15 +366,11 @@ abstract class WindowManager_Friend extends WindowManager implements FriendClass
 	public override Unregister(_W:Window)								: void			{ this.Stub(); }
 	public override GetSavedPos(_SaveID?:string)						: Rect|undefined{ return this.Stub(); }
 	public override SetSavedPos(_SaveID:string, _Bounds:StoreRef<Rect>)	: void			{ this.Stub(); }
-	//Ignore these
-	protected constructor() { super(); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); } //Ignore this
 }
 
 abstract class Window_Friend extends Window implements FriendClass
 {
 	public override SetActive(_Active:boolean): void { this.Stub(); }
-	//Ignore these
-	protected constructor() { super(); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); } //Ignore this
 }

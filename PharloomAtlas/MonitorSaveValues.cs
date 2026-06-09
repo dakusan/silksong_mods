@@ -461,8 +461,8 @@ public class MonitorSaveValues
 			return await Response.Content.ReadAsStringAsync();
 		} catch(HttpRequestException HRE) {
 			SocketException? SE=
-				   HRE.InnerException as System.Net.Sockets.SocketException
-				?? HRE.InnerException?.InnerException as System.Net.Sockets.SocketException;
+				   HRE.InnerException as SocketException
+				?? HRE.InnerException?.InnerException as SocketException;
 			return SE==null ? HRE.ToString() :
 				 $"HttpRequestException: {HRE.Message}\n"
 				+$"SocketException: {SE.SocketErrorCode} ({SE.ErrorCode})\n"

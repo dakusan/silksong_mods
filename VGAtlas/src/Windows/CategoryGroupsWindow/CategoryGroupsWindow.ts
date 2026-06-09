@@ -138,7 +138,5 @@ abstract class CategoryRow_Friend extends CategoryRow implements FriendClass
 {
 	public static override Init($ParentEl:JQuery, CategoryInfo:StoreRef<Category>): CategoryRow { return super.Init($ParentEl, CategoryInfo); }
 	public override Unload(): void { this.Stub(); }
-	//Ignore these
-	protected constructor(_$ParentEl:JQuery, _CategoryInfo:Category) { super(null!, null!); this.Stub(); }
-	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); }
+	public Stub<T>(_V?:T): T { throw new Error('This function is a stub'); } //Ignore this
 }

@@ -84,6 +84,7 @@ public partial class SideBar : Window
 		]);
 		_=new ButtonsRowSection("Other", "Other", this, []);
 		FixUnlockedButtons();
+		ToggleSaveValueWindowRow();
 
 		//Create the category group sections
 		int FirstCategoryIndex=SectionsList.Count;
@@ -99,6 +100,7 @@ public partial class SideBar : Window
 		Conf.Color_SideBar_Interface .SettingChanged += (_, _) => OnNextFrame(() => UpdateColor(UpdateColorType.Interface ));
 		Conf.Color_SideBar_Highlight .SettingChanged += (_, _) => OnNextFrame(() => UpdateColor(UpdateColorType.Highlight ));
 		Conf.SideBarWidth			 .SettingChanged += (_, _) => Width=Conf.SideBarWidth;
+		Conf.SaveValues_Monitor		 .SettingChanged += (_, _) => ToggleSaveValueWindowRow();
 	}
 
 	//Make sure only needed buttons are shown
@@ -121,6 +123,17 @@ public partial class SideBar : Window
 			Sec.CheckSelectedIndex();
 	}
 	protected override void OnGameLoaded(int _) => FixUnlockedButtons();
+
+	private void ToggleSaveValueWindowRow()
+	{
+		SideBarSection IconValues=Sections["IconValues"];
+		_=SectionsList.Remove(IconValues);
+		if(Conf.SaveValues_Monitor)
+			SectionsList.Insert(SectionsList.IndexOf(Sections["Other"]), Sections["IconValues"]);
+		RefreshSectionIndexes();
+		if(!Conf.SaveValues_Monitor && CurrentSection==IconValues)
+			SectionsList[0].MoveTo(SideBarSection.MoveToType.FirstRow|SideBarSection.MoveToType.NoCol);
+	}
 
 	//When value window visibility is toggled, need to change the buttons text
 	internal void ValuesWindowToggled(bool Visible) =>
