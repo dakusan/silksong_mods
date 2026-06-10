@@ -1,4 +1,4 @@
-import { ColorRGBA, Equatable, InitFuncs, Log, Rect, type StoreRef, Util, Vector2, WillBeSet } from './Util/SharedClasses';
+import { ColorRGBA, type Equatable, InitFuncs, Log, Rect, type StoreRef, Util, Vector2, WillBeSet } from './Util/SharedClasses';
 import { HSVAShader, RGBAShader, TintShader } from './Util/PixelShader';
 import { Share } from './Share';
 import { CategoryToggleState, type Item } from './CategoriesAndItems';

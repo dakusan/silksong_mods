@@ -1,0 +1,1 @@
+../VGAtlas/eslint.config.js

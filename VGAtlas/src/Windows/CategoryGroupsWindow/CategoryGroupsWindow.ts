@@ -1,6 +1,6 @@
 import './CategoryGroupsWindow.scss';
 import $									  from 'jquery';
-import { FriendClass, StatStr, type StoreRef, WillBeSet
+import { type FriendClass, StatStr, type StoreRef, WillBeSet
 											} from '../../Util/SharedClasses';
 import { TranslatePassthrough				} from '../../Util/Translations';
 import { Window								} from '../../Util/WindowManager';

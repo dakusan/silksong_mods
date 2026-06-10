@@ -1,4 +1,4 @@
-import { FriendClass, Log, StatStr, type StoreRef } from '../Util/SharedClasses';
+import { type FriendClass, Log, StatStr, type StoreRef } from '../Util/SharedClasses';
 import ConfigItemBase from './Abstract/ConfigItemBase';
 
 export * from './Abstract/ConfigItemTypes';

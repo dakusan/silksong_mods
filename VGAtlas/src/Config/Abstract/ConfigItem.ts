@@ -2,7 +2,7 @@ import { CallbackList, type StoreRef, Util, WillBeSet } from '../../Util/SharedC
 import ConfigItemBase, { type Options } from './ConfigItemBase';
 import type Config from '../Config';
 
-export { Options };
+export { type Options };
 
 export interface ConfigSerializer<T>
 {

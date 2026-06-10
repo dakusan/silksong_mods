@@ -1,6 +1,6 @@
 import './ConfigWindow.scss';
 import $									  from 'jquery';
-import { FriendClass, StatStr				} from '../../Util/SharedClasses';
+import { type FriendClass, StatStr			} from '../../Util/SharedClasses';
 import type Translations					  from '../../Util/Translations';
 import { DefaultTr, TranslatePassthrough	} from '../../Util/Translations';
 import { Window								} from '../../Util/WindowManager';

@@ -1,6 +1,6 @@
 import './Window.scss';
 import $ from 'jquery';
-import { FriendClass, InitFuncs, Log, Rect, StatStr, type StoreRef, Util, Vector2 } from './SharedClasses';
+import { type FriendClass, InitFuncs, Log, Rect, StatStr, type StoreRef, Util, Vector2 } from './SharedClasses';
 import { DefaultTr, TranslatePassthrough } from './Translations';
 
 type KeyHandler<T extends Window|null>=(this:T, e:KeyboardEvent)=>boolean|undefined;

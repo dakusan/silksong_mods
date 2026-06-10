@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { CallbackList, FriendClass, Log, StatStr, Util, Vector2, WillBeSet } from './Util/SharedClasses';
+import { CallbackList, type FriendClass, Log, StatStr, Util, Vector2, WillBeSet } from './Util/SharedClasses';
 import GetExtraAssets from './Util/GetExtraAssets';
 import { ExecuteAutoFit } from './Util/AlignText';
 import { Share } from './Share';

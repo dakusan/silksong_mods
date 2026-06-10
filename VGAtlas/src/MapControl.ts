@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { FriendClass, InitFuncs, Iter, KeyState, Log, PopupMessage, Rect, StatStr, type StoreRef, Util, Vector2, WillBeSet } from './Util/SharedClasses';
+import { type FriendClass, InitFuncs, Iter, KeyState, Log, PopupMessage, Rect, StatStr, type StoreRef, Util, Vector2, WillBeSet } from './Util/SharedClasses';
 import GetExtraAssets from './Util/GetExtraAssets';
 import { Share } from './Share';
 import { ProcessActions } from './Actions';

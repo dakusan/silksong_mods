@@ -1,4 +1,4 @@
-import { DevStrings, FriendClass, Iter, Log, PopupMessage, Rect, StatStr, type StoreRef, Util, Vector2, WillBeSet } from './Util/SharedClasses';
+import { DevStrings, type FriendClass, Iter, Log, PopupMessage, Rect, StatStr, type StoreRef, Util, Vector2, WillBeSet } from './Util/SharedClasses';
 import { OtherObject } from './Config/Types/ConfigItem_Object';
 import GetExtraAssets from './Util/GetExtraAssets';
 import { LoadJson } from './Util/JSON';

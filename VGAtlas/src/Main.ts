@@ -1,6 +1,6 @@
 import './Style.scss';
 import $							from 'jquery';
-import { FriendClass, InitFuncs, Log, PopupMessage, Util, Vector2, WillBeSet,
+import { type FriendClass, InitFuncs, Log, PopupMessage, Util, Vector2, WillBeSet,
 								}	from './Util/SharedClasses';
 import { WM, Window }				from './Util/WindowManager';
 import Translations, { DefaultTr }	from './Util/Translations';
